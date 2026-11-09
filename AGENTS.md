@@ -2,7 +2,9 @@
 
 This file tells AI coding assistants (Claude, ChatGPT/Codex, Gemini, GitHub Copilot, Cursor, and others) what this project is and how to work in it. It follows the open [AGENTS.md](https://agents.md) convention. `CLAUDE.md`, `GEMINI.md` and `.github/copilot-instructions.md` only point here, so **this file is the single source of truth**. When a decision changes, update this file in the same PR.
 
-> **Status (2026-11-09):** planning is done, no feature code yet. The source is still the **raw** Jason Taylor *Clean Architecture Solution Template* (.NET 10 + Aspire): it still has template switches such as `<!--#if (UsePostgreSQL)-->`, `CleanArchitecture` names, and the Todo/Weather samples. Step 1 of the plan (section 8) turns it into a real `EducationPortal` solution. Items marked **TODO** are undecided: do not invent answers, ask the maintainer or leave them as TODO.
+> **Status (2026-11-09):** planning is done, no feature code yet. The source is still the **raw** Jason Taylor *Clean Architecture Solution Template* (.NET 10 + Aspire): it still has template switches such as `<!--#if (UsePostgreSQL)-->`, `CleanArchitecture` names, and the Todo/Weather samples. Step 1 of the plan (section 8) turns it into a real `EducationPortal` solution.
+>
+> **Where the code is:** the solution lives in the `Education Portal Full Stack App/` folder of this repo (`CleanArchitecture.slnx`, `src/`, `tests/`, Angular app in `src/Web/ClientApp`). Run all `dotnet` commands from that folder. All paths in this file are relative to it unless they start with the repo root files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/`). Items marked **TODO** are undecided: do not invent answers, ask the maintainer or leave them as TODO.
 
 ---
 
@@ -56,7 +58,7 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 
 | Area | Choice |
 |---|---|
-| Runtime | .NET 10 (`net10.0`), C#, `Nullable` and `ImplicitUsings` on |
+| Runtime | .NET 10 (`net10.0`, SDK pinned in `global.json`), C#, `Nullable` and `ImplicitUsings` on |
 | Build | `TreatWarningsAsErrors=true`; output in `./artifacts` (`Directory.Build.props`) |
 | Packages | Central Package Management with transitive pinning (`Directory.Packages.props`) |
 | Solution | `.slnx` format (needs a recent .NET SDK / VS 2022 17.13+) |
@@ -64,7 +66,7 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 | API | ASP.NET Core 10 minimal APIs, OpenAPI + Scalar UI |
 | Application | MediatR 14 (CQRS), FluentValidation 12, AutoMapper 16, Ardalis.GuardClauses |
 | Data | EF Core 10 + ASP.NET Core Identity, PostgreSQL (Npgsql) |
-| Frontend | Angular |
+| Frontend | Angular 22 in `src/Web/ClientApp` (NSwag generates the TypeScript API client from `nswag.json`) |
 | Observability | OpenTelemetry, health checks, resilience, service discovery (`src/ServiceDefaults`) |
 | Cloud | Aspire Azure Container Apps + Key Vault packages are referenced. Actual hosting: **TODO** |
 | Tests | NUnit, Shouldly, Moq, Respawn, `Aspire.Hosting.Testing`; Playwright + Reqnroll for acceptance tests |
@@ -163,6 +165,7 @@ Each step is one reviewable PR.
 ## 9. Open decisions (TODO)
 
 - [ ] Default branch: the repo has no `main` branch yet
+- [ ] Add a `.gitignore` and remove committed build output (`artifacts/`, `.vs/`, `*.csproj.user`); currently ~400 such files are in git
 - [ ] Authentication: template ASP.NET Core Identity vs. an external IdP (Entra ID, Keycloak, ...)
 - [ ] Hosting and CI/CD (Azure Container Apps via `azd`? GitHub Actions?)
 - [ ] Whether a student or parent can belong to more than one branch
