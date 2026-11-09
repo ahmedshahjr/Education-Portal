@@ -37,13 +37,30 @@ Master tenant (the platform owner, i.e. us)
 - Scoping is applied by **EF Core global query filters** fed by the current-user service, never by hand in each query or endpoint.
 - **Master-tenant users bypass the filters** and can read across all schools.
 - The current school comes from the logged-in user's claims, not from a subdomain or header.
+- The current **branch** comes from the URL (e.g. `/branches/{branchId}/students`, and the matching Angular route). Students and parents can belong to **several branches** (decided 2026-11-09), so the branch in the URL decides which branch's data they see; the server must check the user belongs to that branch.
 - Database-per-school is out of scope (it makes cross-school overview and migrations harder).
 
 ### Modules and permissions
 
 Effective access for a school user = **modules enabled for their school** ∩ **rights their role gives per module** ∩ **branches assigned to them**.
 
-1. **Modules per school (master controls):** from the master portal, the master tenant switches modules (Students, Teachers, Parents, Courses, Enrolments, Grades, ...) on or off for each school. A disabled module is unavailable to everyone in that school.
+1. **Modules per school (master controls):** from the master portal, the master tenant switches modules on or off for each school. A disabled module is unavailable to everyone in that school.
+
+   MVP module list (2026-11-09; add new modules here first):
+
+   | Module | Covers | Can be switched off per school? |
+   |---|---|---|
+   | Branches | Create and edit the school's branches | No (always on) |
+   | Users & Roles | Staff accounts, roles with rights per module, branch assignment | No (always on) |
+   | Students | Student records, branch membership, link to parents | Yes |
+   | Parents | Parent records, link to children | Yes |
+   | Teachers | Teacher records, branch membership | Yes |
+   | Courses | Courses per branch, assigned teachers | Yes |
+   | Enrolments | Enrolling students in courses | Yes |
+   | Grades | Assessments and scores per enrolment | Yes |
+   | Dashboard | School/branch overview for owners and staff | Yes |
+
+   Master-only areas (not tenant modules): Schools, module switches per school, and the cross-school overview.
 2. **Roles per school (owner controls):** each school owner creates roles with **View / Create / Edit / Delete** rights per module.
 3. **Branches per user:** each staff user is assigned to one or more branches and can only act on data in those branches.
 4. **Fixed rules:** teachers grade only their own courses; parents see only their own children; students and parents have read-only access.
@@ -65,7 +82,8 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 | Orchestration | .NET Aspire 13.6; `src/AppHost` is the startup project |
 | API | ASP.NET Core 10 minimal APIs, OpenAPI + Scalar UI |
 | Application | MediatR 14 (CQRS), FluentValidation 12, AutoMapper 16, Ardalis.GuardClauses |
-| Data | EF Core 10 + ASP.NET Core Identity, PostgreSQL (Npgsql) |
+| Data | EF Core 10, PostgreSQL (Npgsql) |
+| Auth | ASP.NET Core Identity from the template (decided 2026-11-09); school, branch and role data are added as claims |
 | Frontend | Angular 22 in `src/Web/ClientApp` (NSwag generates the TypeScript API client from `nswag.json`) |
 | Observability | OpenTelemetry, health checks, resilience, service discovery (`src/ServiceDefaults`) |
 | Cloud | Aspire Azure Container Apps + Key Vault packages are referenced. Actual hosting: **TODO** |
@@ -163,7 +181,7 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
 
 ## 8. MVP plan
 
-Each step is one reviewable PR.
+Each step is one reviewable PR into `development`.
 
 1. **Baseline (done 2026-11-09):** turn the template into an `EducationPortal` solution with Angular and PostgreSQL only (remove SQL Server/SQLite code and the `#if` switches), remove the Todo/Weather samples, get build and tests green.
 2. **Schools, branches and permissions:** API and Angular screens for creating schools, switching modules per school (master portal), adding branches, roles and staff. Tests prove schools and branches can't see each other's data.
@@ -174,11 +192,11 @@ Each step is one reviewable PR.
 
 ## 9. Open decisions (TODO)
 
-- [ ] Default branch: the repo has no `main` branch yet
-- [ ] Authentication: template ASP.NET Core Identity vs. an external IdP (Entra ID, Keycloak, ...)
+- [x] Branches: `main` holds released work; `development` is the integration branch for feature PRs (2026-11-09)
+- [x] Authentication: template ASP.NET Core Identity (2026-11-09)
 - [ ] Hosting and CI/CD (Azure Container Apps via `azd`? GitHub Actions?)
-- [ ] Whether a student or parent can belong to more than one branch
-- [ ] Final module list beyond the core entities
+- [x] Students and parents can belong to several branches; the branch comes from the URL (2026-11-09)
+- [x] Module list: see section 2 (2026-11-09)
 
 ## 10. References
 
