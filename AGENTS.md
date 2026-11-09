@@ -27,12 +27,17 @@ Master tenant (the platform owner, i.e. us)
 ```
 
 - **Master tenant** has full access to every school and branch, for viewing and oversight.
+- **Master tenant controls features per tenant:** from the master portal it can enable or disable features/modules for each school-owner tenant. A disabled feature is unavailable to every user of that tenant, whatever their own grants.
 - **School-owner tenant** sees and manages only its own school and that school's branches.
 - **Branch** is the unit most day-to-day data belongs to (students, teachers, courses, enrolments, grades).
 - **Permissions are assigned per tenant user, by module and by branch:** each user of a tenant is granted a set of branches and a set of modules (e.g. Students, Courses, Grades). A user can act on a module's data only in branches they have been granted. Example: a user with Grades in Branch A cannot see Grades in Branch B, or Students in Branch A unless Students is also granted.
   - Model this as user to branch and user to module assignments (or user + branch + module grants if a module grant must differ per branch: **TODO** confirm).
 
+**Effective access** for a tenant user = modules enabled for their tenant (by the master tenant) ∩ modules granted to the user ∩ branches granted to the user.
+
 Rules for code:
+
+- Check tenant feature flags on the server (API and Application layer) as well as hiding them in Angular. Calls to a disabled feature must be rejected even if made directly against the API.
 
 - Every tenant-owned entity carries its tenant (school) id, and branch-scoped entities also carry a branch id. Never return data across tenants unless the caller is the master tenant.
 - Enforce tenant and branch scoping centrally (e.g. EF Core global query filters driven by the current user/tenant service), not by hand in each query or endpoint.
@@ -144,6 +149,7 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
 
 - [x] Product scope: MVP with Students, Teachers, Admins, Parents, Courses, Enrolments, Grades (2026-11-09)
 - [x] Multi-tenancy: master tenant > school-owner tenant > branches, with module- and branch-based permissions (2026-11-09)
+- [x] Master tenant can enable/disable features per tenant (2026-11-09)
 - [ ] Tenant isolation strategy, tenant resolution, module list
 - [ ] Per-role permissions and the MVP feature list for each entity
 - [x] Frontend: Angular (2026-11-09)
