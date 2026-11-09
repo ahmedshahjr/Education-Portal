@@ -1,9 +1,9 @@
-﻿using CleanArchitecture.Application.Common.Exceptions;
-using CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
-using CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
-using CleanArchitecture.Domain.Entities;
+﻿using EducationPortal.Application.Common.Exceptions;
+using EducationPortal.Application.TodoItems.Commands.CreateTodoItem;
+using EducationPortal.Application.TodoLists.Commands.CreateTodoList;
+using EducationPortal.Domain.Entities;
 
-namespace CleanArchitecture.Application.FunctionalTests.TodoItems.Commands;
+namespace EducationPortal.Application.FunctionalTests.TodoItems.Commands;
 
 public class CreateTodoItemTests : TestBase
 {

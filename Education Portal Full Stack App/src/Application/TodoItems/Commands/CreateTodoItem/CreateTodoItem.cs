@@ -1,7 +1,7 @@
-﻿using CleanArchitecture.Application.Common.Interfaces;
-using CleanArchitecture.Domain.Entities;
+﻿using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Domain.Entities;
 
-namespace CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
+namespace EducationPortal.Application.TodoItems.Commands.CreateTodoItem;
 
 public record CreateTodoItemCommand : IRequest<int>
 {

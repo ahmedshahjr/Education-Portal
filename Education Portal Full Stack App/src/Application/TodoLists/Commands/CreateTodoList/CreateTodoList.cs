@@ -1,8 +1,8 @@
-﻿using CleanArchitecture.Application.Common.Interfaces;
-using CleanArchitecture.Domain.Entities;
-using CleanArchitecture.Domain.ValueObjects;
+﻿using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.ValueObjects;
 
-namespace CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
+namespace EducationPortal.Application.TodoLists.Commands.CreateTodoList;
 
 public record CreateTodoListCommand : IRequest<int>
 {

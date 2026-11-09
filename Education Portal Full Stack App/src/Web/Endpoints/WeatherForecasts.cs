@@ -1,7 +1,7 @@
-using CleanArchitecture.Application.WeatherForecasts.Queries.GetWeatherForecasts;
+using EducationPortal.Application.WeatherForecasts.Queries.GetWeatherForecasts;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace CleanArchitecture.Web.Endpoints;
+namespace EducationPortal.Web.Endpoints;
 
 public class WeatherForecasts : IEndpointGroup
 {

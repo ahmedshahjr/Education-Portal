@@ -1,6 +1,6 @@
-﻿using CleanArchitecture.Application.Common.Interfaces;
+﻿using EducationPortal.Application.Common.Interfaces;
 
-namespace CleanArchitecture.Application.TodoLists.Commands.UpdateTodoList;
+namespace EducationPortal.Application.TodoLists.Commands.UpdateTodoList;
 
 public class UpdateTodoListCommandValidator : AbstractValidator<UpdateTodoListCommand>
 {

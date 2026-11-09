@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "CleanArchitecture.Web": {
+    "EducationPortal.Web": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:application": {
@@ -87,11 +87,11 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "CleanArchitecture.Web:build:production"
+              "buildTarget": "EducationPortal.Web:build:production"
             },
             "development": {
               "proxyConfig": "proxy.conf.js",
-              "buildTarget": "CleanArchitecture.Web:build:development"
+              "buildTarget": "EducationPortal.Web:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -99,7 +99,7 @@
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n",
           "options": {
-            "buildTarget": "CleanArchitecture.Web:build"
+            "buildTarget": "EducationPortal.Web:build"
           }
         },
         "test": {

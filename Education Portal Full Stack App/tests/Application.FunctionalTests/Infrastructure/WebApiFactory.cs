@@ -1,18 +1,18 @@
-using CleanArchitecture.Application.Common.Interfaces;
+using EducationPortal.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace CleanArchitecture.Application.FunctionalTests.Infrastructure;
+namespace EducationPortal.Application.FunctionalTests.Infrastructure;
 
 public class WebApiFactory(string connectionString) : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder
-            .UseSetting("ConnectionStrings:CleanArchitectureDb", connectionString);
+            .UseSetting("ConnectionStrings:EducationPortalDb", connectionString);
 
         builder.ConfigureTestServices(services =>
         {

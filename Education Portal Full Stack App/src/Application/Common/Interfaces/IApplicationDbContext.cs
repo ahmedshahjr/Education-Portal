@@ -1,6 +1,6 @@
-﻿using CleanArchitecture.Domain.Entities;
+﻿using EducationPortal.Domain.Entities;
 
-namespace CleanArchitecture.Application.Common.Interfaces;
+namespace EducationPortal.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {

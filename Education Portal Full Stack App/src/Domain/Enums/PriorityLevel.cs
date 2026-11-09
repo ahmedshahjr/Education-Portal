@@ -1,4 +1,4 @@
-﻿namespace CleanArchitecture.Domain.Enums;
+﻿namespace EducationPortal.Domain.Enums;
 
 public enum PriorityLevel
 {

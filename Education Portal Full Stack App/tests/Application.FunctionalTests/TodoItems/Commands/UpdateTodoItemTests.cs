@@ -1,9 +1,9 @@
-﻿using CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
-using CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
-using CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
-using CleanArchitecture.Domain.Entities;
+﻿using EducationPortal.Application.TodoItems.Commands.CreateTodoItem;
+using EducationPortal.Application.TodoItems.Commands.UpdateTodoItem;
+using EducationPortal.Application.TodoLists.Commands.CreateTodoList;
+using EducationPortal.Domain.Entities;
 
-namespace CleanArchitecture.Application.FunctionalTests.TodoItems.Commands;
+namespace EducationPortal.Application.FunctionalTests.TodoItems.Commands;
 
 public class UpdateTodoItemTests : TestBase
 {

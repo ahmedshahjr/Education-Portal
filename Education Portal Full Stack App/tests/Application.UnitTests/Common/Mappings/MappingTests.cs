@@ -1,12 +1,12 @@
 using System.Runtime.CompilerServices;
 using AutoMapper;
-using CleanArchitecture.Application.Common.Interfaces;
-using CleanArchitecture.Application.TodoLists.Queries.GetTodos;
-using CleanArchitecture.Domain.Entities;
+using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.TodoLists.Queries.GetTodos;
+using EducationPortal.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
-namespace CleanArchitecture.Application.UnitTests.Common.Mappings;
+namespace EducationPortal.Application.UnitTests.Common.Mappings;
 
 public class MappingTests
 {

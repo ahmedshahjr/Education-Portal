@@ -1,6 +1,6 @@
-﻿using CleanArchitecture.Domain.Entities;
+﻿using EducationPortal.Domain.Entities;
 
-namespace CleanArchitecture.Application.TodoLists.Queries.GetTodos;
+namespace EducationPortal.Application.TodoLists.Queries.GetTodos;
 
 public class TodoItemDto
 {

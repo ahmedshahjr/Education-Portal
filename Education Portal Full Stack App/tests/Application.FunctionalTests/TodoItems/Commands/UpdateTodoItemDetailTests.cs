@@ -1,11 +1,11 @@
-﻿using CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
-using CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
-using CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItemDetail;
-using CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
-using CleanArchitecture.Domain.Entities;
-using CleanArchitecture.Domain.Enums;
+﻿using EducationPortal.Application.TodoItems.Commands.CreateTodoItem;
+using EducationPortal.Application.TodoItems.Commands.UpdateTodoItem;
+using EducationPortal.Application.TodoItems.Commands.UpdateTodoItemDetail;
+using EducationPortal.Application.TodoLists.Commands.CreateTodoList;
+using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.Enums;
 
-namespace CleanArchitecture.Application.FunctionalTests.TodoItems.Commands;
+namespace EducationPortal.Application.FunctionalTests.TodoItems.Commands;
 
 public class UpdateTodoItemDetailTests : TestBase
 {

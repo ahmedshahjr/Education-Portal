@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>CleanArchitecture.Infrastructure.IntegrationTests</RootNamespace>
-        <AssemblyName>CleanArchitecture.Infrastructure.IntegrationTests</AssemblyName>
+        <RootNamespace>EducationPortal.Infrastructure.IntegrationTests</RootNamespace>
+        <AssemblyName>EducationPortal.Infrastructure.IntegrationTests</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

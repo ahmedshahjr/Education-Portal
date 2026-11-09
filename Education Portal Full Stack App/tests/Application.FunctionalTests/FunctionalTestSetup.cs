@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CleanArchitecture.Application.FunctionalTests;
+namespace EducationPortal.Application.FunctionalTests;
 
 [SetUpFixture]
 public class FunctionalTestSetup

@@ -1,13 +1,13 @@
-﻿using CleanArchitecture.Domain.Constants;
-using CleanArchitecture.Domain.Entities;
-using CleanArchitecture.Domain.ValueObjects;
-using CleanArchitecture.Infrastructure.Identity;
+﻿using EducationPortal.Domain.Constants;
+using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.ValueObjects;
+using EducationPortal.Infrastructure.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace CleanArchitecture.Infrastructure.Data;
+namespace EducationPortal.Infrastructure.Data;
 
 public static class InitialiserExtensions
 {

@@ -1,9 +1,9 @@
-using CleanArchitecture.Domain.Exceptions;
-using CleanArchitecture.Domain.ValueObjects;
+using EducationPortal.Domain.Exceptions;
+using EducationPortal.Domain.ValueObjects;
 using NUnit.Framework;
 using Shouldly;
 
-namespace CleanArchitecture.Domain.UnitTests.ValueObjects;
+namespace EducationPortal.Domain.UnitTests.ValueObjects;
 
 public class ColourTests
 {

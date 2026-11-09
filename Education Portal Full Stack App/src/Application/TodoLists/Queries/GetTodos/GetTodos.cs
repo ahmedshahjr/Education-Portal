@@ -1,10 +1,10 @@
-﻿using CleanArchitecture.Application.Common.Interfaces;
-using CleanArchitecture.Application.Common.Models;
-using CleanArchitecture.Application.Common.Security;
-using CleanArchitecture.Domain.Enums;
-using CleanArchitecture.Domain.ValueObjects;
+﻿using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Common.Models;
+using EducationPortal.Application.Common.Security;
+using EducationPortal.Domain.Enums;
+using EducationPortal.Domain.ValueObjects;
 
-namespace CleanArchitecture.Application.TodoLists.Queries.GetTodos;
+namespace EducationPortal.Application.TodoLists.Queries.GetTodos;
 
 [Authorize]
 public record GetTodosQuery : IRequest<TodosVm>;

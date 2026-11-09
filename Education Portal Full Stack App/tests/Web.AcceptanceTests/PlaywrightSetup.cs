@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace CleanArchitecture.Web.AcceptanceTests;
+namespace EducationPortal.Web.AcceptanceTests;
 
 [SetUpFixture]
 public class PlaywrightSetup

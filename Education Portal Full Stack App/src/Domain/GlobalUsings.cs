@@ -1,6 +1,6 @@
-﻿global using CleanArchitecture.Domain.Common;
-global using CleanArchitecture.Domain.Entities;
-global using CleanArchitecture.Domain.Enums;
-global using CleanArchitecture.Domain.Events;
-global using CleanArchitecture.Domain.Exceptions;
-global using CleanArchitecture.Domain.ValueObjects;
+﻿global using EducationPortal.Domain.Common;
+global using EducationPortal.Domain.Entities;
+global using EducationPortal.Domain.Enums;
+global using EducationPortal.Domain.Events;
+global using EducationPortal.Domain.Exceptions;
+global using EducationPortal.Domain.ValueObjects;

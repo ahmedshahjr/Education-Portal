@@ -1,4 +1,4 @@
-namespace CleanArchitecture.Application.FunctionalTests.Infrastructure;
+namespace EducationPortal.Application.FunctionalTests.Infrastructure;
 
 public abstract class TestBase
 {

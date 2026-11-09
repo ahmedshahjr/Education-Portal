@@ -1,10 +1,10 @@
-using CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
-using CleanArchitecture.Application.TodoItems.Commands.DeleteTodoItem;
-using CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
-using CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItemDetail;
+using EducationPortal.Application.TodoItems.Commands.CreateTodoItem;
+using EducationPortal.Application.TodoItems.Commands.DeleteTodoItem;
+using EducationPortal.Application.TodoItems.Commands.UpdateTodoItem;
+using EducationPortal.Application.TodoItems.Commands.UpdateTodoItemDetail;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace CleanArchitecture.Web.Endpoints;
+namespace EducationPortal.Web.Endpoints;
 
 public class TodoItems : IEndpointGroup
 {

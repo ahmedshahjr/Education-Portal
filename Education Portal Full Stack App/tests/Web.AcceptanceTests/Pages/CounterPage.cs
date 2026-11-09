@@ -1,4 +1,4 @@
-namespace CleanArchitecture.Web.AcceptanceTests.Pages;
+namespace EducationPortal.Web.AcceptanceTests.Pages;
 
 public class CounterPage(IPage page) : BasePage(page)
 {

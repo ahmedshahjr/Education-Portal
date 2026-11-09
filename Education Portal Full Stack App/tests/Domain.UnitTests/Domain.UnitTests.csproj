@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>CleanArchitecture.Domain.UnitTests</RootNamespace>
-        <AssemblyName>CleanArchitecture.Domain.UnitTests</AssemblyName>
+        <RootNamespace>EducationPortal.Domain.UnitTests</RootNamespace>
+        <AssemblyName>EducationPortal.Domain.UnitTests</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

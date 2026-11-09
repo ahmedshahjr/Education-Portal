@@ -1,8 +1,8 @@
-﻿using CleanArchitecture.Application.TodoLists.Queries.GetTodos;
-using CleanArchitecture.Domain.Entities;
-using CleanArchitecture.Domain.ValueObjects;
+﻿using EducationPortal.Application.TodoLists.Queries.GetTodos;
+using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.ValueObjects;
 
-namespace CleanArchitecture.Application.FunctionalTests.TodoLists.Queries;
+namespace EducationPortal.Application.FunctionalTests.TodoLists.Queries;
 
 public class GetTodosTests : TestBase
 {

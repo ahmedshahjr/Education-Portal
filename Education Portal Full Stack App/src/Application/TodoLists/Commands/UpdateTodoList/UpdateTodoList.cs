@@ -1,7 +1,7 @@
-using CleanArchitecture.Application.Common.Interfaces;
-using CleanArchitecture.Domain.ValueObjects;
+using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Domain.ValueObjects;
 
-namespace CleanArchitecture.Application.TodoLists.Commands.UpdateTodoList;
+namespace EducationPortal.Application.TodoLists.Commands.UpdateTodoList;
 
 public record UpdateTodoListCommand : IRequest
 {

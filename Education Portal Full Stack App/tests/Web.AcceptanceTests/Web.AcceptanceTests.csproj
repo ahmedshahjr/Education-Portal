@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>CleanArchitecture.Web.AcceptanceTests</RootNamespace>
-        <AssemblyName>CleanArchitecture.Web.AcceptanceTests</AssemblyName>
+        <RootNamespace>EducationPortal.Web.AcceptanceTests</RootNamespace>
+        <AssemblyName>EducationPortal.Web.AcceptanceTests</AssemblyName>
         <ReqnrollUseIntermediateOutputPathForCodeBehind>true</ReqnrollUseIntermediateOutputPathForCodeBehind>
     </PropertyGroup>
 

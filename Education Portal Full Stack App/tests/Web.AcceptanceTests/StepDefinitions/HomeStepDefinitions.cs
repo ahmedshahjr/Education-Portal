@@ -1,4 +1,4 @@
-namespace CleanArchitecture.Web.AcceptanceTests.StepDefinitions;
+namespace EducationPortal.Web.AcceptanceTests.StepDefinitions;
 
 [Binding]
 public sealed class HomeStepDefinitions(HomePage homePage)

@@ -1,4 +1,4 @@
-namespace CleanArchitecture.Web.AcceptanceTests.Pages;
+namespace EducationPortal.Web.AcceptanceTests.Pages;
 
 public class LoginPage(IPage page) : BasePage(page)
 {

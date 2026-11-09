@@ -1,6 +1,6 @@
-﻿using CleanArchitecture.Application.Common.Models;
+﻿using EducationPortal.Application.Common.Models;
 
-namespace CleanArchitecture.Application.Common.Interfaces;
+namespace EducationPortal.Application.Common.Interfaces;
 
 public interface IIdentityService
 {

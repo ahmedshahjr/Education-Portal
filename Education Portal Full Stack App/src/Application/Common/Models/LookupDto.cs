@@ -1,6 +1,6 @@
-﻿using CleanArchitecture.Domain.Entities;
+﻿using EducationPortal.Domain.Entities;
 
-namespace CleanArchitecture.Application.Common.Models;
+namespace EducationPortal.Application.Common.Models;
 
 public class LookupDto
 {

@@ -1,4 +1,4 @@
-namespace CleanArchitecture.Web.AcceptanceTests.Pages;
+namespace EducationPortal.Web.AcceptanceTests.Pages;
 
 public class WeatherPage(IPage page) : BasePage(page)
 {

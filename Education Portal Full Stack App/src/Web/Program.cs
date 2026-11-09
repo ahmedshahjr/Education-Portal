@@ -1,4 +1,4 @@
-using CleanArchitecture.Infrastructure.Data;
+using EducationPortal.Infrastructure.Data;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,15 +37,10 @@ app.MapScalarApiReference();
 
 app.UseExceptionHandler(options => { });
 
-#if (UseApiOnly)
-app.Map("/", () => Results.Redirect("/scalar"));
-#endif
 
 app.MapDefaultEndpoints();
 app.MapEndpoints(typeof(Program).Assembly);
 
-#if (!UseApiOnly)
 app.MapFallbackToFile("index.html");
-#endif
 
 app.Run();
