@@ -1,0 +1,129 @@
+# Checks the official sources behind docs/ai/secure-compliance/SKILL.md for updates
+# roughly every 15 days (1st and 16th of each month) and opens a review issue.
+#
+# - Sources with a GitHub feed (NIST 800-53 OSCAL, FedRAMP baselines, OWASP Top 10,
+#   NIST 800-63) are compared against last_seen_sha in sources.json.
+# - Sources without a feed (GovRAMP, SOC 2, ISO 27001, OMB M-21-31) are listed for a
+#   manual check on their portals.
+# - The workflow never edits the rules itself. A person (or an AI assistant in a PR that a
+#   person reviews) updates SKILL.md and sources.json, per SEC-CHG-01/02.
+#
+# Uses no third-party actions (only the preinstalled gh CLI and jq), so there is nothing to pin.
+
+name: Compliance sources review
+
+on:
+  schedule:
+    - cron: "0 6 1,16 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: compliance-sources-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      SOURCES_PATH: docs/ai/secure-compliance/sources.json
+      LABEL: compliance-review
+    steps:
+      - name: Check sources and open review issue
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          gh api -H "Accept: application/vnd.github.raw" \
+            "repos/$REPO/contents/$SOURCES_PATH?ref=${GITHUB_REF_NAME}" > sources.json
+
+          changed=""
+          unchanged=""
+          failed=""
+          manual=""
+          new_shas="{}"
+
+          count=$(jq '.sources | length' sources.json)
+          for i in $(seq 0 $((count - 1))); do
+            src=$(jq -c ".sources[$i]" sources.json)
+            id=$(jq -r '.id' <<<"$src")
+            name=$(jq -r '.name' <<<"$src")
+            portal=$(jq -r '.portal' <<<"$src")
+            type=$(jq -r '.watch.type // "manual"' <<<"$src")
+
+            if [ "$type" != "github-path" ]; then
+              manual+="- [ ] **${name}**: check ${portal} for new versions, amendments or guidance"$'\n'
+              continue
+            fi
+
+            repo=$(jq -r '.watch.repo' <<<"$src")
+            path=$(jq -r '.watch.path' <<<"$src")
+            seen=$(jq -r '.last_seen_sha // ""' <<<"$src")
+
+            if ! latest=$(gh api "repos/$repo/commits?path=$path&per_page=1" \
+                  --jq '.[0] | [.sha, .commit.committer.date, (.commit.message | split("\n")[0])] | @tsv' 2>/dev/null) \
+               || [ -z "$latest" ]; then
+              failed+="- [ ] **${name}**: could not read \`$repo/$path\`; check ${portal} manually and fix the watch entry"$'\n'
+              continue
+            fi
+
+            IFS=$'\t' read -r sha date msg <<<"$latest"
+            new_shas=$(jq --arg id "$id" --arg sha "$sha" '. + {($id): $sha}' <<<"$new_shas")
+
+            if [ "$sha" = "$seen" ]; then
+              unchanged+="- ${name}: no change since \`${seen:0:7}\`"$'\n'
+            elif [ -z "$seen" ]; then
+              changed+="- [ ] **${name}**: no baseline recorded yet. Latest: [\`${sha:0:7}\`](https://github.com/$repo/commit/$sha) ($date) ${msg}. Review ${portal}"$'\n'
+            else
+              changed+="- [ ] **${name}**: [changes since \`${seen:0:7}\`](https://github.com/$repo/compare/$seen...$sha) (latest $date: ${msg}). Review ${portal}"$'\n'
+            fi
+          done
+
+          today=$(date -u +%F)
+          {
+            echo "Scheduled check of the official sources behind [the secure coding and compliance rules]($GITHUB_SERVER_URL/$REPO/blob/${GITHUB_REF_NAME}/docs/ai/secure-compliance/SKILL.md) (run: $GITHUB_SERVER_URL/$REPO/actions/runs/$GITHUB_RUN_ID)."
+            echo
+            echo "### Changed or not yet baselined"
+            echo "${changed:-None.}"
+            echo
+            echo "### Could not check automatically"
+            echo "${failed:-None.}"
+            echo
+            echo "### Manual portal checks"
+            echo "${manual:-None.}"
+            echo
+            echo "### Unchanged"
+            echo "${unchanged:-None.}"
+            echo
+            echo "### What to do"
+            echo "1. Read each changed source and decide whether the standard skills (standard-*) or topic skills need updating."
+            echo "2. Open a PR into \`development\` that updates the affected skills under docs/ai/secure-compliance/ (if needed) and, in sources.json, sets \`last_seen_sha\` and \`last_reviewed\` for each reviewed source. Close this issue from that PR."
+            echo
+            echo "<details><summary>Latest SHAs for sources.json</summary>"
+            echo
+            echo '```json'
+            jq . <<<"$new_shas"
+            echo '```'
+            echo "</details>"
+          } > body.md
+
+          cat body.md >> "$GITHUB_STEP_SUMMARY"
+
+          gh label create "$LABEL" --repo "$REPO" --color "B60205" \
+            --description "Review of compliance rule sources" 2>/dev/null || true
+
+          existing=$(gh issue list --repo "$REPO" --label "$LABEL" --state open \
+            --json number --jq '.[0].number // empty')
+
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$REPO" --body-file body.md
+          else
+            gh issue create --repo "$REPO" --label "$LABEL" \
+              --title "Compliance sources review ($today)" --body-file body.md
+          fi

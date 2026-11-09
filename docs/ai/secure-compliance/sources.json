@@ -1,0 +1,110 @@
+{
+  "_comment": "Official sources behind docs/ai/secure-compliance/SKILL.md. The 'Compliance sources review' workflow (.github/workflows/compliance-sources-review.yml) checks the GitHub-tracked ones on the 1st and 16th of each month and opens an issue. After reviewing a change, update last_seen_sha and last_reviewed here in a PR, together with any changes to the standard-* and topic skills.",
+  "last_full_review": "2026-11-09",
+  "sources": [
+    {
+      "id": "nist-800-53",
+      "name": "NIST SP 800-53 Rev 5 catalog (OSCAL)",
+      "portal": "https://csrc.nist.gov/projects/risk-management/sp800-53-controls/release-search",
+      "watch": {
+        "type": "github-path",
+        "repo": "usnistgov/oscal-content",
+        "path": "nist.gov/SP800-53/rev5"
+      },
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "fedramp-rev5",
+      "name": "FedRAMP Rev 5 baselines (Moderate)",
+      "portal": "https://www.fedramp.gov/",
+      "watch": {
+        "type": "github-path",
+        "repo": "GSA/fedramp-automation",
+        "path": "dist/content/rev5/baselines"
+      },
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "owasp-top10",
+      "name": "OWASP Top 10",
+      "portal": "https://owasp.org/Top10/",
+      "watch": {
+        "type": "github-path",
+        "repo": "OWASP/Top10",
+        "path": ""
+      },
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "nist-800-63",
+      "name": "NIST SP 800-63 Digital Identity Guidelines (Rev 4)",
+      "portal": "https://pages.nist.gov/800-63-4/",
+      "watch": {
+        "type": "github-path",
+        "repo": "usnistgov/800-63-4",
+        "path": ""
+      },
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "govramp",
+      "name": "GovRAMP (formerly StateRAMP) program and baselines",
+      "portal": "https://govramp.org/",
+      "watch": null,
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "soc2",
+      "name": "AICPA SOC 2 Trust Services Criteria",
+      "portal": "https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2",
+      "watch": null,
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "iso27001",
+      "name": "ISO/IEC 27001:2022 (and amendments)",
+      "portal": "https://www.iso.org/standard/27001",
+      "watch": null,
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "omb-m-21-31",
+      "name": "OMB M-21-31 logging requirements (referenced by FedRAMP AU-11)",
+      "portal": "https://www.whitehouse.gov/omb/information-for-agencies/memoranda/",
+      "watch": null,
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "eu-gdpr",
+      "name": "EU GDPR and EDPB guidelines (incl. children's data)",
+      "portal": "https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en",
+      "watch": null,
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "eu-ai-act",
+      "name": "EU AI Act (Regulation (EU) 2024/1689), implementation timeline and guidance",
+      "portal": "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai",
+      "watch": null,
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "eu-nis2",
+      "name": "NIS2 Directive and national transposition",
+      "portal": "https://digital-strategy.ec.europa.eu/en/policies/nis2-directive",
+      "watch": null,
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "eu-cra",
+      "name": "EU Cyber Resilience Act",
+      "portal": "https://digital-strategy.ec.europa.eu/en/policies/cyber-resilience-act",
+      "watch": null,
+      "last_reviewed": "2026-11-09"
+    }
+  ]
+}

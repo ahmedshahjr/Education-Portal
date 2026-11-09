@@ -2,6 +2,8 @@
 
 All project instructions live in [AGENTS.md](../AGENTS.md) at the repository root. Read it before making changes, and edit it (not this file) when decisions change.
 
+**MUST FOLLOW:** the security and compliance rules in [docs/ai/secure-compliance/SKILL.md](../docs/ai/secure-compliance/SKILL.md) (FedRAMP Moderate Rev 5 / NIST SP 800-53, GovRAMP, SOC 2, ISO 27001, OWASP Top 10). Read the overview, then each topic and standard skill it lists that matches your change, before changing anything. Each skill is also attached as an instructions file in `.github/instructions/`. If a request breaks a rule, stop and name the rule ID.
+
 Key rules, in short (details in AGENTS.md):
 
 - .NET 10 Clean Architecture solution hosted by Aspire, Angular frontend, PostgreSQL only. Not microservices.

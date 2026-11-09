@@ -1,0 +1,20 @@
+# Keeps dependencies patched (SEC-DEP-06/07). PRs target development and go through the compliance guards.
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: "/Education Portal Full Stack App"
+    target-branch: development
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/Education Portal Full Stack App/src/Web/ClientApp"
+    target-branch: development
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+  - package-ecosystem: github-actions
+    directory: "/"
+    target-branch: development
+    schedule:
+      interval: weekly
