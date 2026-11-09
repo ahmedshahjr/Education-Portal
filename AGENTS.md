@@ -16,6 +16,30 @@ An **Education Portal**: a full-stack web application for education use cases.
 - **Architecture:** a single Clean Architecture solution, same shape as the template (decided 2026-11-09). Not microservices for the MVP; do not split into services without an explicit decision.
 - **Frontend:** Angular. An Angular app already exists in the maintainer's full source (local machine and repo).
 
+### Multi-tenancy (decided 2026-11-09)
+
+The portal is multi-tenant, with three levels:
+
+```
+Master tenant (the platform owner, i.e. us)
+  └── School-owner tenant (one per school organisation)
+        └── Branch (one or more campuses/branches per school)
+```
+
+- **Master tenant** has full access to every school and branch, for viewing and oversight.
+- **School-owner tenant** sees and manages only its own school and that school's branches.
+- **Branch** is the unit most day-to-day data belongs to (students, teachers, courses, enrolments, grades).
+- **Permissions are module-based and branch-based for each tenant:** a user's access is the combination of which modules they can use (e.g. Students, Courses, Grades) and which branches they can act in.
+
+Rules for code:
+
+- Every tenant-owned entity carries its tenant (school) id, and branch-scoped entities also carry a branch id. Never return data across tenants unless the caller is the master tenant.
+- Enforce tenant and branch scoping centrally (e.g. EF Core global query filters driven by the current user/tenant service), not by hand in each query or endpoint.
+- Check module and branch permissions in the Application layer (e.g. MediatR authorization behaviour / attributes), not only in the Angular UI.
+- Tests for any new use case should include a cross-tenant / wrong-branch case that must be denied.
+
+Still **TODO**: data isolation strategy (shared database with tenant id columns vs. database per tenant), how the tenant is resolved per request (subdomain, header, or claim), the list of modules, and whether parents/students can belong to more than one branch.
+
 ## 2. Tech stack (from the template files that exist)
 
 | Area | Choice | Source |
@@ -118,6 +142,8 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
 ## 7. Open decisions (TODO)
 
 - [x] Product scope: MVP with Students, Teachers, Admins, Parents, Courses, Enrolments, Grades (2026-11-09)
+- [x] Multi-tenancy: master tenant > school-owner tenant > branches, with module- and branch-based permissions (2026-11-09)
+- [ ] Tenant isolation strategy, tenant resolution, module list
 - [ ] Per-role permissions and the MVP feature list for each entity
 - [x] Frontend: Angular (2026-11-09)
 - [ ] Database: SQLite, PostgreSQL, or SQL Server
