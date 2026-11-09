@@ -1,0 +1,16 @@
+{
+  "_comment": "Known gaps inherited from the template (overview section 8). Each entry allows at most this many findings in that file. Never raise a count or add an entry without maintainer approval; lower or remove it in the PR that fixes the gap.",
+  "allowed": {
+    "cors-any-origin": {
+      "Education Portal Full Stack App/src/Web/Program.cs": 1
+    },
+    "log-request-object": {
+      "Education Portal Full Stack App/src/Application/Common/Behaviours/LoggingBehaviour.cs": 1,
+      "Education Portal Full Stack App/src/Application/Common/Behaviours/PerformanceBehaviour.cs": 1,
+      "Education Portal Full Stack App/src/Application/Common/Behaviours/UnhandledExceptionBehaviour.cs": 1
+    },
+    "secret-in-config": {
+      "Education Portal Full Stack App/src/Web/appsettings.json": 1
+    }
+  }
+}

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Compliance pre-commit hook. Works the same whichever AI tool or editor makes the commit.
+# Enable once per clone:   git config core.hooksPath .githooks
+# The same checks run in CI (.github/workflows/compliance-guards.yml), so skipping this hook
+# (git commit --no-verify) only moves the failure to the pull request.
+set -euo pipefail
+root="$(git rev-parse --show-toplevel)"
+cd "$root"
+
+py=""
+for c in python3 python "py -3"; do
+  if $c -c "import sys; sys.exit(sys.version_info < (3, 9))" >/dev/null 2>&1; then py="$c"; break; fi
+done
+if [ -z "$py" ]; then
+  echo "compliance pre-commit: Python 3.9+ not found; install it or rely on the CI guards." >&2
+  exit 1
+fi
+
+$py docs/ai/compliance-guard.py --staged
+
+if git diff --cached --name-only | grep -qE '^(docs/ai/|AGENTS\.md|GEMINI\.md|CLAUDE\.md|\.claude/|\.cursor/|\.github/(instructions/|copilot-instructions\.md))'; then
+  $py docs/ai/sync-ai-wrappers.py --check
+fi
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --no-banner
+else
+  echo "compliance pre-commit: gitleaks not installed, secret scan skipped locally (CI still runs it)." >&2
+fi

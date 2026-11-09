@@ -20,6 +20,7 @@ Gemini CLI imports every skill below into context at start, so all compliance ru
 @./docs/ai/secure-compliance/input-validation/SKILL.md
 @./docs/ai/secure-compliance/logging-audit/SKILL.md
 @./docs/ai/secure-compliance/security-testing/SKILL.md
+@./docs/ai/secure-compliance/standard-eu/SKILL.md
 @./docs/ai/secure-compliance/standard-fedramp-moderate/SKILL.md
 @./docs/ai/secure-compliance/standard-govramp/SKILL.md
 @./docs/ai/secure-compliance/standard-iso27001/SKILL.md

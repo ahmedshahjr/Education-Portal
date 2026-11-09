@@ -1,0 +1,167 @@
+# Compliance guards: blocks non-compliant changes from reaching development or main.
+# Make these checks required in a branch ruleset (see docs/ai/secure-compliance/SKILL.md, "Automated guards").
+#
+# Uses no third-party actions: the repo is fetched with git and the GitHub token, .NET comes from
+# Microsoft's dotnet-install script, and gitleaks is a pinned release verified against its checksum.
+
+name: Compliance guards
+
+on:
+  pull_request:
+    branches: [development, main]
+  push:
+    branches: [development, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compliance-guards-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SOLUTION_DIR: Education Portal Full Stack App
+  GITLEAKS_VERSION: 8.18.4
+
+jobs:
+  rules:
+    name: Rule checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Fetch repository
+        shell: bash
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git init -q .
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+          auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)"
+          git -c http.extraheader="$auth" fetch -q --no-tags origin "+$GITHUB_REF:refs/remotes/target"
+          if [ -n "${GITHUB_BASE_REF:-}" ]; then
+            git -c http.extraheader="$auth" fetch -q --no-tags origin "+refs/heads/$GITHUB_BASE_REF:refs/remotes/origin/$GITHUB_BASE_REF"
+          fi
+          git checkout -q --detach refs/remotes/target
+
+      - name: Secure-coding rule checks
+        run: python3 docs/ai/compliance-guard.py
+
+      - name: AI tool wrappers are in sync (AI-agnostic rule)
+        run: python3 docs/ai/sync-ai-wrappers.py --check
+
+      - name: PR includes the security checklist
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          if ! jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH" | grep -qi 'Security & compliance checklist'; then
+            echo "::error::The PR description must include the 'Security & compliance checklist' from .github/pull_request_template.md (SEC-AI-08)."
+            exit 1
+          fi
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Fetch repository
+        shell: bash
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git init -q .
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+          auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)"
+          git -c http.extraheader="$auth" fetch -q --no-tags origin "+$GITHUB_REF:refs/remotes/target"
+          if [ -n "${GITHUB_BASE_REF:-}" ]; then
+            git -c http.extraheader="$auth" fetch -q --no-tags origin "+refs/heads/$GITHUB_BASE_REF:refs/remotes/origin/$GITHUB_BASE_REF"
+          fi
+          git checkout -q --detach refs/remotes/target
+
+      - name: Install gitleaks (pinned, checksum verified)
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          file="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfLO "$base/$file"
+          curl -sSfL "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt" | grep " $file\$" | sha256sum -c -
+          tar -xzf "$file" gitleaks
+          sudo install gitleaks /usr/local/bin/gitleaks
+
+      - name: Scan new commits for secrets
+        shell: bash
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ -n "${GITHUB_BASE_REF:-}" ]; then
+            range="origin/$GITHUB_BASE_REF..HEAD"
+          elif [ -n "${BEFORE:-}" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
+            range="$BEFORE..HEAD"
+          else
+            range="HEAD"
+          fi
+          echo "Scanning $range"
+          gitleaks detect --source . --redact --no-banner --log-opts="$range"
+
+  dependencies-build-test:
+    name: Dependency audit, build and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Fetch repository
+        shell: bash
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git init -q .
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+          auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)"
+          git -c http.extraheader="$auth" fetch -q --no-tags origin "+$GITHUB_REF:refs/remotes/target"
+          if [ -n "${GITHUB_BASE_REF:-}" ]; then
+            git -c http.extraheader="$auth" fetch -q --no-tags origin "+refs/heads/$GITHUB_BASE_REF:refs/remotes/origin/$GITHUB_BASE_REF"
+          fi
+          git checkout -q --detach refs/remotes/target
+
+      - name: Install .NET SDK from global.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
+          bash dotnet-install.sh --jsonfile "$SOLUTION_DIR/global.json" --install-dir "$HOME/.dotnet"
+          echo "$HOME/.dotnet" >> "$GITHUB_PATH"
+          echo "DOTNET_ROOT=$HOME/.dotnet" >> "$GITHUB_ENV"
+
+      - name: NuGet vulnerability audit (SEC-DEP-02)
+        shell: bash
+        working-directory: ${{ env.SOLUTION_DIR }}
+        run: |
+          set -euo pipefail
+          dotnet restore
+          dotnet list package --vulnerable --include-transitive | tee vulnerable.txt
+          if grep -q "has the following vulnerable packages" vulnerable.txt; then
+            echo "::error::Vulnerable NuGet packages found (SEC-DEP-02, SEC-DEP-07)."
+            exit 1
+          fi
+
+      - name: npm audit (SEC-DEP-03)
+        shell: bash
+        working-directory: ${{ env.SOLUTION_DIR }}/src/Web/ClientApp
+        run: npm audit --audit-level=high
+
+      - name: Build (warnings are errors)
+        working-directory: ${{ env.SOLUTION_DIR }}
+        run: dotnet build --no-restore
+
+      - name: Unit, integration and functional tests
+        shell: bash
+        working-directory: ${{ env.SOLUTION_DIR }}
+        run: |
+          set -euo pipefail
+          for p in tests/Domain.UnitTests tests/Application.UnitTests tests/Infrastructure.IntegrationTests tests/Application.FunctionalTests; do
+            dotnet test "$p" --no-build
+          done

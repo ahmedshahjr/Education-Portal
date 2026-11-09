@@ -77,6 +77,34 @@
       "portal": "https://www.whitehouse.gov/omb/information-for-agencies/memoranda/",
       "watch": null,
       "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "eu-gdpr",
+      "name": "EU GDPR and EDPB guidelines (incl. children's data)",
+      "portal": "https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en",
+      "watch": null,
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "eu-ai-act",
+      "name": "EU AI Act (Regulation (EU) 2024/1689), implementation timeline and guidance",
+      "portal": "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai",
+      "watch": null,
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "eu-nis2",
+      "name": "NIS2 Directive and national transposition",
+      "portal": "https://digital-strategy.ec.europa.eu/en/policies/nis2-directive",
+      "watch": null,
+      "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "eu-cra",
+      "name": "EU Cyber Resilience Act",
+      "portal": "https://digital-strategy.ec.europa.eu/en/policies/cyber-resilience-act",
+      "watch": null,
+      "last_reviewed": "2026-11-09"
     }
   ]
 }

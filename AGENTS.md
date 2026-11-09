@@ -129,7 +129,13 @@ tests/
 
 Prerequisites: .NET 10 SDK, Docker Desktop or Podman **running** (Aspire starts PostgreSQL in a container), Node.js **22.22.3+ or 24.15+** (older Node makes the Angular CLI exit with code 3), Aspire CLI (optional). Step-by-step run instructions for humans are in the root `README.md`.
 
-First run: install the Angular packages once.
+First run: enable the compliance pre-commit hook (needs Python 3.9+; see `docs/ai/secure-compliance/SKILL.md` section 7), then install the Angular packages once.
+
+```bash
+git config core.hooksPath .githooks   # run from the repo root
+```
+
+Then:
 
 ```bash
 cd src/Web/ClientApp && npm install
@@ -217,6 +223,7 @@ All AI skills (same list for every tool). Read the overview first, then every sk
 | `input-validation` | [docs/ai/secure-compliance/input-validation/SKILL.md](docs/ai/secure-compliance/input-validation/SKILL.md) | Input validation and injection rules (FluentValidation, EF Core/SQL, Angular XSS, uploads, CSV injection, deserialization, redirects). Use when code accepts or renders any user input. |
 | `logging-audit` | [docs/ai/secure-compliance/logging-audit/SKILL.md](docs/ai/secure-compliance/logging-audit/SKILL.md) | Logging, audit and monitoring rules (structured ILogger/OpenTelemetry, what never to log, required security audit events and fields, append-only audit, log injection). Use when adding logs or security-relevant actions. |
 | `security-testing` | [docs/ai/secure-compliance/security-testing/SKILL.md](docs/ai/secure-compliance/security-testing/SKILL.md) | Security testing rules (tenant/branch/module denial tests, architecture tests, hardening tests, validator tests, DAST). Use when writing or reviewing tests for any change. |
+| `standard-eu` | [docs/ai/secure-compliance/standard-eu/SKILL.md](docs/ai/secure-compliance/standard-eu/SKILL.md) | EU compliance rules for the Education Portal (GDPR including children's data, ePrivacy cookies, NIS2, EU AI Act for education, Cyber Resilience Act, accessibility). Use when handling personal data of EU students, parents or staff, adding cookies, analytics, AI features, data exports, hosting regions or subprocessors. |
 | `standard-fedramp-moderate` | [docs/ai/secure-compliance/standard-fedramp-moderate/SKILL.md](docs/ai/secure-compliance/standard-fedramp-moderate/SKILL.md) | What FedRAMP Moderate Rev 5 (NIST SP 800-53 Rev 5 Moderate baseline) requires of this codebase, the FedRAMP-specific parameters we apply, and which topic skills implement each control. Use when working on anything security-related or preparing FedRAMP evidence. |
 | `standard-govramp` | [docs/ai/secure-compliance/standard-govramp/SKILL.md](docs/ai/secure-compliance/standard-govramp/SKILL.md) | What GovRAMP (formerly StateRAMP, for US state and local government) requires of this codebase and how it reuses the FedRAMP Moderate / NIST SP 800-53 Rev 5 rules. Use when preparing for state or local government customers or GovRAMP evidence. |
 | `standard-iso27001` | [docs/ai/secure-compliance/standard-iso27001/SKILL.md](docs/ai/secure-compliance/standard-iso27001/SKILL.md) | What ISO/IEC 27001:2022 certification needs from this codebase, which Annex A controls the rules implement, and what belongs to the ISMS. Use when working on security controls or preparing ISO 27001 evidence or the Statement of Applicability. |

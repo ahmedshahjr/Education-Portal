@@ -71,6 +71,7 @@ One skill per standard explains what it asks of this codebase, the parameters we
 | [standard-soc2](standard-soc2/SKILL.md) | SOC 2 (AICPA Trust Services Criteria) |
 | [standard-iso27001](standard-iso27001/SKILL.md) | ISO/IEC 27001:2022 |
 | [standard-owasp-top10](standard-owasp-top10/SKILL.md) | OWASP Top 10:2025 |
+| [standard-eu](standard-eu/SKILL.md) | EU: GDPR (incl. children's data), ePrivacy, NIS2, EU AI Act, Cyber Resilience Act, accessibility |
 
 ## 3. Organisational controls (outside the code)
 
@@ -120,7 +121,28 @@ The same checklist is in `.github/pull_request_template.md`, so GitHub pre-fills
 - The workflow never edits the rules. Whoever reviews the issue updates the affected standard and topic skills (if needed) and `last_seen_sha` / `last_reviewed` in `sources.json` in a PR into `development`, which goes through normal review (SEC-CHG-01/02).
 - Last full review of this file: **2026-11-09**.
 
-## 7. Known gaps in the current code
+## 7. Automated guards
+
+Rules that can be checked by a machine are enforced, so non-compliant changes cannot reach `development` or `main` unnoticed. The guards are the same for every contributor and AI tool.
+
+| Guard | Where | What it blocks |
+|---|---|---|
+| Rule checks | `docs/ai/compliance-guard.py` (CI and pre-commit) | Raw SQL, `IgnoreQueryFilters`, unlisted `AllowAnonymous`, weak crypto, disabled TLS validation, `{@Request}` logging, `Console.Write`, unsafe deserialization, Angular sanitizer bypass / `innerHTML` / `eval`, package versions in `.csproj`, suppressed NuGet audit warnings, credentials in config files, private keys, certification claims |
+| AI wrappers in sync | `docs/ai/sync-ai-wrappers.py --check` | Rules or skills added for one AI tool only (SEC-AI-10) |
+| PR checklist | CI | PRs without the security checklist (SEC-AI-08) |
+| Secret scan | gitleaks in CI (and pre-commit if installed) | Secrets in new commits (SEC-SECRET-01/03) |
+| Dependency audit | CI: `dotnet list package --vulnerable`, `npm audit --audit-level=high` | Known vulnerable packages (SEC-DEP-02/03) |
+| Build and tests | CI: `dotnet build` (warnings are errors), unit, integration and functional tests | Broken builds and failing tenant-isolation tests (SEC-CHG-03) |
+| Dependabot | `.github/dependabot.yml` | Stale NuGet, npm and Actions dependencies (SEC-DEP-06/07) |
+
+- Workflow: `.github/workflows/compliance-guards.yml`, on every PR and push to `development` and `main`.
+- Local hook: run `git config core.hooksPath .githooks` once per clone. `--no-verify` only moves the failure to CI.
+- A finding is accepted only with a maintainer-approved exception (section 4), written next to the code as `// compliance-exception: SEC-XXX-NN <reason>`.
+- Gaps that already existed are listed with a maximum count in `docs/ai/compliance-guard-baseline.json`. New occurrences fail. Lower the count in the PR that fixes a gap; never raise it without maintainer approval.
+- The guards only block merges once the maintainer makes them **required checks** in a branch ruleset for `development` and `main` (repo Settings > Rules > Rulesets). AI assistants MUST NOT change rulesets or workflows to get a change through (SEC-AI-02, SEC-AI-06).
+- Not every rule can be automated (authorization design, data minimisation, legal questions). Human review still applies.
+
+## 8. Known gaps in the current code
 
 The baseline came from the Clean Architecture template and does not meet every rule yet. Fix these in dedicated PRs; do not copy these patterns into new code.
 
@@ -132,6 +154,6 @@ The baseline came from the Clean Architecture template and does not meet every r
 | Local Postgres password in `appsettings.json` (dev-only value, but secrets belong in user-secrets/Aspire parameters) | `src/Web/appsettings.json` | SEC-SECRET-01 |
 | Identity password, lockout, cookie and session options are template defaults | `src/Infrastructure/DependencyInjection.cs` | SEC-AUTHN-03/05/06/07 |
 | No antiforgery, security headers, rate limiting or tenant resolution yet | `src/Web` | SEC-WEB-03/04/07, SEC-AUTHZ-10 |
-| No CI pipeline, secret scanning, SAST or SBOM yet | repo | SEC-DEP-08, SEC-SECRET-03 |
+| No SAST (CodeQL) or SBOM yet; GitHub secret scanning push protection not confirmed | repo settings / CI | SEC-DEP-08, SEC-SECRET-03 |
 
 Paths in this table are relative to `Education Portal Full Stack App/`. Remove a row in the PR that fixes it.
