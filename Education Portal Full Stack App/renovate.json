@@ -1,0 +1,82 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":separateMajorReleases",
+    "group:allNonMajor"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "schedule": ["on monday"],
+  "timezone": "Australia/Brisbane",
+  "packageRules": [
+    {
+      "description": "Automerge non-major updates",
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "Group GitHub Actions updates",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "GitHub Actions",
+      "automerge": true
+    },
+    {
+      "description": "Group .NET updates",
+      "matchManagers": [
+        "nuget"
+      ],
+      "groupName": ".NET dependencies"
+    },
+    {
+      "description": "Group Angular updates",
+      "groupName": "Angular",
+      "matchPackageNames": [
+        "/^@angular/"
+      ]
+    },
+    {
+      "description": "Group React updates",
+      "groupName": "React",
+      "matchPackageNames": [
+        "/^react/",
+        "/^@types/react/"
+      ]
+    },
+    {
+      "description": "Group testing packages",
+      "groupName": "Testing",
+      "matchPackageNames": [
+        "/jest/",
+        "/karma/",
+        "/jasmine/",
+        "/playwright/",
+        "/nunit/",
+        "/moq/",
+        "/shouldly/"
+      ]
+    },
+    {
+      "description": "Angular requires a specific TypeScript version, so let ng update manage TypeScript majors and minors for the Angular client",
+      "matchFileNames": [
+        "src/Web/ClientApp/package.json"
+      ],
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor"
+      ],
+      "enabled": false
+    }
+  ]
+}
