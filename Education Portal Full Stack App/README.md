@@ -15,7 +15,7 @@ See [`AGENTS.md`](../AGENTS.md) at the repository root for the product decisions
 
 - .NET 10 SDK (see `global.json`)
 - Docker Desktop or Podman, because Aspire runs PostgreSQL in a container
-- Node.js LTS, for the Angular app
+- Node.js 22.22.3+ or 24.15+, for the Angular app (older versions make the Angular CLI exit with code 3). Run `npm install` in `src/Web/ClientApp` once before the first run.
 
 ## Build
 

@@ -1,0 +1,91 @@
+# Education Portal
+
+A multi-tenant education portal for schools, built as an MVP.
+
+- **Master tenant** (the platform owner) oversees every school and switches modules on or off per school.
+- **School owners** manage their own school, its branches, roles and staff.
+- **Branches** hold the day-to-day data: students, teachers, parents, courses, enrolments and grades.
+- Staff access = modules enabled for their school ∩ their role's rights per module (View/Create/Edit/Delete) ∩ the branches assigned to them.
+
+## Tech stack
+
+| Area | Technology |
+|---|---|
+| Backend | ASP.NET Core 10 Web API, Clean Architecture, MediatR, FluentValidation, AutoMapper |
+| Frontend | Angular 22 (`src/Web/ClientApp`) |
+| Database | PostgreSQL with EF Core 10 and ASP.NET Core Identity |
+| Orchestration | .NET Aspire 13 (runs PostgreSQL, the API and Angular together) |
+| Tests | NUnit, Shouldly, Moq, Respawn, Playwright + Reqnroll |
+
+## Repository layout
+
+```
+AGENTS.md                         Project guide for AI assistants (decisions, rules, plan)
+CLAUDE.md, GEMINI.md, .github/    Pointers to AGENTS.md for each AI tool
+Education Portal Full Stack App/  The .NET solution
+  EducationPortal.slnx
+  src/AppHost/                    Aspire startup project
+  src/Domain, Application, Infrastructure, Web, Shared, ServiceDefaults
+  src/Web/ClientApp/              Angular app
+  tests/                          Unit, integration, functional and acceptance tests
+```
+
+## Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (version pinned in `global.json`)
+- [Node.js](https://nodejs.org/) **22.22.3+ or 24.15+**. Older versions make the Angular CLI exit with code 3.
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (or Podman), **running**, because Aspire starts PostgreSQL in a container.
+- Optional: the [Aspire CLI](https://aspire.dev/get-started/install-cli/).
+
+Check your versions:
+
+```cmd
+dotnet --version
+node --version
+docker info
+```
+
+## Run it
+
+Windows Command Prompt (from the repository root):
+
+```cmd
+cd "Education Portal Full Stack App\src\Web\ClientApp"
+npm install
+
+cd ..\..\..
+dotnet run --project src\AppHost
+```
+
+Or, from the `Education Portal Full Stack App` folder, run `aspire run`. In Visual Studio, open `EducationPortal.slnx`, set **AppHost** as the startup project and press **F5**.
+
+Then:
+
+1. The **Aspire dashboard** opens in your browser (the console also prints its login URL).
+2. Click the **webfrontend** URL to open the Angular app.
+3. Sign in with `administrator@localhost` / `Administrator1!`.
+4. API docs (Scalar) are at `/scalar` on the **webapi** URL.
+
+In Development the database is dropped, recreated and re-seeded on every start, so local data does not survive a restart.
+
+## Test
+
+```cmd
+cd "Education Portal Full Stack App"
+dotnet test
+```
+
+Functional and acceptance tests start PostgreSQL through Aspire, so Docker must be running.
+
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| `webfrontend` exits with code 3 | Upgrade Node.js to 22.22.3+ or 24.15+, then run `npm install` again. |
+| `dbserver` never becomes healthy | Start Docker Desktop and wait until it says it is running. |
+| Build fails on a warning | Warnings are errors in this solution; fix the warning. |
+
+## More
+
+- [AGENTS.md](AGENTS.md): product decisions, multi-tenancy rules, conventions and the MVP plan.
+- [Solution README](Education%20Portal%20Full%20Stack%20App/README.md): build, scaffolding and code style details.
