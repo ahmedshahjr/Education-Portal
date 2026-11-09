@@ -21,4 +21,5 @@ Tick each item or explain why it does not apply.
 - [ ] No new packages, or each one justified with licence (SEC-DEP-04/05)
 - [ ] `dotnet build` and `dotnet test` pass; `npm audit` clean if the frontend changed (SEC-AI-07, SEC-DEP-03)
 - [ ] Development-only behaviour guarded by `IsDevelopment()` (SEC-CFG-01)
+- [ ] AI instructions/skills changed: content is AI-agnostic and `python3 docs/ai/sync-ai-wrappers.py --check` passes (SEC-AI-10)
 - [ ] Exceptions to any rule: none, or listed with maintainer approval (section 15)
