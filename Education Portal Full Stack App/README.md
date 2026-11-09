@@ -1,14 +1,27 @@
-﻿# EducationPortal
+﻿# Education Portal
 
-The project was generated using the [Clean.Architecture.Solution.Template](https://github.com/jasontaylordev/CleanArchitecture) version 0.0.0.
+A multi-tenant education portal: the platform owner (master tenant) oversees every school, each school owner manages their own school and its branches, and students, teachers and parents use the portal within their school.
+
+Built on the [Clean Architecture Solution Template](https://github.com/jasontaylordev/CleanArchitecture) with:
+
+- ASP.NET Core 10 Web API (minimal APIs, MediatR, FluentValidation, AutoMapper)
+- Angular frontend (`src/Web/ClientApp`)
+- PostgreSQL with EF Core and ASP.NET Core Identity
+- .NET Aspire for local orchestration, telemetry and tests
+
+See [`AGENTS.md`](../AGENTS.md) at the repository root for the product decisions, the multi-tenancy rules and the coding conventions.
+
+## Prerequisites
+
+- .NET 10 SDK (see `global.json`)
+- Docker Desktop or Podman, because Aspire runs PostgreSQL in a container
+- Node.js LTS, for the Angular app
 
 ## Build
 
-Run `dotnet build` to build the solution.
+Run `dotnet build` to build the solution. Warnings are treated as errors.
 
 ## Run
-
-To run the application:
 
 Using the [Aspire CLI](https://aspire.dev/get-started/install-cli/) (recommended):
 
@@ -19,51 +32,40 @@ aspire run
 Or using the .NET CLI:
 
 ```bash
-dotnet run --project .\src\AppHost
+dotnet run --project ./src/AppHost
 ```
 
-The Aspire dashboard will open automatically, showing the application URLs and logs.
+The Aspire dashboard opens automatically and shows the API, the Angular app, PostgreSQL and their logs. The API reference is served by Scalar at `/scalar`.
 
-## Code Styles & Formatting
-
-The template includes [EditorConfig](https://editorconfig.org/) support to help maintain consistent coding styles for multiple developers working on the same project across various editors and IDEs. The **.editorconfig** file defines the coding styles applicable to this solution.
-
-## Code Scaffolding
-
-The template includes support to scaffold new commands and queries.
-
-Start in the `.\src\Application\` folder.
-
-Create a new command:
-
-```
-dotnet new ca-usecase --name CreateTodoList --feature-name TodoLists --usecase-type command --return-type int
-```
-
-Create a new query:
-
-```
-dotnet new ca-usecase -n GetTodos -fn TodoLists -ut query -rt TodosVm
-```
-
-If you encounter the error *"No templates or subcommands found matching: 'ca-usecase'."*, install the template and try again:
-
-```bash
-dotnet new install Clean.Architecture.Solution.Template::0.0.0
-```
+In Development the database is recreated on every start and seeded with an administrator account (`administrator@localhost` / `Administrator1!`).
 
 ## Test
 
-The solution contains unit, integration, and functional tests.
+The solution contains unit, integration, functional and acceptance tests. Functional tests start PostgreSQL through Aspire, so Docker must be running.
 
-To run the tests:
 ```bash
 dotnet test
+```
+
+## Code Styles & Formatting
+
+The [EditorConfig](https://editorconfig.org/) file (`.editorconfig`) defines the coding styles for this solution.
+
+## Code Scaffolding
+
+The template can scaffold new commands and queries. Install it once:
+
+```bash
+dotnet new install Clean.Architecture.Solution.Template
+```
+
+Then, from the `./src/Application/` folder:
+
+```bash
+dotnet new ca-usecase --name CreateCourse --feature-name Courses --usecase-type command --return-type int
+dotnet new ca-usecase -n GetCourses -fn Courses -ut query -rt CoursesVm
 ```
 
 ## Architectural Decisions
 
 Key design decisions are documented as [Architecture Decision Records](docs/decisions/).
-
-## Help
-To learn more about the template go to the [project website](https://cleanarchitecture.jasontaylor.dev). Here you can find additional guidance, request new features, report a bug, and discuss the template with other users.
