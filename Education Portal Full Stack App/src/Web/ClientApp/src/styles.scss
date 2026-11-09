@@ -69,21 +69,19 @@ app-nav-menu > header nav > ul:first-child a {
   color: var(--pico-contrast);
 }
 
-// ── Login / Register centered layout ──────────────────────────────────────────
-app-root > main:has(> app-login, > app-register) {
+// ── Login centered layout ─────────────────────────────────────────────────────
+app-root > main:has(> app-login) {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
 
-  > app-login,
-  > app-register {
+  > app-login {
     display: contents;
   }
 
-  > app-login > article,
-  > app-register > article {
+  > app-login > article {
     width: 100%;
     max-width: map.get(map.get($breakpoints, "md"), "viewport");
   }

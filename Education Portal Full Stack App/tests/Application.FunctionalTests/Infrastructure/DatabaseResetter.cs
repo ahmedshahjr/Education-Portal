@@ -20,7 +20,14 @@ internal sealed class DatabaseResetter : IAsyncDisposable
         var connection = new NpgsqlConnection(connectionString);
 
         await connection.OpenAsync();
-        var respawner = await Respawner.CreateAsync(connection);
+
+        // The security audit log is append-only (SEC-LOG-05), so the reset leaves it alone. Each test reads only the
+        // records of the users it created.
+        var respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
+        {
+            TablesToIgnore = ["SecurityAuditEvents"],
+        });
+
         await connection.CloseAsync();
         return new DatabaseResetter(connection, respawner);
     }

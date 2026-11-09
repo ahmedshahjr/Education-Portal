@@ -4,7 +4,7 @@
     <RootNamespace>EducationPortal.Web</RootNamespace>
     <AssemblyName>EducationPortal.Web</AssemblyName>
     <SpaRoot>ClientApp\</SpaRoot>
-    <OpenApiDocumentsDirectory>./wwwroot/openapi/</OpenApiDocumentsDirectory>
+    <OpenApiDocumentsDirectory>./openapi/</OpenApiDocumentsDirectory>
     <OpenApiGenerateDocumentsOptions>--file-name v1</OpenApiGenerateDocumentsOptions>
   </PropertyGroup>
 
@@ -30,6 +30,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Scalar.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The generated OpenAPI document must never be copied or published as a static file (SEC-WEB-05). -->
+    <Content Remove="wwwroot\openapi\**" />
   </ItemGroup>
 
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">

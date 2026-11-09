@@ -1,7 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace EducationPortal.Application.Common.Behaviours;
 
+/// <summary>
+/// Logs unhandled exceptions with the request name, then rethrows. The request itself is not logged,
+/// because it can carry personal data (SEC-LOG-02, SEC-PII-02).
+/// </summary>
 public class UnhandledExceptionBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
@@ -20,9 +24,7 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse> : IPipelineBehavio
         }
         catch (Exception ex)
         {
-            var requestName = typeof(TRequest).Name;
-
-            _logger.LogError(ex, "EducationPortal Request: Unhandled Exception for Request {Name} {@Request}", requestName, request);
+            _logger.LogError(ex, "EducationPortal Request: Unhandled Exception for Request {RequestName}", typeof(TRequest).Name);
 
             throw;
         }

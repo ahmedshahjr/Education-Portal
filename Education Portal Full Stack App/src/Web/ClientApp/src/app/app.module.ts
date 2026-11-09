@@ -10,9 +10,9 @@ import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
 import { API_BASE_URL } from './web-api-client';
+import { AntiforgeryInterceptor } from '../api-authorization/antiforgery.interceptor';
 import { AuthorizeInterceptor } from '../api-authorization/authorize.interceptor';
 import { LoginComponent } from '../api-authorization/login/login.component';
-import { RegisterComponent } from '../api-authorization/register/register.component';
 import { AuthService } from '../api-authorization/auth.service';
 
 export function getApiBaseUrl(): string {
@@ -26,8 +26,7 @@ export function getApiBaseUrl(): string {
         NavMenuComponent,
         HomeComponent,
         ThemeToggleComponent,
-        LoginComponent,
-        RegisterComponent
+        LoginComponent
     ],
     bootstrap: [AppComponent],
     imports: [
@@ -36,13 +35,13 @@ export function getApiBaseUrl(): string {
         LucideAngularModule.pick({ Sun, Moon, Laptop }),
         RouterModule.forRoot([
             { path: '', component: HomeComponent, pathMatch: 'full' },
-            { path: 'login', component: LoginComponent },
-            { path: 'register', component: RegisterComponent }
+            { path: 'login', component: LoginComponent }
         ])
     ],
     providers: [
         { provide: APP_ID, useValue: 'ng-cli-universal' },
         { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: AntiforgeryInterceptor, multi: true },
         { provide: API_BASE_URL, useFactory: getApiBaseUrl, deps: [] },
         provideAppInitializer(() => inject(AuthService).initialize()),
         provideHttpClient(withXhr(), withInterceptorsFromDi())
