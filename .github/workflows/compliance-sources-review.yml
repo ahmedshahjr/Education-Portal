@@ -102,8 +102,8 @@ jobs:
             echo "${unchanged:-None.}"
             echo
             echo "### What to do"
-            echo "1. Read each changed source and decide whether SKILL.md rules or control mappings need updating."
-            echo "2. Open a PR into \`development\` that updates SKILL.md (if needed) and, in sources.json, sets \`last_seen_sha\` and \`last_reviewed\` for each reviewed source. Close this issue from that PR."
+            echo "1. Read each changed source and decide whether the standard skills (standard-*) or topic skills need updating."
+            echo "2. Open a PR into \`development\` that updates the affected skills under docs/ai/secure-compliance/ (if needed) and, in sources.json, sets \`last_seen_sha\` and \`last_reviewed\` for each reviewed source. Close this issue from that PR."
             echo
             echo "<details><summary>Latest SHAs for sources.json</summary>"
             echo

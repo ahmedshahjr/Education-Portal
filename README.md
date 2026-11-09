@@ -22,7 +22,7 @@ A multi-tenant education portal for schools, built as an MVP.
 ```
 AGENTS.md                         Project guide for AI assistants (decisions, rules, plan)
 CLAUDE.md, GEMINI.md, .github/    Pointers to AGENTS.md for each AI tool
-docs/ai/secure-compliance/        Mandatory security and compliance rules (all contributors and AI tools)
+docs/ai/secure-compliance/        Mandatory security and compliance rules: overview, one skill per topic and per standard
 .github/workflows/                Compliance sources review (1st and 16th of each month)
 Education Portal Full Stack App/  The .NET solution
   EducationPortal.slnx
