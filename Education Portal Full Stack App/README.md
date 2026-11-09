@@ -1,57 +1,27 @@
-﻿# Education Portal
+﻿# Education Portal solution
 
-A multi-tenant education portal: the platform owner (master tenant) oversees every school, each school owner manages their own school and its branches, and students, teachers and parents use the portal within their school.
+This folder holds the .NET solution (`EducationPortal.slnx`). Run every `dotnet` command from here.
 
-Built on the [Clean Architecture Solution Template](https://github.com/jasontaylordev/CleanArchitecture) with:
+Built on the [Clean Architecture Solution Template](https://github.com/jasontaylordev/CleanArchitecture) with ASP.NET Core 10, Angular (`src/Web/ClientApp`), PostgreSQL with EF Core and ASP.NET Core Identity, and .NET Aspire.
 
-- ASP.NET Core 10 Web API (minimal APIs, MediatR, FluentValidation, AutoMapper)
-- Angular frontend (`src/Web/ClientApp`)
-- PostgreSQL with EF Core and ASP.NET Core Identity
-- .NET Aspire for local orchestration, telemetry and tests
+- **How to run it, the architecture and the development process:** the [project README](../README.md).
+- **Decisions, multi-tenancy rules and conventions:** [AGENTS.md](../AGENTS.md).
+- **Mandatory security and compliance rules:** [docs/ai/secure-compliance/SKILL.md](../docs/ai/secure-compliance/SKILL.md).
+- **Architecture decision records:** [docs/decisions](docs/decisions/README.md).
 
-See [`AGENTS.md`](../AGENTS.md) at the repository root for the product decisions, the multi-tenancy rules and the coding conventions.
-
-## Prerequisites
-
-- .NET 10 SDK (see `global.json`)
-- Docker Desktop or Podman, because Aspire runs PostgreSQL in a container
-- Node.js 22.22.3+ or 24.15+, for the Angular app (older versions make the Angular CLI exit with code 3). Run `npm install` in `src/Web/ClientApp` once before the first run.
-
-## Build
-
-Run `dotnet build` to build the solution. Warnings are treated as errors.
-
-## Run
-
-Using the [Aspire CLI](https://aspire.dev/get-started/install-cli/) (recommended):
+## Quick commands
 
 ```bash
-aspire run
+dotnet build                        # warnings fail the build
+dotnet run --project src/AppHost    # or: aspire run (Docker must be running)
+dotnet test                         # functional and acceptance tests need Docker
 ```
 
-Or using the .NET CLI:
+## Code style
 
-```bash
-dotnet run --project ./src/AppHost
-```
+The [EditorConfig](https://editorconfig.org/) file (`.editorconfig`) defines the coding style for this solution.
 
-The Aspire dashboard opens automatically and shows the API, the Angular app, PostgreSQL and their logs. The API reference is served by Scalar at `/scalar`.
-
-In Development the database is recreated on every start and seeded with an administrator account (`administrator@localhost` / `Administrator1!`).
-
-## Test
-
-The solution contains unit, integration, functional and acceptance tests. Functional tests start PostgreSQL through Aspire, so Docker must be running.
-
-```bash
-dotnet test
-```
-
-## Code Styles & Formatting
-
-The [EditorConfig](https://editorconfig.org/) file (`.editorconfig`) defines the coding styles for this solution.
-
-## Code Scaffolding
+## Code scaffolding
 
 The template can scaffold new commands and queries. Install it once:
 
@@ -65,7 +35,3 @@ Then, from the `./src/Application/` folder:
 dotnet new ca-usecase --name CreateCourse --feature-name Courses --usecase-type command --return-type int
 dotnet new ca-usecase -n GetCourses -fn Courses -ut query -rt CoursesVm
 ```
-
-## Architectural Decisions
-
-Key design decisions are documented as [Architecture Decision Records](docs/decisions/).
