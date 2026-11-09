@@ -29,7 +29,8 @@ Master tenant (the platform owner, i.e. us)
 - **Master tenant** has full access to every school and branch, for viewing and oversight.
 - **School-owner tenant** sees and manages only its own school and that school's branches.
 - **Branch** is the unit most day-to-day data belongs to (students, teachers, courses, enrolments, grades).
-- **Permissions are module-based and branch-based for each tenant:** a user's access is the combination of which modules they can use (e.g. Students, Courses, Grades) and which branches they can act in.
+- **Permissions are assigned per tenant user, by module and by branch:** each user of a tenant is granted a set of branches and a set of modules (e.g. Students, Courses, Grades). A user can act on a module's data only in branches they have been granted. Example: a user with Grades in Branch A cannot see Grades in Branch B, or Students in Branch A unless Students is also granted.
+  - Model this as user to branch and user to module assignments (or user + branch + module grants if a module grant must differ per branch: **TODO** confirm).
 
 Rules for code:
 
