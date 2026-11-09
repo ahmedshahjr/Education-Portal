@@ -104,7 +104,13 @@ tests/
 
 ## 5. Build, run, test
 
-Prerequisites: .NET 10 SDK, Docker or Podman (for PostgreSQL), Node.js LTS (for Angular), Aspire CLI (optional).
+Prerequisites: .NET 10 SDK, Docker Desktop or Podman **running** (Aspire starts PostgreSQL in a container), Node.js **22.22.3+ or 24.15+** (older Node makes the Angular CLI exit with code 3), Aspire CLI (optional). Step-by-step run instructions for humans are in the root `README.md`.
+
+First run: install the Angular packages once.
+
+```bash
+cd src/Web/ClientApp && npm install
+```
 
 ```bash
 dotnet build                               # warnings fail the build
@@ -113,7 +119,7 @@ dotnet test                                # all tests
 dotnet test tests/Application.UnitTests    # one project
 ```
 
-The Aspire dashboard shows service URLs and logs; API docs are served by Scalar.
+Visual Studio: set `AppHost` as the startup project and press F5. The Aspire dashboard shows service URLs and logs: open **webfrontend** for the Angular app; API docs are at `/scalar` on **webapi**.
 
 In Development the database is dropped and recreated on every start by `ApplicationDbContextInitialiser` (`EnsureDeleted` + `EnsureCreated`), then seeded with `administrator@localhost` / `Administrator1!`. There are no EF Core migrations yet; add them when the schema needs to survive restarts.
 
