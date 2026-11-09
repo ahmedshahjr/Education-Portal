@@ -2,7 +2,7 @@
 
 This file tells AI coding assistants (Claude, ChatGPT/Codex, Gemini, GitHub Copilot, Cursor, and others) what this project is and how to work in it. It follows the open [AGENTS.md](https://agents.md) convention. Tool-specific files (`CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`) only point back here, so keep this file as the single source of truth.
 
-> **Status (2026-11-09):** the project is at the very start. The repository holds no application code yet. The working copy is an unmodified copy of Jason Taylor's **Clean Architecture Solution Template** (.NET 10 + Aspire) with only the top-level files present; `src/` and `tests/` have not been added. Anything marked **TODO** below is undecided. Do not invent answers for TODO items; ask the maintainer or leave them as TODO.
+> **Status (2026-11-09):** the project is at the very start. It is based on Jason Taylor's **Clean Architecture Solution Template** (.NET 10 + Aspire). The full source, including `src/`, `tests/`, and the Angular app, is on the maintainer's machine and is being pushed to this repo; if `src/` is missing in your checkout, it has not been pushed yet. Anything marked **TODO** below is undecided. Do not invent answers for TODO items; ask the maintainer or leave them as TODO.
 
 ---
 
@@ -10,9 +10,11 @@ This file tells AI coding assistants (Claude, ChatGPT/Codex, Gemini, GitHub Copi
 
 An **Education Portal**: a full-stack web application for education use cases.
 
-- Domain, users, and features: **TODO** (being defined separately; update this section once the plan is agreed).
-- Target users (students, teachers, admins, parents?): **TODO**.
-- Monolith vs. microservices: **TODO**. The template is a modular monolith hosted by Aspire. The maintainer works mainly with .NET Core microservices, so a later split into services is possible; do not split services without an explicit decision.
+- **Goal:** an MVP (decided 2026-11-09). Prefer the simplest thing that works; defer non-essential features.
+- **Core entities:** Student, Teacher, Admin, Parent, Course, Enrolment, Grade.
+- **User roles:** students, teachers, admins, parents. Exact permissions per role: **TODO**.
+- **Architecture:** a single Clean Architecture solution, same shape as the template (decided 2026-11-09). Not microservices for the MVP; do not split into services without an explicit decision.
+- **Frontend:** Angular. An Angular app already exists in the maintainer's full source (local machine and repo).
 
 ## 2. Tech stack (from the template files that exist)
 
@@ -27,7 +29,7 @@ An **Education Portal**: a full-stack web application for education use cases.
 | App layer | MediatR 14 (CQRS), FluentValidation 12, AutoMapper 16, Ardalis.GuardClauses | packages |
 | Data | EF Core 10 + ASP.NET Core Identity | packages |
 | Database | **TODO**: template supports SQLite (default), PostgreSQL, SQL Server | |
-| Frontend | **TODO**: template supports Angular 21, React 19, or API only | |
+| Frontend | Angular (template targets Angular 21; existing app lives in the full source) | decided 2026-11-09 |
 | Observability | OpenTelemetry (OTLP exporter), health checks, via `src/ServiceDefaults` | packages |
 | Resilience / discovery | `Microsoft.Extensions.Http.Resilience`, `Microsoft.Extensions.ServiceDiscovery` | packages |
 | Cloud target | Azure Container Apps via Aspire (`Aspire.Hosting.Azure.AppContainers`), Key Vault config | packages. Actual hosting: **TODO** |
@@ -115,13 +117,14 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
 
 ## 7. Open decisions (TODO)
 
-- [ ] Product scope: core features and user roles
-- [ ] Frontend: Angular, React, or API only
+- [x] Product scope: MVP with Students, Teachers, Admins, Parents, Courses, Enrolments, Grades (2026-11-09)
+- [ ] Per-role permissions and the MVP feature list for each entity
+- [x] Frontend: Angular (2026-11-09)
 - [ ] Database: SQLite, PostgreSQL, or SQL Server
-- [ ] Monolith vs. microservices (and if microservices: service boundaries, messaging, API gateway)
+- [x] Architecture: single Clean Architecture solution, not microservices (2026-11-09)
 - [ ] Authentication: template ASP.NET Core Identity vs. an external IdP (Entra ID, Keycloak, etc.)
 - [ ] Hosting and CI/CD (Azure Container Apps via `azd`? GitHub Actions?)
-- [ ] Generate the solution: `dotnet new ca-sln -cf <angular|react|none> -db <sqlite|postgresql|sqlserver> -o EducationPortal`, then rename namespaces from `CleanArchitecture` to `EducationPortal`
+- [ ] Push the full source (`src/`, `tests/`, Angular app) to this repo, and decide whether to rename namespaces from `CleanArchitecture` to `EducationPortal`
 
 ## 8. References
 
