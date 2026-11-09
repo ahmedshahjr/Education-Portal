@@ -36,8 +36,10 @@ Master tenant (the platform owner, i.e. us)
 - All schools share one database. Every school-owned row has a `SchoolId`; branch-scoped rows also have a `BranchId`.
 - Scoping is applied by **EF Core global query filters** fed by the current-user service, never by hand in each query or endpoint.
 - **Master-tenant users bypass the filters** and can read across all schools.
-- The current school comes from the logged-in user's claims, not from a subdomain or header.
-- The current **branch** comes from the URL (e.g. `/branches/{branchId}/students`, and the matching Angular route). Students and parents can belong to **several branches** (decided 2026-11-09), so the branch in the URL decides which branch's data they see; the server must check the user belongs to that branch.
+- **Tenant resolution is DNS/host based** (decided 2026-11-09): each school is reached on its own domain, e.g. `school1.com`, `school2.com`. A tenant-resolution middleware looks up the request `Host` in a domain table (domain to school, and optionally to branch) and sets the current tenant before any endpoint runs. The master portal has its own domain. Whether domains map to schools only or also to individual branches: **TODO** confirm.
+- An unknown host is rejected (404), never served as a default tenant.
+- The server checks that the logged-in user belongs to the tenant resolved from the host. A session or token from `school1.com` must not work on `school2.com` (scope auth cookies per domain).
+- Students and parents can belong to **several branches** (decided 2026-11-09). The domain they use decides which school/branch they see, and the server checks their membership.
 - Database-per-school is out of scope (it makes cross-school overview and migrations harder).
 
 ### Modules and permissions
@@ -83,7 +85,7 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 | API | ASP.NET Core 10 minimal APIs, OpenAPI + Scalar UI |
 | Application | MediatR 14 (CQRS), FluentValidation 12, AutoMapper 16, Ardalis.GuardClauses |
 | Data | EF Core 10, PostgreSQL (Npgsql) |
-| Auth | ASP.NET Core Identity from the template (decided 2026-11-09); school, branch and role data are added as claims |
+| Auth | ASP.NET Core Identity from the template (decided 2026-11-09); school, branch and role data are added as claims and must match the tenant resolved from the host |
 | Frontend | Angular 22 in `src/Web/ClientApp` (NSwag generates the TypeScript API client from `nswag.json`) |
 | Observability | OpenTelemetry, health checks, resilience, service discovery (`src/ServiceDefaults`) |
 | Cloud | Aspire Azure Container Apps + Key Vault packages are referenced. Actual hosting: **TODO** |
@@ -188,14 +190,15 @@ Each step is one reviewable PR into `development`.
 3. **Academics:** students, teachers, parents, courses, enrolments and grades, all respecting modules and branches.
 4. **Master overview and polish:** master dashboard across all schools and branches, demo data, smoke tests per role.
 
-**Out of scope for the MVP:** fees, attendance, timetables, billing schools, microservices, database-per-school, subdomain-per-school.
+**Out of scope for the MVP:** fees, attendance, timetables, billing schools, microservices, database-per-school.
 
 ## 9. Open decisions (TODO)
 
 - [x] Branches: `main` holds released work; `development` is the integration branch for feature PRs (2026-11-09)
 - [x] Authentication: template ASP.NET Core Identity (2026-11-09)
 - [ ] Hosting and CI/CD (Azure Container Apps via `azd`? GitHub Actions?)
-- [x] Students and parents can belong to several branches; the branch comes from the URL (2026-11-09)
+- [x] Students and parents can belong to several branches; tenant comes from the request domain, e.g. `school1.com` (2026-11-09)
+- [ ] Domain mapping level: one domain per school, or also per branch? Local development setup for domains (hosts file / `*.localhost`)
 - [x] Module list: see section 2 (2026-11-09)
 
 ## 10. References
