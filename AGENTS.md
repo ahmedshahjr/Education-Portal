@@ -36,10 +36,11 @@ Master tenant (the platform owner, i.e. us)
 - All schools share one database. Every school-owned row has a `SchoolId`; branch-scoped rows also have a `BranchId`.
 - Scoping is applied by **EF Core global query filters** fed by the current-user service, never by hand in each query or endpoint.
 - **Master-tenant users bypass the filters** and can read across all schools.
-- **Tenant resolution is DNS/host based** (decided 2026-11-09): each school is reached on its own domain, e.g. `school1.com`, `school2.com`. A tenant-resolution middleware looks up the request `Host` in a domain table (domain to school, and optionally to branch) and sets the current tenant before any endpoint runs. The master portal has its own domain. Whether domains map to schools only or also to individual branches: **TODO** confirm.
+- **Tenant resolution is DNS/host based** (decided 2026-11-09): each school is reached on its own domain, e.g. `school1.com`, `school2.com`. A tenant-resolution middleware looks up the request `Host` in a domain table (domain to school) and sets the current school before any endpoint runs. The master portal has its own domain. **Domains are per school only, never per branch** (decided 2026-11-09).
 - An unknown host is rejected (404), never served as a default tenant.
 - The server checks that the logged-in user belongs to the tenant resolved from the host. A session or token from `school1.com` must not work on `school2.com` (scope auth cookies per domain).
-- Students and parents can belong to **several branches** (decided 2026-11-09). The domain they use decides which school/branch they see, and the server checks their membership.
+- **Branch selection happens inside the school's domain:** a user with access to several branches (staff, students, parents) picks the current branch in the app (branch switcher, carried in the route, e.g. `/branches/{branchId}/...`). The server checks the user belongs to that branch on every request.
+- Students and parents can belong to **several branches** (decided 2026-11-09).
 - Database-per-school is out of scope (it makes cross-school overview and migrations harder).
 
 ### Modules and permissions
@@ -198,7 +199,8 @@ Each step is one reviewable PR into `development`.
 - [x] Authentication: template ASP.NET Core Identity (2026-11-09)
 - [ ] Hosting and CI/CD (Azure Container Apps via `azd`? GitHub Actions?)
 - [x] Students and parents can belong to several branches; tenant comes from the request domain, e.g. `school1.com` (2026-11-09)
-- [ ] Domain mapping level: one domain per school, or also per branch? Local development setup for domains (hosts file / `*.localhost`)
+- [x] Domains are per school only; branches are chosen inside the app (2026-11-09)
+- [ ] Local development setup for school domains (hosts file / `*.localhost`)
 - [x] Module list: see section 2 (2026-11-09)
 
 ## 10. References
