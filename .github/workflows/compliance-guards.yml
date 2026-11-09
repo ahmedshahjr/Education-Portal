@@ -9,6 +9,8 @@ name: Compliance guards
 on:
   pull_request:
     branches: [development, main]
+    # 'edited' re-runs the checks when the PR description (security checklist) changes.
+    types: [opened, synchronize, reopened, edited]
   push:
     branches: [development, main]
   workflow_dispatch:
