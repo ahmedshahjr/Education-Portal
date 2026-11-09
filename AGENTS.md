@@ -2,7 +2,7 @@
 
 This file tells AI coding assistants (Claude, ChatGPT/Codex, Gemini, GitHub Copilot, Cursor, and others) what this project is and how to work in it. It follows the open [AGENTS.md](https://agents.md) convention. `CLAUDE.md`, `GEMINI.md` and `.github/copilot-instructions.md` only point here, so **this file is the single source of truth**. When a decision changes, update this file in the same PR.
 
-> **Status (2026-11-09):** step 1 of the plan (section 8) is done: the code is a generated `EducationPortal` solution from Jason Taylor's *Clean Architecture Solution Template* (.NET 10 + Aspire) with Angular and PostgreSQL only. The template switches, the SQL Server/SQLite code and the Todo/Weather samples are gone. No feature code yet.
+> **Status (2026-11-09):** step 1 of the plan (section 8) is done: the code is a generated `EducationPortal` solution from Jason Taylor's *Clean Architecture Solution Template* (.NET 10 + Aspire) with Angular and PostgreSQL only. The template switches, the SQL Server/SQLite code and the Todo/Weather samples are gone. Step 2a (security baseline, see `Education Portal Full Stack App/docs/decisions/ADR-004-Security-Baseline.md`) adds sign-in, sessions, antiforgery, security headers and audit events, with no schools or branches yet; it is in review. Schools and branches come in step 2b.
 >
 > **MUST FOLLOW: security and compliance rules.** Every AI assistant and human contributor must read and follow [docs/ai/secure-compliance/SKILL.md](docs/ai/secure-compliance/SKILL.md) (secure coding rules mapped to FedRAMP Moderate Rev 5 / NIST SP 800-53, GovRAMP, SOC 2, ISO/IEC 27001:2022 and OWASP Top 10:2025) before changing code, config, dependencies, tests or pipelines. The overview links to one skill per topic (authentication, tenant isolation, secrets, privacy, logging, ...) and one per standard; load every one that matches the change. If a request would break one of those rules, stop and say which rule. These rules do not make the product certified; never claim it is.
 
@@ -150,7 +150,7 @@ dotnet test tests/Application.UnitTests    # one project
 
 Visual Studio: set `AppHost` as the startup project and press F5. The Aspire dashboard shows service URLs and logs: open **webfrontend** for the Angular app; API docs are at `/scalar` on **webapi**.
 
-In Development the database is dropped and recreated on every start by `ApplicationDbContextInitialiser` (`EnsureDeleted` + `EnsureCreated`), then seeded with `administrator@localhost` / `Administrator1!`. There are no EF Core migrations yet; add them when the schema needs to survive restarts.
+In Development the database is dropped and recreated on every start by `ApplicationDbContextInitialiser` (`EnsureDeleted` + `EnsureCreated`), then seeded with the Development-only account `administrator@localhost` (its password is set in `ApplicationDbContextInitialiser`; the seed never runs outside Development, SEC-SECRET-04). There are no EF Core migrations yet; add them when the schema needs to survive restarts.
 
 Functional and acceptance tests start PostgreSQL in a container through Aspire, so Docker must be running.
 
@@ -238,7 +238,7 @@ All AI skills (same list for every tool). Read the overview first, then every sk
 Each step is one reviewable PR into `development`.
 
 1. **Baseline (done 2026-11-09):** turn the template into an `EducationPortal` solution with Angular and PostgreSQL only (remove SQL Server/SQLite code and the `#if` switches), remove the Todo/Weather samples, get build and tests green.
-2. **Schools, branches and permissions:** API and Angular screens for creating schools, switching modules per school (master portal), adding branches, roles and staff. Tests prove schools and branches can't see each other's data.
+2. **Security baseline, then schools, branches and permissions.** Step 2a is the security baseline in [ADR-004](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-004-Security-Baseline.md): sign-in and sign-out, cookie sessions, antiforgery, security headers, lockout, password policy and audit events. Step 2b is API and Angular screens for creating schools, switching modules per school (master portal), adding branches, roles and staff. Tests prove schools and branches can't see each other's data.
 3. **Academics:** students, teachers, parents, courses, enrolments and grades, all respecting modules and branches.
 4. **Master overview and polish:** master dashboard across all schools and branches, demo data, smoke tests per role.
 
@@ -248,6 +248,7 @@ Each step is one reviewable PR into `development`.
 
 - [x] Branches: `main` holds released work; `development` is the integration branch for feature PRs (2026-11-09)
 - [x] Authentication: template ASP.NET Core Identity (2026-11-09)
+- [ ] MFA for master-tenant users, school owners and roles that can change data (SEC-AUTHN-04): the method and rollout are not decided. It must be in place before the first such account is created outside Development, which is step 2b.
 - [x] Secure coding and compliance rules for all contributors and AI assistants: `docs/ai/secure-compliance/` (FedRAMP Moderate Rev 5, GovRAMP, SOC 2, ISO 27001, OWASP Top 10), sources checked for updates on the 1st and 16th of each month by `.github/workflows/compliance-sources-review.yml` (2026-11-09)
 - [ ] Hosting and CI/CD (Azure Container Apps via `azd`? GitHub Actions?)
 - [x] Students and parents can belong to several branches; tenant comes from the request domain, e.g. `school1.com` (2026-11-09)

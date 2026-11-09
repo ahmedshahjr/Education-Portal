@@ -4,6 +4,9 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
+/** These calls answer 401 as a normal result, so that answer must not send the visitor to the login page. */
+const ANONYMOUS_ANSWER_PATHS = ['/api/Users/me', '/api/Users/login'];
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,7 +19,7 @@ export class AuthorizeInterceptor implements HttpInterceptor {
       catchError(error => {
         if (error instanceof HttpErrorResponse
           && error.status === 401
-          && !error.url?.includes('/manage/info')
+          && !isAnonymousAnswer(error.url)
           && !this.router.url.startsWith('/login')) {
           this.router.navigate(['/login'], { queryParams: { returnUrl: window.location.pathname } });
         }
@@ -24,4 +27,12 @@ export class AuthorizeInterceptor implements HttpInterceptor {
       })
     );
   }
+}
+
+function isAnonymousAnswer(url: string | null): boolean {
+  if (!url) {
+    return false;
+  }
+  const path = new URL(url, window.location.origin).pathname;
+  return ANONYMOUS_ANSWER_PATHS.some(answerPath => path.endsWith(answerPath));
 }

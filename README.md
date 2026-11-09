@@ -83,7 +83,7 @@ Then:
 
 1. The **Aspire dashboard** opens in your browser (the console also prints its login URL).
 2. Click the **webfrontend** URL to open the Angular app.
-3. Sign in with the Development-only seed account `administrator@localhost` / `Administrator1!`. It exists only in your local database.
+3. Sign in with the Development-only seed account `administrator@localhost` / `Local-Dev-Only-2026!`. It exists only in your local database, and only in Development.
 4. API docs (Scalar) are at `/scalar` on the **webapi** URL.
 
 In Development the database is dropped, recreated and re-seeded on every start, so local data does not survive a restart.
@@ -206,18 +206,18 @@ Step 2 adds a permission check after authorization: the module is switched on fo
 
 - The Angular app lives in `src/Web/ClientApp`. In development, `npm start` runs `ng serve`, and `proxy.conf.js` forwards `/api`, `/openapi` and `/scalar` to the API, so the browser sees one site and the sign-in cookie just works.
 - The TypeScript client `src/app/web-api-client.ts` is **generated, never edited by hand, and not committed**:
-  1. Building `src/Web` writes the OpenAPI document to `src/Web/wwwroot/openapi/v1.json`.
+  1. Building `src/Web` writes the OpenAPI document to `src/Web/openapi/v1.json`.
   2. `npm start` and `npm run build` first run `npm run generate-api`, where NSwag (`nswag.json`) turns that document into one Angular service per endpoint group, such as `UsersClient`.
-- `AuthService` signs in through `/api/Users/login?useCookies=true`. `AuthorizeInterceptor` sends the cookie with every request and redirects to `/login` when the API answers 401.
+- `AuthService` signs in with `POST /api/Users/login`, then asks `GET /api/Users/me` for the signed-in user. That answer also carries a fresh antiforgery token. `AuthorizeInterceptor` sends the session cookie with every request and redirects to `/login` when the API answers 401, except for the answers from `/api/Users/me` and `/api/Users/login`. `AntiforgeryInterceptor` copies the `__Host-XSRF-TOKEN` cookie into the `X-XSRF-TOKEN` header of every unsafe request.
 - In production the API serves the built Angular files and falls back to `index.html` for app routes.
 
 ### Sign-in and accounts
 
 - ASP.NET Core Identity from the template (kept on purpose), with users and roles in the same PostgreSQL database.
-- The Identity API endpoints are mapped under `/api/Users` (`login`, `refresh`, `manage/info` and so on), plus `logout`. Signing in sets a cookie.
+- Three endpoints under `/api/Users` (`login`, `logout` and `me`) replace the template's Identity API endpoints. Signing in sets a session cookie.
 - `CurrentUser` (in `Web`) gives the Application layer the signed-in user's id and roles through `IUser`.
-- There is no public sign-up: staff create accounts. The template's register endpoint and page are switched off in step 2.
-- The security rules ask for more than the template defaults: a stronger password policy, account lockout, secure host-only cookies, session timeouts, and MFA for master users, school owners and staff who can change data ([authentication skill](docs/ai/secure-compliance/authentication/SKILL.md)). These are being added.
+- There is no public sign-up: staff create accounts. The template's register endpoint and page are removed.
+- The security rules ask for more than the template defaults: a stronger password policy, account lockout, secure host-only cookies, session timeouts, and MFA for master users, school owners and staff who can change data ([authentication skill](docs/ai/secure-compliance/authentication/SKILL.md)). Step 2a adds the stronger password policy, lockout, secure host-only cookies, session timeouts and sign-in rate limits. The decisions are in [ADR-004](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-004-Security-Baseline.md). MFA is not built yet.
 
 ### Multi-tenancy and permissions (step 2, in progress)
 
@@ -425,7 +425,7 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | API reference and health (in Development) | Scalar at `/scalar`, the OpenAPI document at `/openapi/v1.json`, health at `/health` and `/alive` |
 | Angular app (`webfrontend`) | A port chosen by Aspire. Open it from the dashboard. |
 | Database connection | Passed in by Aspire as `ConnectionStrings__EducationPortalDb` |
-| Development seed account | `administrator@localhost` / `Administrator1!` (local database only) |
+| Development seed account | `administrator@localhost` / `Local-Dev-Only-2026!` (local database, Development only) |
 | Secrets | None are needed yet. Use `dotnet user-secrets` locally and Azure Key Vault when deployed (`AZURE_KEY_VAULT_ENDPOINT`). Never put them in `appsettings*.json` or any other file in the repository. |
 
 ## Troubleshooting
@@ -437,7 +437,7 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | Build fails on a warning | Warnings are errors in this solution; fix the warning. |
 | "A compatible .NET SDK was not found" | Install .NET SDK 10.0.403 or newer (see `global.json`), or update Visual Studio. |
 | Certificate warning in the browser, or the dashboard won't open | Run `dotnet dev-certs https --trust` once and restart the app. |
-| Angular can't find `web-api-client`, or a new endpoint has no client method | Run `dotnet build` (it writes `wwwroot/openapi/v1.json`), then restart the app or run `npm run generate-api`. |
+| Angular can't find `web-api-client`, or a new endpoint has no client method | Run `dotnet build` (it writes `openapi/v1.json` in `src/Web`), then restart the app or run `npm run generate-api`. |
 | Acceptance tests fail with "Executable doesn't exist" | Install the Playwright browsers (see the [command cheat sheet](#command-cheat-sheet)). |
 | Data is gone after a restart | Expected in Development: the database is recreated on every start. |
 | `npm install` reports vulnerabilities | Run `npm audit --audit-level=high`. High and critical findings must be fixed before merging, or documented as an approved exception. Use `npm audit fix` without `--force`, which could move Angular to another major version. |

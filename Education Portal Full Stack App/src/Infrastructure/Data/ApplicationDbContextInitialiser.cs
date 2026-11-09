@@ -3,6 +3,7 @@ using EducationPortal.Infrastructure.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace EducationPortal.Infrastructure.Data;
@@ -11,6 +12,12 @@ public static class InitialiserExtensions
 {
     public static async Task InitialiseDatabaseAsync(this WebApplication app)
     {
+        // EnsureDeleted drops the database, so this must never run outside Development (SEC-CFG-03).
+        if (!app.Environment.IsDevelopment())
+        {
+            throw new InvalidOperationException("The database is only reset and seeded in the Development environment.");
+        }
+
         using var scope = app.Services.CreateScope();
 
         var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
@@ -78,7 +85,8 @@ public class ApplicationDbContextInitialiser
 
         if (_userManager.Users.All(u => u.UserName != administrator.UserName))
         {
-            await _userManager.CreateAsync(administrator, "Administrator1!");
+            // Development-only seed account (SEC-SECRET-04). It meets the 15-character minimum of SEC-AUTHN-03.
+            await _userManager.CreateAsync(administrator, "Local-Dev-Only-2026!");
             if (!string.IsNullOrWhiteSpace(administratorRole.Name))
             {
                 await _userManager.AddToRolesAsync(administrator, new [] { administratorRole.Name });

@@ -14,6 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Common passwords for PasswordPolicyValidator (SEC-AUTHN-03). Source and licence: CommonPasswords.LICENSE.txt -->
+    <EmbeddedResource Include="Identity\CommonPasswords.txt.gz" LogicalName="EducationPortal.Infrastructure.Identity.CommonPasswords.txt.gz" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>

@@ -1,4 +1,5 @@
 using EducationPortal.Domain.Constants;
+using EducationPortal.Domain.Entities;
 using EducationPortal.Infrastructure.Data;
 using EducationPortal.Infrastructure.Identity;
 using MediatR;
@@ -10,6 +11,15 @@ namespace EducationPortal.Application.FunctionalTests.Infrastructure;
 
 public static class TestApp
 {
+    public const string DefaultUserEmail = "default.user@local";
+    public const string AdministratorEmail = "administrator@local";
+
+    // The passwords are random for each test run. They exist only in the disposable test database, so no credential is
+    // written into the code (SEC-AI-03, SEC-SECRET-04).
+    public static string DefaultUserPassword { get; } = NewPassword();
+
+    public static string AdministratorPassword { get; } = NewPassword();
+
     private static string? _userId;
     private static List<string>? _roles;
 
@@ -37,12 +47,12 @@ public static class TestApp
 
     public static async Task<string> RunAsDefaultUserAsync()
     {
-        return await RunAsUserAsync("test@local", "Testing1234!", []);
+        return await RunAsUserAsync(DefaultUserEmail, DefaultUserPassword, []);
     }
 
     public static async Task<string> RunAsAdministratorAsync()
     {
-        return await RunAsUserAsync("administrator@local", "Administrator1234!", [Roles.Administrator]);
+        return await RunAsUserAsync(AdministratorEmail, AdministratorPassword, [Roles.Administrator]);
     }
 
     public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
@@ -90,6 +100,19 @@ public static class TestApp
         _roles = null;
     }
 
+    /// <summary>The audit records written for one user, oldest first.</summary>
+    public static async Task<List<SecurityAuditEvent>> FindAuditEventsAsync(string actorUserId)
+    {
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        return await context.SecurityAuditEvents
+            .Where(e => e.ActorUserId == actorUserId)
+            .OrderBy(e => e.Id)
+            .ToListAsync();
+    }
+
     public static async Task<TEntity?> FindAsync<TEntity>(params object[] keyValues)
         where TEntity : class
     {
@@ -120,4 +143,6 @@ public static class TestApp
 
         return await context.Set<TEntity>().CountAsync();
     }
+
+    private static string NewPassword() => $"{Guid.NewGuid():N}{Guid.NewGuid():N}";
 }

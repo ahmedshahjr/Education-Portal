@@ -16,7 +16,7 @@ export class NavMenuComponent {
 
   logout(event: Event): void {
     event.preventDefault();
-    this.authService.logout().subscribe({
+    this.authService.signOut().subscribe({
       next: () => this.router.navigate(['/login'])
     });
   }

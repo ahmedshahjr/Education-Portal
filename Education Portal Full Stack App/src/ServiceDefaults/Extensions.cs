@@ -105,13 +105,16 @@ public static class Extensions
         if (app.Environment.IsDevelopment())
         {
             // All health checks must pass for app to be considered ready to accept traffic after starting
-            app.MapHealthChecks("/health");
+            // compliance-exception: SEC-AUTHN-01 platform health probe, mapped in Development only
+            app.MapHealthChecks("/health").AllowAnonymous();
 
             // Only health checks tagged with the "live" tag must pass for app to be considered alive
             app.MapHealthChecks("/alive", new HealthCheckOptions
             {
                 Predicate = r => r.Tags.Contains("live")
-            });
+            })
+            // compliance-exception: SEC-AUTHN-01 platform liveness probe, mapped in Development only
+            .AllowAnonymous();
         }
 
         return app;

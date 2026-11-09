@@ -14,9 +14,8 @@
       autocomplete="current-password"
       (ngModelChange)="invalid = false" />
     @if (invalid) {
-      <small id="login-error">Invalid email or password.</small>
+      <small id="login-error">{{ message }}</small>
     }
     <button type="submit">Log in</button>
-    <p style="margin-top: 1rem">Don't have an account? <a [routerLink]="['/register']">Register</a></p>
   </form>
 </article>

@@ -148,12 +148,11 @@ The baseline came from the Clean Architecture template and does not meet every r
 
 | Gap | Where | Rule |
 |---|---|---|
-| CORS allows any origin, method and header in every environment | `src/Web/Program.cs` | SEC-WEB-02 |
-| Request objects are logged with `{@Request}` (would log PII once real use cases exist) | `src/Application/Common/Behaviours/LoggingBehaviour.cs` (check `UnhandledExceptionBehaviour` and `PerformanceBehaviour` too) | SEC-LOG-02, SEC-PII-02 |
-| OpenAPI and Scalar UI are mapped in every environment | `src/Web/Program.cs` | SEC-WEB-05 |
-| Local Postgres password in `appsettings.json` (dev-only value, but secrets belong in user-secrets/Aspire parameters) | `src/Web/appsettings.json` | SEC-SECRET-01 |
-| Identity password, lockout, cookie and session options are template defaults | `src/Infrastructure/DependencyInjection.cs` | SEC-AUTHN-03/05/06/07 |
-| No antiforgery, security headers, rate limiting or tenant resolution yet | `src/Web` | SEC-WEB-03/04/07, SEC-AUTHZ-10 |
+| Development seed password `Local-Dev-Only-2026!` is in code, tests, `Web.http` and the README. It is allowed because the seed runs only in Development; the maintainer decides whether it moves to user-secrets | `src/Infrastructure/Data/ApplicationDbContextInitialiser.cs`, `src/Web/Web.http`, `tests/Web.AcceptanceTests/StepDefinitions/LoginStepDefinitions.cs`, `../README.md` | SEC-SECRET-01, SEC-SECRET-04, SEC-AI-03 |
+| Lockout counter has no 15-minute window. Three failures lock for 30 minutes, which is stricter (ADR-004) | `src/Infrastructure/DependencyInjection.cs` | SEC-AUTHN-05 |
+| MFA is not implemented. It must exist before any privileged account is created outside Development (ADR-004) | `src/Infrastructure/Identity/IdentityService.cs` | SEC-AUTHN-04 |
+| Password reset, invite links and disabling users are not implemented (step 2b) | `src/Web/Endpoints/Users.cs` | SEC-AUTHN-08, SEC-AUTHN-10 |
+| No tenant resolution from the request host yet (step 2b). The sign-in rate limit is per client address only; the per-account limit is the lockout | `src/Web` | SEC-AUTHZ-10, SEC-AUTHN-09, SEC-WEB-07 |
 | No SAST (CodeQL) or SBOM yet; GitHub secret scanning push protection not confirmed | repo settings / CI | SEC-DEP-08, SEC-SECRET-03 |
 
 Paths in this table are relative to `Education Portal Full Stack App/`. Remove a row in the PR that fixes it.
