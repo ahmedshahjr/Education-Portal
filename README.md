@@ -217,7 +217,7 @@ Step 2 adds a permission check after authorization: the module is switched on fo
 - The Identity API endpoints are mapped under `/api/Users` (`login`, `refresh`, `manage/info` and so on), plus `logout`. Signing in sets a cookie.
 - `CurrentUser` (in `Web`) gives the Application layer the signed-in user's id and roles through `IUser`.
 - There is no public sign-up: staff create accounts. The template's register endpoint and page are switched off in step 2.
-- The security rules ask for more than the template defaults: a stronger password policy, account lockout, secure host-only cookies, session timeouts, and MFA for master users, school owners and staff who can change data ([SKILL.md, section 2](docs/ai/secure-compliance/SKILL.md#2-authentication-aspnet-core-identity)). These are being added.
+- The security rules ask for more than the template defaults: a stronger password policy, account lockout, secure host-only cookies, session timeouts, and MFA for master users, school owners and staff who can change data ([authentication skill](docs/ai/secure-compliance/authentication/SKILL.md)). These are being added.
 
 ### Multi-tenancy and permissions (step 2, in progress)
 
@@ -272,7 +272,7 @@ Modules (AGENTS.md has the full table): Branches and Users & Roles are always on
 - Entities raise domain events instead of calling services. `DispatchDomainEventsInterceptor` publishes them through MediatR just before the changes are saved.
 - Aspire passes the connection string (`ConnectionStrings__EducationPortalDb`) to the API, so there is nothing to configure locally.
 - In Development the database is dropped and recreated on every start (`ApplicationDbContextInitialiser`: `EnsureDeleted`, then `EnsureCreated`) and then seeded. There are no EF Core migrations yet. They are required before any shared environment exists.
-- Student data is treated with the most care: personal fields are labelled by data class, never logged, and only ever synthetic in development and tests ([SKILL.md, section 7](docs/ai/secure-compliance/SKILL.md#7-personal-data-students-and-minors)).
+- Student data is treated with the most care: personal fields are labelled by data class, never logged, and only ever synthetic in development and tests ([student-data-privacy skill](docs/ai/secure-compliance/student-data-privacy/SKILL.md)).
 
 ### Observability
 
@@ -295,7 +295,7 @@ Every new use case gets functional tests proving that an unauthenticated call ge
 
 ### Security and compliance rules
 
-Every change, by a person or an AI assistant, follows [docs/ai/secure-compliance/SKILL.md](docs/ai/secure-compliance/SKILL.md). It holds numbered rules (such as `SEC-AUTHZ-03`) mapped to FedRAMP Moderate Rev 5 / NIST SP 800-53, GovRAMP, SOC 2, ISO/IEC 27001:2022 and the OWASP Top 10. If a request would break a rule, stop and name the rule. The ones that shape everyday work:
+Every change, by a person or an AI assistant, follows [docs/ai/secure-compliance/SKILL.md](docs/ai/secure-compliance/SKILL.md), an overview that links to one skill per topic and one per standard (FedRAMP, GovRAMP, SOC 2, ISO 27001, OWASP, EU). Together they hold numbered rules (such as `SEC-AUTHZ-03`) mapped to FedRAMP Moderate Rev 5 / NIST SP 800-53, GovRAMP, SOC 2, ISO/IEC 27001:2022 and the OWASP Top 10, plus EU rules (GDPR and related law). CI guards on every pull request enforce the rules that can be checked automatically. If a request would break a rule, stop and name the rule. The ones that shape everyday work:
 
 - Every endpoint needs a signed-in user, and every MediatR request declares the module and right it needs (deny by default).
 - The school comes only from the domain. A branch id from the route is always checked against the user.
@@ -304,7 +304,7 @@ Every change, by a person or an AI assistant, follows [docs/ai/secure-compliance
 - Never log personal data such as names, emails or grades; log ids instead.
 - Every pull request fills in the security checklist from the pull request template.
 
-The rules help the product support those frameworks' controls; they do not make it certified or authorized, so never describe it as compliant. Section 18 of the rules lists where the template code doesn't meet them yet; those gaps are being fixed in dedicated pull requests.
+The rules help the product support those frameworks' controls; they do not make it certified or authorized, so never describe it as compliant. Section 8 of the overview lists where the template code doesn't meet them yet (and `docs/ai/compliance-guard-baseline.json` allows only those); those gaps are being fixed in dedicated pull requests.
 
 ### Roadmap
 
@@ -388,7 +388,7 @@ Before you open a pull request:
 - [ ] `dotnet build` passes (warnings are errors).
 - [ ] `dotnet test` passes, with Docker running.
 - [ ] If you changed the Angular app, `npm run build`, `npx ng test --watch=false` and `npm audit --audit-level=high` are clean in `src/Web/ClientApp`.
-- [ ] The security checklist in the pull request is filled in ([SKILL.md, section 16](docs/ai/secure-compliance/SKILL.md#16-pr-security-checklist)).
+- [ ] The security checklist in the pull request is filled in ([overview, section 5](docs/ai/secure-compliance/SKILL.md#5-pr-security-checklist)).
 - [ ] New use cases have the five denial tests, and new school or branch data has `SchoolId`/`BranchId` and query filters.
 - [ ] Any new NuGet or npm package is justified in the pull request (why, licence, maintenance). NuGet versions live only in `Directory.Packages.props`.
 - [ ] No secrets, real personal data, `artifacts/`, `bin/`, `obj/` or `node_modules/` are committed.
