@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>CleanArchitecture.Domain</RootNamespace>
-    <AssemblyName>CleanArchitecture.Domain</AssemblyName>
+    <RootNamespace>EducationPortal.Domain</RootNamespace>
+    <AssemblyName>EducationPortal.Domain</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,7 +1,7 @@
 using Azure.Identity;
-using CleanArchitecture.Application.Common.Interfaces;
-using CleanArchitecture.Infrastructure.Data;
-using CleanArchitecture.Web.Services;
+using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Infrastructure.Data;
+using EducationPortal.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -28,9 +28,6 @@ public static class DependencyInjection
         {
             options.AddOperationTransformer<ApiExceptionOperationTransformer>();
             options.AddOperationTransformer<IdentityApiOperationTransformer>();
-#if (UseApiOnly)
-            options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
-#endif
         });
 
         builder.Services.AddCors();

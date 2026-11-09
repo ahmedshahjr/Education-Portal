@@ -2,9 +2,9 @@
 
 This file tells AI coding assistants (Claude, ChatGPT/Codex, Gemini, GitHub Copilot, Cursor, and others) what this project is and how to work in it. It follows the open [AGENTS.md](https://agents.md) convention. `CLAUDE.md`, `GEMINI.md` and `.github/copilot-instructions.md` only point here, so **this file is the single source of truth**. When a decision changes, update this file in the same PR.
 
-> **Status (2026-11-09):** planning is done, no feature code yet. The source is still the **raw** Jason Taylor *Clean Architecture Solution Template* (.NET 10 + Aspire): it still has template switches such as `<!--#if (UsePostgreSQL)-->`, `CleanArchitecture` names, and the Todo/Weather samples. Step 1 of the plan (section 8) turns it into a real `EducationPortal` solution.
+> **Status (2026-11-09):** step 1 of the plan (section 8) is done: the code is a generated `EducationPortal` solution from Jason Taylor's *Clean Architecture Solution Template* (.NET 10 + Aspire) with Angular and PostgreSQL only. The template switches, the SQL Server/SQLite code and the Todo/Weather samples are gone. No feature code yet.
 >
-> **Where the code is:** the solution lives in the `Education Portal Full Stack App/` folder of this repo (`CleanArchitecture.slnx`, `src/`, `tests/`, Angular app in `src/Web/ClientApp`). Run all `dotnet` commands from that folder. All paths in this file are relative to it unless they start with the repo root files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/`). Items marked **TODO** are undecided: do not invent answers, ask the maintainer or leave them as TODO.
+> **Where the code is:** the solution lives in the `Education Portal Full Stack App/` folder of this repo (`EducationPortal.slnx`, `src/`, `tests/`, Angular app in `src/Web/ClientApp`). Run all `dotnet` commands from that folder. All paths in this file are relative to it unless they start with the repo root files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/`). Items marked **TODO** are undecided: do not invent answers, ask the maintainer or leave them as TODO.
 
 ---
 
@@ -75,7 +75,7 @@ Package versions live **only** in `Directory.Packages.props`. In a `.csproj`, wr
 
 ## 4. Solution layout
 
-Expected after step 1 (names change from `CleanArchitecture` to `EducationPortal`):
+Projects, assemblies and namespaces are named `EducationPortal.*`:
 
 ```
 src/
@@ -115,13 +115,17 @@ dotnet test tests/Application.UnitTests    # one project
 
 The Aspire dashboard shows service URLs and logs; API docs are served by Scalar.
 
+In Development the database is dropped and recreated on every start by `ApplicationDbContextInitialiser` (`EnsureDeleted` + `EnsureCreated`), then seeded with `administrator@localhost` / `Administrator1!`. There are no EF Core migrations yet; add them when the schema needs to survive restarts.
+
+Functional and acceptance tests start PostgreSQL in a container through Aspire, so Docker must be running.
+
 EF Core migration:
 
 ```bash
 dotnet ef migrations add <Name> --project src/Infrastructure --startup-project src/Web --output-dir Data/Migrations
 ```
 
-Scaffold a use case (run inside `src/Application`):
+Scaffold a use case (install the template once with `dotnet new install Clean.Architecture.Solution.Template`, then run inside `src/Application`):
 
 ```bash
 dotnet new ca-usecase -n CreateCourse -fn Courses -ut command -rt int
@@ -155,7 +159,7 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
 
 Each step is one reviewable PR.
 
-1. **Baseline:** turn the template into an `EducationPortal` solution with Angular and PostgreSQL only (remove SQL Server/SQLite code and the `#if` switches), remove the Todo/Weather samples, get build and tests green.
+1. **Baseline (done 2026-11-09):** turn the template into an `EducationPortal` solution with Angular and PostgreSQL only (remove SQL Server/SQLite code and the `#if` switches), remove the Todo/Weather samples, get build and tests green.
 2. **Schools, branches and permissions:** API and Angular screens for creating schools, switching modules per school (master portal), adding branches, roles and staff. Tests prove schools and branches can't see each other's data.
 3. **Academics:** students, teachers, parents, courses, enrolments and grades, all respecting modules and branches.
 4. **Master overview and polish:** master dashboard across all schools and branches, demo data, smoke tests per role.
@@ -165,7 +169,6 @@ Each step is one reviewable PR.
 ## 9. Open decisions (TODO)
 
 - [ ] Default branch: the repo has no `main` branch yet
-- [ ] Add a `.gitignore` and remove committed build output (`artifacts/`, `.vs/`, `*.csproj.user`); currently ~400 such files are in git
 - [ ] Authentication: template ASP.NET Core Identity vs. an external IdP (Entra ID, Keycloak, ...)
 - [ ] Hosting and CI/CD (Azure Container Apps via `azd`? GitHub Actions?)
 - [ ] Whether a student or parent can belong to more than one branch

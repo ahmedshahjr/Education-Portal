@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace CleanArchitecture.Web.Infrastructure;
+namespace EducationPortal.Web.Infrastructure;
 
 public static class WebApplicationExtensions
 {

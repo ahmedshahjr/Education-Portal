@@ -1,64 +1,27 @@
-# Clean Architecture Solution Template
+﻿# Education Portal
 
-[![Build](https://github.com/jasontaylordev/CleanArchitecture/actions/workflows/build.yml/badge.svg)](https://github.com/jasontaylordev/CleanArchitecture/actions/workflows/build.yml)
-[![CodeQL](https://github.com/jasontaylordev/CleanArchitecture/actions/workflows/codeql.yml/badge.svg)](https://github.com/jasontaylordev/CleanArchitecture/actions/workflows/codeql.yml)
-[![Nuget](https://img.shields.io/nuget/v/Clean.Architecture.Solution.Template?label=NuGet)](https://www.nuget.org/packages/Clean.Architecture.Solution.Template)
-[![Nuget](https://img.shields.io/nuget/dt/Clean.Architecture.Solution.Template?label=Downloads)](https://www.nuget.org/packages/Clean.Architecture.Solution.Template)
-![Twitter Follow](https://img.shields.io/twitter/follow/jasontaylordev?label=Follow&style=social)
+A multi-tenant education portal: the platform owner (master tenant) oversees every school, each school owner manages their own school and its branches, and students, teachers and parents use the portal within their school.
 
-The goal of this template is to provide a straightforward and efficient approach to enterprise application development, leveraging the power of Clean Architecture and ASP.NET Core. Using this template, you can effortlessly create a new app with Angular, React, or Web API only, powered by ASP.NET Core and Aspire. Getting started is easy - simply install the **.NET template** (see below for full details).
+Built on the [Clean Architecture Solution Template](https://github.com/jasontaylordev/CleanArchitecture) with:
 
-For full documentation, visit **[cleanarchitecture.jasontaylor.dev](https://cleanarchitecture.jasontaylor.dev)**.
+- ASP.NET Core 10 Web API (minimal APIs, MediatR, FluentValidation, AutoMapper)
+- Angular frontend (`src/Web/ClientApp`)
+- PostgreSQL with EF Core and ASP.NET Core Identity
+- .NET Aspire for local orchestration, telemetry and tests
 
-If you find this project useful, please give it a star. Thanks! ⭐
+See [`AGENTS.md`](../AGENTS.md) at the repository root for the product decisions, the multi-tenancy rules and the coding conventions.
 
-## Getting started
+## Prerequisites
 
-### Prerequisites
+- .NET 10 SDK (see `global.json`)
+- Docker Desktop or Podman, because Aspire runs PostgreSQL in a container
+- Node.js LTS, for the Angular app
 
-- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later
-- [Node.js](https://nodejs.org/) (LTS) — only required if you plan to use the Angular or React frontend
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/) (or any OCI-compliant container runtime) — only required when using SQL Server or PostgreSQL. Not required when using SQLite (the default).
+## Build
 
-### Install the template
+Run `dotnet build` to build the solution. Warnings are treated as errors.
 
-```bash
-dotnet new install Clean.Architecture.Solution.Template
-```
-
-### Create a new solution
-
-Create a new solution using the template. Specify the client framework using `--client-framework` (`-cf`) and the database provider using `--database` (`-db`):
-
-```bash
-dotnet new ca-sln --client-framework [angular|react|none] --database [postgresql|sqlite|sqlserver] --output YourProjectName
-```
-
-| Option | Values | Default |
-|---|---|---|
-| `--client-framework` | `angular`, `react`, `none` | `angular` |
-| `--database` | `postgresql`, `sqlite`, `sqlserver` | `sqlite` |
-
-**Examples:**
-
-🅰️ Angular SPA with ASP.NET Core Web API and PostgreSQL:
-```bash
-dotnet new ca-sln -cf angular -db postgresql -o YourProjectName
-```
-
-⚛️ React SPA with ASP.NET Core Web API and SQL Server:
-```bash
-dotnet new ca-sln -cf react -db sqlserver -o YourProjectName
-```
-
-🔌 ASP.NET Core Web API only with SQLite:
-```bash
-dotnet new ca-sln -cf none -db sqlite -o YourProjectName
-```
-
-> 💡 **Tip:** Run `dotnet new ca-sln --help` to see all available template options.
-
-### Run the app
+## Run
 
 Using the [Aspire CLI](https://aspire.dev/get-started/install-cli/) (recommended):
 
@@ -69,50 +32,40 @@ aspire run
 Or using the .NET CLI:
 
 ```bash
-dotnet run --project .\src\AppHost
+dotnet run --project ./src/AppHost
 ```
 
-The Aspire dashboard will open automatically, showing the application URLs and logs.
+The Aspire dashboard opens automatically and shows the API, the Angular app, PostgreSQL and their logs. The API reference is served by Scalar at `/scalar`.
 
-To learn more, see the [Getting started](https://cleanarchitecture.jasontaylor.dev/docs/getting-started/) guide and [Architecture](https://cleanarchitecture.jasontaylor.dev/docs/architecture/) overview.
+In Development the database is recreated on every start and seeded with an administrator account (`administrator@localhost` / `Administrator1!`).
 
-## Technologies
+## Test
 
-* [ASP.NET Core 10](https://docs.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core)
-* [Aspire](https://aspire.dev)
-* [Entity Framework Core 10](https://docs.microsoft.com/en-us/ef/core/)
-* [Angular 21](https://angular.dev/) or [React 19](https://react.dev/)
-* [MediatR](https://github.com/jbogard/MediatR)
-* [AutoMapper](https://automapper.org/)
-* [FluentValidation](https://fluentvalidation.net/)
-* [NUnit](https://nunit.org/), [Shouldly](https://docs.shouldly.org/), [Moq](https://github.com/devlooped/moq) & [Respawn](https://github.com/jbogard/Respawn)
-* [Scalar](https://scalar.com/)
+The solution contains unit, integration, functional and acceptance tests. Functional tests start PostgreSQL through Aspire, so Docker must be running.
 
-## Versions
+```bash
+dotnet test
+```
 
-The `main` branch is on **.NET 10.0**. Previous versions are available:
+## Code Styles & Formatting
 
-| Version | Branch |
-|---|---|
-| .NET 9.0 | [`net9.0`](https://github.com/jasontaylordev/CleanArchitecture/tree/net9.0) |
-| .NET 8.0 | [`net8.0`](https://github.com/jasontaylordev/CleanArchitecture/tree/net8.0) |
-| .NET 7.0 | [`net7.0`](https://github.com/jasontaylordev/CleanArchitecture/tree/net7.0) |
-| .NET 6.0 | [`net6.0`](https://github.com/jasontaylordev/CleanArchitecture/tree/net6.0) |
-| .NET 5.0 | [`net5.0`](https://github.com/jasontaylordev/CleanArchitecture/tree/net5.0) |
-| .NET Core 3.1 | [`netcore3.1`](https://github.com/jasontaylordev/CleanArchitecture/tree/netcore3.1) |
+The [EditorConfig](https://editorconfig.org/) file (`.editorconfig`) defines the coding styles for this solution.
 
-## Architectural decisions
+## Code Scaffolding
+
+The template can scaffold new commands and queries. Install it once:
+
+```bash
+dotnet new install Clean.Architecture.Solution.Template
+```
+
+Then, from the `./src/Application/` folder:
+
+```bash
+dotnet new ca-usecase --name CreateCourse --feature-name Courses --usecase-type command --return-type int
+dotnet new ca-usecase -n GetCourses -fn Courses -ut query -rt CoursesVm
+```
+
+## Architectural Decisions
 
 Key design decisions are documented as [Architecture Decision Records](docs/decisions/).
-
-## Learn more
-
-- 📖 [Clean Architecture Solution Template documentation](https://cleanarchitecture.jasontaylor.dev)
-
-## Support
-
-If you are having problems, please let me know by [raising a new issue](https://github.com/jasontaylordev/CleanArchitecture/issues/new/choose).
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).

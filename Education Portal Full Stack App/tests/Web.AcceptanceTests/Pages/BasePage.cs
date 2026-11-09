@@ -1,4 +1,4 @@
-namespace CleanArchitecture.Web.AcceptanceTests.Pages;
+namespace EducationPortal.Web.AcceptanceTests.Pages;
 
 public abstract class BasePage(IPage page)
 {

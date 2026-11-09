@@ -2,21 +2,17 @@ import { APP_ID, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal } from 'lucide-angular';
+import { LucideAngularModule, Sun, Moon, Laptop } from 'lucide-angular';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
-import { CounterComponent } from './counter/counter.component';
-import { WeatherComponent } from './weather/weather.component';
-import { TasksComponent } from './todo/todo.component';
 import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
 import { API_BASE_URL } from './web-api-client';
 import { AuthorizeInterceptor } from '../api-authorization/authorize.interceptor';
 import { LoginComponent } from '../api-authorization/login/login.component';
 import { RegisterComponent } from '../api-authorization/register/register.component';
-import { AuthGuard } from '../api-authorization/auth.guard';
 import { AuthService } from '../api-authorization/auth.service';
 
 export function getApiBaseUrl(): string {
@@ -29,9 +25,6 @@ export function getApiBaseUrl(): string {
         AppComponent,
         NavMenuComponent,
         HomeComponent,
-        CounterComponent,
-        WeatherComponent,
-        TasksComponent,
         ThemeToggleComponent,
         LoginComponent,
         RegisterComponent
@@ -40,12 +33,9 @@ export function getApiBaseUrl(): string {
     imports: [
         BrowserModule,
         FormsModule,
-        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal }),
+        LucideAngularModule.pick({ Sun, Moon, Laptop }),
         RouterModule.forRoot([
             { path: '', component: HomeComponent, pathMatch: 'full' },
-            { path: 'counter', component: CounterComponent },
-            { path: 'weather', component: WeatherComponent, canActivate: [AuthGuard] },
-            { path: 'todo', component: TasksComponent, canActivate: [AuthGuard] },
             { path: 'login', component: LoginComponent },
             { path: 'register', component: RegisterComponent }
         ])

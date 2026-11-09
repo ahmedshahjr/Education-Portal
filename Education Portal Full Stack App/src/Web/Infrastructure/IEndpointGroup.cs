@@ -1,4 +1,4 @@
-namespace CleanArchitecture.Web.Infrastructure;
+namespace EducationPortal.Web.Infrastructure;
 
 /// <summary>
 /// Defines a group of related Minimal API endpoints.

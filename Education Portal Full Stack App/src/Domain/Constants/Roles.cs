@@ -1,4 +1,4 @@
-﻿namespace CleanArchitecture.Domain.Constants;
+﻿namespace EducationPortal.Domain.Constants;
 
 public abstract class Roles
 {

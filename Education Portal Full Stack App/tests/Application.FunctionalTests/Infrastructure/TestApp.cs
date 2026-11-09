@@ -1,12 +1,12 @@
-using CleanArchitecture.Domain.Constants;
-using CleanArchitecture.Infrastructure.Data;
-using CleanArchitecture.Infrastructure.Identity;
+using EducationPortal.Domain.Constants;
+using EducationPortal.Infrastructure.Data;
+using EducationPortal.Infrastructure.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CleanArchitecture.Application.FunctionalTests.Infrastructure;
+namespace EducationPortal.Application.FunctionalTests.Infrastructure;
 
 public static class TestApp
 {

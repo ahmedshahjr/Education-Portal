@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>CleanArchitecture.Shared</RootNamespace>
-    <AssemblyName>CleanArchitecture.Shared</AssemblyName>
+    <RootNamespace>EducationPortal.Shared</RootNamespace>
+    <AssemblyName>EducationPortal.Shared</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup>
