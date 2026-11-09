@@ -1,3 +1,11 @@
 # GEMINI.md
 
-All project instructions live in [AGENTS.md](AGENTS.md). Read it first and follow it.
+All project instructions live in [AGENTS.md](AGENTS.md). Read it before making changes, and edit it (not this file) when decisions change.
+
+Key rules, in short (details in AGENTS.md):
+
+- .NET 10 Clean Architecture solution hosted by Aspire, Angular frontend, PostgreSQL only. Not microservices.
+- Multi-tenant: master tenant > school > branch. One shared database; every school-owned row has `SchoolId` (and `BranchId` if branch-scoped), enforced by EF Core global query filters. Master users bypass them.
+- Access = modules the master enabled for the school ∩ role rights per module (View/Create/Edit/Delete) ∩ branches assigned to the user. Check this on the server, not only in Angular.
+- Dependency rule: Domain <- Application <- Infrastructure/Web. Package versions only in `Directory.Packages.props`. Warnings are errors.
+- Don't invent answers for items marked TODO in AGENTS.md.
