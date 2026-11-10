@@ -10,6 +10,9 @@ public interface IApplicationDbContext
     /// <summary>Logos and favicons. Covered by the tenant query filter (SEC-AUTHZ-03).</summary>
     DbSet<BrandingImage> BrandingImages { get; }
 
+    /// <summary>Public requests from schools that want to join. Only the master tenant decides them.</summary>
+    DbSet<SchoolRequest> SchoolRequests { get; }
+
     /// <summary>Countries and their regional settings. Platform reference data that only the master tenant changes.</summary>
     DbSet<Country> Countries { get; }
 

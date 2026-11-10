@@ -26,6 +26,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<Country> Countries => Set<Country>();
 
+    public DbSet<SchoolRequest> SchoolRequests => Set<SchoolRequest>();
+
     // Read by the query filters on every query, so each request sees its own tenant (ENG-EF-10).
     private int? CurrentSchoolId => _tenant.SchoolId;
 

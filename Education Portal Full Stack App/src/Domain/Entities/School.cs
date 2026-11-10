@@ -97,7 +97,8 @@ public class School : BaseSoftDeletableEntity
         return normalized;
     }
 
-    private static bool IsValidDomain(string domain) =>
+    /// <summary>True when the lower-case domain is a valid host name (used by request validation too).</summary>
+    public static bool IsValidDomain(string domain) =>
         domain.Length is > 0 and <= DomainMaxLength
         && domain.Split('.').All(label =>
             label.Length is > 0 and <= 63

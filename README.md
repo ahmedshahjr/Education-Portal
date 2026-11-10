@@ -278,6 +278,8 @@ flowchart TB
 
 A record from another school or branch returns 404 rather than 403, so ids can't be used to probe other tenants.
 
+- **School requests** (decided 2026-11-10). The login page links to a public "Request a school" form (`POST /api/SchoolRequests`, rate-limited per address). It creates a pending request only. The master tenant approves it; nothing else is created. Soft-deleted and inactive schools are hidden or refused (see below).
+- **Soft delete and active switch.** Schools and countries inherit `BaseSoftDeletableEntity`: deleted rows are hidden everywhere by a global query filter, and an inactive school's host is refused at tenant resolution. The master tenant cannot be switched off.
 - **Exactly one master tenant.** A unique index on the `Schools` table allows only one row with `IsMaster`, and the master is created only by seeding. Every other school is a school-owner tenant.
 - **Branding per school.** Each school has a theme preset (Cyan, Blue, Purple, Ocean, Teal, Coral), an optional sidebar colour, a logo and a favicon. `GET /api/Branding` and `GET /api/Branding/images/{Logo|Favicon}` are public, because the login page needs them before sign-in, and only ever return the school of the request's address. A school's administrator changes its own branding with `PUT /api/Branding` (Settings, Branding); the master tenant's administrator lists schools with `GET /api/Schools` and changes any school's branding with `GET`/`PUT /api/Schools/{id}/branding`. Uploads are checked by their bytes: logo PNG, JPEG or WebP up to 512 KB, favicon PNG or ICO up to 100 KB, never SVG. They are stored in the database and served as attachments with `nosniff`. Every change is audited.
 
