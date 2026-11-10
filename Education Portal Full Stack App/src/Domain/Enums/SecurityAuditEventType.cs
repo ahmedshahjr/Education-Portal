@@ -17,4 +17,10 @@ public enum SecurityAuditEventType
 
     /// <summary>A school's branding (theme, sidebar colour, logo or favicon) was changed.</summary>
     BrandingChanged = 7,
+
+    /// <summary>The master tenant created or changed a country's languages, time zone or currency.</summary>
+    CountryChanged = 8,
+
+    /// <summary>The master tenant assigned a school to another country (or to none).</summary>
+    SchoolCountryChanged = 9,
 }

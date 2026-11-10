@@ -17,6 +17,10 @@ internal sealed class HttpSession(HttpClient client) : IDisposable
     public const string CurrentUserPath = "/api/Users/me";
 
     private readonly Dictionary<string, string> _cookies = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _headers = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Sends a header on every request, as a browser sends Accept-Language.</summary>
+    public void SetHeader(string name, string value) => _headers[name] = value;
 
     public string? Cookie(string name) => _cookies.GetValueOrDefault(name);
 
@@ -66,6 +70,17 @@ internal sealed class HttpSession(HttpClient client) : IDisposable
 
     public Task<HttpResponseMessage> GetCurrentUserAsync() => GetAsync(CurrentUserPath);
 
+    /// <summary>Sends a JSON body with PUT, with the antiforgery token, as the Angular client does.</summary>
+    public async Task<HttpResponseMessage> PutAsync(string path, object body)
+    {
+        if (Cookie(AntiforgeryTokenCookie.CookieName) is null)
+        {
+            (await GetAsync("/")).Dispose();
+        }
+
+        return await SendAsync(HttpMethod.Put, path, body, withAntiforgeryToken: true);
+    }
+
     /// <summary>Sends a multipart form with PUT, with the antiforgery token, as the Angular client does for uploads.</summary>
     public async Task<HttpResponseMessage> PutFormAsync(string path, MultipartFormDataContent form)
     {
@@ -86,6 +101,11 @@ internal sealed class HttpSession(HttpClient client) : IDisposable
         if (_cookies.Count > 0)
         {
             request.Headers.Add("Cookie", string.Join("; ", _cookies.Select(cookie => $"{cookie.Key}={cookie.Value}")));
+        }
+
+        foreach (var (name, value) in _headers)
+        {
+            request.Headers.TryAddWithoutValidation(name, value);
         }
 
         if (withAntiforgeryToken && Cookie(AntiforgeryTokenCookie.CookieName) is { } token)

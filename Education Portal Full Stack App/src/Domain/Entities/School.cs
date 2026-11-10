@@ -49,6 +49,22 @@ public class School : BaseAuditableEntity
     /// <summary>The background colour of the sidebar, or <c>null</c> for the theme's default.</summary>
     public HexColor? SidebarColor { get; private set; }
 
+    /// <summary>
+    /// The country whose languages, time zone and currency the school uses, or <c>null</c> for the platform defaults
+    /// (English only, UTC). Only the master tenant assigns it.
+    /// </summary>
+    public int? CountryId { get; private set; }
+
+    public void AssignCountry(int? countryId)
+    {
+        if (countryId is <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(countryId), countryId, "A country id is positive.");
+        }
+
+        CountryId = countryId;
+    }
+
     public void UpdateBranding(ThemePreset themePreset, HexColor? sidebarColor)
     {
         if (!Enum.IsDefined(themePreset))

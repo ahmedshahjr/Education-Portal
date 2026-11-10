@@ -62,6 +62,23 @@ public static class TestApp
         return school.Id;
     }
 
+    /// <summary>Adds a country with its regional settings and returns its id.</summary>
+    public static async Task<int> AddCountryAsync(string code, string name, string[] languages, string defaultLanguage, string timeZoneId, string currencyCode)
+    {
+        var country = Country.Create(code, name, languages, defaultLanguage, timeZoneId, currencyCode);
+        await AddAsync(country);
+        return country.Id;
+    }
+
+    /// <summary>Adds a school with its own domain in a country and returns its id.</summary>
+    public static async Task<int> AddSchoolAsync(string name, string domain, int countryId)
+    {
+        var school = School.Create(name, domain);
+        school.AssignCountry(countryId);
+        await AddAsync(school);
+        return school.Id;
+    }
+
     public static string? GetUserId() => _userId;
 
     public static List<string>? GetRoles() => _roles;

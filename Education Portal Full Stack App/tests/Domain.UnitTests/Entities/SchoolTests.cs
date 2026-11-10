@@ -60,4 +60,18 @@ public class SchoolTests
 
         Should.Throw<ArgumentOutOfRangeException>(() => school.UpdateBranding((ThemePreset)99, null));
     }
+
+    [Test]
+    public void ShouldAssignAndClearACountry()
+    {
+        var school = School.Create("School One", "school1.com");
+
+        school.AssignCountry(3);
+        school.CountryId.ShouldBe(3);
+
+        school.AssignCountry(null);
+        school.CountryId.ShouldBeNull();
+
+        Should.Throw<ArgumentOutOfRangeException>(() => school.AssignCountry(0));
+    }
 }

@@ -1,6 +1,7 @@
 using EducationPortal.Application.Branding.Common;
 using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolBranding;
+using EducationPortal.Application.Schools.Commands.UpdateSchoolCountry;
 using EducationPortal.Application.Schools.Queries.GetSchoolBranding;
 using EducationPortal.Application.Schools.Queries.GetSchools;
 using EducationPortal.Web.Infrastructure;
@@ -26,6 +27,20 @@ public class Schools : IEndpointGroup
         groupBuilder.MapPut(UpdateSchoolBranding, "{schoolId:int}/branding")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapPut(UpdateSchoolCountry, "{schoolId:int}/country")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+    }
+
+    [EndpointSummary("Change a school's country")]
+    [EndpointDescription("Assigns a school to a country, which sets its languages, time zone and currency, or to none (English only, UTC). Master tenant only.")]
+    public static async Task<NoContent> UpdateSchoolCountry(ISender sender, int schoolId, UpdateSchoolCountryCommand command)
+    {
+        // The route names the school; an id in the body is ignored.
+        await sender.Send(command with { SchoolId = schoolId });
+
+        return TypedResults.NoContent();
     }
 
     [EndpointSummary("List schools")]

@@ -14,7 +14,8 @@ public record GetSchoolsQuery : IRequest<PaginatedList<SchoolSummaryDto>>
     public int PageSize { get; init; } = 25;
 }
 
-public sealed record SchoolSummaryDto(int Id, string Name, string Domain, bool IsMaster);
+/// <param name="CountryId">The school's country, or <c>null</c> for the platform defaults.</param>
+public sealed record SchoolSummaryDto(int Id, string Name, string Domain, bool IsMaster, int? CountryId);
 
 public class GetSchoolsQueryValidator : AbstractValidator<GetSchoolsQuery>
 {
@@ -42,7 +43,7 @@ public class GetSchoolsQueryHandler : IRequestHandler<GetSchoolsQuery, Paginated
             .OrderByDescending(s => s.IsMaster)
             .ThenBy(s => s.Name)
             .ThenBy(s => s.Id)
-            .Select(s => new SchoolSummaryDto(s.Id, s.Name, s.Domain, s.IsMaster));
+            .Select(s => new SchoolSummaryDto(s.Id, s.Name, s.Domain, s.IsMaster, s.CountryId));
 
         return await PaginatedList<SchoolSummaryDto>.CreateAsync(schools, request.PageNumber, request.PageSize, cancellationToken);
     }

@@ -81,11 +81,27 @@ public class ApplicationDbContextInitialiser
     /// </summary>
     public const string DemoSchoolDomain = "demo.localhost";
 
+    /// <summary>A second demo school, in the United Arab Emirates, for trying the per-country languages (English and Arabic).</summary>
+    public const string UaeDemoSchoolDomain = "uae.localhost";
+
     // Development-only seed accounts (SEC-SECRET-04). It meets the 15-character minimum of SEC-AUTHN-03.
     private const string DevelopmentPassword = "Local-Dev-Only-2026!";
 
     public async Task TrySeedAsync()
     {
+        // Countries: the master tenant manages these; two examples so each demo school offers its own languages.
+        if (!await _context.Countries.AnyAsync())
+        {
+            _context.Countries.AddRange(
+                Country.Create("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR"),
+                Country.Create("AE", "United Arab Emirates", ["en", "ar"], "en", "Asia/Dubai", "AED"));
+
+            await _context.SaveChangesAsync();
+        }
+
+        var pakistan = await _context.Countries.SingleAsync(c => c.Code == "PK");
+        var uae = await _context.Countries.SingleAsync(c => c.Code == "AE");
+
         // Tenants: exactly one master tenant (the platform owner) and one demo school.
         var master = await _context.Schools.SingleOrDefaultAsync(s => s.IsMaster);
         if (master is null)
@@ -96,12 +112,22 @@ public class ApplicationDbContextInitialiser
 
         if (!await _context.Schools.AnyAsync(s => s.Domain == DemoSchoolDomain))
         {
-            _context.Schools.Add(School.Create("Demo School", DemoSchoolDomain));
+            var demo = School.Create("Demo School", DemoSchoolDomain);
+            demo.AssignCountry(pakistan.Id);
+            _context.Schools.Add(demo);
+        }
+
+        if (!await _context.Schools.AnyAsync(s => s.Domain == UaeDemoSchoolDomain))
+        {
+            var uaeDemo = School.Create("Demo School UAE", UaeDemoSchoolDomain);
+            uaeDemo.AssignCountry(uae.Id);
+            _context.Schools.Add(uaeDemo);
         }
 
         await _context.SaveChangesAsync();
 
         var demoSchool = await _context.Schools.SingleAsync(s => s.Domain == DemoSchoolDomain);
+        var uaeDemoSchool = await _context.Schools.SingleAsync(s => s.Domain == UaeDemoSchoolDomain);
 
         // Default roles
         var administratorRole = new IdentityRole(Roles.Administrator);
@@ -132,6 +158,18 @@ public class ApplicationDbContextInitialiser
             if (!string.IsNullOrWhiteSpace(administratorRole.Name))
             {
                 await _userManager.AddToRolesAsync(demoAdministrator, new [] { administratorRole.Name });
+            }
+        }
+
+        // The UAE demo school's administrator signs in on uae.localhost only.
+        var uaeAdministrator = new ApplicationUser { UserName = "administrator@uae.localhost", Email = "administrator@uae.localhost", SchoolId = uaeDemoSchool.Id };
+
+        if (_userManager.Users.All(u => u.UserName != uaeAdministrator.UserName))
+        {
+            await _userManager.CreateAsync(uaeAdministrator, DevelopmentPassword);
+            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
+            {
+                await _userManager.AddToRolesAsync(uaeAdministrator, new [] { administratorRole.Name });
             }
         }
     }

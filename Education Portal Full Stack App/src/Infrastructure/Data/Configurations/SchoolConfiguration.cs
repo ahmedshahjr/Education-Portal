@@ -16,6 +16,12 @@ public class SchoolConfiguration : IEntityTypeConfiguration<School>
             .HasConversion(color => color!.Value, value => HexColor.From(value))
             .HasMaxLength(HexColor.Length);
 
+        // A country in use cannot be deleted; the foreign key gets an index (ENG-EF-09).
+        builder.HasOne<Country>()
+            .WithMany()
+            .HasForeignKey(s => s.CountryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // One school per domain: the domain is how a request finds its tenant (SEC-AUTHZ-10).
         builder.HasIndex(s => s.Domain).IsUnique();
 

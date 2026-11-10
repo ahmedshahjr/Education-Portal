@@ -27,6 +27,9 @@ public static class DependencyInjection
 
         builder.Services.AddHttpContextAccessor();
 
+        // Each request is answered in one of the languages of its school's country (TenantRequestLocalization).
+        builder.Services.AddTenantRequestLocalization();
+
         builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 
         builder.Services.AddProblemDetails(options =>
