@@ -84,9 +84,12 @@ CHECKS = [
       r"(?i)\b(password|pwd|secret|api[_-]?key|client[_-]?secret|access[_-]?key)\b\"?\s*[=:]\s*\"?(?!\s*[\"'{$<]|\s*$)[^\"'\s;]{3,}"),
     c("private-key", "SEC-SECRET-01", "private key committed", r".*",
       r"-----BEGIN (RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY-----"),
+    c("card-data-field", "SEC-PCI-02", "card data must never reach our code; use the processor's hosted page and tokens",
+      r"\.(cs|ts|html)$",
+      r"(?i)\b(credit_?card_?number|card_?number|primary_?account_?number|cvv2?|cvc2?|card_?verification\w*|card_?security_?code|track_?[12]_?data|track_?data|mag_?stripe)\b"),
     c("certification-claim", "SEC-AI-04", "certification or compliance claim; use 'designed to support ...'",
       r"\.(md|html|ts|cs|json)$",
-      r"(?i)\b(is|are|we're|we are|fully|officially)\s+(fedramp|soc ?2|iso(/iec)? ?27001|govramp|stateramp|gdpr|ferpa|coppa)[ -]?(authori[sz]ed|certified|compliant|accredited)\b"),
+      r"(?i)\b(is|are|we're|we are|fully|officially)\s+(fedramp|soc ?2|iso(/iec)? ?27001|govramp|stateramp|gdpr|ferpa|coppa|pci( ?dss)?)[ -]?(authori[sz]ed|certified|compliant|accredited)\b"),
 ]
 
 

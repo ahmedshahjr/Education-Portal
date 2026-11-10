@@ -22,4 +22,6 @@ Tick each item or explain why it does not apply.
 - [ ] `dotnet build` and `dotnet test` pass; `npm audit` clean if the frontend changed (SEC-AI-07, SEC-DEP-03)
 - [ ] Development-only behaviour guarded by `IsDevelopment()` (SEC-CFG-01)
 - [ ] AI instructions/skills changed: content is AI-agnostic and `python3 docs/ai/sync-ai-wrappers.py --check` passes (SEC-AI-10)
+- [ ] Payments touched: PCI scope impact stated, no card data reaches our systems (SEC-PCI-02, SEC-PCI-14) / not applicable
+- [ ] README.md updated for anything added, removed or renamed (AGENTS.md section 7)
 - [ ] Exceptions to any rule: none, or listed with maintainer approval (section 15)
