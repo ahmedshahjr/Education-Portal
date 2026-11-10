@@ -184,7 +184,7 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
 - **Validation** lives in FluentValidation validators run by the MediatR pipeline, not in endpoints.
 - **Entities** live in `Domain/Entities` and inherit the template's base/auditable entity. Raise domain events instead of calling services from entities.
 - **Grades** are several scored assessments per enrolment, not one final grade.
-- **Accounts** are created by staff; there is no public sign-up.
+- **Accounts** are created by staff; there is no public sign-up. The only public form is **request a school** (decided 2026-11-10): anyone can submit a school request, which stays pending and creates no account or domain until the master tenant approves it. Approval creates the school; its first administrator account is then created by the master tenant or the school's own administrator, never by the requester.
 - **Every user-visible string is translatable** (ADR-005). Angular: an `i18n` attribute in templates or `` $localize`:@@area.key:Text` `` in code, always with a custom id; then run `npx ng extract-i18n` and add the translation to every `src/locale/messages.<language>.json` (`translations.spec.ts` fails otherwise). Server text shown to users: `IStringLocalizer` with `.resx` files in `src/Web/Resources`. Use logical CSS properties (`margin-inline-start`, `inset-inline-end`, `text-align: start`), never `left`/`right`, so right-to-left layouts mirror.
 - Nullable is on and warnings are errors: fix warnings rather than suppressing them; if you must suppress, add a comment explaining why.
 - Follow the template's `.editorconfig`.
