@@ -23,3 +23,13 @@ Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP Moderate Rev
 | SEC-AUTHN-10 | Password reset and invite links: single use, expire in 60 minutes or less, sent only to the address on file, and responses do not reveal whether the address exists. |
 
 Supports: 800-53 IA-2, IA-2(1), IA-2(2), IA-5, IA-5(1), IA-8, AC-7, AC-11, AC-12, SC-23; SOC 2 CC6.1, CC6.2; ISO 5.17, 8.5; OWASP A07.
+
+<!-- BEGIN GENERATED: sources (docs/ai/sync-ai-wrappers.py) -->
+## Sources and update checks
+
+This skill is written against the versions below, recorded in [sources.json](../sources.json). `.github/workflows/compliance-sources-review.yml` checks every source on the 1st and 16th of each month and opens or updates a `compliance-review` issue. To apply a change: update this skill and any affected topic skills, then `tracked_version`, `last_seen_sha` and `last_reviewed` in sources.json, in one PR into `development`, and run `python3 docs/ai/sync-ai-wrappers.py`. The workflow never edits rules itself.
+
+| Source | Version tracked | How it is checked | Last reviewed |
+|---|---|---|---|
+| [NIST SP 800-63 Digital Identity Guidelines (Rev 4)](https://pages.nist.gov/800-63-4/) | SP 800-63-4 (Rev 4) | Automatic: new commits in `usnistgov/800-63-4` | 2026-11-09 |
+<!-- END GENERATED: sources -->

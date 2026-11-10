@@ -4,7 +4,7 @@ All project instructions live in [AGENTS.md](AGENTS.md), imported below. Edit AG
 
 @./AGENTS.md
 
-**MUST FOLLOW:** the security and compliance rules in [docs/ai/secure-compliance/SKILL.md](docs/ai/secure-compliance/SKILL.md) (FedRAMP Moderate Rev 5 / NIST SP 800-53, GovRAMP, SOC 2, ISO 27001, OWASP Top 10). They are imported below so they are always in context. If a request breaks a rule, stop and name the rule ID.
+**MUST FOLLOW:** the security and compliance rules in [docs/ai/secure-compliance/SKILL.md](docs/ai/secure-compliance/SKILL.md) (FedRAMP Moderate Rev 5 / NIST SP 800-53, GovRAMP, SOC 2, ISO 27001, OWASP Top 10, PCI DSS, EU law). They are imported below so they are always in context. If a request breaks a rule, stop and name the rule ID.
 
 <!-- BEGIN GENERATED: ai skills (docs/ai/sync-ai-wrappers.py) -->
 Gemini CLI imports every skill below into context at start, so all compliance rules are always loaded:
@@ -25,6 +25,7 @@ Gemini CLI imports every skill below into context at start, so all compliance ru
 @./docs/ai/secure-compliance/standard-govramp/SKILL.md
 @./docs/ai/secure-compliance/standard-iso27001/SKILL.md
 @./docs/ai/secure-compliance/standard-owasp-top10/SKILL.md
+@./docs/ai/secure-compliance/standard-pci-dss/SKILL.md
 @./docs/ai/secure-compliance/standard-soc2/SKILL.md
 @./docs/ai/secure-compliance/student-data-privacy/SKILL.md
 @./docs/ai/secure-compliance/web-api-hardening/SKILL.md

@@ -1,11 +1,16 @@
 {
-  "_comment": "Official sources behind docs/ai/secure-compliance/SKILL.md. The 'Compliance sources review' workflow (.github/workflows/compliance-sources-review.yml) checks the GitHub-tracked ones on the 1st and 16th of each month and opens an issue. After reviewing a change, update last_seen_sha and last_reviewed here in a PR, together with any changes to the standard-* and topic skills.",
+  "_comment": "Official sources behind the compliance skills in docs/ai/secure-compliance/. Each source records the version the skills are written against (tracked_version) and the skills that depend on it (skills); docs/ai/sync-ai-wrappers.py --check fails if a standard-* skill has no source here, and copies these fields into each skill and the README. The 'Compliance sources review' workflow (.github/workflows/compliance-sources-review.yml) checks every source on the 1st and 16th of each month and opens an issue. After reviewing a change, update the affected skills, tracked_version, last_seen_sha and last_reviewed here in one PR.",
   "last_full_review": "2026-11-09",
   "sources": [
     {
       "id": "nist-800-53",
       "name": "NIST SP 800-53 Rev 5 catalog (OSCAL)",
       "portal": "https://csrc.nist.gov/projects/risk-management/sp800-53-controls/release-search",
+      "tracked_version": "SP 800-53 Rev 5 (latest release in the OSCAL catalog)",
+      "skills": [
+        "standard-fedramp-moderate",
+        "standard-govramp"
+      ],
       "watch": {
         "type": "github-path",
         "repo": "usnistgov/oscal-content",
@@ -18,6 +23,10 @@
       "id": "fedramp-rev5",
       "name": "FedRAMP Rev 5 baselines (Moderate)",
       "portal": "https://www.fedramp.gov/",
+      "tracked_version": "FedRAMP Rev 5 Moderate baseline",
+      "skills": [
+        "standard-fedramp-moderate"
+      ],
       "watch": {
         "type": "github-path",
         "repo": "GSA/fedramp-automation",
@@ -30,6 +39,10 @@
       "id": "owasp-top10",
       "name": "OWASP Top 10",
       "portal": "https://owasp.org/Top10/",
+      "tracked_version": "OWASP Top 10:2025",
+      "skills": [
+        "standard-owasp-top10"
+      ],
       "watch": {
         "type": "github-path",
         "repo": "OWASP/Top10",
@@ -42,6 +55,11 @@
       "id": "nist-800-63",
       "name": "NIST SP 800-63 Digital Identity Guidelines (Rev 4)",
       "portal": "https://pages.nist.gov/800-63-4/",
+      "tracked_version": "SP 800-63-4 (Rev 4)",
+      "skills": [
+        "authentication",
+        "standard-fedramp-moderate"
+      ],
       "watch": {
         "type": "github-path",
         "repo": "usnistgov/800-63-4",
@@ -54,6 +72,10 @@
       "id": "govramp",
       "name": "GovRAMP (formerly StateRAMP) program and baselines",
       "portal": "https://govramp.org/",
+      "tracked_version": "GovRAMP program and security baselines (NIST SP 800-53 Rev 5 based)",
+      "skills": [
+        "standard-govramp"
+      ],
       "watch": null,
       "last_reviewed": "2026-11-09"
     },
@@ -61,6 +83,10 @@
       "id": "soc2",
       "name": "AICPA SOC 2 Trust Services Criteria",
       "portal": "https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2",
+      "tracked_version": "2017 Trust Services Criteria with revised points of focus (2022)",
+      "skills": [
+        "standard-soc2"
+      ],
       "watch": null,
       "last_reviewed": "2026-11-09"
     },
@@ -68,6 +94,10 @@
       "id": "iso27001",
       "name": "ISO/IEC 27001:2022 (and amendments)",
       "portal": "https://www.iso.org/standard/27001",
+      "tracked_version": "ISO/IEC 27001:2022 (with Amd 1:2024)",
+      "skills": [
+        "standard-iso27001"
+      ],
       "watch": null,
       "last_reviewed": "2026-11-09"
     },
@@ -75,6 +105,11 @@
       "id": "omb-m-21-31",
       "name": "OMB M-21-31 logging requirements (referenced by FedRAMP AU-11)",
       "portal": "https://www.whitehouse.gov/omb/information-for-agencies/memoranda/",
+      "tracked_version": "OMB M-21-31 (2021)",
+      "skills": [
+        "logging-audit",
+        "standard-fedramp-moderate"
+      ],
       "watch": null,
       "last_reviewed": "2026-11-09"
     },
@@ -82,6 +117,11 @@
       "id": "eu-gdpr",
       "name": "EU GDPR and EDPB guidelines (incl. children's data)",
       "portal": "https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en",
+      "tracked_version": "Regulation (EU) 2016/679 and current EDPB guidelines",
+      "skills": [
+        "standard-eu",
+        "student-data-privacy"
+      ],
       "watch": null,
       "last_reviewed": "2026-11-09"
     },
@@ -89,6 +129,10 @@
       "id": "eu-ai-act",
       "name": "EU AI Act (Regulation (EU) 2024/1689), implementation timeline and guidance",
       "portal": "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai",
+      "tracked_version": "Regulation (EU) 2024/1689",
+      "skills": [
+        "standard-eu"
+      ],
       "watch": null,
       "last_reviewed": "2026-11-09"
     },
@@ -96,6 +140,10 @@
       "id": "eu-nis2",
       "name": "NIS2 Directive and national transposition",
       "portal": "https://digital-strategy.ec.europa.eu/en/policies/nis2-directive",
+      "tracked_version": "Directive (EU) 2022/2555",
+      "skills": [
+        "standard-eu"
+      ],
       "watch": null,
       "last_reviewed": "2026-11-09"
     },
@@ -103,8 +151,23 @@
       "id": "eu-cra",
       "name": "EU Cyber Resilience Act",
       "portal": "https://digital-strategy.ec.europa.eu/en/policies/cyber-resilience-act",
+      "tracked_version": "Regulation (EU) 2024/2847",
+      "skills": [
+        "standard-eu"
+      ],
       "watch": null,
       "last_reviewed": "2026-11-09"
+    },
+    {
+      "id": "pci-dss",
+      "name": "PCI DSS and SAQs (PCI Security Standards Council)",
+      "portal": "https://www.pcisecuritystandards.org/document_library/",
+      "tracked_version": "PCI DSS v4.0.1 (June 2024); SAQ A v4.0.1 (January 2025 revision)",
+      "skills": [
+        "standard-pci-dss"
+      ],
+      "watch": null,
+      "last_reviewed": "2026-11-10"
     }
   ]
 }

@@ -112,3 +112,16 @@ Controls not listed (for example AT, PE, PS, PL, CP, IR, MA, MP families and mos
 2. Changes must keep the evidence an assessor will ask for: the PR (with the security checklist), the review approval, the CI run, and tests. Never bypass the PR flow (SEC-CHG-01).
 3. Do not invent control parameters, scope or legal applicability. If the standard needs a value the maintainer has not set (marked **TODO**), ask.
 4. If the standard updates (the twice-monthly sources review opens an issue), update this skill and the affected topic skills in one PR.
+
+<!-- BEGIN GENERATED: sources (docs/ai/sync-ai-wrappers.py) -->
+## Sources and update checks
+
+This skill is written against the versions below, recorded in [sources.json](../sources.json). `.github/workflows/compliance-sources-review.yml` checks every source on the 1st and 16th of each month and opens or updates a `compliance-review` issue. To apply a change: update this skill and any affected topic skills, then `tracked_version`, `last_seen_sha` and `last_reviewed` in sources.json, in one PR into `development`, and run `python3 docs/ai/sync-ai-wrappers.py`. The workflow never edits rules itself.
+
+| Source | Version tracked | How it is checked | Last reviewed |
+|---|---|---|---|
+| [NIST SP 800-53 Rev 5 catalog (OSCAL)](https://csrc.nist.gov/projects/risk-management/sp800-53-controls/release-search) | SP 800-53 Rev 5 (latest release in the OSCAL catalog) | Automatic: new commits in `usnistgov/oscal-content/nist.gov/SP800-53/rev5` | 2026-11-09 |
+| [FedRAMP Rev 5 baselines (Moderate)](https://www.fedramp.gov/) | FedRAMP Rev 5 Moderate baseline | Automatic: new commits in `GSA/fedramp-automation/dist/content/rev5/baselines` | 2026-11-09 |
+| [NIST SP 800-63 Digital Identity Guidelines (Rev 4)](https://pages.nist.gov/800-63-4/) | SP 800-63-4 (Rev 4) | Automatic: new commits in `usnistgov/800-63-4` | 2026-11-09 |
+| [OMB M-21-31 logging requirements (referenced by FedRAMP AU-11)](https://www.whitehouse.gov/omb/information-for-agencies/memoranda/) | OMB M-21-31 (2021) | Manual: listed for a portal check | 2026-11-09 |
+<!-- END GENERATED: sources -->

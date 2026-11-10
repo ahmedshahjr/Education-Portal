@@ -20,3 +20,13 @@ Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP Moderate Rev
 | SEC-LOG-07 | Log injection: do not concatenate user input into log messages; use structured parameters. |
 
 Supports: 800-53 AU-2, AU-3, AU-6, AU-8, AU-9, AU-11, AU-12, SI-4; SOC 2 CC7.2, CC7.3; ISO 8.15, 8.16, 8.17; OWASP A09.
+
+<!-- BEGIN GENERATED: sources (docs/ai/sync-ai-wrappers.py) -->
+## Sources and update checks
+
+This skill is written against the versions below, recorded in [sources.json](../sources.json). `.github/workflows/compliance-sources-review.yml` checks every source on the 1st and 16th of each month and opens or updates a `compliance-review` issue. To apply a change: update this skill and any affected topic skills, then `tracked_version`, `last_seen_sha` and `last_reviewed` in sources.json, in one PR into `development`, and run `python3 docs/ai/sync-ai-wrappers.py`. The workflow never edits rules itself.
+
+| Source | Version tracked | How it is checked | Last reviewed |
+|---|---|---|---|
+| [OMB M-21-31 logging requirements (referenced by FedRAMP AU-11)](https://www.whitehouse.gov/omb/information-for-agencies/memoranda/) | OMB M-21-31 (2021) | Manual: listed for a portal check | 2026-11-09 |
+<!-- END GENERATED: sources -->
