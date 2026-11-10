@@ -34,5 +34,5 @@ Tick each item or explain why it does not apply.
 - [ ] Tests describe behaviour and were written first for new logic (ENG-CODE-03, ENG-AGENT-05)
 - [ ] Errors fail fast and loud; no empty catch (ENG-CODE-04/05)
 - [ ] Entities and EF Core changes follow ENG-ENTITY / ENG-EF, or not applicable
-- [ ] Angular changes follow ENG-UI (standalone, signals, OnPush, Material, a11y), or not applicable
+- [ ] Angular changes follow ENG-UI (standalone, signals, OnPush, Material, a11y) and reuse the project theme in `Theme Angular/` (ENG-UI-17), or not applicable
 - [ ] Definition of done met: built, tested, documented, README updated (ENG-PROC-02)
