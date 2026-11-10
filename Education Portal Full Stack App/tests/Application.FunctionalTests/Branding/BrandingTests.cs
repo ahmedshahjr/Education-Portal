@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using EducationPortal.Application.Branding.Common;
 using EducationPortal.Application.Branding.Queries.GetBrandingImage;
 using EducationPortal.Domain.Constants;
@@ -20,6 +22,9 @@ public class BrandingTests : TestBase
     private const string SchoolDomain = "school1.localhost";
     private const string OtherSchoolDomain = "school2.localhost";
     private const string SchoolAdminEmail = "admin@school1.local";
+
+    // The API sends enums by name.
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
 
     [Test]
     public async Task ShouldReturnTheBrandingOfTheHostsSchoolBeforeSignIn()
@@ -268,7 +273,7 @@ public class BrandingTests : TestBase
     {
         using var response = await session.GetAsync("/api/Branding");
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return (await response.Content.ReadFromJsonAsync<BrandingDto>())!;
+        return (await response.Content.ReadFromJsonAsync<BrandingDto>(Json))!;
     }
 
     private static async Task<int> CountImagesAsync()

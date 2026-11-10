@@ -1,0 +1,115 @@
+<form class="mm-branding" (submit)="$event.preventDefault(); submit()">
+  <div class="mm-branding__grid">
+    <mat-card class="mm-card mm-elevated">
+      <mat-card-content class="mm-branding__sections">
+        <section class="mm-branding__section" aria-labelledby="branding-accent">
+          <h3 id="branding-accent" class="mm-branding__label">Accent colour</h3>
+          <div class="mm-color-grid" role="radiogroup" aria-labelledby="branding-accent">
+            @for (option of presetOptions; track option.preset) {
+              <button
+                type="button"
+                role="radio"
+                class="mm-color-tile"
+                [class.is-active]="preset() === option.preset"
+                [attr.aria-checked]="preset() === option.preset"
+                [attr.aria-label]="option.label"
+                [title]="option.label"
+                (click)="selectPreset(option.preset)"
+              >
+                <span class="mm-color-dot" [style.background-color]="option.hex">
+                  @if (preset() === option.preset) {
+                    <app-icon name="check" [size]="14" />
+                  }
+                </span>
+              </button>
+            }
+          </div>
+        </section>
+
+        <section class="mm-branding__section" aria-labelledby="branding-sidebar">
+          <h3 id="branding-sidebar" class="mm-branding__label">Sidebar colour</h3>
+          <mat-slide-toggle [checked]="customSidebar()" (change)="customSidebar.set($event.checked)">
+            Use a custom sidebar colour
+          </mat-slide-toggle>
+
+          @if (customSidebar()) {
+            <div class="mm-branding__color-row">
+              <input
+                type="color"
+                class="mm-branding__picker"
+                aria-label="Pick the sidebar colour"
+                [value]="colorValid() ? sidebarColor() : '#000000'"
+                (input)="setSidebarColor($event)"
+              />
+              <mat-form-field appearance="outline" class="mm-branding__hex">
+                <mat-label>Hex colour</mat-label>
+                <input matInput maxlength="7" [value]="sidebarColor()" (input)="setSidebarColor($event)" />
+                @if (!colorValid()) {
+                  <mat-error>Use the form #rrggbb.</mat-error>
+                }
+                <mat-hint>For example #1f2a3d</mat-hint>
+              </mat-form-field>
+            </div>
+            @if (!colorValid()) {
+              <p class="mm-branding__error" role="alert">Use the form #rrggbb.</p>
+            }
+          }
+        </section>
+
+        <section class="mm-branding__section" aria-labelledby="branding-logo">
+          <h3 id="branding-logo" class="mm-branding__label">Logo</h3>
+          <p class="mm-branding__help">PNG, JPEG or WebP, up to 512 KB. Shown in the sidebar and on the sign-in page.</p>
+          <div class="mm-branding__file-row">
+            <label class="mm-branding__file">
+              <input type="file" class="mm-visually-hidden" [accept]="logoAccept" (change)="chooseFile($event, 'logo')" />
+              <span>{{ logo() ? logo()!.name : 'Choose logo' }}</span>
+            </label>
+            @if (hasLogo()) {
+              <button mat-button type="button" (click)="remove('logo')">Remove logo</button>
+            }
+          </div>
+        </section>
+
+        <section class="mm-branding__section" aria-labelledby="branding-favicon">
+          <h3 id="branding-favicon" class="mm-branding__label">Favicon</h3>
+          <p class="mm-branding__help">ICO or PNG, up to 100 KB. Shown in the browser tab.</p>
+          <div class="mm-branding__file-row">
+            <label class="mm-branding__file">
+              <input type="file" class="mm-visually-hidden" [accept]="faviconAccept" (change)="chooseFile($event, 'favicon')" />
+              <span>{{ favicon() ? favicon()!.name : 'Choose favicon' }}</span>
+            </label>
+            @if (hasFavicon()) {
+              <button mat-button type="button" (click)="remove('favicon')">Remove favicon</button>
+            }
+          </div>
+        </section>
+
+        @if (fileError(); as message) {
+          <p class="mm-branding__error" role="alert">{{ message }}</p>
+        }
+        @for (message of errors(); track message) {
+          <p class="mm-branding__error" role="alert">{{ message }}</p>
+        }
+
+        <div class="mm-branding__actions">
+          <button mat-flat-button type="submit" [disabled]="saving() || !colorValid()">Save branding</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="mm-card mm-elevated" aria-label="Preview">
+      <mat-card-content>
+        <h3 class="mm-branding__label">Preview</h3>
+        <div class="mm-branding__preview" [style.background-color]="preview().background" [style.color]="preview().text">
+          @if (preview().logo; as logo) {
+            <img class="mm-branding__preview-logo" [src]="logo" alt="Logo preview" />
+          } @else {
+            <span class="mm-branding__preview-name">{{ branding().schoolName }}</span>
+          }
+          <span class="mm-branding__preview-item">Dashboard</span>
+          <span class="mm-branding__preview-item">Students</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</form>

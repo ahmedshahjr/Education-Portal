@@ -34,10 +34,10 @@ public sealed class LoginStepDefinitions(LoginPage loginPage)
     [Then("they log in successfully")]
     public async Task TheyLogInSuccessfully()
     {
-        var logoutButtonText = await loginPage.LogoutButtonText();
+        var signOutButtonText = await loginPage.SignOutButtonText();
 
-        logoutButtonText.ShouldNotBeNull();
-        logoutButtonText.ShouldBe("Log out");
+        signOutButtonText.ShouldNotBeNull();
+        signOutButtonText.ShouldBe("Sign out");
     }
 
     [When("the user logs in with invalid credentials")]
