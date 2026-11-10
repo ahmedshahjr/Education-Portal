@@ -20,44 +20,40 @@
             "outputPath": "dist",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
             "tsConfig": "tsconfig.app.json",
-            "allowedCommonJsDependencies": [
-              "oidc-client"
-            ],
             "assets": [
               "src/assets",
               {
                 "glob": "favicon.png",
                 "input": "src",
                 "output": "/"
+              },
+              {
+                "glob": "messages.*.json",
+                "input": "src/locale",
+                "output": "/i18n"
               }
             ],
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "polyfills": [
+              "@angular/localize/init"
+            ]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "1mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "1.1mb",
+                  "maximumError": "1.6mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
-                }
-              ],
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
+                  "maximumWarning": "4kb",
+                  "maximumError": "8kb"
                 }
               ],
               "outputHashing": "all"
@@ -74,10 +70,6 @@
               "extractLicenses": false,
               "assets": [
                 "src/assets"
-              ],
-              "polyfills": [
-                "zone.js",
-                "zone.js/testing"
               ]
             }
           },
@@ -99,7 +91,9 @@
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n",
           "options": {
-            "buildTarget": "EducationPortal.Web:build"
+            "buildTarget": "EducationPortal.Web:build",
+            "format": "json",
+            "outputPath": "src/locale"
           }
         },
         "test": {
@@ -117,6 +111,9 @@
             "runner": "vitest"
           }
         }
+      },
+      "i18n": {
+        "sourceLocale": "en"
       }
     }
   },

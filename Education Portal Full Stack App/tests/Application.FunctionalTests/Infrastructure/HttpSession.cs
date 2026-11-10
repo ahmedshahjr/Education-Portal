@@ -17,6 +17,10 @@ internal sealed class HttpSession(HttpClient client) : IDisposable
     public const string CurrentUserPath = "/api/Users/me";
 
     private readonly Dictionary<string, string> _cookies = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _headers = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Sends a header on every request, as a browser sends Accept-Language.</summary>
+    public void SetHeader(string name, string value) => _headers[name] = value;
 
     public string? Cookie(string name) => _cookies.GetValueOrDefault(name);
 
@@ -66,6 +70,28 @@ internal sealed class HttpSession(HttpClient client) : IDisposable
 
     public Task<HttpResponseMessage> GetCurrentUserAsync() => GetAsync(CurrentUserPath);
 
+    /// <summary>Sends a JSON body with PUT, with the antiforgery token, as the Angular client does.</summary>
+    public async Task<HttpResponseMessage> PutAsync(string path, object body)
+    {
+        if (Cookie(AntiforgeryTokenCookie.CookieName) is null)
+        {
+            (await GetAsync("/")).Dispose();
+        }
+
+        return await SendAsync(HttpMethod.Put, path, body, withAntiforgeryToken: true);
+    }
+
+    /// <summary>Sends a multipart form with PUT, with the antiforgery token, as the Angular client does for uploads.</summary>
+    public async Task<HttpResponseMessage> PutFormAsync(string path, MultipartFormDataContent form)
+    {
+        if (Cookie(AntiforgeryTokenCookie.CookieName) is null)
+        {
+            (await GetAsync("/")).Dispose();
+        }
+
+        return await SendAsync(HttpMethod.Put, path, form, withAntiforgeryToken: true);
+    }
+
     public void Dispose() => client.Dispose();
 
     private async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, object? body, bool withAntiforgeryToken)
@@ -77,12 +103,21 @@ internal sealed class HttpSession(HttpClient client) : IDisposable
             request.Headers.Add("Cookie", string.Join("; ", _cookies.Select(cookie => $"{cookie.Key}={cookie.Value}")));
         }
 
+        foreach (var (name, value) in _headers)
+        {
+            request.Headers.TryAddWithoutValidation(name, value);
+        }
+
         if (withAntiforgeryToken && Cookie(AntiforgeryTokenCookie.CookieName) is { } token)
         {
             request.Headers.Add(AntiforgeryTokenCookie.HeaderName, token);
         }
 
-        if (body is not null)
+        if (body is HttpContent content)
+        {
+            request.Content = content;
+        }
+        else if (body is not null)
         {
             request.Content = JsonContent.Create(body);
         }
@@ -130,20 +165,20 @@ internal sealed class HttpSession(HttpClient client) : IDisposable
 
 internal static class TestHttp
 {
-    private static readonly WebApplicationFactoryClientOptions ClientOptions = new()
-    {
-        // Secure cookies are sent only over HTTPS, as in production.
-        BaseAddress = new Uri("https://localhost"),
-
-        // The session keeps the cookies itself, so that redirects and cookie handling are visible to the test.
-        HandleCookies = false,
-        AllowAutoRedirect = false,
-    };
-
-    public static HttpSession CreateDevelopmentSession() => CreateSession(FunctionalTestSetup.DevelopmentFactory);
+    public static HttpSession CreateDevelopmentSession(string host = TestApp.MasterDomain) =>
+        CreateSession(FunctionalTestSetup.DevelopmentFactory, host);
 
     public static HttpSession CreateProductionSession() => CreateSession(FunctionalTestSetup.ProductionFactory);
 
-    public static HttpSession CreateSession(WebApplicationFactory<Program> factory) =>
-        new(factory.CreateClient(ClientOptions));
+    /// <summary>A session on one host. The host picks the tenant, as a school's domain does in production.</summary>
+    public static HttpSession CreateSession(WebApplicationFactory<Program> factory, string host = TestApp.MasterDomain) =>
+        new(factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            // Secure cookies are sent only over HTTPS, as in production.
+            BaseAddress = new Uri($"https://{host}"),
+
+            // The session keeps the cookies itself, so that redirects and cookie handling are visible to the test.
+            HandleCookies = false,
+            AllowAutoRedirect = false,
+        }));
 }

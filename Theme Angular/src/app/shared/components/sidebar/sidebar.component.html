@@ -1,0 +1,114 @@
+<aside class="mm-sidebar" [class.is-mini]="layout.isMiniSidebar()">
+  <div class="mm-sidebar__brand">
+    <a routerLink="/dashboards/dashboard3" class="mm-brand-link" (click)="onNavigate()">
+      <!-- MaterialM Geometric Wave M Logo -->
+      <svg
+        class="mm-brand-mark"
+        width="34"
+        height="26"
+        viewBox="0 0 36 28"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M3.5 23.5L9.2 7.2C10.1 4.6 13.7 4.4 14.9 6.9L18.2 13.8L21.5 6.9C22.7 4.4 26.3 4.6 27.2 7.2L32.8 23.5"
+          stroke="var(--mm-primary)"
+          stroke-width="5.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <circle cx="4.5" cy="23.5" r="2.6" fill="var(--mm-primary)" opacity="0.55" />
+      </svg>
+
+      @if (!layout.isMiniSidebar()) {
+        <span class="mm-brand-text">MaterialM</span>
+      }
+    </a>
+  </div>
+
+  <nav class="mm-sidebar__nav" aria-label="Main navigation">
+    @for (section of sections; track section.id) {
+      <div class="mm-nav-section">
+        @if (layout.isMiniSidebar()) {
+          <div class="mm-nav-caption mm-nav-caption--dots" [title]="section.title" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+        } @else {
+          <div class="mm-nav-caption">{{ section.title }}</div>
+        }
+
+        <ul class="mm-nav-list">
+          @for (item of section.items; track item.id) {
+            <li class="mm-nav-li">
+              @if (item.children?.length) {
+                <button
+                  type="button"
+                  class="mm-nav-item mm-nav-item--parent"
+                  [class.is-open]="isExpanded(item.id)"
+                  [matTooltip]="layout.isMiniSidebar() ? item.label : ''"
+                  matTooltipPosition="right"
+                  (click)="toggleGroup(item)"
+                >
+                  <app-icon [name]="item.icon" [size]="20" iconClass="mm-nav-item__icon" />
+                  @if (!layout.isMiniSidebar()) {
+                    <span class="mm-nav-item__label">{{ item.label }}</span>
+                    @if (item.badge) {
+                      <span class="mm-nav-badge" [class]="'mm-nav-badge--' + (item.badgeVariant || 'primary')">
+                        {{ item.badge }}
+                      </span>
+                    }
+                    <app-icon
+                      [name]="isExpanded(item.id) ? 'chevron-down' : 'chevron-right'"
+                      [size]="16"
+                      iconClass="mm-nav-item__chevron"
+                    />
+                  }
+                </button>
+
+                @if (!layout.isMiniSidebar() && isExpanded(item.id)) {
+                  <ul class="mm-nav-sublist">
+                    @for (child of item.children; track child.id) {
+                      <li>
+                        <a
+                          [routerLink]="child.route"
+                          routerLinkActive="is-active"
+                          class="mm-nav-item mm-nav-item--child"
+                          (click)="onNavigate()"
+                        >
+                          <span class="mm-nav-dot"></span>
+                          <span class="mm-nav-item__label">{{ child.label }}</span>
+                        </a>
+                      </li>
+                    }
+                  </ul>
+                }
+              } @else {
+                <a
+                  [routerLink]="item.route"
+                  [queryParams]="item.queryParams"
+                  routerLinkActive="is-active"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  class="mm-nav-item"
+                  [matTooltip]="layout.isMiniSidebar() ? item.label : ''"
+                  matTooltipPosition="right"
+                  (click)="onNavigate()"
+                >
+                  <app-icon [name]="item.icon" [size]="20" iconClass="mm-nav-item__icon" />
+                  @if (!layout.isMiniSidebar()) {
+                    <span class="mm-nav-item__label">{{ item.label }}</span>
+                    @if (item.badge) {
+                      <span class="mm-nav-badge" [class]="'mm-nav-badge--' + (item.badgeVariant || 'primary')">
+                        {{ item.badge }}
+                      </span>
+                    }
+                  }
+                </a>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </nav>
+</aside>

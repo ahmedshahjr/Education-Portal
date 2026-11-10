@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Azure.Identity;
 using EducationPortal.Application.Common.Interfaces;
@@ -21,7 +22,13 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<IUser, CurrentUser>();
 
+        builder.Services.AddScoped<CurrentTenant>();
+        builder.Services.AddScoped<ICurrentTenant>(provider => provider.GetRequiredService<CurrentTenant>());
+
         builder.Services.AddHttpContextAccessor();
+
+        // Each request is answered in one of the languages of its school's country (TenantRequestLocalization).
+        builder.Services.AddTenantRequestLocalization();
 
         builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 
@@ -32,6 +39,10 @@ public static class DependencyInjection
                 context.ProblemDetails.Extensions["traceId"] = Activity.Current?.TraceId.ToString() ?? context.HttpContext.TraceIdentifier;
         });
 
+        // Enums travel by name (for example "Cyan"), which keeps the API readable and gives Angular named enums.
+        builder.Services.ConfigureHttpJsonOptions(options =>
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
         // Customise default API behaviour
         builder.Services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
@@ -41,6 +52,8 @@ public static class DependencyInjection
         builder.Services.AddOpenApi(options =>
         {
             options.AddOperationTransformer<ApiExceptionOperationTransformer>();
+            options.AddOperationTransformer<MultipartFormOperationTransformer>();
+            options.AddSchemaTransformer<FormFileSchemaTransformer>();
         });
 
         builder.Services.AddAntiforgery(options =>

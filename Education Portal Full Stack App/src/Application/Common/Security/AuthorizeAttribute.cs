@@ -20,4 +20,10 @@ public class AuthorizeAttribute : Attribute
     /// Gets or sets the policy name that determines access to the resource.
     /// </summary>
     public string Policy { get; set; } = string.Empty;
+
+    /// <summary>
+    /// When true, the request is a master-tenant (cross-school) use case and is allowed only on the master tenant's
+    /// domain (SEC-AUTHZ-07). Other schools get 403.
+    /// </summary>
+    public bool MasterTenant { get; set; }
 }

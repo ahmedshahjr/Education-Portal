@@ -54,7 +54,7 @@ The same checklist is in `.github/pull_request_template.md`. AI assistants that 
 - [ ] Tests describe behaviour and were written first for new logic (ENG-CODE-03, ENG-AGENT-05)
 - [ ] Errors fail fast and loud; no empty catch (ENG-CODE-04/05)
 - [ ] Entities and EF Core changes follow ENG-ENTITY / ENG-EF, or not applicable
-- [ ] Angular changes follow ENG-UI (standalone, signals, OnPush, Material, a11y), or not applicable
+- [ ] Angular changes follow ENG-UI (standalone, signals, OnPush, Material, a11y) and reuse the project theme in `Theme Angular/` (ENG-UI-17), or not applicable
 - [ ] Definition of done met: built, tested, documented, README updated (ENG-PROC-02)
 ```
 
@@ -88,8 +88,6 @@ The baseline came from the Clean Architecture template and does not meet every r
 
 | Gap | Where | Rule |
 |---|---|---|
-| The Angular app uses `NgModule` and `standalone: false` components | `src/Web/ClientApp/src/app/`, `src/Web/ClientApp/src/api-authorization/` | ENG-UI-01 |
-| The Angular app uses Pico CSS, not Angular Material; adopting Angular Material (and the maintainer's Material theme) is its own PR | `src/Web/ClientApp/package.json`, `src/styles.scss` | ENG-UI-08 |
 | No ESLint (`angular-eslint`) in the Angular app | `src/Web/ClientApp` | ENG-UI-14 |
 | .NET analyzers run at the default level; `latest-recommended` currently reports CA2016 (pipeline behaviours do not forward the `CancellationToken`), CA1848/CA1873 (logging), CA1860 and CA1716 | `Directory.Build.props`, `src/Application/Common/Behaviours/`, `src/Shared/` | ENG-CODE-09 |
 | `DispatchDomainEventsInterceptor.SavingChanges` blocks on async code (synchronous EF Core override) | `src/Infrastructure/Data/Interceptors/DispatchDomainEventsInterceptor.cs` | ENG-EF-06 |

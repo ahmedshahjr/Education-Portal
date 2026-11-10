@@ -1,20 +1,11 @@
-import { enableProdMode } from '@angular/core';
-import { platformBrowser } from '@angular/platform-browser';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { loadAppLocale, provideAppLocale } from './app/core/i18n/app-locale';
 
-import { AppModule } from './app/app.module';
-import { environment } from './environments/environment';
-
-export function getBaseUrl() {
-  return document.getElementsByTagName('base')[0].href;
-}
-
-const providers = [
-  { provide: 'BASE_URL', useFactory: getBaseUrl, deps: [] }
-];
-
-if (environment.production) {
-  enableProdMode();
-}
-
-platformBrowser(providers).bootstrapModule(AppModule)
-  .catch(err => console.log(err));
+// The language comes first: Angular's runtime translations must be loaded before any app code that holds a $localize
+// message is imported, so the app is imported only afterwards.
+loadAppLocale()
+  .then(async (locale) => {
+    const [{ App }, { appConfig }] = await Promise.all([import('./app/app'), import('./app/app.config')]);
+    await bootstrapApplication(App, { providers: [...appConfig.providers, ...provideAppLocale(locale)] });
+  })
+  .catch((error: unknown) => console.error(error));

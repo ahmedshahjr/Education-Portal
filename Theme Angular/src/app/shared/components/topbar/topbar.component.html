@@ -1,0 +1,277 @@
+<mat-toolbar class="mm-topbar">
+  <div class="mm-topbar__left">
+    <button
+      mat-icon-button
+      type="button"
+      class="mm-topbar__icon-btn"
+      aria-label="Toggle navigation sidebar"
+      matTooltip="Toggle Sidebar"
+      (click)="layout.toggleSidebar()"
+    >
+      <app-icon name="menu" [size]="20" />
+    </button>
+
+    <button
+      mat-icon-button
+      type="button"
+      class="mm-topbar__icon-btn mm-hide-mobile"
+      aria-label="Quick applications"
+      [matMenuTriggerFor]="appsMenu"
+      matTooltip="Apps"
+    >
+      <app-icon name="layout-grid" [size]="20" />
+    </button>
+
+    <mat-menu #appsMenu="matMenu" class="mm-apps-menu">
+      <div class="mm-popover-panel" (click)="$event.stopPropagation()">
+        <div class="mm-popover-panel__head">
+          <span class="mm-popover-panel__title">Quick Applications</span>
+          <span class="mm-popover-panel__pill">6 Apps</span>
+        </div>
+        <div class="mm-apps-grid">
+          @for (app of quickApps; track app.title) {
+            <a [routerLink]="app.route" class="mm-apps-tile" mat-menu-item>
+              <span class="mm-icon-pill mm-icon-pill--square" [class]="'mm-icon-pill--soft-' + app.tone">
+                <app-icon [name]="app.icon" [size]="18" />
+              </span>
+              <span class="mm-apps-tile__text">
+                <span class="mm-apps-tile__title">{{ app.title }}</span>
+                <span class="mm-apps-tile__sub">{{ app.subtitle }}</span>
+              </span>
+            </a>
+          }
+        </div>
+      </div>
+    </mat-menu>
+  </div>
+
+  <div class="mm-topbar__right">
+    <button
+      mat-icon-button
+      type="button"
+      class="mm-topbar__icon-btn"
+      aria-label="Search workspace"
+      matTooltip="Search"
+      (click)="openSearch()"
+    >
+      <app-icon name="search" [size]="20" />
+    </button>
+
+    <button
+      mat-icon-button
+      type="button"
+      class="mm-topbar__icon-btn"
+      aria-label="Toggle color theme"
+      [matTooltip]="layout.isDark() ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+      (click)="layout.toggleThemeMode()"
+    >
+      <app-icon [name]="layout.isDark() ? 'sun' : 'moon'" [size]="20" />
+    </button>
+
+    <!-- Desktop Inbox / Messages -->
+    <button
+      mat-icon-button
+      type="button"
+      class="mm-topbar__icon-btn mm-topbar__badged mm-hide-mobile"
+      aria-label="Messages"
+      [matMenuTriggerFor]="inboxMenu"
+    >
+      <app-icon name="inbox" [size]="20" />
+      @if (notifications.unreadMessageCount() > 0) {
+        <span class="mm-topbar__badge mm-topbar__badge--primary">
+          {{ notifications.unreadMessageCount() }}
+        </span>
+      }
+    </button>
+
+    <mat-menu #inboxMenu="matMenu" xPosition="before">
+      <div class="mm-popover-panel mm-popover-panel--list" (click)="$event.stopPropagation()">
+        <div class="mm-popover-panel__head">
+          <span class="mm-popover-panel__title">Messages</span>
+          <button
+            type="button"
+            class="mm-popover-panel__action"
+            (click)="notifications.markAllMessagesRead()"
+          >
+            Mark all read
+          </button>
+        </div>
+        @for (msg of notifications.messages(); track msg.id) {
+          <button
+            type="button"
+            class="mm-popover-row"
+            [class.is-unread]="msg.unread"
+            (click)="notifications.markMessageRead(msg.id)"
+          >
+            <span
+              class="mm-popover-avatar"
+              [style.background-color]="msg.avatarBg"
+              [style.color]="msg.avatarColor"
+            >
+              {{ msg.initials }}
+            </span>
+            <span class="mm-popover-row__body">
+              <span class="mm-popover-row__title">{{ msg.sender }}</span>
+              <span class="mm-popover-row__desc">{{ msg.preview }}</span>
+            </span>
+            <span class="mm-popover-row__time">{{ msg.time }}</span>
+          </button>
+        }
+      </div>
+    </mat-menu>
+
+    <!-- Desktop Notifications -->
+    <button
+      mat-icon-button
+      type="button"
+      class="mm-topbar__icon-btn mm-topbar__badged mm-hide-mobile"
+      aria-label="Notifications"
+      [matMenuTriggerFor]="notifMenu"
+    >
+      <app-icon name="bell" [size]="20" />
+      @if (notifications.unreadNotificationCount() > 0) {
+        <span class="mm-topbar__badge mm-topbar__badge--error">
+          {{ notifications.unreadNotificationCount() }}
+        </span>
+      }
+    </button>
+
+    <mat-menu #notifMenu="matMenu" xPosition="before">
+      <div class="mm-popover-panel mm-popover-panel--list" (click)="$event.stopPropagation()">
+        <div class="mm-popover-panel__head">
+          <span class="mm-popover-panel__title">Notifications</span>
+          <button
+            type="button"
+            class="mm-popover-panel__action"
+            (click)="notifications.markAllNotificationsRead()"
+          >
+            Clear unread
+          </button>
+        </div>
+        @for (item of notifications.notifications(); track item.id) {
+          <button
+            type="button"
+            class="mm-popover-row"
+            [class.is-unread]="item.unread"
+            (click)="notifications.markNotificationRead(item.id)"
+          >
+            <span class="mm-icon-pill mm-icon-pill--square" [class]="'mm-icon-pill--soft-' + item.tone">
+              <app-icon [name]="item.icon" [size]="16" />
+            </span>
+            <span class="mm-popover-row__body">
+              <span class="mm-popover-row__title">{{ item.title }}</span>
+              <span class="mm-popover-row__desc">{{ item.description }}</span>
+            </span>
+            <span class="mm-popover-row__time">{{ item.time }}</span>
+          </button>
+        }
+      </div>
+    </mat-menu>
+
+    <!-- Language Flag -->
+    <button
+      mat-icon-button
+      type="button"
+      class="mm-topbar__icon-btn mm-hide-mobile"
+      aria-label="Select language"
+      [matMenuTriggerFor]="langMenu"
+      [matTooltip]="selectedLanguage().label"
+    >
+      <span class="mm-flag-circle" aria-hidden="true">
+        @if (selectedLanguage().code === 'EN') {
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <clipPath id="ukClip"><circle cx="12" cy="12" r="11" /></clipPath>
+            <g clip-path="url(#ukClip)">
+              <rect width="24" height="24" fill="#012169" />
+              <path d="M0 0L24 24M24 0L0 24" stroke="#ffffff" stroke-width="4" />
+              <path d="M0 0L24 24M24 0L0 24" stroke="#C8102E" stroke-width="2" />
+              <path d="M12 0V24M0 12H24" stroke="#ffffff" stroke-width="6" />
+              <path d="M12 0V24M0 12H24" stroke="#C8102E" stroke-width="3.5" />
+            </g>
+          </svg>
+        } @else {
+          <span class="mm-lang-code">{{ selectedLanguage().code }}</span>
+        }
+      </span>
+    </button>
+
+    <mat-menu #langMenu="matMenu" xPosition="before">
+      @for (lang of languages; track lang.code) {
+        <button mat-menu-item type="button" (click)="setLanguage(lang)">
+          <span>{{ lang.code }} — {{ lang.label }}</span>
+        </button>
+      }
+    </mat-menu>
+
+    <!-- Mobile Overflow Trigger -->
+    <button
+      mat-icon-button
+      type="button"
+      class="mm-topbar__icon-btn mm-show-mobile"
+      aria-label="More options"
+      [matMenuTriggerFor]="mobileMenu"
+    >
+      <app-icon name="sliders-horizontal" [size]="18" />
+    </button>
+
+    <mat-menu #mobileMenu="matMenu" xPosition="before">
+      <button mat-menu-item type="button" (click)="layout.toggleCustomizer(true)">
+        <span>Theme Settings</span>
+      </button>
+      <button mat-menu-item type="button" routerLink="/apps/transactions">
+        <span>Messages ({{ notifications.unreadMessageCount() }})</span>
+      </button>
+      <button mat-menu-item type="button" (click)="notifications.markAllNotificationsRead()">
+        <span>Mark Notifications Read ({{ notifications.unreadNotificationCount() }})</span>
+      </button>
+      <button mat-menu-item type="button" routerLink="/pages/account-settings">
+        <span>Account Settings</span>
+      </button>
+    </mat-menu>
+
+    <!-- User Profile Avatar -->
+    <button
+      type="button"
+      class="mm-profile-btn"
+      aria-label="User profile menu"
+      [matMenuTriggerFor]="profileMenu"
+    >
+      <span class="mm-profile-avatar">
+        <svg viewBox="0 0 36 36" width="36" height="36" aria-hidden="true">
+          <circle cx="18" cy="18" r="18" fill="#63e2d3" />
+          <circle cx="18" cy="14" r="6.2" fill="#f7c8a8" />
+          <path d="M11 12.5C11.5 8.5 15 6.8 18.5 7C22 7.2 24.5 9.4 24.8 12.2C22 10.6 15 10.6 11 12.5Z" fill="#2c3e50" />
+          <path d="M8.2 31.5C9.5 25.5 13.4 22.8 18 22.8C22.6 22.8 26.5 25.5 27.8 31.5Z" fill="#00a1ff" />
+        </svg>
+      </span>
+    </button>
+
+    <mat-menu #profileMenu="matMenu" xPosition="before">
+      <div class="mm-profile-menu" (click)="$event.stopPropagation()">
+        <div class="mm-profile-menu__head">
+          <div class="mm-profile-menu__name">{{ auth.currentUser().name }}</div>
+          <div class="mm-profile-menu__role">{{ auth.currentUser().role }}</div>
+          <div class="mm-profile-menu__email">{{ auth.currentUser().email }}</div>
+        </div>
+        <div class="mm-profile-menu__links">
+          <a mat-menu-item routerLink="/pages/account-settings">
+            <app-icon name="user-circle" [size]="16" />
+            <span>My Profile & Account</span>
+          </a>
+          <a mat-menu-item routerLink="/apps/projects">
+            <app-icon name="kanban" [size]="16" />
+            <span>Recent Projects</span>
+          </a>
+          <button mat-menu-item type="button" (click)="layout.toggleCustomizer(true)">
+            <app-icon name="settings" [size]="16" />
+            <span>Theme Customizer</span>
+          </button>
+          <button mat-menu-item type="button" class="mm-signout" (click)="signOut()">
+            <app-icon name="log-out" [size]="16" />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </mat-menu>
+  </div>
+</mat-toolbar>

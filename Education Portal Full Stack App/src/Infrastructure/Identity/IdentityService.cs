@@ -34,12 +34,13 @@ public class IdentityService : IIdentityService
         return user?.UserName;
     }
 
-    public async Task<(Result Result, string UserId)> CreateUserAsync(string userName, string password)
+    public async Task<(Result Result, string UserId)> CreateUserAsync(int schoolId, string userName, string password)
     {
         var user = new ApplicationUser
         {
             UserName = userName,
             Email = userName,
+            SchoolId = schoolId,
         };
 
         var result = await _userManager.CreateAsync(user, password);
@@ -84,16 +85,20 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<PasswordSignInResult> PasswordSignInAsync(string email, string password)
+    public async Task<PasswordSignInResult> PasswordSignInAsync(int schoolId, string email, string password)
     {
         var user = await _userManager.FindByEmailAsync(email);
 
-        if (user is null)
+        if (user is null || user.SchoolId != schoolId)
         {
-            // Hash the password anyway, so the response time does not show whether the email has an account.
+            // Hash the password anyway, so the response time does not show whether the email has an account. An account
+            // of another school is treated the same way, and its failed attempts do not count towards its lockout, so
+            // one school's domain cannot be used to lock out another school's users.
             _userManager.PasswordHasher.VerifyHashedPassword(new ApplicationUser(), DummyPasswordHash(), password);
 
-            return new PasswordSignInResult(PasswordSignInStatus.Failed, null);
+            return user is null
+                ? new PasswordSignInResult(PasswordSignInStatus.Failed, null)
+                : new PasswordSignInResult(PasswordSignInStatus.WrongSchool, user.Id);
         }
 
         // lockoutOnFailure counts failed attempts and locks the account after three of them (SEC-AUTHN-05).

@@ -1,0 +1,117 @@
+// ============================================================================
+// Angular Material 22 Theme Integration & MaterialM MDC Token Overrides
+// ============================================================================
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+      tertiary: mat.$cyan-palette,
+    ),
+    typography: (
+      plain-family: var(--mm-font-sans),
+      brand-family: var(--mm-font-sans),
+    ),
+    density: 0,
+  ));
+}
+
+html.dark-theme {
+  @include mat.theme((
+    color: (
+      theme-type: dark,
+      primary: mat.$azure-palette,
+      tertiary: mat.$cyan-palette,
+    ),
+  ));
+}
+
+// Synchronize Material M3 system tokens with MaterialM Design Tokens
+html,
+html.dark-theme {
+  --mat-sys-primary: var(--mm-primary);
+  --mat-sys-secondary: var(--mm-secondary);
+  --mat-sys-error: var(--mm-error);
+  --mat-sys-background: var(--mm-bg-canvas);
+  --mat-sys-surface: var(--mm-bg-surface);
+  --mat-sys-surface-bright: var(--mm-bg-subtle);
+  --mat-sys-surface-container: var(--mm-bg-surface);
+  --mat-sys-surface-container-low: var(--mm-bg-surface);
+  --mat-sys-surface-container-lowest: var(--mm-text-secondary);
+  --mat-sys-on-background: var(--mm-text-primary);
+  --mat-sys-on-surface: var(--mm-text-body);
+  --mat-sys-on-surface-variant: var(--mm-text-muted);
+  --mat-sys-outline: var(--mm-border-color);
+  --mat-sys-outline-variant: var(--mm-border-subtle);
+
+  --mat-sys-corner-small: var(--mm-radius-sm);
+  --mat-sys-corner-medium: var(--mm-radius-card);
+  --mat-sys-corner-large: var(--mm-radius-lg);
+
+  --mat-sys-level1: var(--mm-shadow-sm);
+  --mat-sys-level2: var(--mm-shadow-card);
+  --mat-sys-level3: var(--mm-shadow-lg);
+
+  --mat-card-elevated-container-color: var(--mm-bg-surface);
+  --mat-card-outlined-container-color: var(--mm-bg-surface);
+  --mat-card-elevated-container-shape: var(--mm-radius-card);
+  --mat-card-outlined-container-shape: var(--mm-radius-card);
+  --mat-card-elevated-container-elevation: var(--mm-shadow-card);
+  --mat-card-title-text-size: var(--mm-text-lg);
+  --mat-card-title-text-weight: 600;
+  --mat-card-title-text-line-height: 1.5rem;
+
+  --mat-sidenav-container-shape: 0;
+  --mat-sidenav-container-background-color: var(--mm-bg-canvas);
+  --mat-sidenav-content-background-color: var(--mm-bg-canvas);
+  --mat-sidenav-container-divider-color: var(--mm-border-color);
+
+  --mat-toolbar-container-background-color: var(--mm-bg-canvas);
+  --mat-toolbar-container-text-color: var(--mm-text-primary);
+
+  --mat-menu-container-color: var(--mm-bg-surface);
+  --mat-menu-container-shape: var(--mm-radius-md);
+
+  --mat-dialog-container-color: var(--mm-bg-surface);
+  --mat-dialog-container-shape: var(--mm-radius-lg);
+
+  --mat-table-background-color: var(--mm-bg-surface);
+  --mat-paginator-container-background-color: var(--mm-bg-surface);
+
+  --mat-form-field-outlined-container-shape: var(--mm-radius-sm);
+  --mat-form-field-outlined-outline-color: var(--mm-border-color);
+  --mat-form-field-outlined-hover-outline-color: var(--mm-primary);
+
+  --mat-button-filled-container-shape: var(--mm-radius-md);
+  --mat-button-outlined-container-shape: var(--mm-radius-md);
+  --mat-button-protected-container-shape: var(--mm-radius-md);
+  --mat-button-text-container-shape: var(--mm-radius-md);
+}
+
+// Card & Border Mode Overrides
+.mat-mdc-card {
+  border-radius: var(--mm-radius-card) !important;
+  color: var(--mm-text-primary);
+  border: 0 solid transparent;
+  transition: box-shadow var(--mm-duration) var(--mm-ease),
+              background-color var(--mm-duration) var(--mm-ease),
+              border-color var(--mm-duration) var(--mm-ease);
+
+  .mat-mdc-card-content {
+    padding: var(--mm-card-pad);
+  }
+}
+
+html.card-bordered .mat-mdc-card.mm-elevated {
+  box-shadow: none !important;
+  border: 1px solid var(--mm-border-color) !important;
+}
+
+.mat-mdc-menu-panel {
+  border-radius: var(--mm-radius-md) !important;
+  box-shadow: var(--mm-shadow-lg) !important;
+  border: 1px solid var(--mm-border-color);
+  background-color: var(--mm-bg-surface) !important;
+}

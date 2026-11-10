@@ -10,13 +10,16 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
 {
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
+    private readonly ICurrentTenant _tenant;
 
     public AuthorizationBehaviour(
         IUser user,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        ICurrentTenant tenant)
     {
         _user = user;
         _identityService = identityService;
+        _tenant = tenant;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -29,6 +32,12 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
             if (_user.Id == null)
             {
                 throw new UnauthorizedAccessException();
+            }
+
+            // Master-tenant use cases run only on the master tenant's domain (SEC-AUTHZ-07)
+            if (authorizeAttributes.Any(a => a.MasterTenant) && !_tenant.IsMaster)
+            {
+                throw new ForbiddenAccessException();
             }
 
             // Role-based authorization

@@ -1,0 +1,60 @@
+using System.Globalization;
+using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Common.Security;
+using EducationPortal.Domain.Constants;
+
+namespace EducationPortal.Application.Schools.Commands.UpdateSchoolCountry;
+
+/// <summary>
+/// Assigns a school to a country, which decides the languages, time zone and currency it uses, or to none (English
+/// only, UTC). A master-tenant use case, so the school id may come from the route (SEC-AUTHZ-04, SEC-AUTHZ-07).
+/// Audited (SEC-LOG-03).
+/// </summary>
+[Authorize(Roles = Roles.Administrator, MasterTenant = true)]
+public record UpdateSchoolCountryCommand : IRequest
+{
+    public int SchoolId { get; init; }
+
+    /// <summary>The country, or <c>null</c> for the platform defaults.</summary>
+    public int? CountryId { get; init; }
+}
+
+public class UpdateSchoolCountryCommandValidator : AbstractValidator<UpdateSchoolCountryCommand>
+{
+    public UpdateSchoolCountryCommandValidator(IApplicationDbContext context)
+    {
+        RuleFor(c => c.SchoolId).GreaterThan(0);
+
+        RuleFor(c => c.CountryId)
+            .MustAsync(async (countryId, cancellationToken) => await context.Countries.AnyAsync(c => c.Id == countryId, cancellationToken))
+            .When(c => c.CountryId is not null)
+            .WithMessage("The country does not exist.");
+    }
+}
+
+public class UpdateSchoolCountryCommandHandler : IRequestHandler<UpdateSchoolCountryCommand>
+{
+    private readonly IApplicationDbContext _context;
+    private readonly ISecurityAuditLog _auditLog;
+
+    public UpdateSchoolCountryCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog)
+    {
+        _context = context;
+        _auditLog = auditLog;
+    }
+
+    public async Task Handle(UpdateSchoolCountryCommand request, CancellationToken cancellationToken)
+    {
+        var school = await _context.Schools.FirstOrDefaultAsync(s => s.Id == request.SchoolId, cancellationToken);
+        Guard.Against.NotFound(request.SchoolId, school);
+
+        school.AssignCountry(request.CountryId);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        await _auditLog.WriteAsync(
+            SecurityAuditEventType.SchoolCountryChanged,
+            SecurityAuditOutcome.Success,
+            targetType: nameof(School),
+            targetId: school.Id.ToString(CultureInfo.InvariantCulture));
+    }
+}

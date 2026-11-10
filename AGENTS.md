@@ -2,7 +2,7 @@
 
 This file tells AI coding assistants (Claude, ChatGPT/Codex, Gemini, GitHub Copilot, Cursor, and others) what this project is and how to work in it. It follows the open [AGENTS.md](https://agents.md) convention. `CLAUDE.md`, `GEMINI.md` and `.github/copilot-instructions.md` only point here, so **this file is the single source of truth**. When a decision changes, update this file in the same PR.
 
-> **Status (2026-11-09):** step 1 of the plan (section 8) is done: the code is a generated `EducationPortal` solution from Jason Taylor's *Clean Architecture Solution Template* (.NET 10 + Aspire) with Angular and PostgreSQL only. The template switches, the SQL Server/SQLite code and the Todo/Weather samples are gone. Step 2a (security baseline, see `Education Portal Full Stack App/docs/decisions/ADR-004-Security-Baseline.md`) adds sign-in, sessions, antiforgery, security headers and audit events, with no schools or branches yet; it is in review. Schools and branches come in step 2b.
+> **Status (2026-11-09):** step 1 of the plan (section 8) is done: the code is a generated `EducationPortal` solution from Jason Taylor's *Clean Architecture Solution Template* (.NET 10 + Aspire) with Angular and PostgreSQL only. The template switches, the SQL Server/SQLite code and the Todo/Weather samples are gone. Step 2a (security baseline, see `Education Portal Full Stack App/docs/decisions/ADR-004-Security-Baseline.md`) adds sign-in, sessions, antiforgery, security headers and audit events. The first part of step 2b (2026-11-10) adds schools with one domain each, exactly one master tenant, tenant resolution from the host, school-scoped sign-in, per-school branding (theme preset, sidebar colour, logo, favicon) and the Angular app rebuilt on the maintainer's theme in `Theme Angular/`. Branches, modules and roles come next.
 >
 > **MUST FOLLOW: security and compliance rules.** Every AI assistant and human contributor must read and follow [docs/ai/secure-compliance/SKILL.md](docs/ai/secure-compliance/SKILL.md) (secure coding rules mapped to FedRAMP Moderate Rev 5 / NIST SP 800-53, GovRAMP, SOC 2, ISO/IEC 27001:2022, OWASP Top 10:2025, PCI DSS v4.0.1 and EU law) before changing code, config, dependencies, tests or pipelines. The overview links to one skill per topic (authentication, tenant isolation, secrets, privacy, logging, ...) and one per standard; load every one that matches the change. If a request would break one of those rules, stop and say which rule. These rules do not make the product certified; never claim it is.
 >
@@ -18,7 +18,7 @@ A multi-tenant **Education Portal** for schools, built as an **MVP**. Prefer the
 
 - **Core entities:** School (tenant), Branch, Student, Teacher, Parent, Admin/staff user, Course, Enrolment, Grade.
 - **Architecture:** one Clean Architecture solution (modular monolith hosted by Aspire), same shape as the template. **Not microservices** for the MVP.
-- **Frontend:** Angular (the maintainer already has an Angular app).
+- **Frontend:** Angular with Angular Material. The maintainer's theme in `Theme Angular/` (repo root) is the guide for every screen and component: reuse its components, styles and `--mm-*` tokens before building anything new (ENG-UI-17, decided 2026-11-10).
 - **Database:** **PostgreSQL only** (decided 2026-11-09), one shared database for all schools. SQL Server and SQLite code from the template is removed; do not add it back.
 
 ## 2. Multi-tenancy and permissions
@@ -31,7 +31,7 @@ Master tenant (the platform owner, i.e. us)
         └── Branch (one or more per school)
 ```
 
-- **Master tenant** sees and oversees every school and branch, and runs the master portal.
+- **Master tenant** sees and oversees every school and branch, and runs the master portal. There is **always exactly one** master tenant (decided 2026-11-10), enforced by a unique index on `Schools.IsMaster`; it is only created by seeding/provisioning, never through the API.
 - **School owner** manages only their own school, its branches, roles and staff.
 - **Branch** is where day-to-day data lives: students, teachers, courses, enrolments, grades.
 
@@ -42,6 +42,7 @@ Master tenant (the platform owner, i.e. us)
 - **Master-tenant users bypass the filters** and can read across all schools.
 - **Tenant resolution is DNS/host based** (decided 2026-11-09): each school is reached on its own domain, e.g. `school1.com`, `school2.com`. A tenant-resolution middleware looks up the request `Host` in a domain table (domain to school) and sets the current school before any endpoint runs. The master portal has its own domain. **Domains are per school only, never per branch** (decided 2026-11-09).
 - An unknown host is rejected (404), never served as a default tenant.
+- **Branding per school** (decided 2026-11-10): each school, including the master, has a theme preset, an optional sidebar colour (colour picker), a logo and a favicon. The app loads them for the request's host before the login page renders, so a school's login page is already in its own theme. A school administrator edits their own school's branding; the master tenant's administrator can edit any school's.
 - The server checks that the logged-in user belongs to the tenant resolved from the host. A session or token from `school1.com` must not work on `school2.com` (scope auth cookies per domain).
 - **Branch selection happens inside the school's domain:** a user with access to several branches (staff, students, parents) picks the current branch in the app (branch switcher, carried in the route, e.g. `/branches/{branchId}/...`). The server checks the user belongs to that branch on every request.
 - Students and parents can belong to **several branches** (decided 2026-11-09).
@@ -67,10 +68,17 @@ Effective access for a school user = **modules enabled for their school** ∩ **
    | Grades | Assessments and scores per enrolment | Yes |
    | Dashboard | School/branch overview for owners and staff | Yes |
 
-   Master-only areas (not tenant modules): Schools, module switches per school, and the cross-school overview.
+   Master-only areas (not tenant modules): Schools, module switches per school, countries and their languages, and the cross-school overview.
 2. **Roles per school (owner controls):** each school owner creates roles with **View / Create / Edit / Delete** rights per module.
 3. **Branches per user:** each staff user is assigned to one or more branches and can only act on data in those branches.
 4. **Fixed rules:** teachers grade only their own courses; parents see only their own children; students and parents have read-only access.
+
+### Languages and countries (decided 2026-11-10, [ADR-005](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-005-Localization-Per-Country.md))
+
+- The master tenant manages **countries**: the languages a country's schools offer, the default language, an IANA time zone and an ISO 4217 currency. Each school is assigned to one country, or to none (English only, UTC). Example: Pakistan offers English and Urdu, the UAE English and Arabic.
+- The portal's languages are fixed in code (`Domain/Localization/Language.cs`: English, Arabic, Urdu): a language is usable only once its translations ship. Countries pick from that list.
+- Each request is answered in one of the **school's** languages, never another: the visitor's choice (cookie), then the browser's `Accept-Language`, then the country's default (`TenantRequestCultureProvider`). Dates and numbers use the language plus country culture, e.g. `ur-PK`.
+- Users switch language from the dropdown in the top bar (and on the sign-in page); the choice is a cookie per school domain, and the page reloads. Arabic and Urdu are laid out right to left.
 
 ### Rules for code
 
@@ -91,7 +99,7 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 | Application | MediatR 14 (CQRS), FluentValidation 12, AutoMapper 16, Ardalis.GuardClauses |
 | Data | EF Core 10, PostgreSQL (Npgsql) |
 | Auth | ASP.NET Core Identity from the template (decided 2026-11-09); school, branch and role data are added as claims and must match the tenant resolved from the host |
-| Frontend | Angular 22 in `src/Web/ClientApp` (NSwag generates the TypeScript API client from `nswag.json`) |
+| Frontend | Angular 22 in `src/Web/ClientApp`, standalone and zoneless, Angular Material + CDK, `@lucide/angular` icons, styles and components from the theme in `Theme Angular/` (NSwag generates the TypeScript API client from `nswag.json`) |
 | Observability | OpenTelemetry, health checks, resilience, service discovery (`src/ServiceDefaults`) |
 | Cloud | Aspire Azure Container Apps + Key Vault packages are referenced. Actual hosting: **TODO** |
 | Tests | NUnit, Shouldly, Moq, Respawn, `Aspire.Hosting.Testing`; Playwright + Reqnroll for acceptance tests |
@@ -152,7 +160,7 @@ dotnet test tests/Application.UnitTests    # one project
 
 Visual Studio: set `AppHost` as the startup project and press F5. The Aspire dashboard shows service URLs and logs: open **webfrontend** for the Angular app; API docs are at `/scalar` on **webapi**.
 
-In Development the database is dropped and recreated on every start by `ApplicationDbContextInitialiser` (`EnsureDeleted` + `EnsureCreated`), then seeded with the Development-only account `administrator@localhost` (its password is set in `ApplicationDbContextInitialiser`; the seed never runs outside Development, SEC-SECRET-04). There are no EF Core migrations yet; add them when the schema needs to survive restarts.
+In Development the database is dropped and recreated on every start by `ApplicationDbContextInitialiser` (`EnsureDeleted` + `EnsureCreated`), then seeded with the master tenant on `localhost` (account `administrator@localhost`) and a Demo School on `demo.localhost` (account `administrator@demo.localhost`). Both accounts use the password set in `ApplicationDbContextInitialiser`; the seed never runs outside Development (SEC-SECRET-04). Open the Angular app on `http://localhost:<port>` for the master tenant or `http://demo.localhost:<port>` for the Demo School; `*.localhost` needs no hosts-file change. There are no EF Core migrations yet; add them when the schema needs to survive restarts.
 
 Functional and acceptance tests start PostgreSQL in a container through Aspire, so Docker must be running.
 
@@ -177,6 +185,7 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
 - **Entities** live in `Domain/Entities` and inherit the template's base/auditable entity. Raise domain events instead of calling services from entities.
 - **Grades** are several scored assessments per enrolment, not one final grade.
 - **Accounts** are created by staff; there is no public sign-up.
+- **Every user-visible string is translatable** (ADR-005). Angular: an `i18n` attribute in templates or `` $localize`:@@area.key:Text` `` in code, always with a custom id; then run `npx ng extract-i18n` and add the translation to every `src/locale/messages.<language>.json` (`translations.spec.ts` fails otherwise). Server text shown to users: `IStringLocalizer` with `.resx` files in `src/Web/Resources`. Use logical CSS properties (`margin-inline-start`, `inset-inline-end`, `text-align: start`), never `left`/`right`, so right-to-left layouts mirror.
 - Nullable is on and warnings are errors: fix warnings rather than suppressing them; if you must suppress, add a comment explaining why.
 - Follow the template's `.editorconfig`.
 - New NuGet package: add its version to `Directory.Packages.props` and say why in the PR.
@@ -268,7 +277,11 @@ Each step is one reviewable PR into `development`.
 - [ ] Hosting and CI/CD (Azure Container Apps via `azd`? GitHub Actions?)
 - [x] Students and parents can belong to several branches; tenant comes from the request domain, e.g. `school1.com` (2026-11-09)
 - [x] Domains are per school only; branches are chosen inside the app (2026-11-09)
-- [ ] Local development setup for school domains (hosts file / `*.localhost`)
+- [x] Local development setup for school domains: `localhost` = master tenant, `*.localhost` = schools, e.g. `demo.localhost` (2026-11-10)
+- [x] Exactly one master tenant; per-school branding (theme preset, sidebar colour, logo, favicon) resolved from the host before sign-in (2026-11-10)
+- [x] Languages per country, managed by the master tenant; runtime-loaded Angular translations and per-school request localization (2026-11-10, ADR-005)
+- [ ] Native-speaker review of the Arabic and Urdu translations, and per-user saved language across devices (today the choice is a cookie per browser)
+- [ ] Production provisioning of the master tenant, schools and their domains (needs EF Core migrations first)
 - [x] Module list: see section 2 (2026-11-09)
 
 ## 10. References

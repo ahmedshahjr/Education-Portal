@@ -3,6 +3,7 @@ using EducationPortal.Application.Common.Security;
 using EducationPortal.Infrastructure.Data;
 using EducationPortal.Infrastructure.Data.Interceptors;
 using EducationPortal.Infrastructure.Identity;
+using EducationPortal.Infrastructure.Localization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -45,6 +46,8 @@ public static class DependencyInjection
 
         builder.Services.AddTransient<IIdentityService, IdentityService>();
         builder.Services.AddScoped<ISecurityAuditLog, SecurityAuditLog>();
+        builder.Services.AddScoped<ITenantResolver, TenantResolver>();
+        builder.Services.AddScoped<ITenantLocaleSettings, TenantLocaleSettings>();
     }
 
     private static void AddIdentity(IServiceCollection services)
@@ -80,6 +83,7 @@ public static class DependencyInjection
                 options.User.RequireUniqueEmail = true;
             })
             .AddRoles<IdentityRole>()
+            .AddClaimsPrincipalFactory<ApplicationUserClaimsPrincipalFactory>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders()

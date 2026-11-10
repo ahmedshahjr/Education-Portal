@@ -28,6 +28,14 @@ else
 app.UseHttpsRedirection();
 app.UseExceptionHandler(options => { });
 app.UseSecurityHeaders();
+
+// Every request belongs to the school that owns its host; unknown hosts get 404 and nothing else (SEC-AUTHZ-10).
+app.UseTenantResolution();
+
+// The language comes from the visitor's choice or browser, limited to the school's languages, so it runs after the
+// tenant is known. Server messages (validation, problem details) are then in that language.
+app.UseTenantRequestLocalization();
+
 app.UseRateLimiter();
 
 // The Angular files are static and anonymous (SEC-AUTHN-01).
@@ -36,6 +44,7 @@ app.UseFileServer();
 // Authentication and authorization run after the security headers, so a 401 or 403 carries them too. Without these
 // calls, WebApplication inserts both middlewares straight after routing, which is before the headers and the token.
 app.UseAuthentication();
+app.UseTenantSessionCheck();
 app.UseAntiforgeryTokenCookie();
 app.UseAuthorization();
 app.UseAntiforgery();

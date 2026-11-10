@@ -7,6 +7,9 @@ public enum PasswordSignInStatus
     LockedOut,
     RequiresTwoFactor,
     NotAllowed,
+
+    /// <summary>The account belongs to another school than the domain the sign-in came from.</summary>
+    WrongSchool,
 }
 
 /// <summary>
