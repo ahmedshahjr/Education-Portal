@@ -53,12 +53,16 @@ jobs:
       - name: AI tool wrappers are in sync (AI-agnostic rule)
         run: python3 docs/ai/sync-ai-wrappers.py --check
 
-      - name: PR includes the security checklist
+      - name: PR includes the security and engineering checklists
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
           if ! jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH" | grep -qi 'Security & compliance checklist'; then
             echo "::error::The PR description must include the 'Security & compliance checklist' from .github/pull_request_template.md (SEC-AI-08)."
+            exit 1
+          fi
+          if ! jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH" | grep -qi 'Engineering checklist'; then
+            echo "::error::The PR description must include the 'Engineering checklist' from .github/pull_request_template.md (docs/ai/engineering/SKILL.md section 3)."
             exit 1
           fi
 

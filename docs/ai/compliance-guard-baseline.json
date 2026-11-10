@@ -1,4 +1,17 @@
 {
-  "_comment": "Known gaps inherited from the template (overview section 8). Each entry allows at most this many findings in that file. Never raise a count or add an entry without maintainer approval; lower or remove it in the PR that fixes the gap.",
-  "allowed": {}
+  "_comment": "Known gaps inherited from the template (compliance overview section 8, engineering overview section 6). Each entry allows at most this many findings in that file. Never raise a count or add an entry without maintainer approval; lower or remove it in the PR that fixes the gap.",
+  "allowed": {
+    "angular-ngmodule": {
+      "Education Portal Full Stack App/src/Web/ClientApp/src/api-authorization/login/login.component.ts": 1,
+      "Education Portal Full Stack App/src/Web/ClientApp/src/app/app.component.ts": 1,
+      "Education Portal Full Stack App/src/Web/ClientApp/src/app/app.module.ts": 1,
+      "Education Portal Full Stack App/src/Web/ClientApp/src/app/app.server.module.ts": 1,
+      "Education Portal Full Stack App/src/Web/ClientApp/src/app/home/home.component.ts": 1,
+      "Education Portal Full Stack App/src/Web/ClientApp/src/app/nav-menu/nav-menu.component.ts": 1,
+      "Education Portal Full Stack App/src/Web/ClientApp/src/app/theme-toggle/theme-toggle.component.ts": 1
+    },
+    "sync-over-async": {
+      "Education Portal Full Stack App/src/Infrastructure/Data/Interceptors/DispatchDomainEventsInterceptor.cs": 1
+    }
+  }
 }

@@ -1,5 +1,8 @@
-# Checks the official sources behind docs/ai/secure-compliance/SKILL.md for updates
-# roughly every 15 days (1st and 16th of each month) and opens a review issue.
+# Checks the official sources behind the AI rule skills for updates roughly every 15 days
+# (1st and 16th of each month) and opens a review issue. Two source lists are checked:
+#   docs/ai/secure-compliance/sources.json  compliance standards (FedRAMP, OWASP, PCI DSS, ...)
+#   docs/ai/engineering/sources.json        engineering guidance (Angular, Angular Material, EF Core,
+#                                           .NET docs, dotnet/skills, angular/skills, OWASP LLM, ...)
 #
 # - Sources with a GitHub feed (NIST 800-53 OSCAL, FedRAMP baselines, OWASP Top 10,
 #   NIST 800-63) are compared against last_seen_sha in sources.json.
@@ -7,7 +10,7 @@
 #   listed for a manual check on their portals.
 # - Every line shows the version the skills track (tracked_version) and the skills to update
 #   (skills), both from sources.json. sync-ai-wrappers.py --check makes sure every standard-*
-#   skill has a source, so every compliance skill is covered.
+#   skill and every engineering skill has a source, so every skill is covered.
 # - The workflow never edits the rules itself. A person (or an AI assistant in a PR that a
 #   person reviews) updates SKILL.md and sources.json, per SEC-CHG-01/02.
 #
@@ -35,7 +38,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}
-      SOURCES_PATH: docs/ai/secure-compliance/sources.json
+      SOURCES_PATHS: docs/ai/secure-compliance/sources.json docs/ai/engineering/sources.json
       LABEL: compliance-review
     steps:
       - name: Check sources and open review issue
@@ -43,14 +46,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          gh api -H "Accept: application/vnd.github.raw" \
-            "repos/$REPO/contents/$SOURCES_PATH?ref=${GITHUB_REF_NAME}" > sources.json
-
           changed=""
           unchanged=""
           failed=""
           manual=""
           new_shas="{}"
+
+          for sources_path in $SOURCES_PATHS; do
+          family=$(basename "$(dirname "$sources_path")")
+          gh api -H "Accept: application/vnd.github.raw" \
+            "repos/$REPO/contents/$sources_path?ref=${GITHUB_REF_NAME}" > sources.json
 
           count=$(jq '.sources | length' sources.json)
           for i in $(seq 0 $((count - 1))); do
@@ -61,7 +66,7 @@ jobs:
             type=$(jq -r '.watch.type // "manual"' <<<"$src")
             version=$(jq -r '.tracked_version // "not recorded"' <<<"$src")
             skills=$(jq -r '(.skills // []) | map("`" + . + "`") | join(", ")' <<<"$src")
-            info=" (tracked: ${version}; skills: ${skills:-none})"
+            info=" (${family}; tracked: ${version}; skills: ${skills:-none})"
 
             if [ "$type" != "github-path" ]; then
               manual+="- [ ] **${name}**${info}: check ${portal} for new versions, amendments or guidance"$'\n'
@@ -90,10 +95,11 @@ jobs:
               changed+="- [ ] **${name}**${info}: [changes since \`${seen:0:7}\`](https://github.com/$repo/compare/$seen...$sha) (latest $date: ${msg}). Review ${portal}"$'\n'
             fi
           done
+          done
 
           today=$(date -u +%F)
           {
-            echo "Scheduled check of the official sources behind [the secure coding and compliance rules]($GITHUB_SERVER_URL/$REPO/blob/${GITHUB_REF_NAME}/docs/ai/secure-compliance/SKILL.md) (run: $GITHUB_SERVER_URL/$REPO/actions/runs/$GITHUB_RUN_ID)."
+            echo "Scheduled check of the official sources behind [the secure coding and compliance rules]($GITHUB_SERVER_URL/$REPO/blob/${GITHUB_REF_NAME}/docs/ai/secure-compliance/SKILL.md) and [the engineering rules]($GITHUB_SERVER_URL/$REPO/blob/${GITHUB_REF_NAME}/docs/ai/engineering/SKILL.md) (run: $GITHUB_SERVER_URL/$REPO/actions/runs/$GITHUB_RUN_ID)."
             echo
             echo "### Changed or not yet baselined"
             echo "${changed:-None.}"
@@ -109,9 +115,9 @@ jobs:
             echo
             echo "### What to do"
             echo "1. Read each changed source (and do each manual portal check) and decide whether the skills listed on its line need updating."
-            echo "2. Open a PR into \`development\` that updates the affected skills under docs/ai/secure-compliance/ (if needed) and, in sources.json, sets \`tracked_version\` (if it changed), \`last_seen_sha\` and \`last_reviewed\` for each reviewed source, then runs \`python3 docs/ai/sync-ai-wrappers.py\`. Close this issue from that PR."
+            echo "2. Open a PR into \`development\` that updates the affected skills under docs/ai/secure-compliance/ or docs/ai/engineering/ (if needed) and, in that family's sources.json, sets \`tracked_version\` (if it changed), \`last_seen_sha\` and \`last_reviewed\` for each reviewed source, then runs \`python3 docs/ai/sync-ai-wrappers.py\`. Close this issue from that PR."
             echo
-            echo "<details><summary>Latest SHAs for sources.json</summary>"
+            echo "<details><summary>Latest SHAs for sources.json (ids are unique across both files)</summary>"
             echo
             echo '```json'
             jq . <<<"$new_shas"

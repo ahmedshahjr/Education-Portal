@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Automated checks for the rules in docs/ai/secure-compliance/ that can be detected in source.
+"""Automated checks for the rules in docs/ai/secure-compliance/ and docs/ai/engineering/ that can be
+detected in source.
 
 Runs the same way for every contributor and AI tool: in CI (.github/workflows/compliance-guards.yml),
 in the git pre-commit hook (.githooks/pre-commit), or by hand.
@@ -12,6 +13,7 @@ A finding can be accepted only by a maintainer-approved exception (overview sect
 comment on the same line or the line above:
 
     // compliance-exception: SEC-WEB-02 Development-only CORS for the Angular dev server
+    // engineering-exception: ENG-EF-06 synchronous EF Core override; the async path is used elsewhere
 
 Known gaps that already exist in the template code are listed in compliance-guard-baseline.json with
 a maximum count per file. New occurrences fail; fixing one means lowering the count in the baseline.
@@ -29,7 +31,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 BASELINE = Path(__file__).with_name("compliance-guard-baseline.json")
-EXCEPTION = re.compile(r"compliance-exception:\s*SEC-[A-Z]+-\d+\s+\S")
+EXCEPTION = re.compile(r"(compliance-exception:\s*SEC|engineering-exception:\s*ENG)-[A-Z]+-\d+\s+\S")
 
 SKIP_DIRS = {".git", "node_modules", "artifacts", "bin", "obj", "dist", ".angular", "TestResults"}
 # The rule files quote the forbidden patterns on purpose.
@@ -53,6 +55,8 @@ def c(id_: str, rule: str, message: str, files: str, pattern: str, flags: int = 
 
 CS = r"\.cs$"
 NG = r"\.(ts|html)$"
+SRC_CS = r"^Education Portal Full Stack App/src/.*\.cs$"
+CLIENT = r"^Education Portal Full Stack App/src/Web/ClientApp/src/"
 CHECKS = [
     c("cors-any-origin", "SEC-WEB-02", "AllowAnyOrigin outside Development", CS, r"\bAllowAnyOrigin\s*\("),
     c("raw-sql", "SEC-INPUT-02", "raw SQL API; use LINQ or FromSql/ExecuteSql with interpolation", CS,
@@ -90,6 +94,17 @@ CHECKS = [
     c("certification-claim", "SEC-AI-04", "certification or compliance claim; use 'designed to support ...'",
       r"\.(md|html|ts|cs|json)$",
       r"(?i)\b(is|are|we're|we are|fully|officially)\s+(fedramp|soc ?2|iso(/iec)? ?27001|govramp|stateramp|gdpr|ferpa|coppa|pci( ?dss)?)[ -]?(authori[sz]ed|certified|compliant|accredited)\b"),
+    # Engineering rules (docs/ai/engineering/), checked the same way.
+    c("empty-catch", "ENG-CODE-05", "empty catch swallows the error; handle it, or add context and rethrow", r"\.(cs|ts)$",
+      r"\bcatch\s*(\([^)]*\))?\s*\{\s*\}"),
+    c("sync-over-async", "ENG-EF-06", "blocking on async code; await it and pass the CancellationToken", SRC_CS,
+      r"\.(Result|Wait\(\s*\))(?![\w(])|\.GetAwaiter\(\)\s*\.\s*GetResult\(\)"),
+    c("datetime-now", "ENG-ENTITY-08", "use an injected TimeProvider and DateTimeOffset (UTC)", SRC_CS,
+      r"\bDateTime(Offset)?\s*\.\s*(Utc)?Now\b"),
+    c("angular-ngmodule", "ENG-UI-01", "use standalone components, not NgModules", CLIENT + r".*\.ts$",
+      r"@NgModule\s*\(|\bstandalone\s*:\s*false\b"),
+    c("angular-legacy-control-flow", "ENG-UI-03", "use @if / @for / @switch, not *ngIf / *ngFor / *ngSwitch",
+      CLIENT + r".*\.(html|ts)$", r"\*ng(If|For|Switch\w*)\b"),
 ]
 
 
@@ -158,8 +173,8 @@ def main() -> int:
     for s in shrunk:
         print("FAIL baseline out of date: " + s)
     if failures or shrunk:
-        print(f"\n{len(failures) + len(shrunk)} compliance finding(s). See docs/ai/secure-compliance/ for the rules; "
-              "exceptions need maintainer approval (overview section 4).")
+        print(f"\n{len(failures) + len(shrunk)} finding(s). See docs/ai/secure-compliance/ (SEC-*) and "
+              "docs/ai/engineering/ (ENG-*) for the rules; exceptions need maintainer approval (overview section 4).")
         return 1
     print("compliance guard: OK")
     return 0
