@@ -10,7 +10,7 @@ namespace EducationPortal.Domain.Entities;
 /// Countries are platform reference data, not owned by a school, so they have no <c>SchoolId</c>; only master-tenant
 /// use cases change them.
 /// </summary>
-public partial class Country : BaseAuditableEntity
+public partial class Country : BaseSoftDeletableEntity
 {
     public const int CodeLength = 2;
     public const int NameMaxLength = 100;

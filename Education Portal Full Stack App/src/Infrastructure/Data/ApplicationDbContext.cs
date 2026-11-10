@@ -1,5 +1,6 @@
 using System.Reflection;
 using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Domain.Common;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -39,5 +40,26 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         // no resolved tenant, CurrentSchoolId is null and nothing matches.
         builder.Entity<BrandingImage>()
             .HasQueryFilter(i => IsMasterTenant || i.SchoolId == CurrentSchoolId);
+
+        // Soft delete: every soft-deletable entity hides its deleted rows from every query, the master
+        // tenant included. Rows stay in the table for audit.
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            if (typeof(BaseSoftDeletableEntity).IsAssignableFrom(entityType.ClrType))
+            {
+                ApplySoftDeleteFilter(builder, entityType.ClrType);
+            }
+        }
     }
+
+    private static void ApplySoftDeleteFilter(ModelBuilder builder, Type entityClrType)
+    {
+        var method = typeof(ApplicationDbContext)
+            .GetMethod(nameof(SoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)!
+            .MakeGenericMethod(entityClrType);
+        method.Invoke(null, new object[] { builder });
+    }
+
+    private static void SoftDeleteFilter<TEntity>(ModelBuilder builder) where TEntity : BaseSoftDeletableEntity =>
+        builder.Entity<TEntity>().HasQueryFilter(e => !e.IsDeleted);
 }

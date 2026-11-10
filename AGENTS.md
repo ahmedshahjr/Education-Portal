@@ -46,6 +46,8 @@ Master tenant (the platform owner, i.e. us)
 - The server checks that the logged-in user belongs to the tenant resolved from the host. A session or token from `school1.com` must not work on `school2.com` (scope auth cookies per domain).
 - **Branch selection happens inside the school's domain:** a user with access to several branches (staff, students, parents) picks the current branch in the app (branch switcher, carried in the route, e.g. `/branches/{branchId}/...`). The server checks the user belongs to that branch on every request.
 - Students and parents can belong to **several branches** (decided 2026-11-09).
+- **Soft delete** (decided 2026-11-10): entities that users can delete (`School`, `Country`) inherit `BaseSoftDeletableEntity`. A global query filter hides deleted rows from every query, the master tenant included, and rows stay in the table for audit. `IsActive` is an administrator's switch: an inactive school's host is refused (404) at tenant resolution. The master tenant can never be deactivated or deleted.
+- **Audit fields** on every entity come from `BaseAuditableEntity` (`Created`, `CreatedBy`, `LastModified`, `LastModifiedBy`), filled by `AuditableEntityInterceptor`.
 - Database-per-school is out of scope (it makes cross-school overview and migrations harder).
 
 ### Modules and permissions
