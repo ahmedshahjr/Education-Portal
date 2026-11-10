@@ -10,4 +10,5 @@ An ADR captures a significant architectural decision: the context that led to it
 | [ADR-002](ADR-002-Aspire-For-Orchestration-And-Testing.md) | Aspire for Orchestration and Testing | 2026-03-12 | Accepted |
 | [ADR-003](ADR-003-MediatR-Contracts-In-Domain.md) | MediatR.Contracts Reference in Domain | 2026-03-16 | Accepted |
 | [ADR-004](ADR-004-Security-Baseline.md) | Security Baseline for Sign-In and Sessions | 2026-11-09 | Accepted |
+| [ADR-005](ADR-005-Localization-Per-Country.md) | Languages and Regional Settings per Country | 2026-11-10 | Accepted |
 

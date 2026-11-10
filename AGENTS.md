@@ -68,10 +68,17 @@ Effective access for a school user = **modules enabled for their school** ∩ **
    | Grades | Assessments and scores per enrolment | Yes |
    | Dashboard | School/branch overview for owners and staff | Yes |
 
-   Master-only areas (not tenant modules): Schools, module switches per school, and the cross-school overview.
+   Master-only areas (not tenant modules): Schools, module switches per school, countries and their languages, and the cross-school overview.
 2. **Roles per school (owner controls):** each school owner creates roles with **View / Create / Edit / Delete** rights per module.
 3. **Branches per user:** each staff user is assigned to one or more branches and can only act on data in those branches.
 4. **Fixed rules:** teachers grade only their own courses; parents see only their own children; students and parents have read-only access.
+
+### Languages and countries (decided 2026-11-10, [ADR-005](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-005-Localization-Per-Country.md))
+
+- The master tenant manages **countries**: the languages a country's schools offer, the default language, an IANA time zone and an ISO 4217 currency. Each school is assigned to one country, or to none (English only, UTC). Example: Pakistan offers English and Urdu, the UAE English and Arabic.
+- The portal's languages are fixed in code (`Domain/Localization/Language.cs`: English, Arabic, Urdu): a language is usable only once its translations ship. Countries pick from that list.
+- Each request is answered in one of the **school's** languages, never another: the visitor's choice (cookie), then the browser's `Accept-Language`, then the country's default (`TenantRequestCultureProvider`). Dates and numbers use the language plus country culture, e.g. `ur-PK`.
+- Users switch language from the dropdown in the top bar (and on the sign-in page); the choice is a cookie per school domain, and the page reloads. Arabic and Urdu are laid out right to left.
 
 ### Rules for code
 
@@ -178,6 +185,7 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
 - **Entities** live in `Domain/Entities` and inherit the template's base/auditable entity. Raise domain events instead of calling services from entities.
 - **Grades** are several scored assessments per enrolment, not one final grade.
 - **Accounts** are created by staff; there is no public sign-up.
+- **Every user-visible string is translatable** (ADR-005). Angular: an `i18n` attribute in templates or `` $localize`:@@area.key:Text` `` in code, always with a custom id; then run `npx ng extract-i18n` and add the translation to every `src/locale/messages.<language>.json` (`translations.spec.ts` fails otherwise). Server text shown to users: `IStringLocalizer` with `.resx` files in `src/Web/Resources`. Use logical CSS properties (`margin-inline-start`, `inset-inline-end`, `text-align: start`), never `left`/`right`, so right-to-left layouts mirror.
 - Nullable is on and warnings are errors: fix warnings rather than suppressing them; if you must suppress, add a comment explaining why.
 - Follow the template's `.editorconfig`.
 - New NuGet package: add its version to `Directory.Packages.props` and say why in the PR.
@@ -271,6 +279,8 @@ Each step is one reviewable PR into `development`.
 - [x] Domains are per school only; branches are chosen inside the app (2026-11-09)
 - [x] Local development setup for school domains: `localhost` = master tenant, `*.localhost` = schools, e.g. `demo.localhost` (2026-11-10)
 - [x] Exactly one master tenant; per-school branding (theme preset, sidebar colour, logo, favicon) resolved from the host before sign-in (2026-11-10)
+- [x] Languages per country, managed by the master tenant; runtime-loaded Angular translations and per-school request localization (2026-11-10, ADR-005)
+- [ ] Native-speaker review of the Arabic and Urdu translations, and per-user saved language across devices (today the choice is a cookie per browser)
 - [ ] Production provisioning of the master tenant, schools and their domains (needs EF Core migrations first)
 - [x] Module list: see section 2 (2026-11-09)
 

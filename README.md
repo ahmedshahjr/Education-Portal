@@ -89,9 +89,10 @@ Then:
 2. Click the **webfrontend** URL to open the Angular app.
 3. Sign in. The address picks the school, so the login page already shows that school's name, logo and colours:
    - `http://localhost:<port>` is the **master tenant** (the platform owner). Account: `administrator@localhost`.
-   - `http://demo.localhost:<port>` (same port) is the **Demo School**. Account: `administrator@demo.localhost`.
+   - `http://demo.localhost:<port>` (same port) is the **Demo School**, in Pakistan (English and Urdu). Account: `administrator@demo.localhost`.
+   - `http://uae.localhost:<port>` (same port) is the **Demo School UAE** (English and Arabic). Account: `administrator@uae.localhost`.
 
-   Both use the Development-only password `Local-Dev-Only-2026!`. They exist only in your local database, and only in Development. `*.localhost` names point to your own machine in every current browser, so no hosts-file change is needed. An account only works on its own school's address.
+   All use the Development-only password `Local-Dev-Only-2026!`. They exist only in your local database, and only in Development. `*.localhost` names point to your own machine in every current browser, so no hosts-file change is needed. An account only works on its own school's address.
 4. API docs (Scalar) are at `/scalar` on the **webapi** URL.
 
 In Development the database is dropped, recreated and re-seeded on every start, so local data does not survive a restart.
@@ -216,9 +217,10 @@ Step 2 adds a permission check after authorization: the module is switched on fo
 - The TypeScript client `src/app/web-api-client.ts` is **generated, never edited by hand, and not committed**:
   1. Building `src/Web` writes the OpenAPI document to `src/Web/openapi/v1.json`.
   2. `npm start` and `npm run build` first run `npm run generate-api`, where NSwag (`nswag.json`) turns that document into one Angular service per endpoint group, such as `UsersClient`.
-- The app is standalone and zoneless (`bootstrapApplication` in `src/main.ts`, signals for state). Its layout (sidebar, top bar, display settings) and styles come from the maintainer's theme in [`Theme Angular/`](Theme%20Angular/), which every new screen uses as its guide ([ENG-UI-17](docs/ai/engineering/angular-material-ui/SKILL.md)). Folders: `core/` (auth, HTTP interceptors, branding, layout), `shared/` (theme components), `features/` (login, home, branding, schools).
+- The app is standalone and zoneless (`bootstrapApplication` in `src/main.ts`, signals for state). Its layout (sidebar, top bar, display settings) and styles come from the maintainer's theme in [`Theme Angular/`](Theme%20Angular/), which every new screen uses as its guide ([ENG-UI-17](docs/ai/engineering/angular-material-ui/SKILL.md)). Folders: `core/` (auth, HTTP interceptors, branding, layout, i18n), `shared/` (theme components), `features/` (login, home, branding, schools, countries).
 - Before the first screen renders, `BrandingService` loads `GET /api/Branding` for the current address and applies the school's theme preset, sidebar colour, logo, favicon and name. The sidebar text colour is picked for at least 4.5:1 contrast with any colour a school chooses.
 - `AuthService` signs in with `POST /api/Users/login`, then asks `GET /api/Users/me` for the signed-in user. That answer also carries a fresh antiforgery token. `sessionInterceptor` sends the session cookie with every request and redirects to `/login` when the API answers 401, except for the answers from `/api/Users/me` and `/api/Users/login`. `antiforgeryInterceptor` copies the `__Host-XSRF-TOKEN` cookie into the `X-XSRF-TOKEN` header of every unsafe request.
+- **Languages.** Before the app's code is imported, `src/main.ts` asks `GET /api/Localization` which language to use, loads its translations (`src/locale/messages.<language>.json`, served at `/i18n/`) with `@angular/localize`'s `loadTranslations`, and sets `<html lang dir>`, so Arabic and Urdu are laid out right to left. Templates use `i18n` attributes and code uses `$localize`, each with a custom id; `npx ng extract-i18n` refreshes `src/locale/messages.json`, and `translations.spec.ts` fails when a translation is missing. The language dropdown (top bar and sign-in page) saves the choice with `PUT /api/Localization/language` and reloads. Why runtime loading and not one build per language: [ADR-005](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-005-Localization-Per-Country.md).
 - In production the API serves the built Angular files and falls back to `index.html` for app routes.
 
 ### Sign-in and accounts
@@ -254,6 +256,7 @@ flowchart TB
 - **The domain picks the school.** Each school has its own domain. Before any endpoint runs, the API looks up the request's host in a domain table, and an unknown domain gets 404 with nothing served. The master portal has its own domain. The school is never taken from the request body, query string or a header. For local development, `localhost` is the master tenant and `demo.localhost` is the Demo School.
 - **The user must belong to that school.** The school in the user's sign-in must match the domain's school on every request; a mismatch is rejected and audited. Sign-in cookies are host-only, so a session from `school1.com` is never sent to `school2.com`.
 - **The branch is picked inside the app.** Branches never get their own domain. Staff, students and parents can belong to several branches and switch between them in the app, with the branch in the route (for example `/branches/12/students`). The server checks that branch against the user on every request.
+- **Languages come from the school's country.** The master tenant manages countries (languages offered, default language, time zone, currency) on the **Countries and languages** page and assigns each school to one on the **Schools** page. ASP.NET Core request localization, with a culture provider that knows the school, answers each request in one of that school's languages only: the visitor's choice, then the browser's, then the country's default. Server messages come from `.resx` files in `src/Web/Resources` ([ADR-005](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-005-Localization-Per-Country.md)).
 - **Permissions are checked on the server.** Effective access = modules the master switched on for the school ∩ the rights the user's role gives per module (View, Create, Edit, Delete) ∩ the user's branches. The check runs in the MediatR pipeline, so hiding a button in Angular is never the only protection.
 
 Every request to a school's domain passes these checks:
@@ -498,7 +501,7 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | API reference and health (in Development) | Scalar at `/scalar`, the OpenAPI document at `/openapi/v1.json`, health at `/health` and `/alive` |
 | Angular app (`webfrontend`) | A port chosen by Aspire. Open it from the dashboard. |
 | Database connection | Passed in by Aspire as `ConnectionStrings__EducationPortalDb` |
-| Development seed accounts | `administrator@localhost` (master tenant, on `localhost`) and `administrator@demo.localhost` (Demo School, on `demo.localhost`), password `Local-Dev-Only-2026!` (local database, Development only) |
+| Development seed accounts | `administrator@localhost` (master tenant, on `localhost`), `administrator@demo.localhost` (Demo School, Pakistan, on `demo.localhost`) and `administrator@uae.localhost` (Demo School UAE, on `uae.localhost`), password `Local-Dev-Only-2026!` (local database, Development only) |
 | Allowed hosts | `localhost` and `*.localhost` in Development (`AllowedHosts`); each school's domain is added when it is deployed |
 | Secrets | None are needed yet. Use `dotnet user-secrets` locally and Azure Key Vault when deployed (`AZURE_KEY_VAULT_ENDPOINT`). Never put them in `appsettings*.json` or any other file in the repository. |
 
