@@ -45,6 +45,7 @@ public static class DependencyInjection
 
         builder.Services.AddTransient<IIdentityService, IdentityService>();
         builder.Services.AddScoped<ISecurityAuditLog, SecurityAuditLog>();
+        builder.Services.AddScoped<ITenantResolver, TenantResolver>();
     }
 
     private static void AddIdentity(IServiceCollection services)
@@ -80,6 +81,7 @@ public static class DependencyInjection
                 options.User.RequireUniqueEmail = true;
             })
             .AddRoles<IdentityRole>()
+            .AddClaimsPrincipalFactory<ApplicationUserClaimsPrincipalFactory>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders()

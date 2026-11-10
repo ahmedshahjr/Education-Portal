@@ -21,6 +21,9 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<IUser, CurrentUser>();
 
+        builder.Services.AddScoped<CurrentTenant>();
+        builder.Services.AddScoped<ICurrentTenant>(provider => provider.GetRequiredService<CurrentTenant>());
+
         builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();

@@ -11,7 +11,8 @@ namespace EducationPortal.Web.Infrastructure;
 /// <summary>
 /// Converts well-known application exceptions into RFC 9457 <see cref="ProblemDetails"/> responses. Each response
 /// carries a trace id (SEC-WEB-06). <see cref="ValidationException"/> → 400, <see cref="NotFoundException"/> → 404,
-/// <see cref="UnauthorizedAccessException"/> → 401 and <see cref="ForbiddenAccessException"/> → 403. A 403 is also written
+/// <see cref="UnauthorizedAccessException"/> → 401, <see cref="ForbiddenAccessException"/> → 403 and
+/// <see cref="BadHttpRequestException"/> → its own status code (usually 400). A 403 is also written
 /// to the security audit log (SEC-LOG-03). Unrecognised exceptions are not handled here and fall through to the default handler.
 /// </summary>
 public class ProblemDetailsExceptionHandler(IProblemDetailsService problemDetailsService) : IExceptionHandler
@@ -39,6 +40,14 @@ public class ProblemDetailsExceptionHandler(IProblemDetailsService problemDetail
                 Status = StatusCodes.Status401Unauthorized,
                 Title = "Unauthorized",
                 Type = "https://tools.ietf.org/html/rfc9110#section-15.5.2"
+            }),
+            // A request the framework could not bind, for example a form without a valid antiforgery token or a missing
+            // parameter. The framework's message is not returned (SEC-WEB-06).
+            BadHttpRequestException bad => (bad.StatusCode, new ProblemDetails
+            {
+                Status = bad.StatusCode,
+                Title = "The request is not valid.",
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1"
             }),
             ForbiddenAccessException => (StatusCodes.Status403Forbidden, new ProblemDetails
             {

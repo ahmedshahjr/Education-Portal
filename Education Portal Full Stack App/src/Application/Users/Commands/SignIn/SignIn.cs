@@ -8,6 +8,7 @@ namespace EducationPortal.Application.Users.Commands.SignIn;
 /// <summary>
 /// Signs a user in with email and password. This is the one request that runs before sign-in
 /// (SEC-AUTHN-01); its endpoint is rate limited and antiforgery protected, and every outcome is audited.
+/// Only accounts of the school that owns the request's domain can sign in there (AGENTS.md section 2).
 /// </summary>
 public record SignInCommand : IRequest<bool>
 {
@@ -35,22 +36,27 @@ public class SignInCommandHandler : IRequestHandler<SignInCommand, bool>
 {
     private readonly IIdentityService _identityService;
     private readonly ISecurityAuditLog _auditLog;
+    private readonly ICurrentTenant _tenant;
 
-    public SignInCommandHandler(IIdentityService identityService, ISecurityAuditLog auditLog)
+    public SignInCommandHandler(IIdentityService identityService, ISecurityAuditLog auditLog, ICurrentTenant tenant)
     {
         _identityService = identityService;
         _auditLog = auditLog;
+        _tenant = tenant;
     }
 
     public async Task<bool> Handle(SignInCommand request, CancellationToken cancellationToken)
     {
-        var result = await _identityService.PasswordSignInAsync(request.Email, request.Password);
+        var schoolId = _tenant.SchoolId ?? throw new UnauthorizedAccessException();
+
+        var result = await _identityService.PasswordSignInAsync(schoolId, request.Email, request.Password);
         var succeeded = result.Status == PasswordSignInStatus.Succeeded;
 
         var eventType = result.Status switch
         {
             PasswordSignInStatus.Succeeded => SecurityAuditEventType.SignInSucceeded,
             PasswordSignInStatus.LockedOut => SecurityAuditEventType.SignInLockedOut,
+            PasswordSignInStatus.WrongSchool => SecurityAuditEventType.TenantMismatch,
             _ => SecurityAuditEventType.SignInFailed,
         };
 
