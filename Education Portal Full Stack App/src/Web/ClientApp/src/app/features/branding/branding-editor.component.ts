@@ -18,12 +18,12 @@ interface PresetOption {
 
 /** The theme's colour presets (Theme Angular, layout.service.ts), with the swatch colours shown in its customizer. */
 const PRESET_OPTIONS: readonly PresetOption[] = [
-  { preset: ThemePreset.Cyan, label: 'Aqua cyan', hex: '#00a1ff' },
-  { preset: ThemePreset.Blue, label: 'Cobalt blue', hex: '#0074ba' },
-  { preset: ThemePreset.Purple, label: 'Royal violet', hex: '#763ebd' },
-  { preset: ThemePreset.Ocean, label: 'Ocean teal', hex: '#0a7ea4' },
-  { preset: ThemePreset.Teal, label: 'Mint green', hex: '#00ceb6' },
-  { preset: ThemePreset.Coral, label: 'Warm coral', hex: '#fa896b' },
+  { preset: ThemePreset.Cyan, label: $localize`:@@branding.cyan:Aqua cyan`, hex: '#00a1ff' },
+  { preset: ThemePreset.Blue, label: $localize`:@@branding.blue:Cobalt blue`, hex: '#0074ba' },
+  { preset: ThemePreset.Purple, label: $localize`:@@branding.purple:Royal violet`, hex: '#763ebd' },
+  { preset: ThemePreset.Ocean, label: $localize`:@@branding.ocean:Ocean teal`, hex: '#0a7ea4' },
+  { preset: ThemePreset.Teal, label: $localize`:@@branding.teal:Mint green`, hex: '#00ceb6' },
+  { preset: ThemePreset.Coral, label: $localize`:@@branding.coral:Warm coral`, hex: '#fa896b' },
 ];
 
 const DEFAULT_SIDEBAR_COLOR = '#1f2a3d';

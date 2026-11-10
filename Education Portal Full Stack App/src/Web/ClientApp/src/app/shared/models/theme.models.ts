@@ -9,5 +9,4 @@ export interface LayoutPreferences {
   readonly themeMode: ThemeMode;
   readonly sidebarMode: SidebarMode;
   readonly cardStyle: CardSurfaceStyle;
-  readonly direction: LayoutDirection;
 }

@@ -23,13 +23,13 @@ import { MatInputModule } from '@angular/material/input';
           <mat-hint>{{ hint() }}</mat-hint>
         }
         @if (control().hasError('required')) {
-          <mat-error>{{ label() }} is required</mat-error>
+          <mat-error i18n="@@field.required">{{ label() }} is required</mat-error>
         } @else if (control().hasError('email')) {
-          <mat-error>Enter a valid email address</mat-error>
+          <mat-error i18n="@@field.email">Enter a valid email address</mat-error>
         } @else if (control().hasError('min')) {
-          <mat-error>Value must be greater than or equal to 0</mat-error>
+          <mat-error i18n="@@field.min">Value must be greater than or equal to 0</mat-error>
         } @else if (control().hasError('minlength')) {
-          <mat-error>{{ label() }} is too short</mat-error>
+          <mat-error i18n="@@field.minLength">{{ label() }} is too short</mat-error>
         }
       </mat-form-field>
     </div>

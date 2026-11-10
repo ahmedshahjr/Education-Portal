@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   selector: 'app-loading-state',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="mm-loading" aria-busy="true" aria-label="Loading content">
+    <div class="mm-loading" aria-busy="true" aria-label="Loading content" i18n-aria-label="@@loading.label">
       @for (row of rowsArray(); track $index) {
         <div class="mm-loading__bar" [style.width]="$index % 2 === 0 ? '100%' : '76%'"></div>
       }

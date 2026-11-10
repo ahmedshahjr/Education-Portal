@@ -1,6 +1,7 @@
 /**
  * Reads the messages from an API error. A 400 carries RFC 9457 validation problem details with an `errors` object per
- * field (FluentValidation on the server); anything else gets one plain message. Server text is shown as text only.
+ * field (FluentValidation on the server, already in the page's language); anything else gets one plain message. Server
+ * text is shown as text only.
  */
 export function problemMessages(error: unknown): string[] {
   const status = typeof error === 'object' && error !== null && 'status' in error ? Number(error.status) : undefined;
@@ -18,17 +19,17 @@ export function problemMessages(error: unknown): string[] {
     } catch {
       // Not JSON: fall through to the generic message below.
     }
-    return ['The request is not valid. Check the fields and try again.'];
+    return [$localize`:@@problem.invalid:The request is not valid. Check the fields and try again.`];
   }
 
   switch (status) {
     case 401:
-      return ['Your session has ended. Sign in again.'];
+      return [$localize`:@@problem.sessionEnded:Your session has ended. Sign in again.`];
     case 403:
-      return ['You do not have permission to do this.'];
+      return [$localize`:@@problem.forbidden:You do not have permission to do this.`];
     case 404:
-      return ['It was not found. It may have been removed.'];
+      return [$localize`:@@problem.notFound:It was not found. It may have been removed.`];
     default:
-      return ['Something went wrong. Try again in a moment.'];
+      return [$localize`:@@problem.unexpected:Something went wrong. Try again in a moment.`];
   }
 }

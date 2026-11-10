@@ -4,7 +4,7 @@ import { administratorGuard, authGuard, masterAdministratorGuard } from './core/
 export const routes: Routes = [
   {
     path: 'login',
-    title: 'Sign in',
+    title: $localize`:@@login.pageTitle:Sign in`,
     loadComponent: () => import('./features/auth/login.page').then((m) => m.LoginPage),
   },
   {
@@ -27,6 +27,11 @@ export const routes: Routes = [
         path: 'schools',
         canActivate: [masterAdministratorGuard],
         loadComponent: () => import('./features/schools/schools.page').then((m) => m.SchoolsPage),
+      },
+      {
+        path: 'countries',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () => import('./features/countries/countries.page').then((m) => m.CountriesPage),
       },
     ],
   },

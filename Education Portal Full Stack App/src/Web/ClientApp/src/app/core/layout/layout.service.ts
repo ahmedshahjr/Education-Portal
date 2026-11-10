@@ -2,6 +2,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { DOCUMENT } from '@angular/common';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { APP_LOCALE } from '../i18n/app-locale';
 import {
   CardSurfaceStyle,
   LayoutDirection,
@@ -18,20 +19,21 @@ const DEFAULT_PREFERENCES: LayoutPreferences = {
   themeMode: 'light',
   sidebarMode: 'full',
   cardStyle: 'shadow',
-  direction: 'ltr',
 };
 
 export const THEME_COLOR_PRESETS: readonly ThemeColorPreset[] = ['cyan', 'blue', 'purple', 'ocean', 'teal', 'coral'];
 
 /**
- * The theme's layout state (from the MaterialM theme in `Theme Angular`). Light or dark mode, sidebar type, direction
- * and card style are the user's own preferences and are kept in local storage. The accent colour preset is the school's
- * and is set by BrandingService, so it is not stored here.
+ * The theme's layout state (from the MaterialM theme in `Theme Angular`). Light or dark mode, sidebar type and card
+ * style are the user's own preferences and are kept in local storage. The accent colour preset is the school's and is
+ * set by BrandingService. The text direction follows the language (right to left for Arabic and Urdu), so it is not a
+ * preference either.
  */
 @Injectable({ providedIn: 'root' })
 export class LayoutService {
   private readonly document = inject(DOCUMENT);
   private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly locale = inject(APP_LOCALE);
 
   private readonly preferences = signal<LayoutPreferences>(this.loadPreferences());
   private readonly preset = signal<ThemeColorPreset>('cyan');
@@ -45,7 +47,7 @@ export class LayoutService {
   readonly colorPreset = this.preset.asReadonly();
   readonly sidebarMode = computed(() => this.preferences().sidebarMode);
   readonly cardStyle = computed(() => this.preferences().cardStyle);
-  readonly direction = computed(() => this.preferences().direction);
+  readonly direction: LayoutDirection = this.locale.isRightToLeft ? 'rtl' : 'ltr';
   readonly isDark = computed(() => this.themeMode() === 'dark');
 
   /** Effective desktop mini-rail state (manual mini OR automatic compact <=1180px) */
@@ -124,10 +126,6 @@ export class LayoutService {
     this.preferences.update((prev) => ({ ...prev, cardStyle }));
   }
 
-  setDirection(direction: LayoutDirection): void {
-    this.preferences.update((prev) => ({ ...prev, direction }));
-  }
-
   closeMobileDrawer(): void {
     this.mobileDrawerOpen.set(false);
   }
@@ -144,15 +142,19 @@ export class LayoutService {
     const html = this.document.documentElement;
     html.classList.toggle('dark-theme', prefs.themeMode === 'dark');
     html.classList.toggle('card-bordered', prefs.cardStyle === 'border');
-    html.setAttribute('dir', prefs.direction);
   }
 
   private loadPreferences(): LayoutPreferences {
     try {
       const raw = globalThis.localStorage?.getItem(LAYOUT_STORAGE_KEY);
       if (!raw) return DEFAULT_PREFERENCES;
-      const parsed = JSON.parse(raw) as Partial<LayoutPreferences>;
-      return { ...DEFAULT_PREFERENCES, ...parsed };
+      const { themeMode, sidebarMode, cardStyle } = JSON.parse(raw) as Partial<LayoutPreferences>;
+      // Only the known fields are kept; an older version also stored the direction, which now follows the language.
+      return {
+        themeMode: themeMode ?? DEFAULT_PREFERENCES.themeMode,
+        sidebarMode: sidebarMode ?? DEFAULT_PREFERENCES.sidebarMode,
+        cardStyle: cardStyle ?? DEFAULT_PREFERENCES.cardStyle,
+      };
     } catch {
       // Storage can be unavailable (private mode) or hold an old value; the defaults then apply.
       return DEFAULT_PREFERENCES;

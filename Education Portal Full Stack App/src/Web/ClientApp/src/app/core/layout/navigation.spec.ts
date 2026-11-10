@@ -14,6 +14,6 @@ describe('visibleNavSections', () => {
   });
 
   it('shows the master portal to master tenant administrators', () => {
-    expect(ids(true, true)).toEqual(['dashboard', 'branding', 'schools']);
+    expect(ids(true, true)).toEqual(['dashboard', 'branding', 'schools', 'countries']);
   });
 });

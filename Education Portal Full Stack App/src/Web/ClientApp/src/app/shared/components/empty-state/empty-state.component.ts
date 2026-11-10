@@ -49,8 +49,8 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
 })
 export class EmptyStateComponent {
   readonly icon = input<AppIconName>('inbox');
-  readonly title = input<string>('No records found');
-  readonly description = input<string>('Try adjusting your filters or search criteria.');
+  readonly title = input<string>($localize`:@@empty.title:No records found`);
+  readonly description = input<string>($localize`:@@empty.description:Try adjusting your filters or search criteria.`);
   readonly actionLabel = input<string>('');
   readonly action = output<void>();
 }

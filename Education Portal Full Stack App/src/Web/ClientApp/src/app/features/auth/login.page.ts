@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { BrandingService } from '../../core/branding/branding.service';
 import { FormInputComponent } from '../../shared/components/form-input/form-input.component';
+import { LanguageMenuComponent } from '../../shared/components/language-menu/language-menu.component';
 
 /**
  * The theme's sign-in page, themed for the school that owns this domain before anyone signs in. Only that school's
@@ -13,7 +14,7 @@ import { FormInputComponent } from '../../shared/components/form-input/form-inpu
  */
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule, MatCardModule, MatButtonModule, FormInputComponent],
+  imports: [ReactiveFormsModule, MatCardModule, MatButtonModule, FormInputComponent, LanguageMenuComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="mm-auth-shell">
@@ -26,19 +27,23 @@ import { FormInputComponent } from '../../shared/components/form-input/form-inpu
           }
         </div>
 
-        <h1 class="mm-auth-hero">Welcome to {{ branding.schoolName() }}</h1>
-        <p class="mm-auth-copy">Sign in with the account your school gave you.</p>
+        <h1 class="mm-auth-hero" i18n="@@login.welcome">Welcome to {{ branding.schoolName() }}</h1>
+        <p class="mm-auth-copy" i18n="@@login.intro">Sign in with the account your school gave you.</p>
       </section>
 
       <main class="mm-auth-main">
+        <div class="mm-auth-language">
+          <app-language-menu />
+        </div>
         <mat-card class="mm-card mm-elevated mm-auth-card">
           <mat-card-content>
-            <h2 class="mm-auth-title">Sign in</h2>
+            <h2 class="mm-auth-title" i18n="@@login.title">Sign in</h2>
             <p class="mm-auth-sub">{{ branding.schoolName() }}</p>
 
             <form [formGroup]="form" (ngSubmit)="submit()" class="mm-auth-form" novalidate>
               <app-form-input
                 label="Email"
+                i18n-label="@@login.email"
                 type="email"
                 fieldId="email"
                 autocomplete="username"
@@ -46,6 +51,7 @@ import { FormInputComponent } from '../../shared/components/form-input/form-inpu
               />
               <app-form-input
                 label="Password"
+                i18n-label="@@login.password"
                 type="password"
                 fieldId="password"
                 autocomplete="current-password"
@@ -56,7 +62,7 @@ import { FormInputComponent } from '../../shared/components/form-input/form-inpu
                 <p id="login-error" class="mm-auth-error" role="alert">{{ message }}</p>
               }
 
-              <button mat-flat-button type="submit" class="mm-auth-submit" [disabled]="busy()">Sign in</button>
+              <button mat-flat-button type="submit" class="mm-auth-submit" [disabled]="busy()" i18n="@@login.submit">Sign in</button>
             </form>
           </mat-card-content>
         </mat-card>
@@ -113,10 +119,17 @@ import { FormInputComponent } from '../../shared/components/form-input/form-inpu
     }
 
     .mm-auth-main {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 32px 20px;
+    }
+
+    .mm-auth-language {
+      position: absolute;
+      top: 16px;
+      inset-inline-end: 16px;
     }
 
     .mm-auth-card {
@@ -210,11 +223,11 @@ export function localReturnUrl(returnUrl: string | null): string {
 function messageFor(status: number | undefined): string {
   switch (status) {
     case 401:
-      return 'Invalid email or password.';
+      return $localize`:@@login.invalid:Invalid email or password.`;
     case 429:
-      return 'Too many sign-in attempts. Wait a minute and try again.';
+      return $localize`:@@login.tooMany:Too many sign-in attempts. Wait a minute and try again.`;
     default:
-      return 'Sign-in failed. Reload the page and try again.';
+      return $localize`:@@login.failed:Sign-in failed. Reload the page and try again.`;
   }
 }
 

@@ -27,12 +27,20 @@
                 "glob": "favicon.png",
                 "input": "src",
                 "output": "/"
+              },
+              {
+                "glob": "messages.*.json",
+                "input": "src/locale",
+                "output": "/i18n"
               }
             ],
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "polyfills": [
+              "@angular/localize/init"
+            ]
           },
           "configurations": {
             "production": {
@@ -83,7 +91,9 @@
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n",
           "options": {
-            "buildTarget": "EducationPortal.Web:build"
+            "buildTarget": "EducationPortal.Web:build",
+            "format": "json",
+            "outputPath": "src/locale"
           }
         },
         "test": {
@@ -101,6 +111,9 @@
             "runner": "vitest"
           }
         }
+      },
+      "i18n": {
+        "sourceLocale": "en"
       }
     }
   },

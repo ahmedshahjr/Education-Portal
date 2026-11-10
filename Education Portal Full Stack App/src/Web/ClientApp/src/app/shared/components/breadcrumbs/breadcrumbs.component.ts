@@ -8,7 +8,7 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
   imports: [RouterLink, AppIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <nav class="mm-breadcrumbs" aria-label="Breadcrumb">
+    <nav class="mm-breadcrumbs" aria-label="Breadcrumb" i18n-aria-label="@@breadcrumbs.label">
       <ol class="mm-breadcrumbs__list">
         @for (item of items(); track item.label; let isLast = $last) {
           <li class="mm-breadcrumbs__item">

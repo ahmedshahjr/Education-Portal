@@ -31,7 +31,7 @@
     </a>
   </div>
 
-  <nav class="mm-sidebar__nav" aria-label="Main navigation">
+  <nav class="mm-sidebar__nav" aria-label="Main navigation" i18n-aria-label="@@nav.main">
     @for (section of sections(); track section.id) {
       <div class="mm-nav-section">
         @if (layout.isMiniSidebar()) {
@@ -51,7 +51,7 @@
                   class="mm-nav-item mm-nav-item--parent"
                   [class.is-open]="isExpanded(item.id)"
                   [matTooltip]="layout.isMiniSidebar() ? item.label : ''"
-                  matTooltipPosition="right"
+                  matTooltipPosition="after"
                   (click)="toggleGroup(item)"
                 >
                   <app-icon [name]="item.icon" [size]="20" iconClass="mm-nav-item__icon" />
@@ -95,7 +95,7 @@
                   [routerLinkActiveOptions]="{ exact: true }"
                   class="mm-nav-item"
                   [matTooltip]="layout.isMiniSidebar() ? item.label : ''"
-                  matTooltipPosition="right"
+                  matTooltipPosition="after"
                   (click)="onNavigate()"
                 >
                   <app-icon [name]="item.icon" [size]="20" iconClass="mm-nav-item__icon" />

@@ -17,15 +17,20 @@ export const FAVICON_TYPES = ['image/png', 'image/x-icon', 'image/vnd.microsoft.
 
 /** A quick check before upload, so the user hears about a wrong file at once. The server's check is the real one. */
 export function fileProblem(file: File, kind: 'logo' | 'favicon'): string | null {
-  const [types, maxBytes, formats] =
-    kind === 'logo' ? [LOGO_TYPES, MAX_LOGO_BYTES, 'PNG, JPEG or WebP'] : [FAVICON_TYPES, MAX_FAVICON_BYTES, 'ICO or PNG'];
+  const [types, maxBytes] = kind === 'logo' ? [LOGO_TYPES, MAX_LOGO_BYTES] : [FAVICON_TYPES, MAX_FAVICON_BYTES];
+  const maxKb = maxBytes / 1024;
 
+  // One message per kind, so each language can phrase it in its own grammar.
   if (!types.includes(file.type)) {
-    return `The ${kind} must be a ${formats} image.`;
+    return kind === 'logo'
+      ? $localize`:@@branding.logoType:The logo must be a PNG, JPEG or WebP image.`
+      : $localize`:@@branding.faviconType:The favicon must be an ICO or PNG image.`;
   }
 
   if (file.size > maxBytes) {
-    return `The ${kind} must be at most ${maxBytes / 1024} KB.`;
+    return kind === 'logo'
+      ? $localize`:@@branding.logoSize:The logo must be at most ${maxKb}:MAX_KB: KB.`
+      : $localize`:@@branding.faviconSize:The favicon must be at most ${maxKb}:MAX_KB: KB.`;
   }
 
   return null;

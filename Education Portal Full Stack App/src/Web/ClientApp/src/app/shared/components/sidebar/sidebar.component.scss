@@ -113,7 +113,7 @@
 }
 
 .mm-nav-sublist {
-  padding-left: 16px;
+  padding-inline-start: 16px;
   margin-top: 4px;
 }
 
@@ -132,7 +132,7 @@
   font-size: var(--mm-text-sm);
   font-weight: 400;
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   transition: background-color var(--mm-duration) var(--mm-ease),
               color var(--mm-duration) var(--mm-ease);
 

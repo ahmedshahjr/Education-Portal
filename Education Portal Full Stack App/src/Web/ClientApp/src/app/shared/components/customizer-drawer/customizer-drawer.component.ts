@@ -1,11 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { LocaleService } from '../../../core/i18n/locale.service';
 import { LayoutService } from '../../../core/layout/layout.service';
 import { AppIconComponent } from '../app-icon/app-icon.component';
 
 /**
  * The theme's settings drawer. These are each user's own display preferences; the accent colour, sidebar colour,
- * logo and favicon belong to the school and are set on the branding page.
+ * logo and favicon belong to the school and are set on the branding page. The theme's LTR/RTL switch is replaced by
+ * the language: Arabic and Urdu are laid out right to left.
  */
 @Component({
   selector: 'app-theme-customizer',
@@ -14,11 +16,12 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
   template: `
     <div class="mm-customizer">
       <div class="mm-customizer__head">
-        <h2 class="mm-customizer__title">Settings</h2>
+        <h2 class="mm-customizer__title" i18n="@@customizer.title">Settings</h2>
         <button
           mat-icon-button
           type="button"
-          aria-label="Close theme customizer"
+          aria-label="Close display settings"
+          i18n-aria-label="@@customizer.close"
           (click)="layout.toggleCustomizer(false)"
         >
           <app-icon name="x" [size]="18" />
@@ -27,7 +30,7 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
 
       <div class="mm-customizer__body">
         <section class="mm-customizer__section">
-          <h3 class="mm-customizer__label">Theme Option</h3>
+          <h3 class="mm-customizer__label" i18n="@@customizer.theme">Theme option</h3>
           <div class="mm-customizer__pair">
             <button
               type="button"
@@ -36,7 +39,7 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
               (click)="layout.setThemeMode('light')"
             >
               <app-icon name="sun" [size]="18" />
-              <span>Light</span>
+              <span i18n="@@customizer.light">Light</span>
             </button>
             <button
               type="button"
@@ -45,35 +48,34 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
               (click)="layout.setThemeMode('dark')"
             >
               <app-icon name="moon" [size]="18" />
-              <span>Dark</span>
+              <span i18n="@@customizer.dark">Dark</span>
             </button>
           </div>
         </section>
 
-        <section class="mm-customizer__section">
-          <h3 class="mm-customizer__label">Theme Direction</h3>
-          <div class="mm-customizer__pair">
-            <button
-              type="button"
-              class="mm-opt-card"
-              [class.is-active]="layout.direction() === 'ltr'"
-              (click)="layout.setDirection('ltr')"
-            >
-              <span>LTR</span>
-            </button>
-            <button
-              type="button"
-              class="mm-opt-card"
-              [class.is-active]="layout.direction() === 'rtl'"
-              (click)="layout.setDirection('rtl')"
-            >
-              <span>RTL</span>
-            </button>
-          </div>
-        </section>
+        @if (locale.languages.length > 1) {
+          <section class="mm-customizer__section">
+            <h3 class="mm-customizer__label" i18n="@@customizer.language">Language</h3>
+            <div class="mm-customizer__pair">
+              @for (language of locale.languages; track language.code) {
+                <button
+                  type="button"
+                  class="mm-opt-card"
+                  [class.is-active]="language.code === locale.language"
+                  [attr.aria-pressed]="language.code === locale.language"
+                  [attr.lang]="language.code"
+                  [disabled]="locale.changing()"
+                  (click)="chooseLanguage(language.code)"
+                >
+                  <span>{{ language.nativeName }}</span>
+                </button>
+              }
+            </div>
+          </section>
+        }
 
         <section class="mm-customizer__section">
-          <h3 class="mm-customizer__label">Sidebar Type</h3>
+          <h3 class="mm-customizer__label" i18n="@@customizer.sidebar">Sidebar type</h3>
           <div class="mm-customizer__pair">
             <button
               type="button"
@@ -81,7 +83,7 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
               [class.is-active]="layout.sidebarMode() === 'full'"
               (click)="layout.setSidebarMode('full')"
             >
-              <span>Full</span>
+              <span i18n="@@customizer.full">Full</span>
             </button>
             <button
               type="button"
@@ -89,13 +91,13 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
               [class.is-active]="layout.sidebarMode() === 'mini'"
               (click)="layout.setSidebarMode('mini')"
             >
-              <span>Minisidebar</span>
+              <span i18n="@@customizer.mini">Mini sidebar</span>
             </button>
           </div>
         </section>
 
         <section class="mm-customizer__section">
-          <h3 class="mm-customizer__label">Card Surface</h3>
+          <h3 class="mm-customizer__label" i18n="@@customizer.card">Card surface</h3>
           <div class="mm-customizer__pair">
             <button
               type="button"
@@ -103,7 +105,7 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
               [class.is-active]="layout.cardStyle() === 'shadow'"
               (click)="layout.setCardStyle('shadow')"
             >
-              <span>Shadow</span>
+              <span i18n="@@customizer.shadow">Shadow</span>
             </button>
             <button
               type="button"
@@ -111,7 +113,7 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
               [class.is-active]="layout.cardStyle() === 'border'"
               (click)="layout.setCardStyle('border')"
             >
-              <span>Border</span>
+              <span i18n="@@customizer.border">Border</span>
             </button>
           </div>
         </section>
@@ -122,7 +124,7 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
           class="mm-reset-btn"
           (click)="layout.resetPreferences()"
         >
-          Reset Theme Defaults
+          <ng-container i18n="@@customizer.reset">Reset display defaults</ng-container>
         </button>
       </div>
     </div>
@@ -210,4 +212,12 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
 })
 export class ThemeCustomizerComponent {
   protected readonly layout = inject(LayoutService);
+  protected readonly locale = inject(LocaleService);
+
+  /** The language replaces the theme's LTR/RTL switch: the direction follows the language. */
+  protected chooseLanguage(code: string): void {
+    if (code !== this.locale.language) {
+      this.locale.changeLanguage(code).subscribe();
+    }
+  }
 }

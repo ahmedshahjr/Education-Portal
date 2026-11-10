@@ -14,18 +14,21 @@ export interface AppNavSection extends NavSection {
 export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
   {
     id: 'home',
-    title: 'Home',
-    items: [{ id: 'dashboard', label: 'Dashboard', icon: 'home', route: '/', access: 'everyone' }],
+    title: $localize`:@@nav.home:Home`,
+    items: [{ id: 'dashboard', label: $localize`:@@nav.dashboard:Dashboard`, icon: 'home', route: '/', access: 'everyone' }],
   },
   {
     id: 'school',
-    title: 'School',
-    items: [{ id: 'branding', label: 'Branding', icon: 'sliders-horizontal', route: '/settings/branding', access: 'administrator' }],
+    title: $localize`:@@nav.school:School`,
+    items: [{ id: 'branding', label: $localize`:@@nav.branding:Branding`, icon: 'sliders-horizontal', route: '/settings/branding', access: 'administrator' }],
   },
   {
     id: 'master',
-    title: 'Master portal',
-    items: [{ id: 'schools', label: 'Schools', icon: 'layers', route: '/schools', access: 'master-administrator' }],
+    title: $localize`:@@nav.master:Master portal`,
+    items: [
+      { id: 'schools', label: $localize`:@@nav.schools:Schools`, icon: 'layers', route: '/schools', access: 'master-administrator' },
+      { id: 'countries', label: $localize`:@@nav.countries:Countries and languages`, icon: 'globe', route: '/countries', access: 'master-administrator' },
+    ],
   },
 ];
 

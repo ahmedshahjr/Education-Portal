@@ -10,12 +10,12 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
   imports: [MatCardModule, PageHeaderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <app-page-header [title]="branding.schoolName()" subtitle="Dashboard" />
+    <app-page-header [title]="branding.schoolName()" subtitle="Dashboard" i18n-subtitle="@@home.subtitle" />
 
     <mat-card class="mm-card mm-elevated">
       <mat-card-content>
-        <h2 class="mm-home-title">Welcome back</h2>
-        <p class="mm-home-text">You are signed in as {{ auth.currentUser()?.email }}.</p>
+        <h2 class="mm-home-title" i18n="@@home.welcome">Welcome back</h2>
+        <p class="mm-home-text" i18n="@@home.signedInAs">You are signed in as <bdi>{{ auth.currentUser()?.email }}</bdi>.</p>
       </mat-card-content>
     </mat-card>
   `,

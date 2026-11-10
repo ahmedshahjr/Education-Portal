@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrandingService } from '../../core/branding/branding.service';
 import { problemMessages } from '../../core/http/problem-details';
@@ -16,7 +16,8 @@ import { BrandingEditorComponent } from './branding-editor.component';
   template: `
     <app-page-header
       title="Branding"
-      [subtitle]="'How ' + brandingService.schoolName() + ' looks to everyone who signs in on this domain.'"
+      i18n-title="@@branding.title"
+      [subtitle]="subtitle()"
     />
 
     @if (brandingService.branding(); as branding) {
@@ -28,6 +29,9 @@ import { BrandingEditorComponent } from './branding-editor.component';
 })
 export class BrandingSettingsPage {
   protected readonly brandingService = inject(BrandingService);
+  protected readonly subtitle = computed(
+    () => $localize`:@@branding.subtitle:How ${this.brandingService.schoolName()}:SCHOOL: looks to everyone who signs in on this domain.`
+  );
   private readonly client = inject(BrandingClient);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -51,7 +55,7 @@ export class BrandingSettingsPage {
         next: () => {
           this.brandingService.load().subscribe(() => {
             this.saving.set(false);
-            this.snackBar.open('Branding saved', undefined, { duration: 3000 });
+            this.snackBar.open($localize`:@@branding.saved:Branding saved`, undefined, { duration: 3000 });
           });
         },
         error: (error: unknown) => {

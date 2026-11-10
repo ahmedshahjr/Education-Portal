@@ -340,7 +340,7 @@ button {
   padding: 10px 8px;
   border-radius: var(--mm-radius-md);
   cursor: pointer;
-  text-align: left;
+  text-align: start;
 
   &:hover {
     background-color: var(--mm-bg-hover);
@@ -351,7 +351,7 @@ button {
     display: inline-block;
     width: 6px;
     height: 6px;
-    margin-left: 6px;
+    margin-inline-start: 6px;
     border-radius: 999px;
     background-color: var(--mm-primary);
     vertical-align: middle;

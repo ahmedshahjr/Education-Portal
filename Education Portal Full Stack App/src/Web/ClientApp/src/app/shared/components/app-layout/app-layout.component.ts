@@ -23,7 +23,7 @@ import { TopbarComponent } from '../topbar/topbar.component';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <mat-sidenav-container class="mm-shell" [dir]="layout.direction()" autosize>
+    <mat-sidenav-container class="mm-shell" [dir]="layout.direction" autosize>
       <mat-sidenav
         class="mm-shell__sidenav"
         [style.width.px]="layout.effectiveSidebarWidth()"
@@ -56,9 +56,11 @@ import { TopbarComponent } from '../topbar/topbar.component';
       mat-fab
       type="button"
       class="mm-customizer-fab"
-      aria-label="Open theme settings"
-      matTooltip="Theme Settings"
-      matTooltipPosition="left"
+      aria-label="Open display settings"
+      i18n-aria-label="@@layout.openSettings"
+      matTooltip="Display settings"
+      i18n-matTooltip="@@layout.displaySettings"
+      matTooltipPosition="before"
       (click)="layout.toggleCustomizer(true)"
     >
       <app-icon name="settings" [size]="22" />
@@ -72,7 +74,7 @@ import { TopbarComponent } from '../topbar/topbar.component';
 
     .mm-shell__sidenav {
       background-color: var(--mm-sidebar-bg);
-      border-right: 1px solid var(--mm-border-color);
+      border-inline-end: 1px solid var(--mm-border-color);
       box-shadow: none !important;
       overflow-x: hidden;
       transition: width var(--mm-duration) var(--mm-ease);
@@ -80,7 +82,7 @@ import { TopbarComponent } from '../topbar/topbar.component';
 
     .mm-shell__customizer {
       background-color: var(--mm-bg-surface);
-      border-left: 1px solid var(--mm-border-color);
+      border-inline-start: 1px solid var(--mm-border-color);
     }
 
     .mm-shell__content {
@@ -101,7 +103,7 @@ import { TopbarComponent } from '../topbar/topbar.component';
 
     .mm-customizer-fab {
       position: fixed;
-      right: 24px;
+      inset-inline-end: 24px;
       bottom: 24px;
       z-index: 30;
       background-color: var(--mm-success) !important;
@@ -115,7 +117,7 @@ import { TopbarComponent } from '../topbar/topbar.component';
       }
 
       .mm-customizer-fab {
-        right: 16px;
+        inset-inline-end: 16px;
         bottom: 16px;
       }
     }
