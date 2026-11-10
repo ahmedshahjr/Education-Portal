@@ -190,6 +190,7 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
 - Follow the template's `.editorconfig`.
 - New NuGet package: add its version to `Directory.Packages.props` and say why in the PR.
 - Tests use NUnit and Shouldly. New use cases get an `Application.FunctionalTests` test (including the tenant/branch/module denial cases above).
+- Backend unit tests (maintainer rule, 2026-11-10): every new or changed C# class with logic gets a unit test in the same PR, in the matching project (entities and value objects in `Domain.UnitTests`, validators, handlers and behaviours in `Application.UnitTests`, database code in `Infrastructure.IntegrationTests` or `Application.FunctionalTests`), covering the valid case, each rejected case and each boundary (ENG-CODE-10).
 - No secrets in the repo: user-secrets locally, Key Vault when deployed.
 - Never commit `artifacts/`, `bin/`, `obj/`, `node_modules/` or `*.db`.
 

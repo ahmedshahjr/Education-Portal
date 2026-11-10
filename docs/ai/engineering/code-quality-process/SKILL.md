@@ -20,6 +20,7 @@ Part of the mandatory engineering rules. Also follow the [overview skill](../SKI
 | ENG-CODE-07 | **Surgical changes.** Touch only what the task needs. Do not "improve", rename, reformat or reorder adjacent code or unrelated files in the same change. Match the existing style of the file even when you would do it differently. |
 | ENG-CODE-08 | Async all the way: async methods take and pass a `CancellationToken`, return `Task`/`ValueTask`, and are awaited. No `async void` (except event handlers), no blocking on async code. |
 | ENG-CODE-09 | Nullable reference types and warnings-as-errors stay on. Fix the warning; do not suppress it. A suppression needs a comment explaining why and an engineering or compliance exception. |
+| ENG-CODE-10 | **Backend unit tests (maintainer rule, 2026-11-10).** Every new or changed C# class with logic gets unit tests in the matching project in the same PR, as the frontend does with Vitest (ENG-UI-15): entities and value objects in `tests/Domain.UnitTests`, validators, handlers, pipeline behaviours and mappings in `tests/Application.UnitTests`, and anything needing a real database in `tests/Infrastructure.IntegrationTests` or `tests/Application.FunctionalTests`. Cover the valid case, each rejected case and each boundary (empty, exact limit, one over). Tests run in CI (`dotnet test`), and a PR that adds logic without tests is not done (ENG-PROC-02). |
 
 ## Process and collaboration
 
