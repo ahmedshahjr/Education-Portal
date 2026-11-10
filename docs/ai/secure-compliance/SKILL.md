@@ -132,7 +132,7 @@ Rules that can be checked by a machine are enforced, so non-compliant changes ca
 
 | Guard | Where | What it blocks |
 |---|---|---|
-| Rule checks | `docs/ai/compliance-guard.py` (CI and pre-commit) | Raw SQL, `IgnoreQueryFilters`, unlisted `AllowAnonymous`, weak crypto, disabled TLS validation, `{@Request}` logging, `Console.Write`, unsafe deserialization, Angular sanitizer bypass / `innerHTML` / `eval`, package versions in `.csproj`, suppressed NuGet audit warnings, credentials in config files, private keys, card data fields (`CardNumber`, `Cvv`, ...), certification claims |
+| Rule checks | `docs/ai/compliance-guard.py` (CI and pre-commit; also runs the engineering checks in [docs/ai/engineering/SKILL.md](../engineering/SKILL.md) section 5) | Raw SQL, `IgnoreQueryFilters`, unlisted `AllowAnonymous`, weak crypto, disabled TLS validation, `{@Request}` logging, `Console.Write`, unsafe deserialization, Angular sanitizer bypass / `innerHTML` / `eval`, package versions in `.csproj`, suppressed NuGet audit warnings, credentials in config files, private keys, card data fields (`CardNumber`, `Cvv`, ...), certification claims |
 | AI wrappers in sync | `docs/ai/sync-ai-wrappers.py --check` | Rules or skills added for one AI tool only (SEC-AI-10); standard skills without a tracked source; a stale skills list in README.md |
 | PR checklist | CI | PRs without the security checklist (SEC-AI-08) |
 | Secret scan | gitleaks in CI (and pre-commit if installed) | Secrets in new commits (SEC-SECRET-01/03) |
