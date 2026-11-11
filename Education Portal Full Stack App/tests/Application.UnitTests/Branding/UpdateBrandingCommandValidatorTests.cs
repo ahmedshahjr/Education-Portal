@@ -16,7 +16,7 @@ public class UpdateBrandingCommandValidatorTests
     {
         var result = _validator.Validate(new UpdateBrandingCommand
         {
-            ThemePreset = ThemePreset.Blue,
+            AccentColor = "#0074ba",
             SidebarColor = "#123abc",
             Logo = Png,
             Favicon = Png,
@@ -26,15 +26,17 @@ public class UpdateBrandingCommandValidatorTests
     }
 
     [Test]
-    public void ShouldRefuseAnUnknownThemePreset()
+    public void ShouldRefuseAnAccentColourThatIsNotHex()
     {
-        _validator.Validate(new UpdateBrandingCommand { ThemePreset = (ThemePreset)42 }).IsValid.ShouldBeFalse();
+        var result = _validator.Validate(new UpdateBrandingCommand { AccentColor = "orange" });
+
+        result.Errors.ShouldContain(e => e.PropertyName == nameof(UpdateBrandingCommand.AccentColor));
     }
 
     [Test]
     public void ShouldRefuseAColourThatIsNotHex()
     {
-        var result = _validator.Validate(new UpdateBrandingCommand { ThemePreset = ThemePreset.Cyan, SidebarColor = "blue" });
+        var result = _validator.Validate(new UpdateBrandingCommand { AccentColor = "#00a1ff", SidebarColor = "blue" });
 
         result.Errors.ShouldContain(e => e.PropertyName == nameof(UpdateBrandingCommand.SidebarColor));
     }
@@ -42,7 +44,7 @@ public class UpdateBrandingCommandValidatorTests
     [Test]
     public void ShouldRefuseALogoThatIsNotAnAllowedImage()
     {
-        var result = _validator.Validate(new UpdateBrandingCommand { ThemePreset = ThemePreset.Cyan, Logo = "<svg/>"u8.ToArray() });
+        var result = _validator.Validate(new UpdateBrandingCommand { AccentColor = "#00a1ff", Logo = "<svg/>"u8.ToArray() });
 
         result.Errors.ShouldContain(e => e.PropertyName == nameof(UpdateBrandingCommand.Logo));
     }
@@ -50,7 +52,7 @@ public class UpdateBrandingCommandValidatorTests
     [Test]
     public void ShouldRefuseUploadingAndRemovingTheSameImage()
     {
-        var result = _validator.Validate(new UpdateBrandingCommand { ThemePreset = ThemePreset.Cyan, Logo = Png, RemoveLogo = true });
+        var result = _validator.Validate(new UpdateBrandingCommand { AccentColor = "#00a1ff", Logo = Png, RemoveLogo = true });
 
         result.Errors.ShouldContain(e => e.PropertyName == nameof(UpdateBrandingCommand.RemoveLogo));
     }

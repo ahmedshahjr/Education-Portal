@@ -1,3 +1,6 @@
+using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.ValueObjects;
+
 namespace EducationPortal.Application.Branding.Common;
 
 /// <summary>
@@ -7,7 +10,8 @@ namespace EducationPortal.Application.Branding.Common;
 /// </summary>
 public abstract record BrandingUpdate
 {
-    public ThemePreset ThemePreset { get; init; }
+    /// <summary>The accent colour as <c>#rrggbb</c>.</summary>
+    public string AccentColor { get; init; } = School.DefaultAccentColor.Value;
 
     /// <summary>The sidebar colour as <c>#rrggbb</c>, or <c>null</c> for the theme's default.</summary>
     public string? SidebarColor { get; init; }
@@ -31,7 +35,9 @@ public abstract class BrandingUpdateValidator<T> : AbstractValidator<T>
 {
     protected BrandingUpdateValidator()
     {
-        RuleFor(u => u.ThemePreset).IsInEnum();
+        RuleFor(u => u.AccentColor)
+            .Must(HexColor.IsValid)
+            .WithMessage("The accent colour must have the form #rrggbb.");
 
         RuleFor(u => u.SidebarColor)
             .Must(HexColor.IsValid)

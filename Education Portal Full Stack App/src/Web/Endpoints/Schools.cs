@@ -96,13 +96,13 @@ public class Schools : IEndpointGroup
     }
 
     [EndpointSummary("Change a school's branding")]
-    [EndpointDescription("Sets any school's theme preset, sidebar colour, logo and favicon, with the same checks as the school's own branding. Master tenant only.")]
+    [EndpointDescription("Sets any school's accent colour, sidebar colour, logo and favicon, with the same checks as the school's own branding. Master tenant only.")]
     public static async Task<NoContent> UpdateSchoolBranding(ISender sender, int schoolId, [FromForm] BrandingForm form, CancellationToken cancellationToken)
     {
         await sender.Send(new UpdateSchoolBrandingCommand
         {
             SchoolId = schoolId,
-            ThemePreset = form.ThemePreset,
+            AccentColor = form.AccentColor,
             SidebarColor = form.SidebarColor,
             Logo = await BrandingForm.ReadAsync(form.Logo, cancellationToken),
             RemoveLogo = form.RemoveLogo,

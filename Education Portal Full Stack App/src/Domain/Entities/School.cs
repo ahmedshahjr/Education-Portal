@@ -12,11 +12,15 @@ public class School : BaseSoftDeletableEntity
     public const int NameMaxLength = 200;
     public const int DomainMaxLength = 253;
 
+    /// <summary>The accent colour a school starts with: the theme's default cyan.</summary>
+    public static readonly HexColor DefaultAccentColor = HexColor.From("#00a1ff");
+
     private School()
     {
         // For EF Core.
         Name = string.Empty;
         Domain = string.Empty;
+        AccentColor = DefaultAccentColor;
     }
 
     private School(string name, string domain, bool isMaster)
@@ -27,7 +31,7 @@ public class School : BaseSoftDeletableEntity
         Name = name.Trim();
         Domain = NormalizeDomain(domain);
         IsMaster = isMaster;
-        ThemePreset = ThemePreset.Cyan;
+        AccentColor = DefaultAccentColor;
     }
 
     /// <summary>Creates the master tenant. Only seeding calls this; there is no use case for it.</summary>
@@ -46,8 +50,8 @@ public class School : BaseSoftDeletableEntity
     /// <summary>True for the one master tenant. Set at creation and never changed.</summary>
     public bool IsMaster { get; private set; }
 
-    /// <summary>The accent colour of the school's UI.</summary>
-    public ThemePreset ThemePreset { get; private set; }
+    /// <summary>The accent colour of the school's UI, for example the primary buttons and links.</summary>
+    public HexColor AccentColor { get; private set; }
 
     /// <summary>The background colour of the sidebar, or <c>null</c> for the theme's default.</summary>
     public HexColor? SidebarColor { get; private set; }
@@ -68,14 +72,11 @@ public class School : BaseSoftDeletableEntity
         CountryId = countryId;
     }
 
-    public void UpdateBranding(ThemePreset themePreset, HexColor? sidebarColor)
+    public void UpdateBranding(HexColor accentColor, HexColor? sidebarColor)
     {
-        if (!Enum.IsDefined(themePreset))
-        {
-            throw new ArgumentOutOfRangeException(nameof(themePreset), themePreset, "Unknown theme preset.");
-        }
+        ArgumentNullException.ThrowIfNull(accentColor);
 
-        ThemePreset = themePreset;
+        AccentColor = accentColor;
         SidebarColor = sidebarColor;
     }
 

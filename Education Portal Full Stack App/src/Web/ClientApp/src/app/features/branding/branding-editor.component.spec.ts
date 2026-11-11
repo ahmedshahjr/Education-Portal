@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it } from 'vitest';
-import { BrandingDto, ThemePreset } from '../../web-api-client';
+import { BrandingDto } from '../../web-api-client';
 import { BrandingChanges } from './branding-changes';
 import { BrandingEditorComponent } from './branding-editor.component';
 
@@ -15,18 +15,32 @@ async function render(branding: BrandingDto) {
 }
 
 describe('BrandingEditorComponent', () => {
-  const branding = new BrandingDto({ schoolName: 'Demo School', isMaster: false, themePreset: ThemePreset.Cyan, sidebarColor: undefined, logoVersion: undefined, faviconVersion: undefined });
+  const branding = new BrandingDto({ schoolName: 'Demo School', isMaster: false, accentColor: '#00a1ff', sidebarColor: undefined, logoVersion: undefined, faviconVersion: undefined });
 
-  it('saves the chosen accent colour', async () => {
+  it('saves the accent colour picked as a hex colour', async () => {
     const { element, saved, fixture } = await render(branding);
 
-    element.querySelector<HTMLButtonElement>('button[aria-label="Royal violet"]')!.click();
+    const picker = element.querySelector<HTMLInputElement>('input[type="color"][aria-label="Pick the accent colour"]')!;
+    picker.value = '#763EBD';
+    picker.dispatchEvent(new Event('input'));
     await fixture.whenStable();
     element.querySelector<HTMLButtonElement>('button[type="submit"]')!.click();
 
     expect(saved).toEqual([
-      { themePreset: ThemePreset.Purple, sidebarColor: null, logo: null, removeLogo: false, favicon: null, removeFavicon: false },
+      { accentColor: '#763ebd', sidebarColor: null, logo: null, removeLogo: false, favicon: null, removeFavicon: false },
     ]);
+  });
+
+  it('does not save an accent colour that is not a hex colour', async () => {
+    const { element, saved, fixture } = await render(branding);
+
+    const hex = element.querySelector<HTMLInputElement>('input[maxlength="7"]')!;
+    hex.value = 'purple';
+    hex.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+
+    expect(element.querySelector<HTMLButtonElement>('button[type="submit"]')!.disabled).toBe(true);
+    expect(saved).toEqual([]);
   });
 
   it('keeps the current sidebar colour and offers to remove the current logo', async () => {

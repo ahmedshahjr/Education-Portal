@@ -8,7 +8,7 @@ namespace EducationPortal.Application.Branding.Common;
 public sealed record BrandingDto(
     string SchoolName,
     bool IsMaster,
-    ThemePreset ThemePreset,
+    string AccentColor,
     string? SidebarColor,
     string? LogoVersion,
     string? FaviconVersion);

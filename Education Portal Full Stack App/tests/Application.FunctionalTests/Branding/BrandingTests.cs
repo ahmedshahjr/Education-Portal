@@ -39,7 +39,7 @@ public class BrandingTests : TestBase
         masterBranding.IsMaster.ShouldBeTrue();
         schoolBranding.IsMaster.ShouldBeFalse();
         schoolBranding.SchoolName.ShouldBe("School One");
-        schoolBranding.ThemePreset.ShouldBe(ThemePreset.Cyan);
+        schoolBranding.AccentColor.ShouldBe("#00a1ff");
         schoolBranding.SidebarColor.ShouldBeNull();
         schoolBranding.LogoVersion.ShouldBeNull();
     }
@@ -50,11 +50,11 @@ public class BrandingTests : TestBase
         await SignInAsSchoolAdministratorAsync(SchoolDomain, out var session);
         using var _ = session;
 
-        using var response = await session.PutFormAsync("/api/Branding", Form(ThemePreset.Purple, "#1F2A3D", logo: TestImages.Png, favicon: TestImages.Icon));
+        using var response = await session.PutFormAsync("/api/Branding", Form("#763ebd", "#1F2A3D", logo: TestImages.Png, favicon: TestImages.Icon));
 
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         var branding = await ReadBrandingAsync(session);
-        branding.ThemePreset.ShouldBe(ThemePreset.Purple);
+        branding.AccentColor.ShouldBe("#763ebd");
         branding.SidebarColor.ShouldBe("#1f2a3d");
         branding.LogoVersion.ShouldNotBeNullOrEmpty();
         branding.FaviconVersion.ShouldNotBeNullOrEmpty();
@@ -76,7 +76,7 @@ public class BrandingTests : TestBase
         var userId = await SignInAsSchoolAdministratorAsync(SchoolDomain, out var session);
         using var _ = session;
 
-        (await session.PutFormAsync("/api/Branding", Form(ThemePreset.Blue))).Dispose();
+        (await session.PutFormAsync("/api/Branding", Form("#0074ba"))).Dispose();
 
         (await TestApp.FindAuditEventsAsync(userId))
             .ShouldContain(e => e.EventType == SecurityAuditEventType.BrandingChanged && e.Outcome == SecurityAuditOutcome.Success);
@@ -87,9 +87,9 @@ public class BrandingTests : TestBase
     {
         await SignInAsSchoolAdministratorAsync(SchoolDomain, out var session);
         using var _ = session;
-        (await session.PutFormAsync("/api/Branding", Form(ThemePreset.Cyan, logo: TestImages.Png))).Dispose();
+        (await session.PutFormAsync("/api/Branding", Form("#00a1ff", logo: TestImages.Png))).Dispose();
 
-        using var response = await session.PutFormAsync("/api/Branding", Form(ThemePreset.Cyan, removeLogo: true));
+        using var response = await session.PutFormAsync("/api/Branding", Form("#00a1ff", removeLogo: true));
 
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         (await ReadBrandingAsync(session)).LogoVersion.ShouldBeNull();
@@ -111,7 +111,7 @@ public class BrandingTests : TestBase
             _ => TestImages.OversizedPng(BrandingImageRules.MaxLogoBytes + 1),
         };
 
-        using var response = await session.PutFormAsync("/api/Branding", Form(ThemePreset.Cyan, logo: content));
+        using var response = await session.PutFormAsync("/api/Branding", Form("#00a1ff", logo: content));
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         (await CountImagesAsync()).ShouldBe(0);
@@ -123,7 +123,7 @@ public class BrandingTests : TestBase
         await SignInAsSchoolAdministratorAsync(SchoolDomain, out var session);
         using var _ = session;
 
-        using var response = await session.PutFormAsync("/api/Branding", Form(ThemePreset.Cyan, favicon: [0xFF, 0xD8, 0xFF, 0xE0, 0x00]));
+        using var response = await session.PutFormAsync("/api/Branding", Form("#00a1ff", favicon: [0xFF, 0xD8, 0xFF, 0xE0, 0x00]));
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
@@ -136,7 +136,7 @@ public class BrandingTests : TestBase
         await SignInAsSchoolAdministratorAsync(SchoolDomain, out var session);
         using var _ = session;
 
-        using var response = await session.PutFormAsync("/api/Branding", Form(ThemePreset.Cyan, colour));
+        using var response = await session.PutFormAsync("/api/Branding", Form("#00a1ff", colour));
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
@@ -147,7 +147,7 @@ public class BrandingTests : TestBase
         await TestApp.AddSchoolAsync("School One", SchoolDomain);
         using var session = TestHttp.CreateDevelopmentSession(SchoolDomain);
 
-        using var response = await session.PutFormAsync("/api/Branding", Form(ThemePreset.Blue));
+        using var response = await session.PutFormAsync("/api/Branding", Form("#0074ba"));
 
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
@@ -160,7 +160,7 @@ public class BrandingTests : TestBase
         using var session = TestHttp.CreateDevelopmentSession(SchoolDomain);
         (await session.SignInAsync("teacher@school1.local", TestApp.DefaultUserPassword)).Dispose();
 
-        using var response = await session.PutFormAsync("/api/Branding", Form(ThemePreset.Blue));
+        using var response = await session.PutFormAsync("/api/Branding", Form("#0074ba"));
 
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
@@ -172,10 +172,10 @@ public class BrandingTests : TestBase
         using var _ = session;
         session.SetCookie("__Host-XSRF-TOKEN", "not-the-token");
 
-        using var response = await session.PutFormAsync("/api/Branding", Form(ThemePreset.Blue));
+        using var response = await session.PutFormAsync("/api/Branding", Form("#0074ba"));
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        (await ReadBrandingAsync(session)).ThemePreset.ShouldBe(ThemePreset.Cyan);
+        (await ReadBrandingAsync(session)).AccentColor.ShouldBe("#00a1ff");
     }
 
     [Test]
@@ -183,7 +183,7 @@ public class BrandingTests : TestBase
     {
         await SignInAsSchoolAdministratorAsync(SchoolDomain, out var session);
         using var _ = session;
-        (await session.PutFormAsync("/api/Branding", Form(ThemePreset.Cyan, logo: TestImages.Png))).Dispose();
+        (await session.PutFormAsync("/api/Branding", Form("#00a1ff", logo: TestImages.Png))).Dispose();
         await TestApp.AddSchoolAsync("School Two", OtherSchoolDomain);
         using var otherSchool = TestHttp.CreateDevelopmentSession(OtherSchoolDomain);
 
@@ -214,7 +214,7 @@ public class BrandingTests : TestBase
         using var _ = session;
 
         using var list = await session.GetAsync("/api/Schools");
-        using var update = await session.PutFormAsync($"/api/Schools/{TestApp.MasterSchoolId}/branding", Form(ThemePreset.Coral));
+        using var update = await session.PutFormAsync($"/api/Schools/{TestApp.MasterSchoolId}/branding", Form("#fa896b"));
 
         list.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         update.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
@@ -229,7 +229,7 @@ public class BrandingTests : TestBase
         (await master.SignInAsync(TestApp.AdministratorEmail, TestApp.AdministratorPassword)).Dispose();
 
         using var schools = await master.GetAsync("/api/Schools");
-        using var update = await master.PutFormAsync($"/api/Schools/{schoolId}/branding", Form(ThemePreset.Teal, "#004d40", logo: TestImages.Png));
+        using var update = await master.PutFormAsync($"/api/Schools/{schoolId}/branding", Form("#00ceb6", "#004d40", logo: TestImages.Png));
 
         schools.StatusCode.ShouldBe(HttpStatusCode.OK);
         (await schools.Content.ReadAsStringAsync()).ShouldContain(SchoolDomain);
@@ -237,7 +237,7 @@ public class BrandingTests : TestBase
 
         using var school = TestHttp.CreateDevelopmentSession(SchoolDomain);
         var branding = await ReadBrandingAsync(school);
-        branding.ThemePreset.ShouldBe(ThemePreset.Teal);
+        branding.AccentColor.ShouldBe("#00ceb6");
         branding.SidebarColor.ShouldBe("#004d40");
         branding.LogoVersion.ShouldNotBeNull();
     }
@@ -285,7 +285,7 @@ public class BrandingTests : TestBase
     }
 
     private static MultipartFormDataContent Form(
-        ThemePreset preset,
+        string accent,
         string? sidebarColor = null,
         byte[]? logo = null,
         byte[]? favicon = null,
@@ -293,7 +293,7 @@ public class BrandingTests : TestBase
     {
         var form = new MultipartFormDataContent
         {
-            { new StringContent(preset.ToString()), "ThemePreset" },
+            { new StringContent(accent), "AccentColor" },
             { new StringContent(removeLogo ? "true" : "false"), "RemoveLogo" },
         };
 

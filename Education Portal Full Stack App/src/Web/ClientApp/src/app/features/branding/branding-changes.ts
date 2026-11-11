@@ -1,8 +1,6 @@
-import { ThemePreset } from '../../web-api-client';
-
 /** What the branding editor asks to save. Files are checked again by the server, by content (SEC-INPUT-04). */
 export interface BrandingChanges {
-  readonly themePreset: ThemePreset;
+  readonly accentColor: string;
   readonly sidebarColor: string | null;
   readonly logo: File | null;
   readonly removeLogo: boolean;

@@ -8,7 +8,6 @@ import {
   LayoutDirection,
   LayoutPreferences,
   SidebarMode,
-  ThemeColorPreset,
   ThemeMode,
 } from '../../shared/models/theme.models';
 
@@ -21,11 +20,9 @@ const DEFAULT_PREFERENCES: LayoutPreferences = {
   cardStyle: 'shadow',
 };
 
-export const THEME_COLOR_PRESETS: readonly ThemeColorPreset[] = ['cyan', 'blue', 'purple', 'ocean', 'teal', 'coral'];
-
 /**
  * The theme's layout state (from the MaterialM theme in `Theme Angular`). Light or dark mode, sidebar type and card
- * style are the user's own preferences and are kept in local storage. The accent colour preset is the school's and is
+ * style are the user's own preferences and are kept in local storage. The accent colour is the school's and is
  * set by BrandingService. The text direction follows the language (right to left for Arabic and Urdu), so it is not a
  * preference either.
  */
@@ -36,7 +33,6 @@ export class LayoutService {
   private readonly locale = inject(APP_LOCALE);
 
   private readonly preferences = signal<LayoutPreferences>(this.loadPreferences());
-  private readonly preset = signal<ThemeColorPreset>('cyan');
 
   readonly isMobile = signal(false);
   readonly isCompactViewport = signal(false);
@@ -44,7 +40,6 @@ export class LayoutService {
   readonly customizerOpen = signal(false);
 
   readonly themeMode = computed(() => this.preferences().themeMode);
-  readonly colorPreset = this.preset.asReadonly();
   readonly sidebarMode = computed(() => this.preferences().sidebarMode);
   readonly cardStyle = computed(() => this.preferences().cardStyle);
   readonly direction: LayoutDirection = this.locale.isRightToLeft ? 'rtl' : 'ltr';
@@ -80,13 +75,6 @@ export class LayoutService {
       this.savePreferences(prefs);
     });
 
-    effect(() => {
-      const preset = this.preset();
-      const html = this.document.documentElement;
-      for (const option of THEME_COLOR_PRESETS) {
-        html.classList.toggle(`theme-${option}`, preset === option);
-      }
-    });
   }
 
   toggleThemeMode(): void {
@@ -95,11 +83,6 @@ export class LayoutService {
 
   setThemeMode(mode: ThemeMode): void {
     this.preferences.update((prev) => ({ ...prev, themeMode: mode }));
-  }
-
-  /** Called by BrandingService with the school's preset. */
-  setColorPreset(preset: ThemeColorPreset): void {
-    this.preset.set(preset);
   }
 
   toggleSidebar(): void {

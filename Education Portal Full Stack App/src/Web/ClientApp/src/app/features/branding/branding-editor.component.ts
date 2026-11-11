@@ -7,25 +7,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { sidebarPalette } from '../../core/branding/sidebar-palette';
 import { brandingImageUrl } from '../../core/branding/branding.service';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
-import { BrandingDto, BrandingImageKind, ThemePreset } from '../../web-api-client';
+import { BrandingDto, BrandingImageKind } from '../../web-api-client';
 import { BrandingChanges, FAVICON_TYPES, fileProblem, LOGO_TYPES } from './branding-changes';
 
-interface PresetOption {
-  readonly preset: ThemePreset;
-  readonly label: string;
-  readonly hex: string;
-}
-
-/** The theme's colour presets (Theme Angular, layout.service.ts), with the swatch colours shown in its customizer. */
-const PRESET_OPTIONS: readonly PresetOption[] = [
-  { preset: ThemePreset.Cyan, label: $localize`:@@branding.cyan:Aqua cyan`, hex: '#00a1ff' },
-  { preset: ThemePreset.Blue, label: $localize`:@@branding.blue:Cobalt blue`, hex: '#0074ba' },
-  { preset: ThemePreset.Purple, label: $localize`:@@branding.purple:Royal violet`, hex: '#763ebd' },
-  { preset: ThemePreset.Ocean, label: $localize`:@@branding.ocean:Ocean teal`, hex: '#0a7ea4' },
-  { preset: ThemePreset.Teal, label: $localize`:@@branding.teal:Mint green`, hex: '#00ceb6' },
-  { preset: ThemePreset.Coral, label: $localize`:@@branding.coral:Warm coral`, hex: '#fa896b' },
-];
-
+const DEFAULT_ACCENT_COLOR = '#00a1ff';
 const DEFAULT_SIDEBAR_COLOR = '#1f2a3d';
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
@@ -49,11 +34,10 @@ export class BrandingEditorComponent {
 
   readonly save = output<BrandingChanges>();
 
-  protected readonly presetOptions = PRESET_OPTIONS;
   protected readonly logoAccept = LOGO_TYPES.join(',');
   protected readonly faviconAccept = ['.ico', ...FAVICON_TYPES].join(',');
 
-  protected readonly preset = linkedSignal(() => this.branding().themePreset ?? ThemePreset.Cyan);
+  protected readonly accentColor = linkedSignal(() => this.branding().accentColor || DEFAULT_ACCENT_COLOR);
   protected readonly customSidebar = linkedSignal(() => !!this.branding().sidebarColor);
   protected readonly sidebarColor = linkedSignal(() => this.branding().sidebarColor ?? DEFAULT_SIDEBAR_COLOR);
   protected readonly logo = linkedSignal<BrandingDto, File | null>({ source: this.branding, computation: () => null });
@@ -63,7 +47,8 @@ export class BrandingEditorComponent {
   protected readonly removeFavicon = linkedSignal({ source: this.branding, computation: () => false });
   protected readonly fileError = signal<string | null>(null);
 
-  protected readonly colorValid = computed(() => !this.customSidebar() || HEX_COLOR.test(this.sidebarColor()));
+  protected readonly accentValid = computed(() => HEX_COLOR.test(this.accentColor()));
+  protected readonly sidebarValid = computed(() => !this.customSidebar() || HEX_COLOR.test(this.sidebarColor()));
 
   protected readonly currentLogoUrl = computed(() =>
     this.showCurrentImages() && !this.removeLogo() ? brandingImageUrl(BrandingImageKind.Logo, this.branding().logoVersion) : null
@@ -75,7 +60,7 @@ export class BrandingEditorComponent {
 
   /** A live preview of the sidebar with the chosen colour; the text colour is picked for contrast. */
   protected readonly preview = computed(() => {
-    const palette = this.customSidebar() && this.colorValid() ? sidebarPalette(this.sidebarColor()) : null;
+    const palette = this.customSidebar() && this.sidebarValid() ? sidebarPalette(this.sidebarColor()) : null;
     return {
       background: palette?.['--mm-sidebar-bg'] ?? 'var(--mm-bg-surface)',
       text: palette?.['--mm-sidebar-text'] ?? 'var(--mm-text-primary)',
@@ -83,8 +68,8 @@ export class BrandingEditorComponent {
     };
   });
 
-  protected selectPreset(preset: ThemePreset): void {
-    this.preset.set(preset);
+  protected setAccentColor(event: Event): void {
+    this.accentColor.set((event.target as HTMLInputElement).value.trim());
   }
 
   protected setSidebarColor(event: Event): void {
@@ -128,12 +113,12 @@ export class BrandingEditorComponent {
   }
 
   protected submit(): void {
-    if (!this.colorValid()) {
+    if (!this.accentValid() || !this.sidebarValid()) {
       return;
     }
 
     this.save.emit({
-      themePreset: this.preset(),
+      accentColor: this.accentColor().toLowerCase(),
       sidebarColor: this.customSidebar() ? this.sidebarColor().toLowerCase() : null,
       logo: this.logo(),
       removeLogo: this.removeLogo(),

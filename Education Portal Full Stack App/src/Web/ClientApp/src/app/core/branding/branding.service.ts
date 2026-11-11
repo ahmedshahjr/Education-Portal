@@ -3,9 +3,8 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { ThemeColorPreset } from '../../shared/models/theme.models';
-import { BrandingClient, BrandingDto, BrandingImageKind, ThemePreset } from '../../web-api-client';
-import { LayoutService } from '../layout/layout.service';
+import { BrandingClient, BrandingDto, BrandingImageKind } from '../../web-api-client';
+import { ACCENT_PALETTE_PROPERTIES, accentPalette } from './accent-palette';
 import { SIDEBAR_PALETTE_PROPERTIES, sidebarPalette } from './sidebar-palette';
 
 const DEFAULT_SCHOOL_NAME = 'Education Portal';
@@ -16,10 +15,6 @@ export function brandingImageUrl(kind: BrandingImageKind, version: string | null
   return version ? `api/Branding/images/${kind}?v=${encodeURIComponent(version)}` : null;
 }
 
-export function toThemeColorPreset(preset: ThemePreset | undefined): ThemeColorPreset {
-  return (preset?.toLowerCase() ?? 'cyan') as ThemeColorPreset;
-}
-
 /**
  * The branding of the school that owns this domain. It is loaded before the app starts (the server picks the school
  * from the host), so the login page already shows the school's name, logo, favicon, accent colour and sidebar colour.
@@ -27,7 +22,6 @@ export function toThemeColorPreset(preset: ThemePreset | undefined): ThemeColorP
 @Injectable({ providedIn: 'root' })
 export class BrandingService {
   private readonly client = inject(BrandingClient);
-  private readonly layout = inject(LayoutService);
   private readonly document = inject(DOCUMENT);
   private readonly title = inject(Title);
 
@@ -49,10 +43,23 @@ export class BrandingService {
 
   apply(branding: BrandingDto): void {
     this.state.set(branding);
-    this.layout.setColorPreset(toThemeColorPreset(branding.themePreset));
+    this.applyAccentColor(branding.accentColor);
     this.applySidebarColor(branding.sidebarColor ?? null);
     this.applyFavicon(brandingImageUrl(BrandingImageKind.Favicon, branding.faviconVersion));
     this.title.setTitle(branding.schoolName);
+  }
+
+  private applyAccentColor(color: string): void {
+    const style = this.document.documentElement.style;
+    const palette = accentPalette(color);
+
+    for (const property of ACCENT_PALETTE_PROPERTIES) {
+      if (palette) {
+        style.setProperty(property, palette[property]);
+      } else {
+        style.removeProperty(property);
+      }
+    }
   }
 
   private applySidebarColor(color: string | null): void {
