@@ -54,19 +54,19 @@ Master tenant (the platform owner, i.e. us)
 
 Effective access for a school user = **modules enabled for their school** ∩ **rights their role gives per module** ∩ **branches assigned to them**.
 
-1. **Modules per school (master controls, decided 2026-11-11):** from the master portal, the master tenant decides which modules are **default** and which are **custom**, and switches modules on or off for each school. A disabled module is unavailable to everyone in that school.
-   - **Core** modules are always on for every school and can't be switched off.
+1. **Modules per school (master controls, decided 2026-11-11):** every module is one of two types, **default** or **custom** (there is no always-on type). From the master portal, the master tenant decides which modules are default and which are custom, and switches modules on or off for each school. A disabled module is unavailable to everyone in that school.
    - **Default** modules are on for every school automatically, including new ones. The master can still switch one off for a single school.
    - **Custom** modules stay off until the master switches them on for a school (for example when the school asks for it).
    - The master's choice for a school wins over the default from then on. Without a choice, the module's default applies. The master tenant itself is never limited by modules.
-   - Code: keys in `Domain/Constants/ModuleKeys.cs`, starting list in `Domain/Entities/ModuleCatalog.cs` (seeded into the `Modules` table), per-school choices in `SchoolModules`. Master screens: Modules (default or custom) and Schools, Modules (per school).
+   - Each module also has an **Active** switch on the master's Modules page. An inactive module is off for every school, whatever its type or a school's choice, and comes back as it was once reactivated.
+   - Code: the type is the `ModuleType` enum (`Domain/Enums/ModuleType.cs`: `Default`, `Custom`) and Active is `PortalModule.IsActive` (`BaseSoftDeletableEntity`); keys in `Domain/Constants/ModuleKeys.cs`, starting list in `Domain/Entities/ModuleCatalog.cs` (seeded into the `Modules` table), per-school choices in `SchoolModules`. Master screens: Modules (type and Active) and Schools, Modules (per school).
 
    MVP module list (2026-11-09; add new modules here, to `ModuleKeys` and to `ModuleCatalog` first). "Starts as" is the seeded split; the master can change it in the app:
 
    | Module | Covers | Starts as |
    |---|---|---|
-   | Branches | Create and edit the school's branches | Core (always on) |
-   | Users & Roles | Staff accounts, roles with rights per module, branch assignment | Core (always on) |
+   | Branches | Create and edit the school's branches | Default |
+   | Users & Roles | Staff accounts, roles with rights per module, branch assignment | Default |
    | Students | Student records, branch membership, link to parents | Default |
    | Teachers | Teacher records, branch membership | Default |
    | Courses | Courses per branch, assigned teachers | Default |

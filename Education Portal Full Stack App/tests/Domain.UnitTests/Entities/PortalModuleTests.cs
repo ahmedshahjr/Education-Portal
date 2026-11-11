@@ -1,11 +1,15 @@
 using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.Enums;
 using NUnit.Framework;
 using Shouldly;
 
 namespace EducationPortal.Domain.UnitTests.Entities;
 
-/// <summary>Core modules are always on; default modules are on unless a school has its own choice; custom modules are off.</summary>
+/// <summary>
+/// A module is Default (on unless a school has its own choice) or Custom (off unless switched on), and an inactive module
+/// is off for every school.
+/// </summary>
 public class PortalModuleTests
 {
     [TestCase(null, true)]
@@ -13,7 +17,7 @@ public class PortalModuleTests
     [TestCase(false, false)]
     public void ShouldLetASchoolsChoiceWinOverADefaultModule(bool? choice, bool expected)
     {
-        var module = PortalModule.Create(ModuleKeys.Students, "Students", "", isCore: false, isDefault: true);
+        var module = PortalModule.Create(ModuleKeys.Students, "Students", "", ModuleType.Default);
 
         module.IsEnabledFor(choice).ShouldBe(expected);
     }
@@ -23,46 +27,52 @@ public class PortalModuleTests
     [TestCase(false, false)]
     public void ShouldKeepACustomModuleOffUntilSwitchedOn(bool? choice, bool expected)
     {
-        var module = PortalModule.Create(ModuleKeys.Parents, "Parents", "", isCore: false, isDefault: false);
+        var module = PortalModule.Create(ModuleKeys.Parents, "Parents", "", ModuleType.Custom);
 
         module.IsEnabledFor(choice).ShouldBe(expected);
     }
 
-    [TestCase(null)]
-    [TestCase(false)]
-    public void ShouldKeepACoreModuleOn(bool? choice)
+    [TestCase(ModuleType.Default, null)]
+    [TestCase(ModuleType.Default, true)]
+    [TestCase(ModuleType.Custom, true)]
+    public void ShouldTurnAnInactiveModuleOffForEverySchool(ModuleType type, bool? choice)
     {
-        var module = PortalModule.Create(ModuleKeys.Branches, "Branches", "", isCore: true, isDefault: false);
+        var module = PortalModule.Create(ModuleKeys.Grades, "Grades", "", type);
 
-        module.IsDefault.ShouldBeTrue();
-        module.IsEnabledFor(choice).ShouldBeTrue();
+        module.Deactivate();
+
+        module.IsActive.ShouldBeFalse();
+        module.IsEnabledFor(choice).ShouldBeFalse();
     }
 
     [Test]
-    public void ShouldRefuseToMakeACoreModuleCustom()
+    public void ShouldStartActiveAndComeBackOnWhenActivated()
     {
-        var module = PortalModule.Create(ModuleKeys.Branches, "Branches", "", isCore: true, isDefault: true);
+        var module = PortalModule.Create(ModuleKeys.Grades, "Grades", "", ModuleType.Default);
+        module.IsActive.ShouldBeTrue();
 
-        Should.Throw<InvalidOperationException>(() => module.SetDefault(false));
+        module.Deactivate();
+        module.Activate();
+
+        module.IsEnabledFor(null).ShouldBeTrue();
     }
 
     [Test]
-    public void ShouldSwitchADefaultModuleToCustom()
+    public void ShouldChangeTheType()
     {
-        var module = PortalModule.Create(ModuleKeys.Grades, "Grades", "", isCore: false, isDefault: true);
+        var module = PortalModule.Create(ModuleKeys.Branches, "Branches", "", ModuleType.Default);
 
-        module.SetDefault(false);
+        module.SetType(ModuleType.Custom);
 
-        module.IsDefault.ShouldBeFalse();
+        module.Type.ShouldBe(ModuleType.Custom);
         module.IsEnabledFor(null).ShouldBeFalse();
     }
 
-    [Test]
-    public void ShouldRefuseAPerSchoolChoiceForACoreModule()
+    [TestCase(0)]
+    [TestCase(3)]
+    public void ShouldRefuseAnUnknownType(int type)
     {
-        var module = PortalModule.Create(ModuleKeys.UsersAndRoles, "Users & Roles", "", isCore: true, isDefault: true);
-
-        Should.Throw<InvalidOperationException>(() => SchoolModule.Create(1, module, isEnabled: false));
+        Should.Throw<ArgumentOutOfRangeException>(() => PortalModule.Create(ModuleKeys.Grades, "Grades", "", (ModuleType)type));
     }
 
     [Test]
@@ -71,7 +81,6 @@ public class PortalModuleTests
         var keys = typeof(ModuleKeys).GetFields().Select(f => (string)f.GetValue(null)!).ToList();
 
         ModuleCatalog.CreateModules().Select(m => m.Key).ShouldBe(keys, ignoreOrder: true);
-        ModuleCatalog.CreateModules().Where(m => m.IsCore).Select(m => m.Key)
-            .ShouldBe([ModuleKeys.Branches, ModuleKeys.UsersAndRoles], ignoreOrder: true);
+        ModuleCatalog.CreateModules().ShouldAllBe(m => m.IsActive);
     }
 }

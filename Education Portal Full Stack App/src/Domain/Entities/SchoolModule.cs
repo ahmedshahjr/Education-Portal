@@ -3,7 +3,7 @@ namespace EducationPortal.Domain.Entities;
 /// <summary>
 /// The master tenant's choice to switch a module on or off for one school. It wins over the module's default, so a
 /// school keeps it when the default changes later. Owned by the school (<c>SchoolId</c>) and covered by the tenant query
-/// filter (SEC-AUTHZ-03). Core modules never have one.
+/// filter (SEC-AUTHZ-03).
 /// </summary>
 public class SchoolModule : BaseAuditableEntity
 {
@@ -22,15 +22,10 @@ public class SchoolModule : BaseAuditableEntity
         IsEnabled = isEnabled;
     }
 
-    /// <summary>Records a choice for a module. Throws for a core module, which cannot be switched off or on.</summary>
+    /// <summary>Records the master's choice for a module.</summary>
     public static SchoolModule Create(int schoolId, PortalModule module, bool isEnabled)
     {
         ArgumentNullException.ThrowIfNull(module);
-
-        if (module.IsCore)
-        {
-            throw new InvalidOperationException("A core module is always on and cannot be switched per school.");
-        }
 
         return new SchoolModule(schoolId, module.Id, isEnabled);
     }

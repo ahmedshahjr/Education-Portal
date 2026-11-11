@@ -6,11 +6,12 @@ import { problemMessages } from '../../core/http/problem-details';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
-import { SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchoolModuleCommand } from '../../web-api-client';
+import { ModuleType, SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchoolModuleCommand } from '../../web-api-client';
 
 /**
  * Master portal: switches modules on or off for one school. The school's users can use only the modules that are on.
- * Core modules are always on; a choice made here wins over the module's default from then on.
+ * A choice made here wins over the module's type from then on. A module the master made inactive is off for every
+ * school, so its switch is locked here until it is active again.
  */
 @Component({
   selector: 'app-school-modules',
@@ -36,19 +37,20 @@ import { SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchoolModuleComman
                 <div class="mm-school-modules__text">
                   <div class="mm-school-modules__name">
                     {{ module.name }}
-                    @if (module.isCore) {
-                      <app-status-badge tone="primary" i18n="@@modules.core">Always on</app-status-badge>
-                    } @else if (module.isDefault) {
+                    @if (module.type === types.Default) {
                       <app-status-badge tone="success" i18n="@@modules.default">Default</app-status-badge>
                     } @else {
                       <app-status-badge tone="warning" i18n="@@modules.custom">Custom</app-status-badge>
+                    }
+                    @if (!module.isActive) {
+                      <app-status-badge tone="error" i18n="@@modules.inactive">Inactive</app-status-badge>
                     }
                   </div>
                   <div class="mm-school-modules__description">{{ module.description }}</div>
                 </div>
                 <mat-slide-toggle
                   [checked]="module.isEnabled"
-                  [disabled]="module.isCore || school().isMaster || saving() === module.key"
+                  [disabled]="school().isMaster || !module.isActive || saving() === module.key"
                   (change)="setEnabled(module, $event)"
                   aria-label="{{ module.name }} for {{ school().name }}"
                   i18n-aria-label="@@modules.enabledFor"
@@ -100,6 +102,8 @@ export class SchoolModulesComponent {
   private readonly snackBar = inject(MatSnackBar);
 
   readonly school = input.required<SchoolSummaryDto>();
+
+  protected readonly types = ModuleType;
 
   protected readonly modules = signal<readonly SchoolModuleDto[] | null>(null);
   protected readonly loadError = signal<string | null>(null);

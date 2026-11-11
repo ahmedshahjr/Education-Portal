@@ -13,6 +13,7 @@ public class PortalModuleConfiguration : IEntityTypeConfiguration<PortalModule>
         builder.Property(m => m.Key).IsRequired().HasMaxLength(PortalModule.KeyMaxLength);
         builder.Property(m => m.Name).IsRequired().HasMaxLength(PortalModule.NameMaxLength);
         builder.Property(m => m.Description).IsRequired().HasMaxLength(PortalModule.DescriptionMaxLength);
+        builder.Property(m => m.Type).IsRequired().HasConversion<string>().HasMaxLength(16);
 
         builder.HasIndex(m => m.Key).IsUnique();
     }

@@ -1,4 +1,4 @@
-using EducationPortal.Application.Modules.Commands.UpdateModuleDefault;
+using EducationPortal.Application.Modules.Commands.UpdateModule;
 using EducationPortal.Application.Modules.Common;
 using EducationPortal.Application.Modules.Queries.GetEnabledModules;
 using EducationPortal.Application.Modules.Queries.GetModules;
@@ -23,13 +23,13 @@ public class Modules : IEndpointGroup
         groupBuilder.MapGet(GetEnabledModules, "enabled")
             .RequireAuthorization();
 
-        groupBuilder.MapPut(UpdateModuleDefault, "{key}/default")
+        groupBuilder.MapPut(UpdateModule, "{key}")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
     }
 
     [EndpointSummary("List modules")]
-    [EndpointDescription("Returns every module and whether it is core (always on), default (on for every school unless switched off) or custom (off unless switched on). Master tenant only.")]
+    [EndpointDescription("Returns every module and its type, Default (on for every school unless switched off) or Custom (off unless switched on), and whether it is active. Master tenant only.")]
     public static async Task<Ok<IReadOnlyList<ModuleDto>>> GetModules(ISender sender)
     {
         return TypedResults.Ok(await sender.Send(new GetModulesQuery()));
@@ -42,9 +42,9 @@ public class Modules : IEndpointGroup
         return TypedResults.Ok(await sender.Send(new GetEnabledModulesQuery()));
     }
 
-    [EndpointSummary("Make a module default or custom")]
-    [EndpointDescription("A default module is on for every school unless the master switched it off for that school; a custom module is off unless switched on. Core modules are always default. Master tenant only.")]
-    public static async Task<NoContent> UpdateModuleDefault(ISender sender, string key, UpdateModuleDefaultCommand command)
+    [EndpointSummary("Change a module")]
+    [EndpointDescription("Sets the module's type, Default (on for every school unless the master switched it off for that school) or Custom (off unless switched on), and whether it is active. An inactive module is off for every school. Master tenant only.")]
+    public static async Task<NoContent> UpdateModule(ISender sender, string key, UpdateModuleCommand command)
     {
         // The route names the module; a key in the body is ignored.
         await sender.Send(command with { Key = key });
