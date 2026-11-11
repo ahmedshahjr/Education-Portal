@@ -122,13 +122,19 @@ flowchart LR
         api["webapi<br/>ASP.NET Core API"]
         db[("dbserver<br/>PostgreSQL<br/>EducationPortalDb")]
         vault[("vault<br/>HashiCorp Vault<br/>dev mode")]
+        collector["otel-collector<br/>OpenTelemetry Collector"]
+        obs[("prometheus, loki, jaeger<br/>metrics, logs, traces")]
+        grafana["grafana<br/>dashboards"]
     end
     dashboard["Aspire dashboard<br/>logs, traces, metrics"]
     browser --> frontend
     frontend -->|"proxies /api, /openapi, /scalar"| api
     api -->|"EF Core"| db
     api -->|"ISecretProvider"| vault
-    api -.->|"OpenTelemetry"| dashboard
+    api -.->|"OTLP"| collector
+    collector -.-> obs
+    collector -.-> dashboard
+    grafana --> obs
 ```
 
 | Resource | Source | What it does |
@@ -137,6 +143,9 @@ flowchart LR
 | `webapi` | `src/Web` | The API. Also serves the Scalar API reference at `/scalar` and, in production, the built Angular app. |
 | `dbserver` | Container | PostgreSQL with the `EducationPortalDb` database. The container is persistent: it keeps running after you stop the app, until you stop it in Docker Desktop. |
 | `vault` | Container | HashiCorp Vault in dev mode on `http://localhost:8200`, the local secret store ([secrets](#secrets)). Persistent like `dbserver`, but its data lives in memory. Development only. |
+| `otel-collector` | Container | OpenTelemetry Collector on `localhost:4317` (gRPC) and `4318` (HTTP). The API's only telemetry endpoint; forwards to Prometheus, Loki, Jaeger and the Aspire dashboard ([observability](#observability)). Development only. |
+| `prometheus`, `loki`, `jaeger` | Containers | Metrics on `http://localhost:9090`, logs on `http://localhost:3100`, traces on `http://localhost:16686`. Persistent, with named volumes and 7 days of data. Development only. |
+| `grafana` | Container | Dashboards on `http://localhost:3000` (anonymous admin, local only), with the three data sources and the **Education Portal overview** dashboard provisioned. Development only. |
 
 Every local container is declared in the AppHost as an Aspire resource. The project has no docker-compose files (AGENTS.md section 6).
 
@@ -162,9 +171,9 @@ flowchart TB
 |---|---|---|
 | `Domain` | Entities, value objects, enums, domain events, constants | nothing |
 | `Application` | Use cases as MediatR commands and queries, FluentValidation validators, DTOs and AutoMapper maps, pipeline behaviours, interfaces | `Domain` |
-| `Infrastructure` | `ApplicationDbContext` (EF Core + Identity), entity configurations, save interceptors, `IdentityService`, database initialiser and seed data | `Application`, `Shared` |
+| `Infrastructure` | `ApplicationDbContext` (EF Core + Identity), entity configurations, save interceptors, `IdentityService`, database initialiser and seed data, the secrets layer, OpenTelemetry setup (`AddObservability`) | `Application`, `Shared` |
 | `Web` | The ASP.NET Core host: endpoint groups in `Endpoints/`, `CurrentUser`, `ProblemDetailsExceptionHandler`, OpenAPI and Scalar, the Angular app | `Application`, `Infrastructure`, `ServiceDefaults` |
-| `ServiceDefaults` | OpenTelemetry, health checks, HTTP resilience, service discovery | nothing |
+| `ServiceDefaults` | Health checks, HTTP resilience, service discovery | nothing |
 | `Shared` | Aspire resource names used by the AppHost, `Infrastructure` and the tests | nothing |
 | `AppHost` | Aspire orchestration (the startup project) | `Web`, `Shared` |
 
@@ -325,7 +334,7 @@ The scripts read the token from the AppHost's user-secrets (or `VAULT_TOKEN`) an
 
 ### Observability
 
-`ServiceDefaults` sends OpenTelemetry logs, traces and metrics to the Aspire dashboard, adds resilience and service discovery to `HttpClient`, and maps the health endpoints `/health` and `/alive` (Development only). EF Core and PostgreSQL calls show up in the traces. Security-relevant actions, such as sign-ins, role and module changes and cross-tenant attempts, will also write audit events.
+The API sends OpenTelemetry logs, metrics and traces over OTLP to one endpoint, `Observability:OtlpEndpoint` ([ADR-007](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-007-OpenTelemetry-Observability.md)), so the backend can change by configuration alone. Locally that is the `otel-collector` container, which forwards metrics to Prometheus, logs to Loki, traces to Jaeger and a copy of everything to the Aspire dashboard. Grafana (`http://localhost:3000`) links a trace to its logs and back by trace id, and its **Education Portal overview** dashboard shows request rate, error rate, p95 latency, the slowest endpoints and the vault cache hit ratio. Every request span and log line carries `tenant.id` (the SchoolId); EF Core and PostgreSQL calls show up in the traces. How to start it, the walkthrough, what must never be recorded and how to add a span or metric are in [docs/observability.md](Education%20Portal%20Full%20Stack%20App/docs/observability.md). `ServiceDefaults` adds resilience and service discovery to `HttpClient` and maps the health endpoints `/health` and `/alive` (Development only). Security-relevant actions, such as sign-ins, role and module changes and cross-tenant attempts, will also write audit events.
 
 ### Tests
 
@@ -534,6 +543,7 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | Database connection | Passed in by Aspire as `ConnectionStrings__EducationPortalDb` |
 | Development seed accounts | `administrator@localhost` (master tenant, on `localhost`), `administrator@demo.localhost` (Demo School, Pakistan, on `demo.localhost`) and `administrator@uae.localhost` (Demo School UAE, on `uae.localhost`), password `Local-Dev-Only-2026!` (local database, Development only) |
 | Allowed hosts | `localhost` and `*.localhost` in Development (`AllowedHosts`); each school's domain is added when it is deployed |
+| Observability | `Observability:OtlpEndpoint` (set to the local Collector by Aspire), `TraceSampleRatio` (1.0 in Development, 0.1 elsewhere), `TenantIdAsMetricLabel` (off), `Enabled`. Grafana `http://localhost:3000`, Prometheus `http://localhost:9090`, Jaeger `http://localhost:16686`, Loki `http://localhost:3100`, Collector `localhost:4317`/`4318` ([docs/observability.md](Education%20Portal%20Full%20Stack%20App/docs/observability.md)) |
 | Secrets | `Secrets:Provider` selects the store ([secrets](#secrets)). Locally Aspire runs HashiCorp Vault on `http://localhost:8200` and sets it up for you. Store credentials come from environment variables or user-secrets; never put secrets in `appsettings*.json` or any other file in the repository. |
 
 ## Troubleshooting

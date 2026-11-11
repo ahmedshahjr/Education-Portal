@@ -3,6 +3,7 @@ using EducationPortal.Application.Common.Secrets;
 using EducationPortal.Infrastructure.Secrets;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -26,7 +27,7 @@ public static class SecretsDependencyInjection
     };
 
     /// <summary>
-    /// Registers the store that <c>Secrets:Provider</c> selects, wrapped in retries and the cache, as
+    /// Registers the store that <c>Secrets:Provider</c> selects, wrapped in retries, the cache and tracing, as
     /// <see cref="ISecretProvider"/>, and <see cref="ITenantSecretProvider"/> per request. With no provider set,
     /// any secret use fails with a clear message and the app runs on normal configuration.
     /// </summary>
@@ -54,10 +55,17 @@ public static class SecretsDependencyInjection
                 SecretProviderFactory.Create(provider.GetRequiredService<IOptions<SecretsOptions>>().Value),
                 ResilientSecretProvider.CreatePipeline(provider.GetRequiredService<ILogger<ResilientSecretProvider>>())));
 
-        services.AddSingleton<ISecretProvider>(provider => new CachedSecretProvider(
-            provider.GetRequiredKeyedService<ISecretProvider>(UncachedProviderKey),
-            provider.GetRequiredService<IMemoryCache>(),
-            provider.GetRequiredService<IOptions<SecretsOptions>>()));
+        services.AddMetrics();
+        services.TryAddSingleton<SecretsTelemetry>();
+
+        // Spans wrap the cache, so each span says whether the value came from the cache (ADR-007).
+        services.AddSingleton<ISecretProvider>(provider => new InstrumentedSecretProvider(
+            new CachedSecretProvider(
+                provider.GetRequiredKeyedService<ISecretProvider>(UncachedProviderKey),
+                provider.GetRequiredService<IMemoryCache>(),
+                provider.GetRequiredService<IOptions<SecretsOptions>>(),
+                provider.GetRequiredService<SecretsTelemetry>()),
+            provider.GetRequiredService<IOptions<SecretsOptions>>().Value.Kind?.ToString() ?? "unknown"));
 
         services.AddHealthChecks().Add(new HealthCheckRegistration(
             SecretProviderHealthCheck.Name,

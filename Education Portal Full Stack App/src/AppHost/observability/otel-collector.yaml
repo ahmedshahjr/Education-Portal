@@ -1,0 +1,59 @@
+# Local OpenTelemetry Collector (ADR-007, docs/observability.md). The app sends logs, metrics and traces here over
+# OTLP; the Collector forwards metrics to Prometheus, logs to Loki and traces to Jaeger, and copies everything to the
+# Aspire dashboard. Endpoints come from environment variables that the AppHost sets.
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  # First in every pipeline, so the Collector refuses data instead of running out of memory.
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 80
+    spike_limit_percentage: 25
+  batch: {}
+
+exporters:
+  # Prometheus 3 receives OTLP natively (--web.enable-otlp-receiver).
+  otlphttp/prometheus:
+    endpoint: ${env:PROMETHEUS_OTLP_ENDPOINT}
+  # Loki 3 receives OTLP natively at /otlp; the old loki exporter is deprecated.
+  otlphttp/loki:
+    endpoint: ${env:LOKI_OTLP_ENDPOINT}
+  # Jaeger v2 receives OTLP natively.
+  otlp/jaeger:
+    endpoint: ${env:JAEGER_OTLP_ENDPOINT}
+    tls:
+      insecure: true
+  # The Aspire dashboard keeps working: the AppHost passes its OTLP endpoint and API key.
+  otlp/aspire:
+    endpoint: ${env:OTEL_EXPORTER_OTLP_ENDPOINT}
+    headers:
+      x-otlp-api-key: ${env:ASPIRE_OTLP_API_KEY}
+    # Plain gRPC only when the dashboard itself listens on http ("http" launch profile, local only).
+    tls:
+      insecure: ${env:ASPIRE_OTLP_INSECURE}
+
+service:
+  extensions: [health_check]
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlphttp/prometheus, otlp/aspire]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlphttp/loki, otlp/aspire]
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/jaeger, otlp/aspire]

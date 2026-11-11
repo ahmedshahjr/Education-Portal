@@ -10,8 +10,13 @@ namespace EducationPortal.Infrastructure.Secrets;
 /// each time (ADR-006). Values are loaded on first use, never all at startup. The cache key is the logical key, which
 /// includes the tenant id, so one school's entry is never served for another. Set and Delete evict the entry.
 /// Missing secrets are not cached, so a secret added outside the app is seen on the next read.
+/// Each read is counted as a cache hit or miss when <paramref name="telemetry"/> is given (ADR-007).
 /// </summary>
-public sealed class CachedSecretProvider(ISecretProvider inner, IMemoryCache cache, IOptions<SecretsOptions> options)
+public sealed class CachedSecretProvider(
+    ISecretProvider inner,
+    IMemoryCache cache,
+    IOptions<SecretsOptions> options,
+    SecretsTelemetry? telemetry = null)
     : ISecretProvider
 {
     private const string CacheKeyPrefix = "EducationPortal.Secrets:";
@@ -24,8 +29,11 @@ public sealed class CachedSecretProvider(ISecretProvider inner, IMemoryCache cac
 
         if (cache.TryGetValue(CacheKey(key), out string? cached))
         {
+            telemetry?.RecordCacheLookup(hit: true);
             return cached;
         }
+
+        telemetry?.RecordCacheLookup(hit: false);
 
         var value = await inner.GetSecretAsync(key, cancellationToken);
 

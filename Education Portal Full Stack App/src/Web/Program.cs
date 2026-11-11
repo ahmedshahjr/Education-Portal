@@ -7,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.AddServiceDefaults();
 
+// Logs, metrics and traces over OTLP to Observability:OtlpEndpoint (ADR-007).
+builder.Services.AddObservability(builder.Configuration, builder.Environment);
+
 // Platform secrets (such as the database connection string) come from the secret store chosen by Secrets:Provider,
 // before the DbContext is registered. Without a provider, normal configuration is used (ADR-006).
 await builder.AddPlatformSecretsAsync();
@@ -33,6 +36,9 @@ app.UseSecurityHeaders();
 
 // Every request belongs to the school that owns its host; unknown hosts get 404 and nothing else (SEC-AUTHZ-10).
 app.UseTenantResolution();
+
+// tenant.id on the request's span and log scope, once the tenant is known (ADR-007).
+app.UseTenantTelemetry();
 
 // The language comes from the visitor's choice or browser, limited to the school's languages, so it runs after the
 // tenant is known. Server messages (validation, problem details) are then in that language.

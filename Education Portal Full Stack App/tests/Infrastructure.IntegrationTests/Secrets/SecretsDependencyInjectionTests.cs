@@ -34,7 +34,8 @@ public class SecretsDependencyInjectionTests
             ["Secrets:HashiCorp:Token"] = "test-token",
         });
 
-        services.GetRequiredService<ISecretProvider>().ShouldBeOfType<CachedSecretProvider>();
+        services.GetRequiredService<ISecretProvider>().ShouldBeOfType<InstrumentedSecretProvider>()
+            .Inner.ShouldBeOfType<CachedSecretProvider>();
         services.GetRequiredKeyedService<ISecretProvider>(SecretsDependencyInjection.UncachedProviderKey)
             .ShouldBeOfType<ResilientSecretProvider>()
             .Inner.ShouldBeOfType<HashiCorpVaultSecretProvider>();
