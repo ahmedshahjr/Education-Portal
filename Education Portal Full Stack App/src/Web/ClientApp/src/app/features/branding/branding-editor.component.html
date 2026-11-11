@@ -69,6 +69,7 @@
             </label>
             @if (logoPreview() ?? currentLogoUrl(); as src) {
               <img class="mm-branding__thumb" [src]="src" alt="Current logo" i18n-alt="@@branding.currentLogo" />
+              <button mat-button type="button" (click)="viewImage('logo')" i18n="@@branding.viewLogo">View logo</button>
             }
             @if (hasLogo()) {
               <button mat-button type="button" (click)="remove('logo')" i18n="@@branding.removeLogo">Remove logo</button>
@@ -90,6 +91,7 @@
             </label>
             @if (currentFaviconUrl(); as src) {
               <img class="mm-branding__thumb" [src]="src" alt="Current favicon" i18n-alt="@@branding.currentFavicon" />
+              <button mat-button type="button" (click)="viewImage('favicon')" i18n="@@branding.viewFavicon">View favicon</button>
             }
             @if (hasFavicon()) {
               <button mat-button type="button" (click)="remove('favicon')" i18n="@@branding.removeFavicon">Remove favicon</button>

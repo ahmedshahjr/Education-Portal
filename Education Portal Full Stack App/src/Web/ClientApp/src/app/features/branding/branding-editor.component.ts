@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,7 +11,10 @@ import { contrastRatio, sidebarPalette } from '../../core/branding/sidebar-palet
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
 import { BrandingDto, BrandingImageKind } from '../../web-api-client';
 import { BrandingChanges, FAVICON_TYPES, fileProblem, LOGO_TYPES } from './branding-changes';
+import { ImageViewerComponent, ImageViewerData } from './image-viewer.component';
 
+const VIEW_LOGO = $localize`:@@branding.viewLogo:View logo`;
+const VIEW_FAVICON = $localize`:@@branding.viewFavicon:View favicon`;
 const DEFAULT_ACCENT_COLOR = '#00a1ff';
 const DEFAULT_SIDEBAR_COLOR = '#1f2a3d';
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
@@ -27,6 +31,8 @@ const HEX_COLOR = /^#[0-9a-f]{6}$/i;
   styleUrl: './branding-editor.component.scss',
 })
 export class BrandingEditorComponent {
+  private readonly dialog = inject(MatDialog);
+
   readonly branding = input.required<BrandingDto>();
   /** Where the current logo and favicon are read from: this school's own, or any school's in the master portal. */
   readonly imagesBase = input('api/Branding/images');
@@ -92,6 +98,17 @@ export class BrandingEditorComponent {
 
   protected setSidebarColor(event: Event): void {
     this.sidebarColor.set((event.target as HTMLInputElement).value.trim());
+  }
+
+  /** Opens the logo or favicon at full size: the one chosen now, or else the school's current one. */
+  protected viewImage(kind: 'logo' | 'favicon'): void {
+    const src = kind === 'logo' ? (this.logoPreview() ?? this.currentLogoUrl()) : this.currentFaviconUrl();
+    if (!src) {
+      return;
+    }
+
+    const data: ImageViewerData = { title: kind === 'logo' ? VIEW_LOGO : VIEW_FAVICON, src };
+    this.dialog.open(ImageViewerComponent, { data, maxWidth: '90vw' });
   }
 
   protected chooseFile(event: Event, kind: 'logo' | 'favicon'): void {

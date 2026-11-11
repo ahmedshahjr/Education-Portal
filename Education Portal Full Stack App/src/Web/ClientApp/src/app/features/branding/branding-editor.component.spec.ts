@@ -1,12 +1,16 @@
 import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { describe, expect, it } from 'vitest';
 import { BrandingDto } from '../../web-api-client';
 import { BrandingChanges } from './branding-changes';
 import { BrandingEditorComponent } from './branding-editor.component';
+import { ImageViewerComponent } from './image-viewer.component';
+
+const openDialog = vi.fn();
 
 async function render(branding: BrandingDto, imagesBase?: string) {
-  TestBed.configureTestingModule({ imports: [BrandingEditorComponent] });
+  TestBed.configureTestingModule({ imports: [BrandingEditorComponent], providers: [{ provide: MatDialog, useValue: { open: openDialog } }] });
   const fixture = TestBed.createComponent(BrandingEditorComponent);
   fixture.componentRef.setInput('branding', branding);
   if (imagesBase) {
@@ -19,6 +23,23 @@ async function render(branding: BrandingDto, imagesBase?: string) {
 }
 
 describe('BrandingEditorComponent', () => {
+  beforeEach(() => openDialog.mockClear());
+
+  it('opens the current logo and favicon full size from their view buttons', async () => {
+    const { element } = await render(new BrandingDto({ ...branding, logoVersion: 'abc', faviconVersion: 'def' }), 'api/Schools/7/branding/images');
+
+    [...element.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.includes('View logo'))!.click();
+    [...element.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.includes('View favicon'))!.click();
+
+    expect(openDialog).toHaveBeenNthCalledWith(1, ImageViewerComponent, expect.objectContaining({ data: { title: 'View logo', src: 'api/Schools/7/branding/images/Logo?v=abc' } }));
+    expect(openDialog).toHaveBeenNthCalledWith(2, ImageViewerComponent, expect.objectContaining({ data: { title: 'View favicon', src: 'api/Schools/7/branding/images/Favicon?v=def' } }));
+  });
+
+  it('shows no view button when the school has no logo', async () => {
+    const { element } = await render(branding);
+
+    expect([...element.querySelectorAll<HTMLButtonElement>('button')].some((b) => b.textContent?.includes('View logo'))).toBe(false);
+  });
   const branding = new BrandingDto({ schoolName: 'Demo School', isMaster: false, accentColor: '#00a1ff', sidebarColor: undefined, logoVersion: undefined, faviconVersion: undefined });
 
   it('saves the accent colour picked as a hex colour', async () => {
