@@ -5,7 +5,7 @@ using Shouldly;
 
 namespace EducationPortal.Domain.UnitTests.Entities;
 
-/// <summary>Core modules are always on; default modules are on unless a school has its own choice; custom modules are off.</summary>
+/// <summary>Default modules are on unless a school has its own choice; custom modules are off unless switched on.</summary>
 public class PortalModuleTests
 {
     [TestCase(null, true)]
@@ -13,7 +13,7 @@ public class PortalModuleTests
     [TestCase(false, false)]
     public void ShouldLetASchoolsChoiceWinOverADefaultModule(bool? choice, bool expected)
     {
-        var module = PortalModule.Create(ModuleKeys.Students, "Students", "", isCore: false, isDefault: true);
+        var module = PortalModule.Create(ModuleKeys.Students, "Students", "", isDefault: true);
 
         module.IsEnabledFor(choice).ShouldBe(expected);
     }
@@ -23,33 +23,15 @@ public class PortalModuleTests
     [TestCase(false, false)]
     public void ShouldKeepACustomModuleOffUntilSwitchedOn(bool? choice, bool expected)
     {
-        var module = PortalModule.Create(ModuleKeys.Parents, "Parents", "", isCore: false, isDefault: false);
+        var module = PortalModule.Create(ModuleKeys.Parents, "Parents", "", isDefault: false);
 
         module.IsEnabledFor(choice).ShouldBe(expected);
-    }
-
-    [TestCase(null)]
-    [TestCase(false)]
-    public void ShouldKeepACoreModuleOn(bool? choice)
-    {
-        var module = PortalModule.Create(ModuleKeys.Branches, "Branches", "", isCore: true, isDefault: false);
-
-        module.IsDefault.ShouldBeTrue();
-        module.IsEnabledFor(choice).ShouldBeTrue();
-    }
-
-    [Test]
-    public void ShouldRefuseToMakeACoreModuleCustom()
-    {
-        var module = PortalModule.Create(ModuleKeys.Branches, "Branches", "", isCore: true, isDefault: true);
-
-        Should.Throw<InvalidOperationException>(() => module.SetDefault(false));
     }
 
     [Test]
     public void ShouldSwitchADefaultModuleToCustom()
     {
-        var module = PortalModule.Create(ModuleKeys.Grades, "Grades", "", isCore: false, isDefault: true);
+        var module = PortalModule.Create(ModuleKeys.Grades, "Grades", "", isDefault: true);
 
         module.SetDefault(false);
 
@@ -58,11 +40,15 @@ public class PortalModuleTests
     }
 
     [Test]
-    public void ShouldRefuseAPerSchoolChoiceForACoreModule()
+    public void ShouldSwitchACustomModuleToDefault()
     {
-        var module = PortalModule.Create(ModuleKeys.UsersAndRoles, "Users & Roles", "", isCore: true, isDefault: true);
+        var module = PortalModule.Create(ModuleKeys.Branches, "Branches", "", isDefault: false);
 
-        Should.Throw<InvalidOperationException>(() => SchoolModule.Create(1, module, isEnabled: false));
+        module.SetDefault(true);
+
+        module.IsDefault.ShouldBeTrue();
+        module.IsEnabledFor(null).ShouldBeTrue();
+        module.IsEnabledFor(false).ShouldBeFalse();
     }
 
     [Test]
@@ -71,7 +57,5 @@ public class PortalModuleTests
         var keys = typeof(ModuleKeys).GetFields().Select(f => (string)f.GetValue(null)!).ToList();
 
         ModuleCatalog.CreateModules().Select(m => m.Key).ShouldBe(keys, ignoreOrder: true);
-        ModuleCatalog.CreateModules().Where(m => m.IsCore).Select(m => m.Key)
-            .ShouldBe([ModuleKeys.Branches, ModuleKeys.UsersAndRoles], ignoreOrder: true);
     }
 }

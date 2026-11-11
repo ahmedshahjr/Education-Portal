@@ -19,7 +19,7 @@ public class ModuleTests : TestBase
     private const string SchoolAdminEmail = "admin@school1.local";
 
     [Test]
-    public async Task ShouldGiveANewSchoolTheCoreAndDefaultModules()
+    public async Task ShouldGiveANewSchoolTheDefaultModules()
     {
         await TestApp.AddSchoolAsync("School One", SchoolDomain);
         using var school = await SignInToSchoolAsync();
@@ -29,7 +29,7 @@ public class ModuleTests : TestBase
         enabled.ShouldBe(
             ModuleCatalog.CreateModules().Where(m => m.IsDefault).Select(m => m.Key).ToList(),
             ignoreOrder: true);
-        enabled.ShouldContain(ModuleKeys.Branches);
+        enabled.ShouldContain(ModuleKeys.Students);
         enabled.ShouldNotContain(ModuleKeys.Parents);
     }
 
@@ -96,18 +96,23 @@ public class ModuleTests : TestBase
     }
 
     [Test]
-    public async Task ShouldKeepCoreModulesOn()
+    public async Task ShouldTreatEveryModuleAsDefaultOrCustom()
     {
         var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
 
+        // No module is locked on: Branches can be switched off for a school and Users & Roles made custom.
         using var perSchool = await master.PutAsync($"/api/Schools/{schoolId}/modules/{ModuleKeys.Branches}", new { isEnabled = false });
         using var custom = await master.PutAsync($"/api/Modules/{ModuleKeys.UsersAndRoles}/default", new { isDefault = false });
 
-        perSchool.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        custom.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        (await TestApp.CountAsync<SchoolModule>()).ShouldBe(0);
+        perSchool.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        custom.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        var modules = await ReadSchoolModulesAsync(master, schoolId);
+        modules.Single(m => m.Key == ModuleKeys.Branches).IsEnabled.ShouldBeFalse();
+        modules.Single(m => m.Key == ModuleKeys.UsersAndRoles).ShouldSatisfyAllConditions(
+            m => m.IsDefault.ShouldBeFalse(),
+            m => m.IsEnabled.ShouldBeFalse());
     }
 
     [Test]

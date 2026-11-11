@@ -12,7 +12,7 @@ import { ModuleDto, ModulesClient, UpdateModuleDefaultCommand } from '../../web-
 
 /**
  * Master portal: the portal's modules and which are default (on for every school unless switched off for one) or custom
- * (off unless switched on for a school). Core modules are always on. Switch modules per school on the Schools page.
+ * (off unless switched on for a school). Switch modules per school on the Schools page.
  * Master tenant administrators only; the server enforces it.
  */
 @Component({
@@ -60,9 +60,7 @@ import { ModuleDto, ModulesClient, UpdateModuleDefaultCommand } from '../../web-
             <ng-container matColumnDef="kind">
               <th mat-header-cell *matHeaderCellDef i18n="@@modules.kind">Type</th>
               <td mat-cell *matCellDef="let module">
-                @if (module.isCore) {
-                  <app-status-badge tone="primary" i18n="@@modules.core">Always on</app-status-badge>
-                } @else if (module.isDefault) {
+                @if (module.isDefault) {
                   <app-status-badge tone="success" i18n="@@modules.default">Default</app-status-badge>
                 } @else {
                   <app-status-badge tone="warning" i18n="@@modules.custom">Custom</app-status-badge>
@@ -75,7 +73,7 @@ import { ModuleDto, ModulesClient, UpdateModuleDefaultCommand } from '../../web-
               <td mat-cell *matCellDef="let module">
                 <mat-slide-toggle
                   [checked]="module.isDefault"
-                  [disabled]="module.isCore || saving() === module.key"
+                  [disabled]="saving() === module.key"
                   (change)="setDefault(module, $event)"
                   aria-label="{{ module.name }} is on for every school"
                   i18n-aria-label="@@modules.defaultOf"

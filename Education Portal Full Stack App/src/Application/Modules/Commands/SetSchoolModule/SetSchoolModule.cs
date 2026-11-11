@@ -6,8 +6,8 @@ using EducationPortal.Domain.Constants;
 namespace EducationPortal.Application.Modules.Commands.SetSchoolModule;
 
 /// <summary>
-/// Switches a module on or off for one school. The choice wins over the module's default from then on. Core modules and
-/// the master tenant itself cannot be changed. A master-tenant use case, so the school id may come from the route
+/// Switches a module on or off for one school. The choice wins over the module's default from then on. The master tenant
+/// itself cannot be changed. A master-tenant use case, so the school id may come from the route
 /// (SEC-AUTHZ-04, SEC-AUTHZ-07). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
@@ -26,10 +26,6 @@ public class SetSchoolModuleCommandValidator : AbstractValidator<SetSchoolModule
     {
         RuleFor(c => c.SchoolId).GreaterThan(0);
         RuleFor(c => c.Key).NotEmpty().MaximumLength(PortalModule.KeyMaxLength);
-
-        RuleFor(c => c.Key)
-            .MustAsync(async (key, cancellationToken) => !await context.Modules.AnyAsync(m => m.Key == key && m.IsCore, cancellationToken))
-            .WithMessage("A core module is always on and cannot be switched per school.");
 
         RuleFor(c => c.SchoolId)
             .MustAsync(async (schoolId, cancellationToken) => !await context.Schools.AnyAsync(s => s.Id == schoolId && s.IsMaster, cancellationToken))

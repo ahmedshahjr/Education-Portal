@@ -1,8 +1,8 @@
 namespace EducationPortal.Application.Common.Interfaces;
 
 /// <summary>
-/// Answers which modules a school may use (AGENTS.md section 2, SEC-AUTHZ-01). A core module is always on; otherwise the
-/// master tenant's choice for the school wins, and without one the module's default applies.
+/// Answers which modules a school may use (AGENTS.md section 2, SEC-AUTHZ-01). The master tenant's choice for the school
+/// wins; without one, the module's default applies.
 /// </summary>
 public interface IModuleAccess
 {

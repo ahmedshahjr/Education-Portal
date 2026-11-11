@@ -6,8 +6,7 @@ namespace EducationPortal.Application.Modules.Commands.UpdateModuleDefault;
 
 /// <summary>
 /// Makes a module default (on for every school unless the master switched it off for that school) or custom (off unless
-/// switched on). Schools with their own choice keep it. Core modules are always default. Master tenant administrators
-/// only (SEC-AUTHZ-07); audited (SEC-LOG-03).
+/// switched on). Schools with their own choice keep it. Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
 public record UpdateModuleDefaultCommand : IRequest
@@ -19,15 +18,9 @@ public record UpdateModuleDefaultCommand : IRequest
 
 public class UpdateModuleDefaultCommandValidator : AbstractValidator<UpdateModuleDefaultCommand>
 {
-    public UpdateModuleDefaultCommandValidator(IApplicationDbContext context)
+    public UpdateModuleDefaultCommandValidator()
     {
         RuleFor(c => c.Key).NotEmpty().MaximumLength(PortalModule.KeyMaxLength);
-
-        RuleFor(c => c)
-            .MustAsync(async (command, cancellationToken) =>
-                command.IsDefault || !await context.Modules.AnyAsync(m => m.Key == command.Key && m.IsCore, cancellationToken))
-            .WithName(nameof(UpdateModuleDefaultCommand.IsDefault))
-            .WithMessage("A core module is always on for every school.");
     }
 }
 

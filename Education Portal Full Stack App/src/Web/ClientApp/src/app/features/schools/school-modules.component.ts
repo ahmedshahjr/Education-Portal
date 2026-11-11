@@ -10,7 +10,7 @@ import { SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchoolModuleComman
 
 /**
  * Master portal: switches modules on or off for one school. The school's users can use only the modules that are on.
- * Core modules are always on; a choice made here wins over the module's default from then on.
+ * A choice made here wins over the module's default from then on.
  */
 @Component({
   selector: 'app-school-modules',
@@ -36,9 +36,7 @@ import { SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchoolModuleComman
                 <div class="mm-school-modules__text">
                   <div class="mm-school-modules__name">
                     {{ module.name }}
-                    @if (module.isCore) {
-                      <app-status-badge tone="primary" i18n="@@modules.core">Always on</app-status-badge>
-                    } @else if (module.isDefault) {
+                    @if (module.isDefault) {
                       <app-status-badge tone="success" i18n="@@modules.default">Default</app-status-badge>
                     } @else {
                       <app-status-badge tone="warning" i18n="@@modules.custom">Custom</app-status-badge>
@@ -48,7 +46,7 @@ import { SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchoolModuleComman
                 </div>
                 <mat-slide-toggle
                   [checked]="module.isEnabled"
-                  [disabled]="module.isCore || school().isMaster || saving() === module.key"
+                  [disabled]="school().isMaster || saving() === module.key"
                   (change)="setEnabled(module, $event)"
                   aria-label="{{ module.name }} for {{ school().name }}"
                   i18n-aria-label="@@modules.enabledFor"

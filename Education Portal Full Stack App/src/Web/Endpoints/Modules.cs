@@ -29,7 +29,7 @@ public class Modules : IEndpointGroup
     }
 
     [EndpointSummary("List modules")]
-    [EndpointDescription("Returns every module and whether it is core (always on), default (on for every school unless switched off) or custom (off unless switched on). Master tenant only.")]
+    [EndpointDescription("Returns every module and whether it is default (on for every school unless switched off) or custom (off unless switched on). Master tenant only.")]
     public static async Task<Ok<IReadOnlyList<ModuleDto>>> GetModules(ISender sender)
     {
         return TypedResults.Ok(await sender.Send(new GetModulesQuery()));
@@ -43,7 +43,7 @@ public class Modules : IEndpointGroup
     }
 
     [EndpointSummary("Make a module default or custom")]
-    [EndpointDescription("A default module is on for every school unless the master switched it off for that school; a custom module is off unless switched on. Core modules are always default. Master tenant only.")]
+    [EndpointDescription("A default module is on for every school unless the master switched it off for that school; a custom module is off unless switched on. Master tenant only.")]
     public static async Task<NoContent> UpdateModuleDefault(ISender sender, string key, UpdateModuleDefaultCommand command)
     {
         // The route names the module; a key in the body is ignored.

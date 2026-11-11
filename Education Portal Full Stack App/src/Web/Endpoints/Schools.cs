@@ -51,7 +51,7 @@ public class Schools : IEndpointGroup
     }
 
     [EndpointSummary("Switch a module on or off for a school")]
-    [EndpointDescription("The choice wins over the module's default from then on. Core modules and the master tenant cannot be changed. Master tenant only.")]
+    [EndpointDescription("The choice wins over the module's default from then on. The master tenant cannot be changed. Master tenant only.")]
     public static async Task<NoContent> SetSchoolModule(ISender sender, int schoolId, string key, SetSchoolModuleCommand command)
     {
         // The route names the school and the module; values in the body are ignored.

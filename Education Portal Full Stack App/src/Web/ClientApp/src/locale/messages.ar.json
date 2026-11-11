@@ -106,7 +106,6 @@
     "modules.loadError": "تعذّر تحميل الوحدات",
     "modules.module": "الوحدة",
     "modules.kind": "النوع",
-    "modules.core": "مفعّلة دائمًا",
     "modules.default": "افتراضية",
     "modules.custom": "مخصصة",
     "modules.onForNewSchools": "مفعّلة لكل مدرسة",
