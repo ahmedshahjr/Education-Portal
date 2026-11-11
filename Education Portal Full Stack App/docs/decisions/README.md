@@ -11,4 +11,4 @@ An ADR captures a significant architectural decision: the context that led to it
 | [ADR-003](ADR-003-MediatR-Contracts-In-Domain.md) | MediatR.Contracts Reference in Domain | 2026-03-16 | Accepted |
 | [ADR-004](ADR-004-Security-Baseline.md) | Security Baseline for Sign-In and Sessions | 2026-11-09 | Accepted |
 | [ADR-005](ADR-005-Localization-Per-Country.md) | Languages and Regional Settings per Country | 2026-11-10 | Accepted |
-
+| [ADR-006](ADR-006-Cloud-Agnostic-Secrets.md) | Cloud-Agnostic Secrets Layer | 2026-11-11 | Accepted |

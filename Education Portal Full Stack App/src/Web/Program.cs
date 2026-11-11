@@ -7,7 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.AddServiceDefaults();
 
-builder.AddKeyVaultIfConfigured();
+// Platform secrets (such as the database connection string) come from the secret store chosen by Secrets:Provider,
+// before the DbContext is registered. Without a provider, normal configuration is used (ADR-006).
+await builder.AddPlatformSecretsAsync();
 builder.AddApplicationServices();
 builder.AddInfrastructureServices();
 builder.AddWebServices();

@@ -5,6 +5,8 @@
     <RootNamespace>EducationPortal.AppHost</RootNamespace>
     <AssemblyName>EducationPortal.AppHost</AssemblyName>
     <AspireUseCliBundle>true</AspireUseCliBundle>
+    <!-- Aspire keeps generated parameters (such as the local Vault token) in this project's user-secrets (ADR-006). -->
+    <UserSecretsId>464e2ef9-237e-45f0-a710-e0371c8432f2</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
