@@ -38,6 +38,11 @@ export const routes: Routes = [
         canActivate: [masterAdministratorGuard],
         loadComponent: () => import('./features/countries/countries.page').then((m) => m.CountriesPage),
       },
+      {
+        path: 'modules',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () => import('./features/modules/modules.page').then((m) => m.ModulesPage),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

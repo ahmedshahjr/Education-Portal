@@ -89,6 +89,16 @@ public class ApplicationDbContextInitialiser
 
     public async Task TrySeedAsync()
     {
+        // Modules: add any the code knows and the database lacks. The master tenant decides afterwards which are default.
+        var knownModules = await _context.Modules.Select(m => m.Key).ToListAsync();
+        var missingModules = ModuleCatalog.CreateModules().Where(m => !knownModules.Contains(m.Key)).ToList();
+
+        if (missingModules.Count > 0)
+        {
+            _context.Modules.AddRange(missingModules);
+            await _context.SaveChangesAsync();
+        }
+
         // Countries: the master tenant manages these; two examples so each demo school offers its own languages.
         if (!await _context.Countries.AnyAsync())
         {

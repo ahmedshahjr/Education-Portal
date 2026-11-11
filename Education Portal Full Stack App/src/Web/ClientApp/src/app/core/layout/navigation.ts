@@ -5,6 +5,8 @@ export type NavAccess = 'everyone' | 'administrator' | 'master-administrator';
 
 export interface AppNavItem extends NavItem {
   readonly access: NavAccess;
+  /** The module the item belongs to (a `MODULE_KEYS` value). It is shown only when the module is on for the school. */
+  readonly module?: string;
 }
 
 export interface AppNavSection extends NavSection {
@@ -28,22 +30,28 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
     items: [
       { id: 'schools', label: $localize`:@@nav.schools:Schools`, icon: 'layers', route: '/schools', access: 'master-administrator' },
       { id: 'countries', label: $localize`:@@nav.countries:Countries and languages`, icon: 'globe', route: '/countries', access: 'master-administrator' },
+      { id: 'modules', label: $localize`:@@nav.modules:Modules`, icon: 'blocks', route: '/modules', access: 'master-administrator' },
     ],
   },
 ];
 
-/** The sections and items the user may see, without empty sections. */
+/**
+ * The sections and items the user may see, without empty sections. An item of a module is shown only when the module is
+ * in `enabledModules` (the modules switched on for the school).
+ */
 export function visibleNavSections(
   sections: readonly AppNavSection[],
   isAdministrator: boolean,
-  isMaster: boolean
+  isMaster: boolean,
+  enabledModules: ReadonlySet<string>
 ): readonly AppNavSection[] {
-  const allowed = (access: NavAccess): boolean =>
-    access === 'everyone' ||
-    (access === 'administrator' && isAdministrator) ||
-    (access === 'master-administrator' && isAdministrator && isMaster);
+  const allowed = (item: AppNavItem): boolean =>
+    (item.module === undefined || enabledModules.has(item.module)) &&
+    (item.access === 'everyone' ||
+      (item.access === 'administrator' && isAdministrator) ||
+      (item.access === 'master-administrator' && isAdministrator && isMaster));
 
   return sections
-    .map((section) => ({ ...section, items: section.items.filter((item) => allowed(item.access)) }))
+    .map((section) => ({ ...section, items: section.items.filter(allowed) }))
     .filter((section) => section.items.length > 0);
 }

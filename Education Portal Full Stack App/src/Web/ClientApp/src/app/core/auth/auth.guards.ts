@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { BrandingService } from '../branding/branding.service';
+import { ModulesService } from '../modules/modules.service';
 import { AuthService } from './auth.service';
 
 /** Sends visitors who are not signed in to the login page, and back here afterwards. */
@@ -21,3 +22,9 @@ export const masterAdministratorGuard: CanActivateFn = () => {
   const isMasterAdministrator = inject(AuthService).isAdministrator() && inject(BrandingService).isMaster();
   return isMasterAdministrator ? true : inject(Router).createUrlTree(['/']);
 };
+
+/** Only when the module is switched on for the school (use on a module's routes). The server checks it again on every request. */
+export const moduleGuard =
+  (moduleKey: string): CanActivateFn =>
+  () =>
+    inject(ModulesService).isEnabled(moduleKey) ? true : inject(Router).createUrlTree(['/']);
