@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { BrandingService } from '../../core/branding/branding.service';
 import { FormInputComponent } from '../../shared/components/form-input/form-input.component';
@@ -14,7 +14,7 @@ import { LanguageMenuComponent } from '../../shared/components/language-menu/lan
  */
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule, MatCardModule, MatButtonModule, FormInputComponent, LanguageMenuComponent],
+  imports: [ReactiveFormsModule, RouterLink, MatCardModule, MatButtonModule, FormInputComponent, LanguageMenuComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="mm-auth-shell">
@@ -63,6 +63,9 @@ import { LanguageMenuComponent } from '../../shared/components/language-menu/lan
               }
 
               <button mat-flat-button type="submit" class="mm-auth-submit" [disabled]="busy()" i18n="@@login.submit">Sign in</button>
+              <p class="mm-auth-sub">
+                <a routerLink="/request-school" i18n="@@login.requestSchool">Request a school</a>
+              </p>
             </form>
           </mat-card-content>
         </mat-card>
@@ -192,6 +195,16 @@ export class LoginPage {
   protected readonly error = signal<string | null>(null);
   protected readonly busy = signal(false);
 
+  /** After sign-in: the page asked for, else the master portal on the master's address, else the school's home. */
+  private destination(): string {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (returnUrl) {
+      return localReturnUrl(returnUrl);
+    }
+
+    return this.branding.isMaster() ? '/schools' : '/';
+  }
+
   protected submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -203,7 +216,7 @@ export class LoginPage {
     this.busy.set(true);
 
     this.auth.signIn(email, password).subscribe({
-      next: () => void this.router.navigateByUrl(localReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl'))),
+      next: () => void this.router.navigateByUrl(this.destination()),
       error: (error: unknown) => {
         this.busy.set(false);
         this.error.set(messageFor(statusOf(error)));

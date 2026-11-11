@@ -89,6 +89,16 @@ public static class DependencyInjection
                     Window = TimeSpan.FromMinutes(1),
                     QueueLimit = 0,
                 }));
+
+            // Public school requests per client address and hour (SEC-WEB-07). Kept apart from sign-in so spam cannot lock out sign-ins.
+            options.AddPolicy(RateLimitPolicies.SchoolRequest, context => RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromHours(1),
+                    QueueLimit = 0,
+                }));
         });
 
         builder.Services.Configure<KestrelServerOptions>(options =>

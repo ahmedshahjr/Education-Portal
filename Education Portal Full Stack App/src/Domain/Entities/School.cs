@@ -7,7 +7,7 @@ namespace EducationPortal.Domain.Entities;
 /// school before anyone signs in. Exactly one school is the master tenant, the platform owner: it is created once by
 /// <see cref="CreateMaster"/>, no method can change <see cref="IsMaster"/>, and a unique index allows only one.
 /// </summary>
-public class School : BaseAuditableEntity
+public class School : BaseSoftDeletableEntity
 {
     public const int NameMaxLength = 200;
     public const int DomainMaxLength = 253;
@@ -34,6 +34,9 @@ public class School : BaseAuditableEntity
     public static School CreateMaster(string name, string domain) => new(name, domain, isMaster: true);
 
     public static School Create(string name, string domain) => new(name, domain, isMaster: false);
+
+    /// <summary>The master tenant can never be switched off or deleted: the platform needs one.</summary>
+    protected override bool CanBeDeactivated => !IsMaster;
 
     public string Name { get; private set; }
 
@@ -94,7 +97,8 @@ public class School : BaseAuditableEntity
         return normalized;
     }
 
-    private static bool IsValidDomain(string domain) =>
+    /// <summary>True when the lower-case domain is a valid host name (used by request validation too).</summary>
+    public static bool IsValidDomain(string domain) =>
         domain.Length is > 0 and <= DomainMaxLength
         && domain.Split('.').All(label =>
             label.Length is > 0 and <= 63

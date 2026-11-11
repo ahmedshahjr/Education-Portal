@@ -49,6 +49,22 @@ public class BrandingImageTests
     }
 
     [Test]
+    public void ShouldAcceptAFileExactlyAtTheSizeLimit()
+    {
+        byte[] atLimit = [.. Png, .. new byte[BrandingImageRules.MaxFaviconBytes - Png.Length]];
+
+        atLimit.Length.ShouldBe(BrandingImageRules.MaxFaviconBytes);
+        BrandingImageRules.AllowedContentType(BrandingImageKind.Favicon, atLimit).ShouldBe("image/png");
+    }
+
+    [Test]
+    public void ShouldRefuseAnEmptyFile()
+    {
+        BrandingImageRules.AllowedContentType(BrandingImageKind.Logo, []).ShouldBeNull();
+        BrandingImageRules.AllowedContentType(BrandingImageKind.Favicon, []).ShouldBeNull();
+    }
+
+    [Test]
     public void ShouldStoreTheDetectedTypeAndAVersion()
     {
         var image = new BrandingImage(1, BrandingImageKind.Logo, Png);

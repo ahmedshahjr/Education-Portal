@@ -46,6 +46,8 @@ Master tenant (the platform owner, i.e. us)
 - The server checks that the logged-in user belongs to the tenant resolved from the host. A session or token from `school1.com` must not work on `school2.com` (scope auth cookies per domain).
 - **Branch selection happens inside the school's domain:** a user with access to several branches (staff, students, parents) picks the current branch in the app (branch switcher, carried in the route, e.g. `/branches/{branchId}/...`). The server checks the user belongs to that branch on every request.
 - Students and parents can belong to **several branches** (decided 2026-11-09).
+- **Soft delete** (decided 2026-11-10): entities that users can delete (`School`, `Country`) inherit `BaseSoftDeletableEntity`. A global query filter hides deleted rows from every query, the master tenant included, and rows stay in the table for audit. `IsActive` is an administrator's switch: an inactive school's host is refused (404) at tenant resolution. The master tenant can never be deactivated or deleted.
+- **Audit fields** on every entity come from `BaseAuditableEntity` (`Created`, `CreatedBy`, `LastModified`, `LastModifiedBy`), filled by `AuditableEntityInterceptor`.
 - Database-per-school is out of scope (it makes cross-school overview and migrations harder).
 
 ### Modules and permissions
@@ -184,12 +186,13 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
 - **Validation** lives in FluentValidation validators run by the MediatR pipeline, not in endpoints.
 - **Entities** live in `Domain/Entities` and inherit the template's base/auditable entity. Raise domain events instead of calling services from entities.
 - **Grades** are several scored assessments per enrolment, not one final grade.
-- **Accounts** are created by staff; there is no public sign-up.
+- **Accounts** are created by staff; there is no public sign-up. The only public form is **request a school** (decided 2026-11-10): anyone can submit a school request, which stays pending and creates no account or domain until the master tenant approves it. Approval creates the school; its first administrator account is then created by the master tenant or the school's own administrator, never by the requester.
 - **Every user-visible string is translatable** (ADR-005). Angular: an `i18n` attribute in templates or `` $localize`:@@area.key:Text` `` in code, always with a custom id; then run `npx ng extract-i18n` and add the translation to every `src/locale/messages.<language>.json` (`translations.spec.ts` fails otherwise). Server text shown to users: `IStringLocalizer` with `.resx` files in `src/Web/Resources`. Use logical CSS properties (`margin-inline-start`, `inset-inline-end`, `text-align: start`), never `left`/`right`, so right-to-left layouts mirror.
 - Nullable is on and warnings are errors: fix warnings rather than suppressing them; if you must suppress, add a comment explaining why.
 - Follow the template's `.editorconfig`.
 - New NuGet package: add its version to `Directory.Packages.props` and say why in the PR.
 - Tests use NUnit and Shouldly. New use cases get an `Application.FunctionalTests` test (including the tenant/branch/module denial cases above).
+- Backend unit tests (maintainer rule, 2026-11-10): every new or changed C# class with logic gets a unit test in the same PR, in the matching project (entities and value objects in `Domain.UnitTests`, validators, handlers and behaviours in `Application.UnitTests`, database code in `Infrastructure.IntegrationTests` or `Application.FunctionalTests`), covering the valid case, each rejected case and each boundary (ENG-CODE-10).
 - No secrets in the repo: user-secrets locally, Key Vault when deployed.
 - Never commit `artifacts/`, `bin/`, `obj/`, `node_modules/` or `*.db`.
 

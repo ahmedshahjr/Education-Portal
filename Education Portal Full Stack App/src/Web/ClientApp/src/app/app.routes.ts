@@ -8,6 +8,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login.page').then((m) => m.LoginPage),
   },
   {
+    path: 'request-school',
+    title: $localize`:@@requestSchool.pageTitle:Request a school`,
+    loadComponent: () => import('./features/school-requests/request-school.page').then((m) => m.RequestSchoolPage),
+  },
+  {
     path: '',
     loadComponent: () => import('./shared/components/app-layout/app-layout.component').then((m) => m.AppLayoutComponent),
     canActivate: [authGuard],
