@@ -184,6 +184,9 @@
     "topbar.darkMode": "الوضع الداكن",
     "branding.currentLogo": "الشعار الحالي",
     "branding.currentFavicon": "الأيقونة الحالية",
-    "branding.previewAction": "زر رئيسي"
+    "branding.previewAction": "زر رئيسي",
+    "branding.viewLogo": "عرض الشعار",
+    "branding.viewFavicon": "عرض الأيقونة",
+    "branding.closeImage": "إغلاق"
   }
 }
