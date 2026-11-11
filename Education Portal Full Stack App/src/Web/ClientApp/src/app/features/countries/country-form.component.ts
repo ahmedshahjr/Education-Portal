@@ -39,8 +39,8 @@ export interface CountryChanges {
             }
           </h2>
 
-          <div class="mm-country-form__grid">
-            <mat-form-field appearance="outline">
+          <div class="mm-grid mm-country-form__grid">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-col-4 mm-col-md-6">
               <mat-label i18n="@@countries.code">Country code</mat-label>
               <input matInput formControlName="code" maxlength="2" autocomplete="off" dir="ltr" />
               <mat-hint i18n="@@countries.codeHint">Two letters (ISO 3166-1), for example PK. Cannot be changed later.</mat-hint>
@@ -49,7 +49,7 @@ export interface CountryChanges {
               }
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-col-4 mm-col-md-6">
               <mat-label i18n="@@countries.name">Name</mat-label>
               <input matInput formControlName="name" maxlength="100" autocomplete="off" />
               @if (form.controls.name.invalid) {
@@ -57,7 +57,7 @@ export interface CountryChanges {
               }
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-col-4 mm-col-md-6">
               <mat-label i18n="@@countries.languages">Languages</mat-label>
               <mat-select formControlName="languages" multiple>
                 @for (language of languages(); track language.code) {
@@ -72,7 +72,7 @@ export interface CountryChanges {
               }
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-col-4 mm-col-md-6">
               <mat-label i18n="@@countries.defaultLanguage">Default language</mat-label>
               <mat-select formControlName="defaultLanguage">
                 @for (language of chosenLanguages(); track language.code) {
@@ -85,7 +85,7 @@ export interface CountryChanges {
               }
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-col-4 mm-col-md-6">
               <mat-label i18n="@@countries.timeZone">Time zone</mat-label>
               <mat-select formControlName="timeZoneId">
                 @for (zone of timeZones; track zone) {
@@ -97,7 +97,7 @@ export interface CountryChanges {
               }
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-col-4 mm-col-md-6">
               <mat-label i18n="@@countries.currency">Currency</mat-label>
               <mat-select formControlName="currencyCode">
                 @for (currency of currencies; track currency) {
@@ -129,10 +129,10 @@ export interface CountryChanges {
       font-weight: 600;
     }
 
+    /* Theme 12-column grid; each field sizes its hint area to the text so long hints push the next row down. */
     .mm-country-form__grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: var(--mm-space-2) var(--mm-space-4);
+      row-gap: var(--mm-space-4);
+      align-items: start;
     }
 
     .mm-country-form__error {

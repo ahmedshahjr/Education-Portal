@@ -43,4 +43,17 @@ describe('CountryFormComponent', () => {
     expect(saved).toEqual([]);
     expect(fixture.nativeElement.querySelectorAll('mat-error').length).toBeGreaterThan(0);
   });
+
+  it('gives every field room for its own hint so long hints never sit under the next row', async () => {
+    const { fixture } = create(null);
+    await fixture.whenStable();
+    const element: HTMLElement = fixture.nativeElement;
+
+    const fields = Array.from(element.querySelectorAll('.mm-country-form__grid > mat-form-field'));
+    expect(fields.length).toBe(6);
+    for (const field of fields) {
+      expect(field.classList).toContain('mm-col-4');
+      expect(field.querySelector('.mat-mdc-form-field-subscript-dynamic-size')).not.toBeNull();
+    }
+  });
 });
