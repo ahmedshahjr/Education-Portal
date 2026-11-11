@@ -38,8 +38,9 @@ public class GetSchoolModulesQueryHandler : IRequestHandler<GetSchoolModulesQuer
                 m.Key,
                 m.Name,
                 m.Description,
-                m.IsDefault,
-                school.IsMaster || PortalModule.IsEnabled(m.IsDefault, m.SchoolChoice),
+                m.Type,
+                m.IsActive,
+                school.IsMaster || PortalModule.IsEnabled(m.IsActive, m.Type, m.SchoolChoice),
                 FollowsDefault: m.SchoolChoice is null))
             .ToList();
     }

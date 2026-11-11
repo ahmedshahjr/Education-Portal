@@ -58,7 +58,8 @@ Effective access for a school user = **modules enabled for their school** ∩ **
    - **Default** modules are on for every school automatically, including new ones. The master can still switch one off for a single school.
    - **Custom** modules stay off until the master switches them on for a school (for example when the school asks for it).
    - The master's choice for a school wins over the default from then on. Without a choice, the module's default applies. The master tenant itself is never limited by modules.
-   - Code: keys in `Domain/Constants/ModuleKeys.cs`, starting list in `Domain/Entities/ModuleCatalog.cs` (seeded into the `Modules` table), per-school choices in `SchoolModules`. Master screens: Modules (default or custom) and Schools, Modules (per school).
+   - Each module also has an **Active** switch on the master's Modules page. An inactive module is off for every school, whatever its type or a school's choice, and comes back as it was once reactivated.
+   - Code: the type is the `ModuleType` enum (`Domain/Enums/ModuleType.cs`: `Default`, `Custom`) and Active is `PortalModule.IsActive` (`BaseSoftDeletableEntity`); keys in `Domain/Constants/ModuleKeys.cs`, starting list in `Domain/Entities/ModuleCatalog.cs` (seeded into the `Modules` table), per-school choices in `SchoolModules`. Master screens: Modules (type and Active) and Schools, Modules (per school).
 
    MVP module list (2026-11-09; add new modules here, to `ModuleKeys` and to `ModuleCatalog` first). "Starts as" is the seeded split; the master can change it in the app:
 

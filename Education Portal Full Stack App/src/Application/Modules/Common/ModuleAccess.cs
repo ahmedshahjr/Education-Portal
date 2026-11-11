@@ -25,7 +25,7 @@ public class ModuleAccess : IModuleAccess
             .ToListAsync(cancellationToken);
 
         return modules
-            .Where(m => PortalModule.IsEnabled(m.IsDefault, m.SchoolChoice))
+            .Where(m => PortalModule.IsEnabled(m.IsActive, m.Type, m.SchoolChoice))
             .Select(m => m.Key)
             .ToList();
     }

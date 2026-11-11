@@ -1,37 +1,39 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { problemMessages } from '../../core/http/problem-details';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
-import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
-import { ModuleDto, ModulesClient, UpdateModuleDefaultCommand } from '../../web-api-client';
+import { ModuleDto, ModulesClient, ModuleType, UpdateModuleCommand } from '../../web-api-client';
 
 /**
- * Master portal: the portal's modules and which are default (on for every school unless switched off for one) or custom
- * (off unless switched on for a school). Switch modules per school on the Schools page.
- * Master tenant administrators only; the server enforces it.
+ * Master portal: the portal's modules. Each has a type, Default (on for every school unless switched off for one) or
+ * Custom (off until switched on for a school), and an Active switch: an inactive module is off for every school.
+ * Switch modules per school on the Schools page. Master tenant administrators only; the server enforces it.
  */
 @Component({
   selector: 'app-modules-page',
   imports: [
     MatCardModule,
     MatTableModule,
+    MatFormFieldModule,
+    MatSelectModule,
     MatSlideToggleModule,
     PageHeaderComponent,
     LoadingStateComponent,
     EmptyStateComponent,
-    StatusBadgeComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-page-header
       title="Modules"
       i18n-title="@@modules.title"
-      subtitle="Master portal: default modules are on for every school unless you switch them off for one; custom modules are off until you switch them on for a school on the Schools page."
+      subtitle="Master portal: Default modules are on for every school unless you switch them off for one; Custom modules are off until you switch them on for a school on the Schools page. An inactive module is off for every school."
       i18n-subtitle="@@modules.subtitle"
     />
 
@@ -57,26 +59,33 @@ import { ModuleDto, ModulesClient, UpdateModuleDefaultCommand } from '../../web-
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="kind">
+            <ng-container matColumnDef="type">
               <th mat-header-cell *matHeaderCellDef i18n="@@modules.kind">Type</th>
               <td mat-cell *matCellDef="let module">
-                @if (module.isDefault) {
-                  <app-status-badge tone="success" i18n="@@modules.default">Default</app-status-badge>
-                } @else {
-                  <app-status-badge tone="warning" i18n="@@modules.custom">Custom</app-status-badge>
-                }
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-modules__type">
+                  <mat-select
+                    aria-label="Type of {{ module.name }}"
+                    i18n-aria-label="@@modules.typeOf"
+                    [value]="module.type"
+                    [disabled]="saving() === module.key"
+                    (selectionChange)="save(module, $event.value, module.isActive)"
+                  >
+                    <mat-option [value]="types.Default" i18n="@@modules.default">Default</mat-option>
+                    <mat-option [value]="types.Custom" i18n="@@modules.custom">Custom</mat-option>
+                  </mat-select>
+                </mat-form-field>
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="isDefault">
-              <th mat-header-cell *matHeaderCellDef i18n="@@modules.onForNewSchools">On for every school</th>
+            <ng-container matColumnDef="isActive">
+              <th mat-header-cell *matHeaderCellDef i18n="@@modules.active">Active</th>
               <td mat-cell *matCellDef="let module">
                 <mat-slide-toggle
-                  [checked]="module.isDefault"
+                  [checked]="module.isActive"
                   [disabled]="saving() === module.key"
-                  (change)="setDefault(module, $event)"
-                  aria-label="{{ module.name }} is on for every school"
-                  i18n-aria-label="@@modules.defaultOf"
+                  (change)="save(module, module.type, $event.checked)"
+                  aria-label="{{ module.name }} is active"
+                  i18n-aria-label="@@modules.activeOf"
                 />
               </td>
             </ng-container>
@@ -103,13 +112,19 @@ import { ModuleDto, ModulesClient, UpdateModuleDefaultCommand } from '../../web-
       color: var(--mm-text-muted);
       font-size: var(--mm-text-sm);
     }
+
+    .mm-modules__type {
+      min-width: 160px;
+      padding-block: 4px;
+    }
   `,
 })
 export class ModulesPage {
   private readonly client = inject(ModulesClient);
   private readonly snackBar = inject(MatSnackBar);
 
-  protected readonly columns = ['name', 'kind', 'isDefault'];
+  protected readonly types = ModuleType;
+  protected readonly columns = ['name', 'type', 'isActive'];
   protected readonly modules = signal<readonly ModuleDto[] | null>(null);
   protected readonly loadError = signal<string | null>(null);
   protected readonly saving = signal<string | null>(null);
@@ -127,19 +142,24 @@ export class ModulesPage {
     });
   }
 
-  protected setDefault(module: ModuleDto, event: MatSlideToggleChange): void {
+  /** Saves the module's type and active switch together; on an error the table shows the stored values again. */
+  protected save(module: ModuleDto, type: ModuleType, isActive: boolean): void {
     this.saving.set(module.key);
-    this.client.updateModuleDefault(module.key, new UpdateModuleDefaultCommand({ isDefault: event.checked })).subscribe({
+    this.client.updateModule(module.key, new UpdateModuleCommand({ type, isActive })).subscribe({
       next: () => {
         this.saving.set(null);
-        this.modules.update((list) => list?.map((m) => (m.key === module.key ? new ModuleDto({ ...m, isDefault: event.checked }) : m)) ?? null);
+        this.replace(new ModuleDto({ ...module, type, isActive }));
         this.snackBar.open($localize`:@@modules.saved:${module.name}:MODULE: saved`, undefined, { duration: 3000 });
       },
       error: (error: unknown) => {
         this.saving.set(null);
-        event.source.checked = module.isDefault;
+        this.replace(new ModuleDto({ ...module }));
         this.snackBar.open(problemMessages(error)[0], undefined, { duration: 5000 });
       },
     });
+  }
+
+  private replace(updated: ModuleDto): void {
+    this.modules.update((list) => list?.map((m) => (m.key === updated.key ? updated : m)) ?? null);
   }
 }

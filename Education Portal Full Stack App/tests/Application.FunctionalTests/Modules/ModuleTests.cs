@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using EducationPortal.Application.Modules.Common;
 using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
@@ -18,6 +20,9 @@ public class ModuleTests : TestBase
     private const string OtherSchoolDomain = "school2.localhost";
     private const string SchoolAdminEmail = "admin@school1.local";
 
+    // The API writes enums by name, as the Angular client reads them.
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
+
     [Test]
     public async Task ShouldGiveANewSchoolTheDefaultModules()
     {
@@ -27,7 +32,7 @@ public class ModuleTests : TestBase
         var enabled = await ReadEnabledAsync(school);
 
         enabled.ShouldBe(
-            ModuleCatalog.CreateModules().Where(m => m.IsDefault).Select(m => m.Key).ToList(),
+            ModuleCatalog.CreateModules().Where(m => m.Type == ModuleType.Default).Select(m => m.Key).ToList(),
             ignoreOrder: true);
         enabled.ShouldContain(ModuleKeys.Students);
         enabled.ShouldNotContain(ModuleKeys.Parents);
@@ -75,7 +80,7 @@ public class ModuleTests : TestBase
     }
 
     [Test]
-    public async Task ShouldLetTheMasterMakeAModuleDefaultForEverySchoolWithoutItsOwnChoice()
+    public async Task ShouldLetTheMasterMakeACustomModuleDefaultForEverySchoolWithoutItsOwnChoice()
     {
         var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         var otherId = await TestApp.AddSchoolAsync("School Two", OtherSchoolDomain);
@@ -83,16 +88,16 @@ public class ModuleTests : TestBase
         using var master = await SignInAsMasterAsync();
         (await master.PutAsync($"/api/Schools/{otherId}/modules/{ModuleKeys.Dashboard}", new { isEnabled = false })).Dispose();
 
-        using var response = await master.PutAsync($"/api/Modules/{ModuleKeys.Dashboard}/default", new { isDefault = true });
+        using var response = await master.PutAsync($"/api/Modules/{ModuleKeys.Dashboard}", new { type = "Default", isActive = true });
 
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         var catalog = await ReadModulesAsync(master);
-        catalog.Single(m => m.Key == ModuleKeys.Dashboard).IsDefault.ShouldBeTrue();
+        catalog.Single(m => m.Key == ModuleKeys.Dashboard).Type.ShouldBe(ModuleType.Default);
         (await ReadSchoolModulesAsync(master, schoolId)).Single(m => m.Key == ModuleKeys.Dashboard).IsEnabled.ShouldBeTrue();
         (await ReadSchoolModulesAsync(master, otherId)).Single(m => m.Key == ModuleKeys.Dashboard).IsEnabled.ShouldBeFalse();
 
         var audit = await TestApp.FindAuditEventsAsync(masterUserId);
-        audit.ShouldContain(e => e.EventType == SecurityAuditEventType.ModuleDefaultChanged && e.TargetId == ModuleKeys.Dashboard);
+        audit.ShouldContain(e => e.EventType == SecurityAuditEventType.ModuleChanged && e.TargetId == ModuleKeys.Dashboard);
     }
 
     [Test]
@@ -104,15 +109,56 @@ public class ModuleTests : TestBase
 
         // No module is locked on: Branches can be switched off for a school and Users & Roles made custom.
         using var perSchool = await master.PutAsync($"/api/Schools/{schoolId}/modules/{ModuleKeys.Branches}", new { isEnabled = false });
-        using var custom = await master.PutAsync($"/api/Modules/{ModuleKeys.UsersAndRoles}/default", new { isDefault = false });
+        using var custom = await master.PutAsync($"/api/Modules/{ModuleKeys.UsersAndRoles}", new { type = "Custom", isActive = true });
 
         perSchool.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         custom.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         var modules = await ReadSchoolModulesAsync(master, schoolId);
         modules.Single(m => m.Key == ModuleKeys.Branches).IsEnabled.ShouldBeFalse();
         modules.Single(m => m.Key == ModuleKeys.UsersAndRoles).ShouldSatisfyAllConditions(
-            m => m.IsDefault.ShouldBeFalse(),
+            m => m.Type.ShouldBe(ModuleType.Custom),
             m => m.IsEnabled.ShouldBeFalse());
+    }
+
+    [Test]
+    public async Task ShouldTurnAnInactiveModuleOffForEverySchool()
+    {
+        var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
+        var masterUserId = await TestApp.RunAsAdministratorAsync();
+        using var master = await SignInAsMasterAsync();
+        // Even a school the master switched it on for loses it while the module is inactive.
+        (await master.PutAsync($"/api/Schools/{schoolId}/modules/{ModuleKeys.Grades}", new { isEnabled = true })).Dispose();
+
+        using var deactivated = await master.PutAsync($"/api/Modules/{ModuleKeys.Grades}", new { type = "Default", isActive = false });
+
+        deactivated.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        (await ReadModulesAsync(master)).Single(m => m.Key == ModuleKeys.Grades).IsActive.ShouldBeFalse();
+        (await ReadSchoolModulesAsync(master, schoolId)).Single(m => m.Key == ModuleKeys.Grades).ShouldSatisfyAllConditions(
+            m => m.IsActive.ShouldBeFalse(),
+            m => m.IsEnabled.ShouldBeFalse());
+
+        using var school = await SignInToSchoolAsync();
+        (await ReadEnabledAsync(school)).ShouldNotContain(ModuleKeys.Grades);
+
+        // Switching it back on restores the school's choice.
+        (await master.PutAsync($"/api/Modules/{ModuleKeys.Grades}", new { type = "Default", isActive = true })).Dispose();
+        (await ReadEnabledAsync(school)).ShouldContain(ModuleKeys.Grades);
+
+        var audit = await TestApp.FindAuditEventsAsync(masterUserId);
+        audit.Count(e => e.EventType == SecurityAuditEventType.ModuleChanged && e.TargetId == ModuleKeys.Grades).ShouldBe(2);
+    }
+
+    [TestCase("Always")]
+    [TestCase("3")]
+    public async Task ShouldRefuseAnUnknownModuleType(string type)
+    {
+        await TestApp.RunAsAdministratorAsync();
+        using var master = await SignInAsMasterAsync();
+
+        using var response = await master.PutAsync($"/api/Modules/{ModuleKeys.Grades}", new { type, isActive = true });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await ReadModulesAsync(master)).Single(m => m.Key == ModuleKeys.Grades).Type.ShouldBe(ModuleType.Default);
     }
 
     [Test]
@@ -137,7 +183,7 @@ public class ModuleTests : TestBase
         using var school = await master.PutAsync($"/api/Schools/999999/modules/{ModuleKeys.Grades}", new { isEnabled = true });
         using var schoolModules = await master.GetAsync("/api/Schools/999999/modules");
         using var module = await master.PutAsync($"/api/Schools/{schoolId}/modules/Fees", new { isEnabled = true });
-        using var moduleDefault = await master.PutAsync("/api/Modules/Fees/default", new { isDefault = true });
+        using var moduleDefault = await master.PutAsync("/api/Modules/Fees", new { type = "Default", isActive = true });
 
         school.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         schoolModules.StatusCode.ShouldBe(HttpStatusCode.NotFound);
@@ -152,7 +198,7 @@ public class ModuleTests : TestBase
         using var session = await SignInToSchoolAsync();
 
         using var catalog = await session.GetAsync("/api/Modules");
-        using var setDefault = await session.PutAsync($"/api/Modules/{ModuleKeys.Parents}/default", new { isDefault = true });
+        using var setDefault = await session.PutAsync($"/api/Modules/{ModuleKeys.Parents}", new { type = "Default", isActive = true });
         using var list = await session.GetAsync($"/api/Schools/{schoolId}/modules");
         using var own = await session.PutAsync($"/api/Schools/{schoolId}/modules/{ModuleKeys.Parents}", new { isEnabled = true });
 
@@ -223,13 +269,13 @@ public class ModuleTests : TestBase
     {
         using var response = await session.GetAsync("/api/Modules");
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return (await response.Content.ReadFromJsonAsync<List<ModuleDto>>())!;
+        return (await response.Content.ReadFromJsonAsync<List<ModuleDto>>(Json))!;
     }
 
     private static async Task<List<SchoolModuleDto>> ReadSchoolModulesAsync(HttpSession session, int schoolId)
     {
         using var response = await session.GetAsync($"/api/Schools/{schoolId}/modules");
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return (await response.Content.ReadFromJsonAsync<List<SchoolModuleDto>>())!;
+        return (await response.Content.ReadFromJsonAsync<List<SchoolModuleDto>>(Json))!;
     }
 }

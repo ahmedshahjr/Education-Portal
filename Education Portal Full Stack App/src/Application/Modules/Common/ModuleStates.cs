@@ -3,7 +3,7 @@ using EducationPortal.Application.Common.Interfaces;
 namespace EducationPortal.Application.Modules.Common;
 
 /// <summary>One module with the school's own choice for it, if it has one.</summary>
-public sealed record ModuleState(int Id, string Key, string Name, string Description, bool IsDefault, bool? SchoolChoice);
+public sealed record ModuleState(int Id, string Key, string Name, string Description, ModuleType Type, bool IsActive, bool? SchoolChoice);
 
 internal static class ModuleStates
 {
@@ -20,7 +20,8 @@ internal static class ModuleStates
                 m.Key,
                 m.Name,
                 m.Description,
-                m.IsDefault,
+                m.Type,
+                m.IsActive,
                 context.SchoolModules
                     .Where(c => c.SchoolId == schoolId && c.ModuleId == m.Id)
                     .Select(c => (bool?)c.IsEnabled)

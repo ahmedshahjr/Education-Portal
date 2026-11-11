@@ -8,9 +8,9 @@ import { SchoolModulesComponent } from './school-modules.component';
 const json = (body: unknown) => new Blob([JSON.stringify(body)], { type: 'application/json' });
 
 const modules = [
-  { key: 'Branches', name: 'Branches', description: '', isDefault: true, isEnabled: false, followsDefault: false },
-  { key: 'Grades', name: 'Grades', description: '', isDefault: true, isEnabled: true, followsDefault: true },
-  { key: 'Parents', name: 'Parents', description: '', isDefault: false, isEnabled: false, followsDefault: true },
+  { key: 'Branches', name: 'Branches', description: '', type: 'Default', isActive: true, isEnabled: false, followsDefault: false },
+  { key: 'Grades', name: 'Grades', description: '', type: 'Default', isActive: false, isEnabled: false, followsDefault: true },
+  { key: 'Parents', name: 'Parents', description: '', type: 'Custom', isActive: true, isEnabled: false, followsDefault: true },
 ];
 
 async function render() {
@@ -32,15 +32,15 @@ async function render() {
 describe('SchoolModulesComponent', () => {
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
-  it('lets every module be switched and shows which are default or custom', async () => {
+  it('shows each module type and locks only inactive modules', async () => {
     const { element } = await render();
 
     const switches = [...element.querySelectorAll<HTMLButtonElement>('button[role="switch"]')];
-    expect(switches.map((s) => s.disabled)).toEqual([false, false, false]);
-    expect(switches.map((s) => s.getAttribute('aria-checked'))).toEqual(['false', 'true', 'false']);
-    expect(element.textContent).not.toContain('Always on');
+    expect(switches.map((s) => s.disabled)).toEqual([false, true, false]);
+    expect(switches.map((s) => s.getAttribute('aria-checked'))).toEqual(['false', 'false', 'false']);
     expect(element.textContent).toContain('Default');
     expect(element.textContent).toContain('Custom');
+    expect(element.textContent).toContain('Inactive');
   });
 
   it('switches a custom module on for the school', async () => {

@@ -5,7 +5,7 @@ using EducationPortal.Domain.Constants;
 
 namespace EducationPortal.Application.Modules.Queries.GetModules;
 
-/// <summary>Lists every module and whether it is default or custom. Master tenant administrators only (SEC-AUTHZ-07).</summary>
+/// <summary>Lists every module and its type (default or custom) and whether it is active. Master tenant administrators only (SEC-AUTHZ-07).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
 public record GetModulesQuery : IRequest<IReadOnlyList<ModuleDto>>;
 
@@ -23,7 +23,7 @@ public class GetModulesQueryHandler : IRequestHandler<GetModulesQuery, IReadOnly
         return await _context.Modules
             .AsNoTracking()
             .OrderBy(m => m.Id)
-            .Select(m => new ModuleDto(m.Key, m.Name, m.Description, m.IsDefault))
+            .Select(m => new ModuleDto(m.Key, m.Name, m.Description, m.Type, m.IsActive))
             .ToListAsync(cancellationToken);
     }
 }
