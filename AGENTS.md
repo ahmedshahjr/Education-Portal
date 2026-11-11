@@ -107,7 +107,7 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 | Data | EF Core 10, PostgreSQL (Npgsql) |
 | Auth | ASP.NET Core Identity from the template (decided 2026-11-09); school, branch and role data are added as claims and must match the tenant resolved from the host |
 | Frontend | Angular 22 in `src/Web/ClientApp`, standalone and zoneless, Angular Material + CDK, `@lucide/angular` icons, styles and components from the theme in `Theme Angular/` (NSwag generates the TypeScript API client from `nswag.json`) |
-| Observability | OpenTelemetry, health checks, resilience, service discovery (`src/ServiceDefaults`) |
+| Observability | OpenTelemetry logs, metrics and traces over OTLP to one endpoint, `Observability:OtlpEndpoint` ([ADR-007](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-007-OpenTelemetry-Observability.md), `Infrastructure/Observability`). Locally: OpenTelemetry Collector, Prometheus, Loki, Jaeger and Grafana as Aspire containers; see `docs/observability.md`. Health checks, resilience and service discovery stay in `src/ServiceDefaults` |
 | Secrets | `ISecretProvider` / `ITenantSecretProvider` ([ADR-006](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-006-Cloud-Agnostic-Secrets.md)): HashiCorp Vault locally (Aspire container), Azure Key Vault, AWS Secrets Manager or Google Secret Manager by `Secrets:Provider`, with a memory cache and Polly retries |
 | Cloud | Aspire Azure Container Apps packages are referenced; the secret store is cloud-agnostic (ADR-006). Actual hosting: **TODO** |
 | Tests | NUnit, Shouldly, Moq, Respawn, `Aspire.Hosting.Testing`; Playwright + Reqnroll for acceptance tests |
@@ -120,8 +120,8 @@ Projects, assemblies and namespaces are named `EducationPortal.*`:
 
 ```
 src/
-  AppHost/            Aspire orchestrator (startup): PostgreSQL, HashiCorp Vault, API, Angular
-  ServiceDefaults/    OpenTelemetry, health checks, resilience, service discovery
+  AppHost/            Aspire orchestrator (startup): PostgreSQL, HashiCorp Vault, observability stack, API, Angular
+  ServiceDefaults/    Health checks, resilience, service discovery
   Domain/             Entities, value objects, domain events, enums. No dependencies.
   Application/        Use cases (MediatR commands/queries), validators, DTOs, interfaces
   Infrastructure/     EF Core DbContext, query filters, migrations, Identity
@@ -170,6 +170,8 @@ Visual Studio: set `AppHost` as the startup project and press F5. The Aspire das
 
 Aspire also starts a local HashiCorp Vault (dev mode, `http://localhost:8200`) and points the API at it. Its data lives in memory, so after the container is recreated write the sample secrets again with `./scripts/vault-seed.sh` (or `./scripts/vault-seed.ps1` on Windows). Deployed environments switch store with `Secrets:Provider` only (ADR-006).
 
+Aspire also starts the observability stack (ADR-007): the API sends logs, metrics and traces to an OpenTelemetry Collector (`localhost:4317`), which forwards them to Prometheus (`http://localhost:9090`), Loki (`http://localhost:3100`), Jaeger (`http://localhost:16686`) and the Aspire dashboard. Grafana on `http://localhost:3000` shows all three, with a starter dashboard. See `docs/observability.md`.
+
 In Development the database is dropped and recreated on every start by `ApplicationDbContextInitialiser` (`EnsureDeleted` + `EnsureCreated`), then seeded with the master tenant on `localhost` (account `administrator@localhost`) and a Demo School on `demo.localhost` (account `administrator@demo.localhost`). Both accounts use the password set in `ApplicationDbContextInitialiser`; the seed never runs outside Development (SEC-SECRET-04). Open the Angular app on `http://localhost:<port>` for the master tenant or `http://demo.localhost:<port>` for the Demo School; `*.localhost` needs no hosts-file change. There are no EF Core migrations yet; add them when the schema needs to survive restarts.
 
 Functional and acceptance tests start PostgreSQL in a container through Aspire, so Docker must be running.
@@ -201,8 +203,9 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
 - New NuGet package: add its version to `Directory.Packages.props` and say why in the PR.
 - Tests use NUnit and Shouldly. New use cases get an `Application.FunctionalTests` test (including the tenant/branch/module denial cases above).
 - Backend unit tests (maintainer rule, 2026-11-10): every new or changed C# class with logic gets a unit test in the same PR, in the matching project (entities and value objects in `Domain.UnitTests`, validators, handlers and behaviours in `Application.UnitTests`, database code in `Infrastructure.IntegrationTests` or `Application.FunctionalTests`), covering the valid case, each rejected case and each boundary (ENG-CODE-10).
-- **Containers are Aspire resources** (decided 2026-11-11): every container the app needs locally (PostgreSQL, HashiCorp Vault, anything added later) is declared in `src/AppHost/Program.cs` with the Aspire hosting APIs (`AddPostgres`, `AddContainer`, ...), with parameters for credentials and `WaitFor` for start order. Do not add docker-compose files or ask developers to run `docker run` by hand.
+- **Containers are Aspire resources** (decided 2026-11-11): every container the app needs locally (PostgreSQL, HashiCorp Vault, anything added later) is declared in `src/AppHost` (`Program.cs`, or a helper such as `ObservabilityStack.cs`) with the Aspire hosting APIs (`AddPostgres`, `AddContainer`, ...), with parameters for credentials and `WaitFor` for start order. Do not add docker-compose files or ask developers to run `docker run` by hand.
 - **Secrets** (ADR-006): read and write them only through `ISecretProvider` with logical keys (`SecretKey.Platform("name")`), or `ITenantSecretProvider` for the current school's secrets, which takes the school from the host and never from the caller. One store per environment, chosen by `Secrets:Provider`; never store secret values in the database, logs or exception messages.
+- **Observability** (ADR-007): Domain has no observability code. Application uses only `ILogger<T>` and `System.Diagnostics` (`ActivitySource`, `Meter` through `IMeterFactory`), with every source and meter name in `Application/Common/Diagnostics/TelemetryNames.cs`; OpenTelemetry packages live in Infrastructure only. `tenant.id` is never a metric label unless `Observability:TenantIdAsMetricLabel` is on. Logs, tags and labels never hold secrets, tokens, bodies or personal data, only ids (the never-record list in `docs/observability.md`). The email outbox gets its spans and metrics when the email layer is built.
 - No secrets in the repo: user-secrets locally (the AppHost generates the local Vault token), the configured secret store when deployed.
 - Never commit `artifacts/`, `bin/`, `obj/`, `node_modules/` or `*.db`.
 

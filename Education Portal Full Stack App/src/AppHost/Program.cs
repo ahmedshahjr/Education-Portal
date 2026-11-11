@@ -47,6 +47,13 @@ if (builder.ExecutionContext.IsRunMode)
         .WithEnvironment("Secrets__HashiCorp__Token", vaultToken)
         .WaitFor(vault);
 
+    // Local observability stack (ADR-007): the app sends logs, metrics and traces to the Collector only, which
+    // forwards them to Prometheus, Loki, Jaeger and the Aspire dashboard. Grafana shows all three.
+    var otelCollector = builder.AddObservabilityStack();
+
+    // No WaitFor: the app must start and run even when the Collector is down; export retries in the background.
+    web.WithEnvironment("Observability__OtlpEndpoint", otelCollector.GetEndpoint("grpc"));
+
     builder.AddJavaScriptApp(Services.WebFrontend, "./../Web/ClientApp")
         .WithRunScript("start")
         .WithReference(web)

@@ -34,4 +34,19 @@ public static class Services
 
     /// <summary>The name of the Aspire parameter that holds the local Vault's root token (development only).</summary>
     public const string VaultDevToken = "vault-dev-token";
+
+    /// <summary>The local OpenTelemetry Collector (development only). The app sends all telemetry here (ADR-007).</summary>
+    public const string OtelCollector = "otel-collector";
+
+    /// <summary>The local Prometheus that stores metrics (development only).</summary>
+    public const string Prometheus = "prometheus";
+
+    /// <summary>The local Loki that stores logs (development only).</summary>
+    public const string Loki = "loki";
+
+    /// <summary>The local Jaeger that stores traces (development only).</summary>
+    public const string Jaeger = "jaeger";
+
+    /// <summary>The local Grafana that shows metrics, logs and traces (development only).</summary>
+    public const string Grafana = "grafana";
 }
