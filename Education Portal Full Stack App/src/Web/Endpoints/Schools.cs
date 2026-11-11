@@ -71,10 +71,21 @@ public class Schools : IEndpointGroup
     }
 
     [EndpointSummary("List schools")]
-    [EndpointDescription("Returns one page of schools, the master tenant first. Master tenant only.")]
-    public static async Task<Ok<PaginatedList<SchoolSummaryDto>>> GetSchools(ISender sender, int pageNumber = 1, int pageSize = 25)
+    [EndpointDescription("Returns one page of schools, the master tenant first, optionally only those whose name contains the search text (ignoring case) and those in one country. Master tenant only.")]
+    public static async Task<Ok<PaginatedList<SchoolSummaryDto>>> GetSchools(
+        ISender sender,
+        int pageNumber = 1,
+        int pageSize = 25,
+        string? search = null,
+        int? countryId = null)
     {
-        return TypedResults.Ok(await sender.Send(new GetSchoolsQuery { PageNumber = pageNumber, PageSize = pageSize }));
+        return TypedResults.Ok(await sender.Send(new GetSchoolsQuery
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            Search = search,
+            CountryId = countryId,
+        }));
     }
 
     [EndpointSummary("Get a school's branding")]

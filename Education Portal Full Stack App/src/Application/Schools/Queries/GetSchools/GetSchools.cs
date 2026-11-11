@@ -5,13 +5,25 @@ using EducationPortal.Domain.Constants;
 
 namespace EducationPortal.Application.Schools.Queries.GetSchools;
 
-/// <summary>Lists every school, for the master portal. Master tenant administrators only (SEC-AUTHZ-07).</summary>
+/// <summary>
+/// Lists the schools, for the master portal, optionally only those whose name contains <see cref="Search"/> and those in
+/// one country. Master tenant administrators only (SEC-AUTHZ-07).
+/// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
 public record GetSchoolsQuery : IRequest<PaginatedList<SchoolSummaryDto>>
 {
+    /// <summary>The longest search text accepted (SEC-INPUT-01). School names are at most 200 characters.</summary>
+    public const int MaxSearchLength = 100;
+
     public int PageNumber { get; init; } = 1;
 
     public int PageSize { get; init; } = 25;
+
+    /// <summary>Only schools whose name contains this text, ignoring case. Blank means every school.</summary>
+    public string? Search { get; init; }
+
+    /// <summary>Only schools in this country. <c>null</c> means every school.</summary>
+    public int? CountryId { get; init; }
 }
 
 /// <param name="CountryId">The school's country, or <c>null</c> for the platform defaults.</param>
@@ -23,6 +35,8 @@ public class GetSchoolsQueryValidator : AbstractValidator<GetSchoolsQuery>
     {
         RuleFor(q => q.PageNumber).GreaterThanOrEqualTo(1);
         RuleFor(q => q.PageSize).InclusiveBetween(1, PaginatedList<SchoolSummaryDto>.MaxPageSize);
+        RuleFor(q => q.Search).MaximumLength(GetSchoolsQuery.MaxSearchLength);
+        RuleFor(q => q.CountryId).GreaterThan(0);
     }
 }
 
@@ -37,14 +51,27 @@ public class GetSchoolsQueryHandler : IRequestHandler<GetSchoolsQuery, Paginated
 
     public async Task<PaginatedList<SchoolSummaryDto>> Handle(GetSchoolsQuery request, CancellationToken cancellationToken)
     {
+        IQueryable<School> schools = _context.Schools.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            // A parameterised, case-insensitive "contains"; EF Core escapes LIKE wildcards in the text (SEC-INPUT-02).
+            var search = request.Search.Trim().ToLowerInvariant();
+            schools = schools.Where(s => s.Name.ToLower().Contains(search));
+        }
+
+        if (request.CountryId is { } countryId)
+        {
+            schools = schools.Where(s => s.CountryId == countryId);
+        }
+
         // The master tenant comes first, then the schools by name; the id keeps the order stable (ENG-EF-05).
-        var schools = _context.Schools
-            .AsNoTracking()
+        var page = schools
             .OrderByDescending(s => s.IsMaster)
             .ThenBy(s => s.Name)
             .ThenBy(s => s.Id)
             .Select(s => new SchoolSummaryDto(s.Id, s.Name, s.Domain, s.IsMaster, s.CountryId));
 
-        return await PaginatedList<SchoolSummaryDto>.CreateAsync(schools, request.PageNumber, request.PageSize, cancellationToken);
+        return await PaginatedList<SchoolSummaryDto>.CreateAsync(page, request.PageNumber, request.PageSize, cancellationToken);
     }
 }
