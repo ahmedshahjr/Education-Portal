@@ -31,7 +31,7 @@ public class TenantResolutionTests : TestBase
     public async Task ShouldSignInOnTheUsersOwnSchoolDomain()
     {
         var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        await TestApp.RunAsUserAsync(schoolId, "teacher@school1.local", TestApp.DefaultUserPassword, []);
+        await TestApp.RunAsUserAsync(schoolId.Id, "teacher@school1.local", TestApp.DefaultUserPassword, []);
         using var session = TestHttp.CreateDevelopmentSession(SchoolDomain);
 
         using var response = await session.SignInAsync("teacher@school1.local", TestApp.DefaultUserPassword);

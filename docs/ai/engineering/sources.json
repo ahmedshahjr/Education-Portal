@@ -65,7 +65,7 @@
       "name": "Microsoft EF Core documentation (performance, querying, modeling, saving, migrations, testing)",
       "portal": "https://learn.microsoft.com/ef/core/",
       "tracked_version": "EF Core 10",
-      "skills": ["efcore", "csharp-entities"],
+      "skills": ["efcore", "csharp-entities", "identifiers-enums"],
       "watch": {"type": "github-path", "repo": "dotnet/EntityFramework.Docs", "path": "entity-framework/core"},
       "last_seen_sha": "",
       "last_reviewed": "2026-11-10"
@@ -104,7 +104,7 @@
       "name": "Microsoft .NET Framework design guidelines (naming, type and member design)",
       "portal": "https://learn.microsoft.com/dotnet/standard/design-guidelines/",
       "tracked_version": ".NET design guidelines (current on Learn)",
-      "skills": ["csharp-entities", "design-principles"],
+      "skills": ["csharp-entities", "design-principles", "identifiers-enums"],
       "watch": {"type": "github-path", "repo": "dotnet/docs", "path": "docs/standard/design-guidelines"},
       "last_seen_sha": "",
       "last_reviewed": "2026-11-10"
@@ -177,6 +177,26 @@
       "watch": {"type": "github-path", "repo": "github/awesome-copilot", "path": "instructions/agent-safety.instructions.md"},
       "last_seen_sha": "",
       "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "aspnetcore-minimal-api-json",
+      "name": "ASP.NET Core minimal APIs: JSON options, parameter binding and OpenAPI metadata (enums as strings)",
+      "portal": "https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis/responses?view=aspnetcore-10.0#configure-json-serialization-options",
+      "tracked_version": "ASP.NET Core 10",
+      "skills": ["identifiers-enums"],
+      "watch": {"type": "github-path", "repo": "dotnet/AspNetCore.Docs", "path": "aspnetcore/fundamentals/minimal-apis"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-11"
+    },
+    {
+      "id": "azure-api-design",
+      "name": "Azure Architecture Center: best practices for RESTful web API design (do not expose internal implementation or mirror the database)",
+      "portal": "https://learn.microsoft.com/azure/architecture/best-practices/api-design",
+      "tracked_version": "Azure Architecture Center API design guidance (current on Learn)",
+      "skills": ["identifiers-enums"],
+      "watch": {"type": "github-path", "repo": "MicrosoftDocs/architecture-center", "path": "docs/best-practices/api-design.md"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-11"
     }
   ]
 }

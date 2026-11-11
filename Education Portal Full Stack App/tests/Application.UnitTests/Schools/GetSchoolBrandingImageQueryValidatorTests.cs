@@ -10,15 +10,15 @@ public class GetSchoolBrandingImageQueryValidatorTests
     private readonly GetSchoolBrandingImageQueryValidator _validator = new();
 
     [Test]
-    public void ShouldAcceptAPositiveSchoolAndAKnownKind()
+    public void ShouldAcceptASchoolAndAKnownKind()
     {
-        _validator.Validate(new GetSchoolBrandingImageQuery(1, BrandingImageKind.Favicon)).IsValid.ShouldBeTrue();
+        _validator.Validate(new GetSchoolBrandingImageQuery(Guid.CreateVersion7(), BrandingImageKind.Favicon)).IsValid.ShouldBeTrue();
     }
 
     [Test]
-    public void ShouldRefuseASchoolIdThatIsNotPositive()
+    public void ShouldRefuseAnEmptySchoolId()
     {
-        var result = _validator.Validate(new GetSchoolBrandingImageQuery(0, BrandingImageKind.Logo));
+        var result = _validator.Validate(new GetSchoolBrandingImageQuery(Guid.Empty, BrandingImageKind.Logo));
 
         result.Errors.ShouldContain(e => e.PropertyName == nameof(GetSchoolBrandingImageQuery.SchoolId));
     }
@@ -26,6 +26,6 @@ public class GetSchoolBrandingImageQueryValidatorTests
     [Test]
     public void ShouldRefuseAnUnknownKind()
     {
-        _validator.Validate(new GetSchoolBrandingImageQuery(1, (BrandingImageKind)99)).IsValid.ShouldBeFalse();
+        _validator.Validate(new GetSchoolBrandingImageQuery(Guid.CreateVersion7(), (BrandingImageKind)99)).IsValid.ShouldBeFalse();
     }
 }

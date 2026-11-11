@@ -12,7 +12,7 @@ public class SchoolModule : BaseAuditableEntity
         // For EF Core.
     }
 
-    private SchoolModule(int schoolId, int moduleId, bool isEnabled)
+    private SchoolModule(long schoolId, long moduleId, bool isEnabled)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(schoolId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(moduleId);
@@ -23,16 +23,16 @@ public class SchoolModule : BaseAuditableEntity
     }
 
     /// <summary>Records the master's choice for a module.</summary>
-    public static SchoolModule Create(int schoolId, PortalModule module, bool isEnabled)
+    public static SchoolModule Create(long schoolId, PortalModule module, bool isEnabled)
     {
         ArgumentNullException.ThrowIfNull(module);
 
         return new SchoolModule(schoolId, module.Id, isEnabled);
     }
 
-    public int SchoolId { get; private set; }
+    public long SchoolId { get; private set; }
 
-    public int ModuleId { get; private set; }
+    public long ModuleId { get; private set; }
 
     public bool IsEnabled { get; private set; }
 

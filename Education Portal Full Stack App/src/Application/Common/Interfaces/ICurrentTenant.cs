@@ -7,7 +7,7 @@ namespace EducationPortal.Application.Common.Interfaces;
 public interface ICurrentTenant
 {
     /// <summary>The resolved school, or <c>null</c> outside a request (for example in a health check).</summary>
-    int? SchoolId { get; }
+    long? SchoolId { get; }
 
     /// <summary>True when the host is the master tenant's domain.</summary>
     bool IsMaster { get; }

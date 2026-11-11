@@ -18,7 +18,7 @@ describe('CountriesPage', () => {
 
     http.expectOne((r) => r.url.startsWith('/api/Countries?')).flush(
       blob({
-        items: [{ id: 1, code: 'PK', name: 'Pakistan', languages: ['en', 'ur'], defaultLanguage: 'en', timeZoneId: 'Asia/Karachi', currencyCode: 'PKR' }],
+        items: [{ id: '0190f3a0-0000-7000-8000-000000000001', code: 'PK', name: 'Pakistan', languages: ['en', 'ur'], defaultLanguage: 'en', timeZoneId: 'Asia/Karachi', currencyCode: 'PKR' }],
         pageNumber: 1,
         totalPages: 1,
         totalCount: 1,

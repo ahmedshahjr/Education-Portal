@@ -1,5 +1,6 @@
 using System.Globalization;
 using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Common.Security;
 using EducationPortal.Domain.Constants;
 
@@ -13,7 +14,8 @@ namespace EducationPortal.Application.Modules.Commands.SetSchoolModule;
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
 public record SetSchoolModuleCommand : IRequest
 {
-    public int SchoolId { get; init; }
+    /// <summary>The school's public id (ENG-ID-02).</summary>
+    public Guid SchoolId { get; init; }
 
     public string Key { get; init; } = string.Empty;
 
@@ -24,11 +26,11 @@ public class SetSchoolModuleCommandValidator : AbstractValidator<SetSchoolModule
 {
     public SetSchoolModuleCommandValidator(IApplicationDbContext context)
     {
-        RuleFor(c => c.SchoolId).GreaterThan(0);
+        RuleFor(c => c.SchoolId).NotEmpty();
         RuleFor(c => c.Key).NotEmpty().MaximumLength(PortalModule.KeyMaxLength);
 
         RuleFor(c => c.SchoolId)
-            .MustAsync(async (schoolId, cancellationToken) => !await context.Schools.AnyAsync(s => s.Id == schoolId && s.IsMaster, cancellationToken))
+            .MustAsync(async (schoolId, cancellationToken) => !await context.Schools.AnyAsync(s => s.PublicId == schoolId && s.IsMaster, cancellationToken))
             .WithMessage("The master tenant always has every module.");
     }
 }
@@ -46,20 +48,17 @@ public class SetSchoolModuleCommandHandler : IRequestHandler<SetSchoolModuleComm
 
     public async Task Handle(SetSchoolModuleCommand request, CancellationToken cancellationToken)
     {
-        if (!await _context.Schools.AnyAsync(s => s.Id == request.SchoolId, cancellationToken))
-        {
-            throw new NotFoundException(request.SchoolId.ToString(CultureInfo.InvariantCulture), nameof(School));
-        }
+        var schoolId = await _context.Schools.ResolveIdAsync(request.SchoolId, cancellationToken);
 
         var module = await _context.Modules.FirstOrDefaultAsync(m => m.Key == request.Key, cancellationToken);
         Guard.Against.NotFound(request.Key, module);
 
         var choice = await _context.SchoolModules
-            .FirstOrDefaultAsync(c => c.SchoolId == request.SchoolId && c.ModuleId == module.Id, cancellationToken);
+            .FirstOrDefaultAsync(c => c.SchoolId == schoolId && c.ModuleId == module.Id, cancellationToken);
 
         if (choice is null)
         {
-            _context.SchoolModules.Add(SchoolModule.Create(request.SchoolId, module, request.IsEnabled));
+            _context.SchoolModules.Add(SchoolModule.Create(schoolId, module, request.IsEnabled));
         }
         else
         {
@@ -72,6 +71,6 @@ public class SetSchoolModuleCommandHandler : IRequestHandler<SetSchoolModuleComm
             SecurityAuditEventType.SchoolModuleChanged,
             SecurityAuditOutcome.Success,
             targetType: nameof(School),
-            targetId: string.Create(CultureInfo.InvariantCulture, $"{request.SchoolId}/{module.Key}"));
+            targetId: string.Create(CultureInfo.InvariantCulture, $"{schoolId}/{module.Key}"));
     }
 }

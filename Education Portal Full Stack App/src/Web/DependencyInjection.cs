@@ -38,9 +38,11 @@ public static class DependencyInjection
                 context.ProblemDetails.Extensions["traceId"] = Activity.Current?.TraceId.ToString() ?? context.HttpContext.TraceIdentifier;
         });
 
-        // Enums travel by name (for example "Cyan"), which keeps the API readable and gives Angular named enums.
+        // Enums travel by name only (ENG-ENUM-01), for example "Logo": the API stays readable, Angular gets named enums,
+        // and the numbers the database stores stay private. Numbers are refused (allowIntegerValues: false), so a client
+        // cannot send "2" or an undefined "99".
         builder.Services.ConfigureHttpJsonOptions(options =>
-            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false)));
 
         // Customise default API behaviour
         builder.Services.Configure<ApiBehaviorOptions>(options =>

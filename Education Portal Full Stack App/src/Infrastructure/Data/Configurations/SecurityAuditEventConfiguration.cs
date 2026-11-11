@@ -14,8 +14,12 @@ public class SecurityAuditEventConfiguration : IEntityTypeConfiguration<Security
         builder.Property(e => e.Id).ValueGeneratedOnAdd();
 
         builder.Property(e => e.OccurredAt).IsRequired();
-        builder.Property(e => e.EventType).IsRequired().HasConversion<string>().HasMaxLength(32);
-        builder.Property(e => e.Outcome).IsRequired().HasConversion<string>().HasMaxLength(16);
+        // Stored as their numbers (ENG-ENUM-02); the SecurityAuditEventTypes lookup table gives reports the names.
+        builder.Property(e => e.EventType).IsRequired();
+        builder.Property(e => e.Outcome).IsRequired();
+
+        // The public identity, if a record is ever exposed (ENG-ID-02).
+        builder.HasAlternateKey(e => e.PublicId);
 
         builder.Property(e => e.ActorUserId).HasMaxLength(450);
         builder.Property(e => e.TargetType).HasMaxLength(64);

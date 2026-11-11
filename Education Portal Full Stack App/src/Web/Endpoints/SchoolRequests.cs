@@ -20,7 +20,7 @@ public class SchoolRequests : IEndpointGroup
 
     [EndpointSummary("Request a school")]
     [EndpointDescription("Sends a request for a school to join. It stays pending until the master tenant approves it.")]
-    public static async Task<Created<int>> SubmitSchoolRequest(ISender sender, SubmitSchoolRequestCommand command)
+    public static async Task<Created<Guid>> SubmitSchoolRequest(ISender sender, SubmitSchoolRequestCommand command)
     {
         var id = await sender.Send(command);
 

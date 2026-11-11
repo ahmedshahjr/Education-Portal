@@ -155,7 +155,7 @@ public class BrandingTests : TestBase
     public async Task ShouldRequireTheAdministratorRoleToChangeBranding()
     {
         var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        await TestApp.RunAsUserAsync(schoolId, "teacher@school1.local", TestApp.DefaultUserPassword, []);
+        await TestApp.RunAsUserAsync(schoolId.Id, "teacher@school1.local", TestApp.DefaultUserPassword, []);
         using var session = TestHttp.CreateDevelopmentSession(SchoolDomain);
         (await session.SignInAsync("teacher@school1.local", TestApp.DefaultUserPassword)).Dispose();
 
@@ -197,12 +197,12 @@ public class BrandingTests : TestBase
     {
         var schoolOne = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         var schoolTwo = await TestApp.AddSchoolAsync("School Two", OtherSchoolDomain);
-        await TestApp.AddAsync(new BrandingImage(schoolOne, BrandingImageKind.Logo, TestImages.Png));
+        await TestApp.AddAsync(new BrandingImage(schoolOne.Id, BrandingImageKind.Logo, TestImages.Png));
 
-        TestApp.UseTenant(schoolTwo);
+        TestApp.UseTenant(schoolTwo.Id);
         (await TestApp.SendAsync(new GetBrandingImageQuery(BrandingImageKind.Logo))).ShouldBeNull();
 
-        TestApp.UseTenant(schoolOne);
+        TestApp.UseTenant(schoolOne.Id);
         (await TestApp.SendAsync(new GetBrandingImageQuery(BrandingImageKind.Logo))).ShouldNotBeNull();
     }
 
@@ -213,7 +213,7 @@ public class BrandingTests : TestBase
         using var _ = session;
 
         using var list = await session.GetAsync("/api/Schools");
-        using var update = await session.PutFormAsync($"/api/Schools/{TestApp.MasterSchoolId}/branding", Form("#fa896b"));
+        using var update = await session.PutFormAsync($"/api/Schools/{TestApp.MasterSchoolPublicId}/branding", Form("#fa896b"));
 
         list.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         update.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
@@ -228,7 +228,7 @@ public class BrandingTests : TestBase
         (await master.SignInAsync(TestApp.AdministratorEmail, TestApp.AdministratorPassword)).Dispose();
 
         using var schools = await master.GetAsync("/api/Schools");
-        using var update = await master.PutFormAsync($"/api/Schools/{schoolId}/branding", Form("#00ceb6", "#004d40", logo: TestImages.Png));
+        using var update = await master.PutFormAsync($"/api/Schools/{schoolId.PublicId}/branding", Form("#00ceb6", "#004d40", logo: TestImages.Png));
 
         schools.StatusCode.ShouldBe(HttpStatusCode.OK);
         (await schools.Content.ReadAsStringAsync()).ShouldContain(SchoolDomain);
@@ -245,13 +245,13 @@ public class BrandingTests : TestBase
     public async Task ShouldLetTheMasterTenantViewAnySchoolsImages()
     {
         var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        await TestApp.AddAsync(new BrandingImage(schoolId, BrandingImageKind.Logo, TestImages.Png));
+        await TestApp.AddAsync(new BrandingImage(schoolId.Id, BrandingImageKind.Logo, TestImages.Png));
         await TestApp.RunAsAdministratorAsync();
         using var master = TestHttp.CreateDevelopmentSession();
         (await master.SignInAsync(TestApp.AdministratorEmail, TestApp.AdministratorPassword)).Dispose();
 
-        using var logo = await master.GetAsync($"/api/Schools/{schoolId}/branding/images/Logo");
-        using var favicon = await master.GetAsync($"/api/Schools/{schoolId}/branding/images/Favicon");
+        using var logo = await master.GetAsync($"/api/Schools/{schoolId.PublicId}/branding/images/Logo");
+        using var favicon = await master.GetAsync($"/api/Schools/{schoolId.PublicId}/branding/images/Favicon");
 
         logo.StatusCode.ShouldBe(HttpStatusCode.OK);
         favicon.StatusCode.ShouldBe(HttpStatusCode.NotFound);
@@ -262,11 +262,11 @@ public class BrandingTests : TestBase
     {
         // The administrator signs in on SchoolDomain, so the image belongs to another school.
         var otherSchoolId = await TestApp.AddSchoolAsync("School Two", OtherSchoolDomain);
-        await TestApp.AddAsync(new BrandingImage(otherSchoolId, BrandingImageKind.Logo, TestImages.Png));
+        await TestApp.AddAsync(new BrandingImage(otherSchoolId.Id, BrandingImageKind.Logo, TestImages.Png));
         await SignInAsSchoolAdministratorAsync(SchoolDomain, out var session);
         using var _ = session;
 
-        using var response = await session.GetAsync($"/api/Schools/{otherSchoolId}/branding/images/Logo");
+        using var response = await session.GetAsync($"/api/Schools/{otherSchoolId.PublicId}/branding/images/Logo");
 
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
@@ -291,7 +291,7 @@ public class BrandingTests : TestBase
         static async Task<string> SignInAsync(string domain, HttpSession session)
         {
             var schoolId = await TestApp.AddSchoolAsync("School One", domain);
-            var userId = await TestApp.RunAsUserAsync(schoolId, SchoolAdminEmail, TestApp.AdministratorPassword, [Roles.Administrator]);
+            var userId = await TestApp.RunAsUserAsync(schoolId.Id, SchoolAdminEmail, TestApp.AdministratorPassword, [Roles.Administrator]);
             using var response = await session.SignInAsync(SchoolAdminEmail, TestApp.AdministratorPassword);
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
             return userId;

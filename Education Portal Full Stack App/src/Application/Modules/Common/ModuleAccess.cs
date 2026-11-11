@@ -12,13 +12,13 @@ public class ModuleAccess : IModuleAccess
         _context = context;
     }
 
-    public async Task<bool> IsEnabledAsync(int schoolId, string moduleKey, CancellationToken cancellationToken)
+    public async Task<bool> IsEnabledAsync(long schoolId, string moduleKey, CancellationToken cancellationToken)
     {
         var enabled = await GetEnabledKeysAsync(schoolId, cancellationToken);
         return enabled.Contains(moduleKey, StringComparer.Ordinal);
     }
 
-    public async Task<IReadOnlyList<string>> GetEnabledKeysAsync(int schoolId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<string>> GetEnabledKeysAsync(long schoolId, CancellationToken cancellationToken)
     {
         // A handful of modules, so one small query per call (ENG-EF-02: no-tracking projection).
         var modules = await ModuleStates.ForSchool(_context, schoolId)

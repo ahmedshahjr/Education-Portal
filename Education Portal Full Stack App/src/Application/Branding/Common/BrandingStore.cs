@@ -9,7 +9,7 @@ namespace EducationPortal.Application.Branding.Common;
 /// </summary>
 internal static class BrandingStore
 {
-    public static async Task<BrandingDto> ReadAsync(IApplicationDbContext context, int schoolId, CancellationToken cancellationToken)
+    public static async Task<BrandingDto> ReadAsync(IApplicationDbContext context, long schoolId, CancellationToken cancellationToken)
     {
         var school = await context.Schools
             .AsNoTracking()
@@ -34,7 +34,7 @@ internal static class BrandingStore
     }
 
     /// <summary>Applies <paramref name="update"/> to the school and saves it in one transaction (ENG-EF-01).</summary>
-    public static async Task WriteAsync(IApplicationDbContext context, int schoolId, BrandingUpdate update, CancellationToken cancellationToken)
+    public static async Task WriteAsync(IApplicationDbContext context, long schoolId, BrandingUpdate update, CancellationToken cancellationToken)
     {
         var school = await context.Schools.SingleOrDefaultAsync(s => s.Id == schoolId, cancellationToken)
             ?? throw new NotFoundException(schoolId.ToString(System.Globalization.CultureInfo.InvariantCulture), nameof(School));
@@ -51,7 +51,7 @@ internal static class BrandingStore
 
     private static async Task ApplyImageAsync(
         IApplicationDbContext context,
-        int schoolId,
+        long schoolId,
         BrandingImageKind kind,
         byte[]? content,
         bool remove,

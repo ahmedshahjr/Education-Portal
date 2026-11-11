@@ -1,7 +1,7 @@
 namespace EducationPortal.Application.Countries.Common;
 
 public sealed record CountryDto(
-    int Id,
+    Guid Id,
     string Code,
     string Name,
     IReadOnlyList<string> Languages,

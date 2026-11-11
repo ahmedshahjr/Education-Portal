@@ -63,9 +63,9 @@ internal sealed class FlakySecretProvider(int failures, bool transient) : ISecre
     }
 }
 
-internal sealed class FakeCurrentTenant(int? schoolId) : ICurrentTenant
+internal sealed class FakeCurrentTenant(long? schoolId) : ICurrentTenant
 {
-    public int? SchoolId { get; } = schoolId;
+    public long? SchoolId { get; } = schoolId;
 
     public bool IsMaster => false;
 }

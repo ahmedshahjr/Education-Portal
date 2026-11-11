@@ -21,7 +21,7 @@ public class Branding : IEndpointGroup
             // compliance-exception: SEC-AUTHN-01 the login page is themed before sign-in; returns only the school's name and look
             .AllowAnonymous();
 
-        groupBuilder.MapGet(GetBrandingImage, "images/{kind}")
+        groupBuilder.MapGet(GetBrandingImage, "images/{kind:alpha}")
             // compliance-exception: SEC-AUTHN-01 the logo and favicon are shown on the login page before sign-in
             .AllowAnonymous();
 

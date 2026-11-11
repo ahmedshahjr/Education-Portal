@@ -275,11 +275,11 @@ export class SchoolsPage {
 
   /** The countries to pick from (one page of up to 100, which covers every country in use). */
   protected readonly countries = signal<readonly CountryDto[]>([]);
-  protected readonly assigning = signal<number | null>(null);
+  protected readonly assigning = signal<string | null>(null);
 
   /** The name search and the country the table is limited to; the server filters, so paging stays correct. */
   protected readonly search = signal('');
-  protected readonly countryFilter = signal<number | null>(null);
+  protected readonly countryFilter = signal<string | null>(null);
   protected readonly isFiltered = computed(() => this.search().trim() !== '' || this.countryFilter() !== null);
   private searchTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -292,7 +292,7 @@ export class SchoolsPage {
     });
   }
 
-  protected assignCountry(school: SchoolSummaryDto, countryId: number | null): void {
+  protected assignCountry(school: SchoolSummaryDto, countryId: string | null): void {
     this.assigning.set(school.id);
     this.client.updateSchoolCountry(school.id, new UpdateSchoolCountryCommand({ countryId: countryId ?? undefined })).subscribe({
       next: () => {
@@ -324,7 +324,7 @@ export class SchoolsPage {
     this.searchTimer = setTimeout(() => this.loadPage(0), SEARCH_DELAY_MS);
   }
 
-  protected changeCountryFilter(countryId: number | null): void {
+  protected changeCountryFilter(countryId: string | null): void {
     this.countryFilter.set(countryId);
     this.loadPage(0);
   }

@@ -1,3 +1,4 @@
+using EducationPortal.Infrastructure.Data.Lookups;
 using Npgsql;
 using Respawn;
 using System.Data.Common;
@@ -22,10 +23,10 @@ internal sealed class DatabaseResetter : IAsyncDisposable
         await connection.OpenAsync();
 
         // The security audit log is append-only (SEC-LOG-05), so the reset leaves it alone. Each test reads only the
-        // records of the users it created.
+        // records of the users it created. The enum lookup tables are reference data seeded with the schema (ENG-ENUM-04).
         var respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
         {
-            TablesToIgnore = ["SecurityAuditEvents"],
+            TablesToIgnore = [new Respawn.Graph.Table("SecurityAuditEvents"), .. EnumLookupTables.Tables.Select(name => new Respawn.Graph.Table(name))],
         });
 
         await connection.CloseAsync();

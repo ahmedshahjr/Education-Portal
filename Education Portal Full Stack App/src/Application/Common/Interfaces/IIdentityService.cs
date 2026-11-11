@@ -10,7 +10,7 @@ public interface IIdentityService
 
     Task<bool> AuthorizeAsync(string userId, string policyName);
 
-    Task<(Result Result, string UserId)> CreateUserAsync(int schoolId, string userName, string password);
+    Task<(Result Result, string UserId)> CreateUserAsync(long schoolId, string userName, string password);
 
     Task<Result> DeleteUserAsync(string userId);
 
@@ -20,7 +20,7 @@ public interface IIdentityService
     /// <paramref name="schoolId"/> (the school of the request's domain) is refused like a wrong password,
     /// without counting towards its lockout.
     /// </summary>
-    Task<PasswordSignInResult> PasswordSignInAsync(int schoolId, string email, string password);
+    Task<PasswordSignInResult> PasswordSignInAsync(long schoolId, string email, string password);
 
     /// <summary>
     /// Signs the user out and ends every session they have, not only the current browser's (SEC-AUTHN-07).

@@ -1,5 +1,6 @@
 using System.Globalization;
 using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Common.Security;
 using EducationPortal.Domain.Constants;
 
@@ -13,20 +14,21 @@ namespace EducationPortal.Application.Schools.Commands.UpdateSchoolCountry;
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
 public record UpdateSchoolCountryCommand : IRequest
 {
-    public int SchoolId { get; init; }
+    /// <summary>The school's public id (ENG-ID-02).</summary>
+    public Guid SchoolId { get; init; }
 
     /// <summary>The country, or <c>null</c> for the platform defaults.</summary>
-    public int? CountryId { get; init; }
+    public Guid? CountryId { get; init; }
 }
 
 public class UpdateSchoolCountryCommandValidator : AbstractValidator<UpdateSchoolCountryCommand>
 {
     public UpdateSchoolCountryCommandValidator(IApplicationDbContext context)
     {
-        RuleFor(c => c.SchoolId).GreaterThan(0);
+        RuleFor(c => c.SchoolId).NotEmpty();
 
         RuleFor(c => c.CountryId)
-            .MustAsync(async (countryId, cancellationToken) => await context.Countries.AnyAsync(c => c.Id == countryId, cancellationToken))
+            .MustAsync(async (countryId, cancellationToken) => await context.Countries.AnyAsync(c => c.PublicId == countryId, cancellationToken))
             .When(c => c.CountryId is not null)
             .WithMessage("The country does not exist.");
     }
@@ -45,10 +47,14 @@ public class UpdateSchoolCountryCommandHandler : IRequestHandler<UpdateSchoolCou
 
     public async Task Handle(UpdateSchoolCountryCommand request, CancellationToken cancellationToken)
     {
-        var school = await _context.Schools.FirstOrDefaultAsync(s => s.Id == request.SchoolId, cancellationToken);
+        var school = await _context.Schools.FirstOrDefaultAsync(s => s.PublicId == request.SchoolId, cancellationToken);
         Guard.Against.NotFound(request.SchoolId, school);
 
-        school.AssignCountry(request.CountryId);
+        long? countryId = request.CountryId is { } countryPublicId
+            ? await _context.Countries.ResolveIdAsync(countryPublicId, cancellationToken)
+            : null;
+
+        school.AssignCountry(countryId);
         await _context.SaveChangesAsync(cancellationToken);
 
         await _auditLog.WriteAsync(

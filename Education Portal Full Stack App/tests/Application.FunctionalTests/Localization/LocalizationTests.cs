@@ -22,8 +22,8 @@ public class LocalizationTests : TestBase
     {
         var pakistan = await TestApp.AddCountryAsync("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR");
         var uae = await TestApp.AddCountryAsync("AE", "United Arab Emirates", ["en", "ar"], "ar", "Asia/Dubai", "AED");
-        await TestApp.AddSchoolAsync("Lahore School", PakistanDomain, pakistan);
-        await TestApp.AddSchoolAsync("Dubai School", UaeDomain, uae);
+        await TestApp.AddSchoolAsync("Lahore School", PakistanDomain, pakistan.Id);
+        await TestApp.AddSchoolAsync("Dubai School", UaeDomain, uae.Id);
         await TestApp.AddSchoolAsync("Plain School", NoCountryDomain);
     }
 

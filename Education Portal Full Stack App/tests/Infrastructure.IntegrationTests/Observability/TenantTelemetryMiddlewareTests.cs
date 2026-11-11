@@ -118,7 +118,7 @@ public class TenantTelemetryMiddlewareTests : IDisposable
             _logger,
             Options.Create(new ObservabilityOptions { TenantIdAsMetricLabel = tenantIdAsMetricLabel }));
 
-    private sealed record FakeTenant(int? SchoolId) : ICurrentTenant
+    private sealed record FakeTenant(long? SchoolId) : ICurrentTenant
     {
         public bool IsMaster => false;
     }

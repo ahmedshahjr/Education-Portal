@@ -60,9 +60,9 @@ public class School : BaseSoftDeletableEntity
     /// The country whose languages, time zone and currency the school uses, or <c>null</c> for the platform defaults
     /// (English only, UTC). Only the master tenant assigns it.
     /// </summary>
-    public int? CountryId { get; private set; }
+    public long? CountryId { get; private set; }
 
-    public void AssignCountry(int? countryId)
+    public void AssignCountry(long? countryId)
     {
         if (countryId is <= 0)
         {

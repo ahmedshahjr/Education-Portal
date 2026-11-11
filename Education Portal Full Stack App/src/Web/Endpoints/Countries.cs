@@ -27,7 +27,7 @@ public class Countries : IEndpointGroup
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
-        groupBuilder.MapPut(UpdateCountry, "{id:int}")
+        groupBuilder.MapPut(UpdateCountry, "{id:guid}")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
     }
@@ -48,14 +48,14 @@ public class Countries : IEndpointGroup
 
     [EndpointSummary("Add a country")]
     [EndpointDescription("Adds a country with its languages, default language, IANA time zone and ISO 4217 currency, and returns its id. Master tenant only.")]
-    public static async Task<Ok<int>> CreateCountry(ISender sender, CreateCountryCommand command)
+    public static async Task<Ok<Guid>> CreateCountry(ISender sender, CreateCountryCommand command)
     {
         return TypedResults.Ok(await sender.Send(command));
     }
 
     [EndpointSummary("Change a country")]
     [EndpointDescription("Changes a country's name, languages, default language, time zone and currency. Its schools follow from their next request. The code cannot change. Master tenant only.")]
-    public static async Task<NoContent> UpdateCountry(ISender sender, int id, UpdateCountryCommand command)
+    public static async Task<NoContent> UpdateCountry(ISender sender, Guid id, UpdateCountryCommand command)
     {
         // The route names the country; an id in the body is ignored.
         await sender.Send(command with { Id = id });

@@ -37,9 +37,10 @@ public class CountryTests : TestBase
 
         using var created = await master.PostAsync("/api/Countries", Pakistan);
         created.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var countryId = await created.Content.ReadFromJsonAsync<int>();
+        var countryId = await created.Content.ReadFromJsonAsync<Guid>();
+        countryId.ShouldNotBe(Guid.Empty);
 
-        using var assigned = await master.PutAsync($"/api/Schools/{schoolId}/country", new { countryId });
+        using var assigned = await master.PutAsync($"/api/Schools/{schoolId.PublicId}/country", new { countryId });
         assigned.StatusCode.ShouldBe(HttpStatusCode.NoContent);
 
         var countries = await ReadCountriesAsync(master);
@@ -55,9 +56,11 @@ public class CountryTests : TestBase
         var localization = (await response.Content.ReadFromJsonAsync<LocalizationDto>())!;
         localization.Languages.Select(l => l.Code).ShouldBe(["en", "ur"]);
 
+        // The audit log is internal, so it records the internal keys.
+        var internalCountryId = (await TestApp.FindIdAsync<Country>(countryId)).ToString();
         var audit = await TestApp.FindAuditEventsAsync(userId);
-        audit.ShouldContain(e => e.EventType == SecurityAuditEventType.CountryChanged && e.TargetId == countryId.ToString());
-        audit.ShouldContain(e => e.EventType == SecurityAuditEventType.SchoolCountryChanged && e.TargetId == schoolId.ToString());
+        audit.ShouldContain(e => e.EventType == SecurityAuditEventType.CountryChanged && e.TargetId == internalCountryId);
+        audit.ShouldContain(e => e.EventType == SecurityAuditEventType.SchoolCountryChanged && e.TargetId == schoolId.Id.ToString());
     }
 
     [Test]
@@ -67,9 +70,9 @@ public class CountryTests : TestBase
         await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
 
-        using var response = await master.PutAsync($"/api/Countries/{countryId}", new
+        using var response = await master.PutAsync($"/api/Countries/{countryId.PublicId}", new
         {
-            id = 0, // the route wins
+            id = Guid.CreateVersion7(), // the route wins
             name = "United Arab Emirates",
             languages = new[] { "ar", "en" },
             defaultLanguage = "ar",
@@ -150,7 +153,7 @@ public class CountryTests : TestBase
         await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
 
-        using var response = await master.PutAsync($"/api/Schools/{schoolId}/country", new { countryId = 999999 });
+        using var response = await master.PutAsync($"/api/Schools/{schoolId.PublicId}/country", new { countryId = Guid.NewGuid() });
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
@@ -162,8 +165,8 @@ public class CountryTests : TestBase
         await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
 
-        using var school = await master.PutAsync("/api/Schools/999999/country", new { countryId });
-        using var country = await master.PutAsync("/api/Countries/999999", Pakistan);
+        using var school = await master.PutAsync($"/api/Schools/{Guid.NewGuid()}/country", new { countryId = countryId.PublicId });
+        using var country = await master.PutAsync($"/api/Countries/{Guid.NewGuid()}", Pakistan);
 
         school.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         country.StatusCode.ShouldBe(HttpStatusCode.NotFound);
@@ -173,11 +176,11 @@ public class CountryTests : TestBase
     public async Task ShouldLetASchoolBackToNoCountry()
     {
         var countryId = await TestApp.AddCountryAsync("PK", "Pakistan", ["en", "ur"], "ur", "Asia/Karachi", "PKR");
-        var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain, countryId);
+        var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain, countryId.Id);
         await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
 
-        using var response = await master.PutAsync($"/api/Schools/{schoolId}/country", new { countryId = (int?)null });
+        using var response = await master.PutAsync($"/api/Schools/{schoolId.PublicId}/country", new { countryId = (int?)null });
 
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         using var school = TestHttp.CreateDevelopmentSession(SchoolDomain);
@@ -190,22 +193,22 @@ public class CountryTests : TestBase
     {
         var countryId = await TestApp.AddCountryAsync("PK", "Pakistan", ["en"], "en", "Asia/Karachi", "PKR");
         var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        await TestApp.RunAsUserAsync(schoolId, SchoolAdminEmail, TestApp.AdministratorPassword, [Roles.Administrator]);
+        await TestApp.RunAsUserAsync(schoolId.Id, SchoolAdminEmail, TestApp.AdministratorPassword, [Roles.Administrator]);
         using var session = TestHttp.CreateDevelopmentSession(SchoolDomain);
         (await session.SignInAsync(SchoolAdminEmail, TestApp.AdministratorPassword)).Dispose();
 
         using var list = await session.GetAsync("/api/Countries");
         using var languages = await session.GetAsync("/api/Countries/languages");
         using var create = await session.PostAsync("/api/Countries", Pakistan);
-        using var update = await session.PutAsync($"/api/Countries/{countryId}", Pakistan);
-        using var assign = await session.PutAsync($"/api/Schools/{schoolId}/country", new { countryId });
+        using var update = await session.PutAsync($"/api/Countries/{countryId.PublicId}", Pakistan);
+        using var assign = await session.PutAsync($"/api/Schools/{schoolId.PublicId}/country", new { countryId = countryId.PublicId });
 
         list.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         languages.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         create.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         update.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         assign.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
-        (await TestApp.FindAsync<School>(schoolId))!.CountryId.ShouldBeNull();
+        (await TestApp.FindAsync<School>(schoolId.Id))!.CountryId.ShouldBeNull();
     }
 
     [Test]

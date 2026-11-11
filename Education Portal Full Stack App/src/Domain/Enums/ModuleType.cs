@@ -1,7 +1,8 @@
 namespace EducationPortal.Domain.Enums;
 
 /// <summary>
-/// The two types of module (decided 2026-11-11). Stored by name, so append new values and never rename existing ones.
+/// The two types of module (decided 2026-11-11). Stored as its number and sent over the API by name (ENG-ENUM-01..03):
+/// never change or reuse a number, and never rename a member, because API clients send and receive the name.
 /// </summary>
 public enum ModuleType
 {
