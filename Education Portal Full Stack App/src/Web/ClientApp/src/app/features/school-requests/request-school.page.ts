@@ -44,13 +44,6 @@ import { SchoolRequestsClient, SubmitSchoolRequestCommand } from '../../web-api-
                   [control]="form.controls.schoolName"
                 />
                 <app-form-input
-                  label="Web address you want, for example school1.com"
-                  i18n-label="@@requestSchool.domain"
-                  fieldId="requestedDomain"
-                  autocomplete="off"
-                  [control]="form.controls.requestedDomain"
-                />
-                <app-form-input
                   label="Your name"
                   i18n-label="@@requestSchool.contactName"
                   fieldId="contactName"
@@ -119,7 +112,6 @@ export class RequestSchoolPage {
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
     schoolName: ['', [Validators.required, Validators.maxLength(200)]],
-    requestedDomain: ['', [Validators.required, Validators.maxLength(253)]],
     contactName: ['', [Validators.required, Validators.maxLength(100)]],
     contactEmail: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
   });
@@ -137,7 +129,6 @@ export class RequestSchoolPage {
     const value = this.form.getRawValue();
     const command = new SubmitSchoolRequestCommand({
       schoolName: value.schoolName,
-      requestedDomain: value.requestedDomain,
       contactName: value.contactName,
       contactEmail: value.contactEmail,
     });

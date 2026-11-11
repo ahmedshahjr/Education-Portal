@@ -14,12 +14,11 @@ public class SchoolRequest : BaseAuditableEntity
     {
         // For EF Core.
         SchoolName = string.Empty;
-        RequestedDomain = string.Empty;
         ContactName = string.Empty;
         ContactEmail = string.Empty;
     }
 
-    private SchoolRequest(string schoolName, string requestedDomain, string contactName, string contactEmail)
+    private SchoolRequest(string schoolName, string contactName, string contactEmail)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(schoolName);
         ArgumentException.ThrowIfNullOrWhiteSpace(contactName);
@@ -35,18 +34,16 @@ public class SchoolRequest : BaseAuditableEntity
         }
 
         SchoolName = schoolName.Trim();
-        RequestedDomain = School.NormalizeDomain(requestedDomain);
         ContactName = contactName.Trim();
         ContactEmail = email;
         Status = SchoolRequestStatus.Pending;
     }
 
-    public static SchoolRequest Submit(string schoolName, string requestedDomain, string contactName, string contactEmail) =>
-        new(schoolName, requestedDomain, contactName, contactEmail);
+    /// <summary>The domain is not part of the request: the master tenant sets it when it approves the school.</summary>
+    public static SchoolRequest Submit(string schoolName, string contactName, string contactEmail) =>
+        new(schoolName, contactName, contactEmail);
 
     public string SchoolName { get; private set; }
-
-    public string RequestedDomain { get; private set; }
 
     public string ContactName { get; private set; }
 
