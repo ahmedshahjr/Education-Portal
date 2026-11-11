@@ -1,4 +1,5 @@
 using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Domain.ValueObjects;
 
 namespace EducationPortal.Application.Branding.Common;
 
@@ -13,7 +14,7 @@ internal static class BrandingStore
         var school = await context.Schools
             .AsNoTracking()
             .Where(s => s.Id == schoolId)
-            .Select(s => new { s.Name, s.IsMaster, s.ThemePreset, s.SidebarColor })
+            .Select(s => new { s.Name, s.IsMaster, s.AccentColor, s.SidebarColor })
             .SingleOrDefaultAsync(cancellationToken)
             ?? throw new NotFoundException(schoolId.ToString(System.Globalization.CultureInfo.InvariantCulture), nameof(School));
 
@@ -26,7 +27,7 @@ internal static class BrandingStore
         return new BrandingDto(
             school.Name,
             school.IsMaster,
-            school.ThemePreset,
+            school.AccentColor.Value,
             school.SidebarColor?.Value,
             images.SingleOrDefault(i => i.Kind == BrandingImageKind.Logo)?.Version,
             images.SingleOrDefault(i => i.Kind == BrandingImageKind.Favicon)?.Version);
@@ -39,7 +40,7 @@ internal static class BrandingStore
             ?? throw new NotFoundException(schoolId.ToString(System.Globalization.CultureInfo.InvariantCulture), nameof(School));
 
         school.UpdateBranding(
-            update.ThemePreset,
+            HexColor.From(update.AccentColor),
             update.SidebarColor is null ? null : HexColor.From(update.SidebarColor));
 
         await ApplyImageAsync(context, schoolId, BrandingImageKind.Logo, update.Logo, update.RemoveLogo, cancellationToken);

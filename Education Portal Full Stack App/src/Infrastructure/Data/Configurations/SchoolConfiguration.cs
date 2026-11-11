@@ -11,7 +11,10 @@ public class SchoolConfiguration : IEntityTypeConfiguration<School>
     {
         builder.Property(s => s.Name).IsRequired().HasMaxLength(School.NameMaxLength);
         builder.Property(s => s.Domain).IsRequired().HasMaxLength(School.DomainMaxLength);
-        builder.Property(s => s.ThemePreset).IsRequired().HasConversion<string>().HasMaxLength(16);
+        builder.Property(s => s.AccentColor)
+            .IsRequired()
+            .HasConversion(color => color.Value, value => HexColor.From(value))
+            .HasMaxLength(HexColor.Length);
         builder.Property(s => s.SidebarColor)
             .HasConversion(color => color!.Value, value => HexColor.From(value))
             .HasMaxLength(HexColor.Length);

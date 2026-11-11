@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BrandingService } from '../../core/branding/branding.service';
-import { BrandingDto, ThemePreset } from '../../web-api-client';
+import { BrandingDto } from '../../web-api-client';
 import { localReturnUrl, LoginPage } from './login.page';
 
 describe('LoginPage', () => {
@@ -14,7 +14,7 @@ describe('LoginPage', () => {
       providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     });
     TestBed.inject(BrandingService).apply(
-      new BrandingDto({ schoolName: 'Demo School', isMaster: false, themePreset: ThemePreset.Cyan, sidebarColor: undefined, logoVersion: undefined, faviconVersion: undefined })
+      new BrandingDto({ schoolName: 'Demo School', isMaster: false, accentColor: '#00a1ff', sidebarColor: undefined, logoVersion: undefined, faviconVersion: undefined })
     );
   });
 

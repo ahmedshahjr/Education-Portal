@@ -31,7 +31,7 @@ public class Branding : IEndpointGroup
     }
 
     [EndpointSummary("Get the school's branding")]
-    [EndpointDescription("Returns the name, theme preset, sidebar colour and image versions of the school that owns the request's domain. Public, so the login page can be themed.")]
+    [EndpointDescription("Returns the name, accent colour, sidebar colour and image versions of the school that owns the request's domain. Public, so the login page can be themed.")]
     public static async Task<Ok<BrandingDto>> GetBranding(ISender sender)
     {
         return TypedResults.Ok(await sender.Send(new GetBrandingQuery()));
@@ -55,12 +55,12 @@ public class Branding : IEndpointGroup
     }
 
     [EndpointSummary("Change the school's branding")]
-    [EndpointDescription("Sets the theme preset and sidebar colour, and uploads or removes the logo and favicon of the administrator's own school. Images are checked by content: PNG, JPEG or WebP logos up to 512 KB, ICO or PNG favicons up to 100 KB.")]
+    [EndpointDescription("Sets the accent colour and sidebar colour, and uploads or removes the logo and favicon of the administrator's own school. Images are checked by content: PNG, JPEG or WebP logos up to 512 KB, ICO or PNG favicons up to 100 KB.")]
     public static async Task<NoContent> UpdateBranding(ISender sender, [FromForm] BrandingForm form, CancellationToken cancellationToken)
     {
         await sender.Send(new UpdateBrandingCommand
         {
-            ThemePreset = form.ThemePreset,
+            AccentColor = form.AccentColor,
             SidebarColor = form.SidebarColor,
             Logo = await BrandingForm.ReadAsync(form.Logo, cancellationToken),
             RemoveLogo = form.RemoveLogo,

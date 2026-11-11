@@ -42,7 +42,7 @@ Master tenant (the platform owner, i.e. us)
 - **Master-tenant users bypass the filters** and can read across all schools.
 - **Tenant resolution is DNS/host based** (decided 2026-11-09): each school is reached on its own domain, e.g. `school1.com`, `school2.com`. A tenant-resolution middleware looks up the request `Host` in a domain table (domain to school) and sets the current school before any endpoint runs. The master portal has its own domain. **Domains are per school only, never per branch** (decided 2026-11-09).
 - An unknown host is rejected (404), never served as a default tenant.
-- **Branding per school** (decided 2026-11-10): each school, including the master, has a theme preset, an optional sidebar colour (colour picker), a logo and a favicon. The app loads them for the request's host before the login page renders, so a school's login page is already in its own theme. A school administrator edits their own school's branding; the master tenant's administrator can edit any school's.
+- **Branding per school** (decided 2026-11-10): each school, including the master, has an accent colour (colour picker, stored as #rrggbb), an optional sidebar colour (colour picker), a logo and a favicon. The app loads them for the request's host before the login page renders, so a school's login page is already in its own theme. A school administrator edits their own school's branding; the master tenant's administrator can edit any school's.
 - The server checks that the logged-in user belongs to the tenant resolved from the host. A session or token from `school1.com` must not work on `school2.com` (scope auth cookies per domain).
 - **Branch selection happens inside the school's domain:** a user with access to several branches (staff, students, parents) picks the current branch in the app (branch switcher, carried in the route, e.g. `/branches/{branchId}/...`). The server checks the user belongs to that branch on every request.
 - Students and parents can belong to **several branches** (decided 2026-11-09).
@@ -286,7 +286,7 @@ Each step is one reviewable PR into `development`.
 - [x] Students and parents can belong to several branches; tenant comes from the request domain, e.g. `school1.com` (2026-11-09)
 - [x] Domains are per school only; branches are chosen inside the app (2026-11-09)
 - [x] Local development setup for school domains: `localhost` = master tenant, `*.localhost` = schools, e.g. `demo.localhost` (2026-11-10)
-- [x] Exactly one master tenant; per-school branding (theme preset, sidebar colour, logo, favicon) resolved from the host before sign-in (2026-11-10)
+- [x] Exactly one master tenant; per-school branding (theme preset, sidebar colour, logo, favicon) resolved from the host before sign-in (2026-11-10; accent colour as a colour picker, 2026-11-11)
 - [x] Languages per country, managed by the master tenant; runtime-loaded Angular translations and per-school request localization (2026-11-10, ADR-005)
 - [ ] Native-speaker review of the Arabic and Urdu translations, and per-user saved language across devices (today the choice is a cookie per browser)
 - [ ] Production provisioning of the master tenant, schools and their domains (needs EF Core migrations first)

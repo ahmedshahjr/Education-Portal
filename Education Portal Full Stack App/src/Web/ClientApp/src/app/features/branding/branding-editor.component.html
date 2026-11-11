@@ -4,25 +4,23 @@
       <mat-card-content class="mm-branding__sections">
         <section class="mm-branding__section" aria-labelledby="branding-accent">
           <h3 id="branding-accent" class="mm-branding__label" i18n="@@branding.accent">Accent colour</h3>
-          <div class="mm-color-grid" role="radiogroup" aria-labelledby="branding-accent">
-            @for (option of presetOptions; track option.preset) {
-              <button
-                type="button"
-                role="radio"
-                class="mm-color-tile"
-                [class.is-active]="preset() === option.preset"
-                [attr.aria-checked]="preset() === option.preset"
-                [attr.aria-label]="option.label"
-                [title]="option.label"
-                (click)="selectPreset(option.preset)"
-              >
-                <span class="mm-color-dot" [style.background-color]="option.hex">
-                  @if (preset() === option.preset) {
-                    <app-icon name="check" [size]="14" />
-                  }
-                </span>
-              </button>
-            }
+          <div class="mm-branding__color-row">
+            <input
+              type="color"
+              class="mm-branding__picker"
+              aria-label="Pick the accent colour"
+              i18n-aria-label="@@branding.pickAccent"
+              [value]="accentValid() ? accentColor() : '#000000'"
+              (input)="setAccentColor($event)"
+            />
+            <mat-form-field appearance="outline" class="mm-branding__hex">
+              <mat-label i18n="@@branding.hex">Hex colour</mat-label>
+              <input matInput maxlength="7" [value]="accentColor()" (input)="setAccentColor($event)" />
+              @if (!accentValid()) {
+                <mat-error i18n="@@branding.hexError">Use the form #rrggbb.</mat-error>
+              }
+              <mat-hint i18n="@@branding.hexHint">For example #1f2a3d</mat-hint>
+            </mat-form-field>
           </div>
         </section>
 
@@ -39,19 +37,19 @@
                 class="mm-branding__picker"
                 aria-label="Pick the sidebar colour"
                 i18n-aria-label="@@branding.pickColour"
-                [value]="colorValid() ? sidebarColor() : '#000000'"
+                [value]="sidebarValid() ? sidebarColor() : '#000000'"
                 (input)="setSidebarColor($event)"
               />
               <mat-form-field appearance="outline" class="mm-branding__hex">
                 <mat-label i18n="@@branding.hex">Hex colour</mat-label>
                 <input matInput maxlength="7" [value]="sidebarColor()" (input)="setSidebarColor($event)" />
-                @if (!colorValid()) {
+                @if (!sidebarValid()) {
                   <mat-error i18n="@@branding.hexError">Use the form #rrggbb.</mat-error>
                 }
                 <mat-hint i18n="@@branding.hexHint">For example #1f2a3d</mat-hint>
               </mat-form-field>
             </div>
-            @if (!colorValid()) {
+            @if (!sidebarValid()) {
               <p class="mm-branding__error" role="alert" i18n="@@branding.hexError">Use the form #rrggbb.</p>
             }
           }
@@ -101,7 +99,7 @@
         }
 
         <div class="mm-branding__actions">
-          <button mat-flat-button type="submit" [disabled]="saving() || !colorValid()" i18n="@@branding.save">Save branding</button>
+          <button mat-flat-button type="submit" [disabled]="saving() || !accentValid() || !sidebarValid()" i18n="@@branding.save">Save branding</button>
         </div>
       </mat-card-content>
     </mat-card>

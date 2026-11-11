@@ -363,7 +363,7 @@ export class SchoolsPage {
     this.client
       .updateSchoolBranding(
         school.id,
-        changes.themePreset,
+        changes.accentColor,
         changes.sidebarColor,
         toFileParameter(changes.logo),
         changes.removeLogo,

@@ -44,7 +44,7 @@ export class BrandingSettingsPage {
 
     this.client
       .updateBranding(
-        changes.themePreset,
+        changes.accentColor,
         changes.sidebarColor,
         toFileParameter(changes.logo),
         changes.removeLogo,

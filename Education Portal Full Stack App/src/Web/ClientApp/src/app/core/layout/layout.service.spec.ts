@@ -11,9 +11,8 @@ describe('LayoutService', () => {
     service = TestBed.inject(LayoutService);
   });
 
-  it('starts with the light theme, full sidebar and the cyan preset', () => {
+  it('starts with the light theme and full sidebar', () => {
     expect(service.themeMode()).toBe('light');
-    expect(service.colorPreset()).toBe('cyan');
     expect(service.sidebarMode()).toBe('full');
     expect(service.cardStyle()).toBe('shadow');
   });
@@ -28,21 +27,10 @@ describe('LayoutService', () => {
     expect(document.documentElement.classList.contains('dark-theme')).toBe(false);
   });
 
-  it('applies the school preset as one theme class', () => {
-    service.setColorPreset('purple');
-    TestBed.tick();
-
-    expect(document.documentElement.classList.contains('theme-purple')).toBe(true);
-    expect(document.documentElement.classList.contains('theme-cyan')).toBe(false);
-  });
-
-  it('does not store the school preset with the user preferences', () => {
-    service.setColorPreset('coral');
+  it('stores the sidebar mode with the user preferences', () => {
     service.setSidebarMode('mini');
     TestBed.tick();
 
-    const stored = localStorage.getItem('education_portal_layout_prefs_v1') ?? '';
-    expect(stored).toContain('mini');
-    expect(stored).not.toContain('coral');
+    expect(localStorage.getItem('education_portal_layout_prefs_v1') ?? '').toContain('mini');
   });
 });

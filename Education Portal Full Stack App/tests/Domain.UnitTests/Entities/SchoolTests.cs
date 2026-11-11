@@ -15,7 +15,7 @@ public class SchoolTests
 
         master.IsMaster.ShouldBeTrue();
         master.Domain.ShouldBe("portal.example.com");
-        master.ThemePreset.ShouldBe(ThemePreset.Cyan);
+        master.AccentColor.Value.ShouldBe("#00a1ff");
     }
 
     [Test]
@@ -47,18 +47,18 @@ public class SchoolTests
     {
         var school = School.Create("School One", "school1.com");
 
-        school.UpdateBranding(ThemePreset.Coral, HexColor.From("#112233"));
+        school.UpdateBranding(HexColor.From("#FA896B"), HexColor.From("#112233"));
 
-        school.ThemePreset.ShouldBe(ThemePreset.Coral);
+        school.AccentColor.Value.ShouldBe("#fa896b");
         school.SidebarColor!.Value.ShouldBe("#112233");
     }
 
     [Test]
-    public void ShouldRefuseAnUnknownThemePreset()
+    public void ShouldRefuseAMissingAccentColour()
     {
         var school = School.Create("School One", "school1.com");
 
-        Should.Throw<ArgumentOutOfRangeException>(() => school.UpdateBranding((ThemePreset)99, null));
+        Should.Throw<ArgumentNullException>(() => school.UpdateBranding(null!, null));
     }
 
     [Test]

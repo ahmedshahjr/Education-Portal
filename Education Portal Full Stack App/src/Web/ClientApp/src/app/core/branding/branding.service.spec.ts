@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { BrandingDto, ThemePreset } from '../../web-api-client';
+import { BrandingDto } from '../../web-api-client';
 import { BrandingService } from './branding.service';
 
 describe('BrandingService', () => {
@@ -21,13 +21,13 @@ describe('BrandingService', () => {
     http.verify();
   });
 
-  it('applies the school name, preset, sidebar colour and favicon', async () => {
+  it('applies the school name, accent colour, sidebar colour and favicon', async () => {
     service.load().subscribe();
     // The generated client reads every response as a Blob, as the browser would deliver it.
     const body = {
       schoolName: 'Demo School',
       isMaster: false,
-      themePreset: ThemePreset.Purple,
+      accentColor: '#763ebd',
       sidebarColor: '#1f2a3d',
       logoVersion: 'abc',
       faviconVersion: 'def',
@@ -40,7 +40,7 @@ describe('BrandingService', () => {
     const html = document.documentElement;
     expect(service.schoolName()).toBe('Demo School');
     expect(TestBed.inject(Title).getTitle()).toBe('Demo School');
-    expect(html.classList.contains('theme-purple')).toBe(true);
+    expect(html.style.getPropertyValue('--mm-primary')).toBe('#763ebd');
     expect(html.style.getPropertyValue('--mm-sidebar-bg')).toBe('#1f2a3d');
     expect(html.style.getPropertyValue('--mm-sidebar-text')).toBe('#ffffff');
     expect(service.logoUrl()).toBe('api/Branding/images/Logo?v=abc');
@@ -48,7 +48,7 @@ describe('BrandingService', () => {
   });
 
   it('falls back to the theme defaults when the school has no colour or images', () => {
-    service.apply(new BrandingDto({ schoolName: 'Plain School', isMaster: false, themePreset: ThemePreset.Cyan, sidebarColor: undefined, logoVersion: undefined, faviconVersion: undefined }));
+    service.apply(new BrandingDto({ schoolName: 'Plain School', isMaster: false, accentColor: '#00a1ff', sidebarColor: undefined, logoVersion: undefined, faviconVersion: undefined }));
 
     expect(document.documentElement.style.getPropertyValue('--mm-sidebar-bg')).toBe('');
     expect(service.logoUrl()).toBeNull();

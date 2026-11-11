@@ -1,4 +1,4 @@
-using EducationPortal.Domain.Enums;
+using EducationPortal.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 
 namespace EducationPortal.Web.Endpoints;
@@ -9,7 +9,8 @@ namespace EducationPortal.Web.Endpoints;
 /// </summary>
 public sealed class BrandingForm
 {
-    public ThemePreset ThemePreset { get; init; }
+    /// <summary>The accent colour as #rrggbb. Leave it out for the theme's default.</summary>
+    public string AccentColor { get; init; } = School.DefaultAccentColor.Value;
 
     /// <summary>The sidebar colour as #rrggbb. Leave it out for the theme's default.</summary>
     public string? SidebarColor { get; init; }
