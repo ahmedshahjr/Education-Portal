@@ -4,8 +4,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { sidebarPalette } from '../../core/branding/sidebar-palette';
 import { brandingImageUrl } from '../../core/branding/branding.service';
+import { accentPalette, AccentPalette } from '../../core/branding/accent-palette';
+import { contrastRatio, sidebarPalette } from '../../core/branding/sidebar-palette';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
 import { BrandingDto, BrandingImageKind } from '../../web-api-client';
 import { BrandingChanges, FAVICON_TYPES, fileProblem, LOGO_TYPES } from './branding-changes';
@@ -27,8 +28,8 @@ const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 })
 export class BrandingEditorComponent {
   readonly branding = input.required<BrandingDto>();
-  /** Where the current images are read from: the school's own domain, or nowhere for another school (master portal). */
-  readonly showCurrentImages = input(true);
+  /** Where the current logo and favicon are read from: this school's own, or any school's in the master portal. */
+  readonly imagesBase = input('api/Branding/images');
   readonly saving = input(false);
   readonly errors = input<readonly string[]>([]);
 
@@ -51,8 +52,25 @@ export class BrandingEditorComponent {
   protected readonly sidebarValid = computed(() => !this.customSidebar() || HEX_COLOR.test(this.sidebarColor()));
 
   protected readonly currentLogoUrl = computed(() =>
-    this.showCurrentImages() && !this.removeLogo() ? brandingImageUrl(BrandingImageKind.Logo, this.branding().logoVersion) : null
+    this.logo() || this.removeLogo() ? null : brandingImageUrl(BrandingImageKind.Logo, this.branding().logoVersion, this.imagesBase())
   );
+  protected readonly currentFaviconUrl = computed(() =>
+    this.favicon() || this.removeFavicon()
+      ? null
+      : brandingImageUrl(BrandingImageKind.Favicon, this.branding().faviconVersion, this.imagesBase())
+  );
+
+  /** The accent colour as CSS properties for the preview, so it follows the picker as the user changes it. */
+  protected readonly previewAccent = computed<Partial<AccentPalette> & Record<string, string>>(() => {
+    const palette = this.accentValid() ? accentPalette(this.accentColor()) : null;
+    if (!palette) {
+      return {};
+    }
+
+    // Text on the accent is black or white, whichever reads better on it (WCAG 2.2 contrast ratio).
+    const text = contrastRatio(this.accentColor(), '#ffffff') >= 4.5 ? '#ffffff' : '#000000';
+    return { ...palette, '--mm-branding-preview-text': text };
+  });
   protected readonly hasLogo = computed(() => !!this.logo() || (!!this.branding().logoVersion && !this.removeLogo()));
   protected readonly hasFavicon = computed(
     () => !!this.favicon() || (!!this.branding().faviconVersion && !this.removeFavicon())

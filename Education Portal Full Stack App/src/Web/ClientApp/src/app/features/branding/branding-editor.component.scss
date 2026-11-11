@@ -107,3 +107,20 @@
 .mm-branding__preview-item {
   font-size: var(--mm-text-sm);
 }
+
+.mm-branding__thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border: 1px solid var(--mm-border-color);
+  border-radius: var(--mm-radius-md);
+}
+
+.mm-branding__preview-action {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 6px 14px;
+  border-radius: var(--mm-radius-md);
+  background-color: var(--mm-primary);
+  color: var(--mm-branding-preview-text, inherit);
+}

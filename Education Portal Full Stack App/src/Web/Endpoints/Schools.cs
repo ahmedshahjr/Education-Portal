@@ -6,7 +6,9 @@ using EducationPortal.Application.Modules.Queries.GetSchoolModules;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolBranding;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolCountry;
 using EducationPortal.Application.Schools.Queries.GetSchoolBranding;
+using EducationPortal.Application.Schools.Queries.GetSchoolBrandingImage;
 using EducationPortal.Application.Schools.Queries.GetSchools;
+using EducationPortal.Domain.Enums;
 using EducationPortal.Web.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Antiforgery;
@@ -25,6 +27,9 @@ public class Schools : IEndpointGroup
             .RequireAuthorization();
 
         groupBuilder.MapGet(GetSchoolBranding, "{schoolId:int}/branding")
+            .RequireAuthorization();
+
+        groupBuilder.MapGet(GetSchoolBrandingImage, "{schoolId:int}/branding/images/{kind}")
             .RequireAuthorization();
 
         groupBuilder.MapPut(UpdateSchoolBranding, "{schoolId:int}/branding")
@@ -93,6 +98,13 @@ public class Schools : IEndpointGroup
     public static async Task<Ok<BrandingDto>> GetSchoolBranding(ISender sender, int schoolId)
     {
         return TypedResults.Ok(await sender.Send(new GetSchoolBrandingQuery(schoolId)));
+    }
+
+    [EndpointSummary("Get a school's logo or favicon")]
+    [EndpointDescription("Returns any school's logo or favicon, or 404 when it uses the default one. Master tenant only.")]
+    public static async Task<Results<FileContentHttpResult, NotFound>> GetSchoolBrandingImage(ISender sender, HttpContext httpContext, int schoolId, BrandingImageKind kind)
+    {
+        return Branding.ToImageResult(await sender.Send(new GetSchoolBrandingImageQuery(schoolId, kind)), kind, httpContext);
     }
 
     [EndpointSummary("Change a school's branding")]
