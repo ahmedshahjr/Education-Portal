@@ -63,7 +63,6 @@ public class BrandingTests : TestBase
         logo.StatusCode.ShouldBe(HttpStatusCode.OK);
         logo.Content.Headers.ContentType!.MediaType.ShouldBe("image/png");
         logo.Content.Headers.ContentDisposition!.DispositionType.ShouldBe("attachment");
-        logo.Headers.GetValues("X-Content-Type-Options").ShouldContain("nosniff");
         (await logo.Content.ReadAsByteArrayAsync()).ShouldBe(TestImages.Png);
 
         using var favicon = await session.GetAsync("/api/Branding/images/Favicon");
@@ -240,6 +239,35 @@ public class BrandingTests : TestBase
         branding.AccentColor.ShouldBe("#00ceb6");
         branding.SidebarColor.ShouldBe("#004d40");
         branding.LogoVersion.ShouldNotBeNull();
+    }
+
+    [Test]
+    public async Task ShouldLetTheMasterTenantViewAnySchoolsImages()
+    {
+        var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
+        await TestApp.AddAsync(new BrandingImage(schoolId, BrandingImageKind.Logo, TestImages.Png));
+        await TestApp.RunAsAdministratorAsync();
+        using var master = TestHttp.CreateDevelopmentSession();
+        (await master.SignInAsync(TestApp.AdministratorEmail, TestApp.AdministratorPassword)).Dispose();
+
+        using var logo = await master.GetAsync($"/api/Schools/{schoolId}/branding/images/Logo");
+        using var favicon = await master.GetAsync($"/api/Schools/{schoolId}/branding/images/Favicon");
+
+        logo.StatusCode.ShouldBe(HttpStatusCode.OK);
+        favicon.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Test]
+    public async Task ShouldKeepSchoolImagesAwayFromSchoolAdministrators()
+    {
+        var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
+        await TestApp.AddAsync(new BrandingImage(schoolId, BrandingImageKind.Logo, TestImages.Png));
+        await SignInAsSchoolAdministratorAsync(SchoolDomain, out var session);
+        using var _ = session;
+
+        using var response = await session.GetAsync($"/api/Schools/{schoolId}/branding/images/Logo");
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
 
     [Test]

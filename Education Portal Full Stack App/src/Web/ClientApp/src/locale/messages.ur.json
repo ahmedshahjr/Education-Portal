@@ -181,6 +181,9 @@
     "topbar.switchToLight": "روشن موڈ پر جائیں",
     "topbar.switchToDark": "تاریک موڈ پر جائیں",
     "topbar.lightMode": "روشن موڈ",
-    "topbar.darkMode": "تاریک موڈ"
+    "topbar.darkMode": "تاریک موڈ",
+    "branding.currentLogo": "موجودہ لوگو",
+    "branding.currentFavicon": "موجودہ فیویکن",
+    "branding.previewAction": "بنیادی بٹن"
   }
 }

@@ -41,8 +41,12 @@ public class Branding : IEndpointGroup
     [EndpointDescription("Returns the image, or 404 when the school uses the default one. Sent as an attachment with its checked content type, so a browser never runs it as a page.")]
     public static async Task<Results<FileContentHttpResult, NotFound>> GetBrandingImage(ISender sender, HttpContext httpContext, BrandingImageKind kind)
     {
-        var image = await sender.Send(new GetBrandingImageQuery(kind));
+        return ToImageResult(await sender.Send(new GetBrandingImageQuery(kind)), kind, httpContext);
+    }
 
+    /// <summary>Serves a stored logo or favicon. Shared with the master portal's endpoint for any school's images.</summary>
+    internal static Results<FileContentHttpResult, NotFound> ToImageResult(BrandingImageDto? image, BrandingImageKind kind, HttpContext httpContext)
+    {
         if (image is null)
         {
             return TypedResults.NotFound();

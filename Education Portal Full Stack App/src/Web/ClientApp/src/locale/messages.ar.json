@@ -181,6 +181,9 @@
     "topbar.switchToLight": "التبديل إلى الوضع الفاتح",
     "topbar.switchToDark": "التبديل إلى الوضع الداكن",
     "topbar.lightMode": "الوضع الفاتح",
-    "topbar.darkMode": "الوضع الداكن"
+    "topbar.darkMode": "الوضع الداكن",
+    "branding.currentLogo": "الشعار الحالي",
+    "branding.currentFavicon": "الأيقونة الحالية",
+    "branding.previewAction": "زر رئيسي"
   }
 }

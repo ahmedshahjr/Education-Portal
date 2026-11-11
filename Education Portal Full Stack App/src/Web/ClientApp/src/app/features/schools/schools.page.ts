@@ -189,7 +189,7 @@ export const SEARCH_DELAY_MS = 300;
       @if (selectedBranding(); as branding) {
         <app-branding-editor
           [branding]="branding"
-          [showCurrentImages]="school.isMaster"
+          [imagesBase]="'api/Schools/' + school.id + '/branding/images'"
           [saving]="saving()"
           [errors]="errors()"
           (save)="save(school, $event)"

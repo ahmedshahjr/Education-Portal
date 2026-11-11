@@ -11,8 +11,12 @@ const DEFAULT_SCHOOL_NAME = 'Education Portal';
 const DEFAULT_FAVICON = 'favicon.png';
 
 /** The URL of a school's logo or favicon. The version changes with each upload, so a new image is never served stale. */
-export function brandingImageUrl(kind: BrandingImageKind, version: string | null | undefined): string | null {
-  return version ? `api/Branding/images/${kind}?v=${encodeURIComponent(version)}` : null;
+export function brandingImageUrl(
+  kind: BrandingImageKind,
+  version: string | null | undefined,
+  base = 'api/Branding/images'
+): string | null {
+  return version ? `${base}/${kind}?v=${encodeURIComponent(version)}` : null;
 }
 
 /**

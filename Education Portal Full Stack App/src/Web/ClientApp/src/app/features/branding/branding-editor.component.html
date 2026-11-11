@@ -67,6 +67,9 @@
                 <span i18n="@@branding.chooseLogo">Choose logo</span>
               }
             </label>
+            @if (logoPreview() ?? currentLogoUrl(); as src) {
+              <img class="mm-branding__thumb" [src]="src" alt="Current logo" i18n-alt="@@branding.currentLogo" />
+            }
             @if (hasLogo()) {
               <button mat-button type="button" (click)="remove('logo')" i18n="@@branding.removeLogo">Remove logo</button>
             }
@@ -85,6 +88,9 @@
                 <span i18n="@@branding.chooseFavicon">Choose favicon</span>
               }
             </label>
+            @if (currentFaviconUrl(); as src) {
+              <img class="mm-branding__thumb" [src]="src" alt="Current favicon" i18n-alt="@@branding.currentFavicon" />
+            }
             @if (hasFavicon()) {
               <button mat-button type="button" (click)="remove('favicon')" i18n="@@branding.removeFavicon">Remove favicon</button>
             }
@@ -107,7 +113,15 @@
     <mat-card class="mm-card mm-elevated" aria-label="Preview" i18n-aria-label="@@branding.preview">
       <mat-card-content>
         <h3 class="mm-branding__label" i18n="@@branding.preview">Preview</h3>
-        <div class="mm-branding__preview" [style.background-color]="preview().background" [style.color]="preview().text">
+        <div
+          class="mm-branding__preview"
+          [style.background-color]="preview().background"
+          [style.color]="preview().text"
+          [style.--mm-primary]="previewAccent()['--mm-primary']"
+          [style.--mm-primary-rgb]="previewAccent()['--mm-primary-rgb']"
+          [style.--mm-primary-hover]="previewAccent()['--mm-primary-hover']"
+          [style.--mm-branding-preview-text]="previewAccent()['--mm-branding-preview-text']"
+        >
           @if (preview().logo; as logo) {
             <img class="mm-branding__preview-logo" [src]="logo" alt="Logo preview" i18n-alt="@@branding.logoPreview" />
           } @else {
@@ -115,6 +129,7 @@
           }
           <span class="mm-branding__preview-item" i18n="@@nav.dashboard">Dashboard</span>
           <span class="mm-branding__preview-item" i18n="@@branding.students">Students</span>
+          <span class="mm-branding__preview-action" i18n="@@branding.previewAction">Primary button</span>
         </div>
       </mat-card-content>
     </mat-card>
