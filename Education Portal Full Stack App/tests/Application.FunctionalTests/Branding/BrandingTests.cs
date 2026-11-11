@@ -260,12 +260,13 @@ public class BrandingTests : TestBase
     [Test]
     public async Task ShouldKeepSchoolImagesAwayFromSchoolAdministrators()
     {
-        var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        await TestApp.AddAsync(new BrandingImage(schoolId, BrandingImageKind.Logo, TestImages.Png));
+        // The administrator signs in on SchoolDomain, so the image belongs to another school.
+        var otherSchoolId = await TestApp.AddSchoolAsync("School Two", OtherSchoolDomain);
+        await TestApp.AddAsync(new BrandingImage(otherSchoolId, BrandingImageKind.Logo, TestImages.Png));
         await SignInAsSchoolAdministratorAsync(SchoolDomain, out var session);
         using var _ = session;
 
-        using var response = await session.GetAsync($"/api/Schools/{schoolId}/branding/images/Logo");
+        using var response = await session.GetAsync($"/api/Schools/{otherSchoolId}/branding/images/Logo");
 
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
