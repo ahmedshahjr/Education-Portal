@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
-using Azure.Identity;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Infrastructure.Data;
 using EducationPortal.Web.Infrastructure;
@@ -107,16 +106,5 @@ public static class DependencyInjection
             options.AddServerHeader = false;
             options.Limits.MaxRequestBodySize = 1024 * 1024;
         });
-    }
-
-    public static void AddKeyVaultIfConfigured(this IHostApplicationBuilder builder)
-    {
-        var keyVaultUri = builder.Configuration["AZURE_KEY_VAULT_ENDPOINT"];
-        if (!string.IsNullOrWhiteSpace(keyVaultUri))
-        {
-            builder.Configuration.AddAzureKeyVault(
-                new Uri(keyVaultUri),
-                new DefaultAzureCredential());
-        }
     }
 }

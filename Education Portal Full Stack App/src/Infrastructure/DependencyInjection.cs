@@ -48,6 +48,9 @@ public static class DependencyInjection
         builder.Services.AddScoped<ISecurityAuditLog, SecurityAuditLog>();
         builder.Services.AddScoped<ITenantResolver, TenantResolver>();
         builder.Services.AddScoped<ITenantLocaleSettings, TenantLocaleSettings>();
+
+        // One secret store for the environment, shared by all schools (ADR-006).
+        builder.Services.AddSecretsManagement(builder.Configuration);
     }
 
     private static void AddIdentity(IServiceCollection services)

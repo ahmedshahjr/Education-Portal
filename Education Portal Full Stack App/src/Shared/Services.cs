@@ -25,4 +25,13 @@ public static class Services
     /// This is the name of the database that will be created and used by the application.
     /// </summary>
     public const string Database = "EducationPortalDb";
+
+    /// <summary>
+    /// The name of the local HashiCorp Vault container (development only).
+    /// It is the secret store behind ISecretProvider when running locally (ADR-006).
+    /// </summary>
+    public const string Vault = "vault";
+
+    /// <summary>The name of the Aspire parameter that holds the local Vault's root token (development only).</summary>
+    public const string VaultDevToken = "vault-dev-token";
 }

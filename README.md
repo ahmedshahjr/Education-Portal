@@ -121,11 +121,13 @@ flowchart LR
         frontend["webfrontend<br/>Angular dev server"]
         api["webapi<br/>ASP.NET Core API"]
         db[("dbserver<br/>PostgreSQL<br/>EducationPortalDb")]
+        vault[("vault<br/>HashiCorp Vault<br/>dev mode")]
     end
     dashboard["Aspire dashboard<br/>logs, traces, metrics"]
     browser --> frontend
     frontend -->|"proxies /api, /openapi, /scalar"| api
     api -->|"EF Core"| db
+    api -->|"ISecretProvider"| vault
     api -.->|"OpenTelemetry"| dashboard
 ```
 
@@ -134,6 +136,9 @@ flowchart LR
 | `webfrontend` | `src/Web/ClientApp` | Runs `npm start` (`ng serve`) on a port Aspire picks. Development only. |
 | `webapi` | `src/Web` | The API. Also serves the Scalar API reference at `/scalar` and, in production, the built Angular app. |
 | `dbserver` | Container | PostgreSQL with the `EducationPortalDb` database. The container is persistent: it keeps running after you stop the app, until you stop it in Docker Desktop. |
+| `vault` | Container | HashiCorp Vault in dev mode on `http://localhost:8200`, the local secret store ([secrets](#secrets)). Persistent like `dbserver`, but its data lives in memory. Development only. |
+
+Every local container is declared in the AppHost as an Aspire resource. The project has no docker-compose files (AGENTS.md section 6).
 
 In production there is no separate Angular server. `dotnet publish` builds the Angular app into the API's `wwwroot`, so one container serves both the pages and the API. The AppHost is already set up to publish to Azure Container Apps with Azure Database for PostgreSQL, but hosting and CI/CD are still open decisions (AGENTS.md, section 9).
 
@@ -293,6 +298,30 @@ A record from another school or branch returns 404 rather than 403, so ids can't
 - Aspire passes the connection string (`ConnectionStrings__EducationPortalDb`) to the API, so there is nothing to configure locally.
 - In Development the database is dropped and recreated on every start (`ApplicationDbContextInitialiser`: `EnsureDeleted`, then `EnsureCreated`) and then seeded. There are no EF Core migrations yet. They are required before any shared environment exists.
 - Student data is treated with the most care: personal fields are labelled by data class, never logged, and only ever synthetic in development and tests ([student-data-privacy skill](docs/ai/secure-compliance/student-data-privacy/SKILL.md)).
+
+### Secrets
+
+Secrets go through one cloud-agnostic layer ([ADR-006](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-006-Cloud-Agnostic-Secrets.md)). Code uses logical keys only: `platform/{name}` through `ISecretProvider`, and the current school's `tenants/{schoolId}/{name}` through `ITenantSecretProvider`, which takes the school from the request's host. Values are cached in memory for 10 minutes, transient failures are retried, and values are never stored in the database, logged or put in exception messages. A `secrets` health check is added when a store is configured.
+
+**Local Vault.** `aspire run` starts the `vault` container, generates its root token (kept in the AppHost's user-secrets as `Parameters:vault-dev-token`) and gives the API `Secrets__Provider=HashiCorp`, the address and the token. Dev mode keeps data in memory, so seed it after the container starts for the first time or is recreated. From `Education Portal Full Stack App`, with the app running:
+
+```bash
+./scripts/vault-seed.sh      # macOS, Linux, Git Bash
+./scripts/vault-seed.ps1     # Windows PowerShell
+```
+
+The scripts read the token from the AppHost's user-secrets (or `VAULT_TOKEN`) and write placeholder values to `platform/sample-api-key`, `tenants/1/sms-api-key` and `tenants/2/sms-api-key`. To browse Vault, open `http://localhost:8200` and sign in with that token. `platform/db-connection` is not seeded locally because Aspire already provides the database; when the store has it, it wins over other configuration.
+
+**Switching store.** Set these settings (as environment variables, for example `Secrets__Provider`) on the deployed app. Nothing else changes:
+
+| `Secrets:Provider` | Also set | Identity |
+|---|---|---|
+| `HashiCorp` | `Secrets:HashiCorp:Address`, `MountPoint` (default `secret`, KV v2), `AuthMethod` = `Token` (`Secrets__HashiCorp__Token`) or `AppRole` (`Secrets__HashiCorp__RoleId`, `Secrets__HashiCorp__SecretId`) | Token or AppRole, from environment variables or user-secrets only |
+| `AzureKeyVault` | `Secrets:AzureKeyVault:VaultUri` | `DefaultAzureCredential` (managed identity) |
+| `Aws` | `Secrets:Aws:Region` | Default credential chain (IAM role) |
+| `Gcp` | `Secrets:Gcp:ProjectId` | Application default credentials |
+
+`Secrets:CacheTtlMinutes` (1 to 1440, default 10) sets the cache time. With `Secrets:Provider` empty the app runs on normal configuration and any secret use fails with a clear message. Missing settings for the chosen store stop startup with a message naming the missing key.
 
 ### Observability
 
@@ -505,7 +534,7 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | Database connection | Passed in by Aspire as `ConnectionStrings__EducationPortalDb` |
 | Development seed accounts | `administrator@localhost` (master tenant, on `localhost`), `administrator@demo.localhost` (Demo School, Pakistan, on `demo.localhost`) and `administrator@uae.localhost` (Demo School UAE, on `uae.localhost`), password `Local-Dev-Only-2026!` (local database, Development only) |
 | Allowed hosts | `localhost` and `*.localhost` in Development (`AllowedHosts`); each school's domain is added when it is deployed |
-| Secrets | None are needed yet. Use `dotnet user-secrets` locally and Azure Key Vault when deployed (`AZURE_KEY_VAULT_ENDPOINT`). Never put them in `appsettings*.json` or any other file in the repository. |
+| Secrets | `Secrets:Provider` selects the store ([secrets](#secrets)). Locally Aspire runs HashiCorp Vault on `http://localhost:8200` and sets it up for you. Store credentials come from environment variables or user-secrets; never put secrets in `appsettings*.json` or any other file in the repository. |
 
 ## Troubleshooting
 

@@ -7,8 +7,12 @@
   <ItemGroup>
     <PackageVersion Include="Ardalis.GuardClauses" Version="5.0.0" />
     <PackageVersion Include="AutoMapper" Version="16.3.0" />
-    <PackageVersion Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.5.2" />
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
+    <!-- Secret stores behind ISecretProvider (ADR-006): Azure Key Vault, AWS Secrets Manager, Google Secret Manager, HashiCorp Vault -->
+    <PackageVersion Include="Azure.Security.KeyVault.Secrets" Version="4.12.0" />
+    <PackageVersion Include="AWSSDK.SecretsManager" Version="4.0.100.26" />
+    <PackageVersion Include="Google.Cloud.SecretManager.V1" Version="3.0.0" />
+    <PackageVersion Include="VaultSharp" Version="1.17.5.1" />
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.2.0" />
     <PackageVersion Include="MediatR" Version="14.3.0" />
@@ -42,6 +46,8 @@
     <PackageVersion Include="Aspire.Hosting.Testing" Version="13.6.5" />
     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.6.5" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.11.0" />
+    <!-- Polly retry pipeline for the secret stores (ADR-006); same family and version as Http.Resilience -->
+    <PackageVersion Include="Microsoft.Extensions.Resilience" Version="10.11.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.11.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.20.1" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.20.1" />
