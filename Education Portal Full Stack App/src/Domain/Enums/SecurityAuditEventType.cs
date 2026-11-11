@@ -23,4 +23,10 @@ public enum SecurityAuditEventType
 
     /// <summary>The master tenant assigned a school to another country (or to none).</summary>
     SchoolCountryChanged = 9,
+
+    /// <summary>The master tenant made a module default (on for every school) or custom (off unless switched on).</summary>
+    ModuleDefaultChanged = 10,
+
+    /// <summary>The master tenant switched a module on or off for one school.</summary>
+    SchoolModuleChanged = 11,
 }

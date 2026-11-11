@@ -16,5 +16,11 @@ public interface IApplicationDbContext
     /// <summary>Countries and their regional settings. Platform reference data that only the master tenant changes.</summary>
     DbSet<Country> Countries { get; }
 
+    /// <summary>The portal's modules and which are default. Platform reference data that only the master tenant changes.</summary>
+    DbSet<PortalModule> Modules { get; }
+
+    /// <summary>The master tenant's per-school module switches. Covered by the tenant query filter (SEC-AUTHZ-03).</summary>
+    DbSet<SchoolModule> SchoolModules { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

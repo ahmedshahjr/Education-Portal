@@ -22,6 +22,7 @@ import {
 } from '../../web-api-client';
 import { BrandingChanges, toFileParameter } from '../branding/branding-changes';
 import { BrandingEditorComponent } from '../branding/branding-editor.component';
+import { SchoolModulesComponent } from './school-modules.component';
 
 const PAGE_SIZE = 25;
 
@@ -39,13 +40,14 @@ const PAGE_SIZE = 25;
     LoadingStateComponent,
     EmptyStateComponent,
     BrandingEditorComponent,
+    SchoolModulesComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-page-header
       title="Schools"
       i18n-title="@@schools.title"
-      subtitle="Master portal: every school on the platform, its country and its branding."
+      subtitle="Master portal: every school on the platform, its country, its modules and its branding."
       i18n-subtitle="@@schools.subtitle"
     />
 
@@ -108,7 +110,12 @@ const PAGE_SIZE = 25;
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef><span class="mm-visually-hidden" i18n="@@common.actions">Actions</span></th>
                 <td mat-cell *matCellDef="let school">
-                  <button mat-stroked-button type="button" (click)="edit(school)" i18n="@@schools.editBranding">Edit branding</button>
+                  <div class="mm-schools__actions">
+                    @if (!school.isMaster) {
+                      <button mat-stroked-button type="button" (click)="showModules(school)" i18n="@@schools.modules">Modules</button>
+                    }
+                    <button mat-stroked-button type="button" (click)="edit(school)" i18n="@@schools.editBranding">Edit branding</button>
+                  </div>
                 </td>
               </ng-container>
               <tr mat-header-row *matHeaderRowDef="columns"></tr>
@@ -129,6 +136,13 @@ const PAGE_SIZE = 25;
         }
       </mat-card-content>
     </mat-card>
+
+    @if (modulesOf(); as school) {
+      <h2 class="mm-schools__heading" i18n="@@schools.modulesOf">Modules of {{ school.name }}</h2>
+      <div class="mm-schools__section">
+        <app-school-modules [school]="school" />
+      </div>
+    }
 
     @if (selected(); as school) {
       <h2 class="mm-schools__heading" i18n="@@schools.brandingOf">Branding of {{ school.name }}</h2>
@@ -159,6 +173,17 @@ const PAGE_SIZE = 25;
       padding-block: 4px;
     }
 
+    .mm-schools__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--mm-space-2);
+      padding-block: 4px;
+    }
+
+    .mm-schools__section {
+      margin-bottom: var(--mm-grid-gap);
+    }
+
     .mm-schools__heading {
       margin: 0 0 var(--mm-space-4);
       font-size: var(--mm-text-lg);
@@ -178,6 +203,7 @@ export class SchoolsPage {
   protected readonly pageIndex = signal(0);
   protected readonly loadError = signal<string | null>(null);
   protected readonly selected = signal<SchoolSummaryDto | null>(null);
+  protected readonly modulesOf = signal<SchoolSummaryDto | null>(null);
   protected readonly selectedBranding = signal<BrandingDto | null>(null);
   protected readonly saving = signal(false);
   protected readonly errors = signal<readonly string[]>([]);
@@ -223,7 +249,13 @@ export class SchoolsPage {
     this.loadPage(event.pageIndex);
   }
 
+  protected showModules(school: SchoolSummaryDto): void {
+    this.selected.set(null);
+    this.modulesOf.set(school);
+  }
+
   protected edit(school: SchoolSummaryDto): void {
+    this.modulesOf.set(null);
     this.selected.set(school);
     this.selectedBranding.set(null);
     this.errors.set([]);

@@ -233,7 +233,7 @@ Step 2 adds a permission check after authorization: the module is switched on fo
 
 ### Multi-tenancy and permissions (step 2, in progress)
 
-Built so far: schools with their own domains, exactly one master tenant, tenant resolution from the host, sign-in scoped to the school, and per-school branding. Branches, modules and roles come next.
+Built so far: schools with their own domains, exactly one master tenant, tenant resolution from the host, sign-in scoped to the school, per-school branding, and module switches per school. Branches and roles come next.
 
 The rules live in [AGENTS.md, section 2](AGENTS.md#2-multi-tenancy-and-permissions). This is how they fit together.
 
@@ -283,7 +283,7 @@ A record from another school or branch returns 404 rather than 403, so ids can't
 - **Exactly one master tenant.** A unique index on the `Schools` table allows only one row with `IsMaster`, and the master is created only by seeding. Every other school is a school-owner tenant.
 - **Branding per school.** Each school has a theme preset (Cyan, Blue, Purple, Ocean, Teal, Coral), an optional sidebar colour, a logo and a favicon. `GET /api/Branding` and `GET /api/Branding/images/{Logo|Favicon}` are public, because the login page needs them before sign-in, and only ever return the school of the request's address. A school's administrator changes its own branding with `PUT /api/Branding` (Settings, Branding); the master tenant's administrator lists schools with `GET /api/Schools` and changes any school's branding with `GET`/`PUT /api/Schools/{id}/branding`. Uploads are checked by their bytes: logo PNG, JPEG or WebP up to 512 KB, favicon PNG or ICO up to 100 KB, never SVG. They are stored in the database and served as attachments with `nosniff`. Every change is audited.
 
-Modules (AGENTS.md has the full table): Branches and Users & Roles are always on. Students, Parents, Teachers, Courses, Enrolments, Grades and Dashboard can be switched off per school. Schools, the module switches and the cross-school overview are for the master tenant only.
+- **Modules per school** (decided 2026-11-11). Branches and Users & Roles are core and always on. Every other module is either **default** (on for every school automatically, new schools included) or **custom** (off until the master switches it on for a school). The master decides which modules are default on the Modules page (`GET /api/Modules`, `PUT /api/Modules/{key}/default`) and switches any non-core module on or off for one school under Schools, Modules (`GET /api/Schools/{id}/modules`, `PUT /api/Schools/{id}/modules/{key}`). A choice for a school wins over the default from then on. Every change is audited. Signed-in users get their school's modules from `GET /api/Modules/enabled`, and the menu hides the rest; the server refuses a request to a module that is off with 403 (`[Authorize(Module = ...)]`). AGENTS.md has the full table and the starting default/custom split. Schools, the module switches and the cross-school overview are for the master tenant only.
 
 ### Data and database
 

@@ -28,6 +28,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<SchoolRequest> SchoolRequests => Set<SchoolRequest>();
 
+    public DbSet<PortalModule> Modules => Set<PortalModule>();
+
+    public DbSet<SchoolModule> SchoolModules => Set<SchoolModule>();
+
     // Read by the query filters on every query, so each request sees its own tenant (ENG-EF-10).
     private int? CurrentSchoolId => _tenant.SchoolId;
 
@@ -42,6 +46,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         // no resolved tenant, CurrentSchoolId is null and nothing matches.
         builder.Entity<BrandingImage>()
             .HasQueryFilter(i => IsMasterTenant || i.SchoolId == CurrentSchoolId);
+
+        builder.Entity<SchoolModule>()
+            .HasQueryFilter(m => IsMasterTenant || m.SchoolId == CurrentSchoolId);
 
         // Soft delete: every soft-deletable entity hides its deleted rows from every query, the master
         // tenant included. Rows stay in the table for audit.

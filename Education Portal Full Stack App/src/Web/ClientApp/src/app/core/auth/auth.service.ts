@@ -2,6 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { CurrentUserDto, SignInCommand, UsersClient } from '../../web-api-client';
+import { ModulesService } from '../modules/modules.service';
 
 export const ADMINISTRATOR_ROLE = 'Administrator';
 
@@ -9,6 +10,7 @@ export const ADMINISTRATOR_ROLE = 'Administrator';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly users = inject(UsersClient);
+  private readonly modules = inject(ModulesService);
   private readonly user = signal<CurrentUserDto | null>(null);
 
   readonly currentUser = this.user.asReadonly();
@@ -22,9 +24,12 @@ export class AuthService {
   initialize(): Observable<boolean> {
     return this.users.getCurrentUser().pipe(
       tap((user) => this.user.set(user)),
+      // The modules switched on for the school decide what the menu shows.
+      switchMap(() => this.modules.load()),
       map(() => true),
       catchError(() => {
         this.user.set(null);
+        this.modules.clear();
         return of(false);
       })
     );

@@ -54,21 +54,26 @@ Master tenant (the platform owner, i.e. us)
 
 Effective access for a school user = **modules enabled for their school** ∩ **rights their role gives per module** ∩ **branches assigned to them**.
 
-1. **Modules per school (master controls):** from the master portal, the master tenant switches modules on or off for each school. A disabled module is unavailable to everyone in that school.
+1. **Modules per school (master controls, decided 2026-11-11):** from the master portal, the master tenant decides which modules are **default** and which are **custom**, and switches modules on or off for each school. A disabled module is unavailable to everyone in that school.
+   - **Core** modules are always on for every school and can't be switched off.
+   - **Default** modules are on for every school automatically, including new ones. The master can still switch one off for a single school.
+   - **Custom** modules stay off until the master switches them on for a school (for example when the school asks for it).
+   - The master's choice for a school wins over the default from then on. Without a choice, the module's default applies. The master tenant itself is never limited by modules.
+   - Code: keys in `Domain/Constants/ModuleKeys.cs`, starting list in `Domain/Entities/ModuleCatalog.cs` (seeded into the `Modules` table), per-school choices in `SchoolModules`. Master screens: Modules (default or custom) and Schools, Modules (per school).
 
-   MVP module list (2026-11-09; add new modules here first):
+   MVP module list (2026-11-09; add new modules here, to `ModuleKeys` and to `ModuleCatalog` first). "Starts as" is the seeded split; the master can change it in the app:
 
-   | Module | Covers | Can be switched off per school? |
+   | Module | Covers | Starts as |
    |---|---|---|
-   | Branches | Create and edit the school's branches | No (always on) |
-   | Users & Roles | Staff accounts, roles with rights per module, branch assignment | No (always on) |
-   | Students | Student records, branch membership, link to parents | Yes |
-   | Parents | Parent records, link to children | Yes |
-   | Teachers | Teacher records, branch membership | Yes |
-   | Courses | Courses per branch, assigned teachers | Yes |
-   | Enrolments | Enrolling students in courses | Yes |
-   | Grades | Assessments and scores per enrolment | Yes |
-   | Dashboard | School/branch overview for owners and staff | Yes |
+   | Branches | Create and edit the school's branches | Core (always on) |
+   | Users & Roles | Staff accounts, roles with rights per module, branch assignment | Core (always on) |
+   | Students | Student records, branch membership, link to parents | Default |
+   | Teachers | Teacher records, branch membership | Default |
+   | Courses | Courses per branch, assigned teachers | Default |
+   | Enrolments | Enrolling students in courses | Default |
+   | Grades | Assessments and scores per enrolment | Default |
+   | Parents | Parent records, link to children | Custom |
+   | Dashboard | School/branch overview for owners and staff | Custom |
 
    Master-only areas (not tenant modules): Schools, module switches per school, countries and their languages, and the cross-school overview.
 2. **Roles per school (owner controls):** each school owner creates roles with **View / Create / Edit / Delete** rights per module.
@@ -84,7 +89,7 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 
 ### Rules for code
 
-- Check module switches and role rights **on the server**, in the Application layer (e.g. a MediatR authorization behaviour / attributes). Hiding things in Angular is not enough: a direct API call to a disabled module or a branch the user doesn't have must be rejected.
+- Check module switches and role rights **on the server**, in the Application layer. A module's use cases declare it with `[Authorize(Module = ModuleKeys.Students)]`; `AuthorizationBehaviour` refuses the request with 403 when the module is off for the host's school. In Angular, give a module's menu items `module: MODULE_KEYS.students` and its routes `moduleGuard(MODULE_KEYS.students)`. Hiding things in Angular is not enough: a direct API call to a disabled module or a branch the user doesn't have must be rejected.
 - Every new tenant-owned entity gets `SchoolId` (and `BranchId` if branch-scoped) and is covered by the query filters.
 - Every new use case gets a test proving that another school, another branch, and a disabled module are denied.
 

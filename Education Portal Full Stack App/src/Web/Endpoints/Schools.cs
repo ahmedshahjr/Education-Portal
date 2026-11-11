@@ -1,5 +1,8 @@
 using EducationPortal.Application.Branding.Common;
 using EducationPortal.Application.Common.Models;
+using EducationPortal.Application.Modules.Commands.SetSchoolModule;
+using EducationPortal.Application.Modules.Common;
+using EducationPortal.Application.Modules.Queries.GetSchoolModules;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolBranding;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolCountry;
 using EducationPortal.Application.Schools.Queries.GetSchoolBranding;
@@ -31,6 +34,30 @@ public class Schools : IEndpointGroup
         groupBuilder.MapPut(UpdateSchoolCountry, "{schoolId:int}/country")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapGet(GetSchoolModules, "{schoolId:int}/modules")
+            .RequireAuthorization();
+
+        groupBuilder.MapPut(SetSchoolModule, "{schoolId:int}/modules/{key}")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+    }
+
+    [EndpointSummary("List a school's modules")]
+    [EndpointDescription("Returns every module as it stands for the school: on or off, and whether that follows the module's default or the master's choice. Master tenant only.")]
+    public static async Task<Ok<IReadOnlyList<SchoolModuleDto>>> GetSchoolModules(ISender sender, int schoolId)
+    {
+        return TypedResults.Ok(await sender.Send(new GetSchoolModulesQuery(schoolId)));
+    }
+
+    [EndpointSummary("Switch a module on or off for a school")]
+    [EndpointDescription("The choice wins over the module's default from then on. Core modules and the master tenant cannot be changed. Master tenant only.")]
+    public static async Task<NoContent> SetSchoolModule(ISender sender, int schoolId, string key, SetSchoolModuleCommand command)
+    {
+        // The route names the school and the module; values in the body are ignored.
+        await sender.Send(command with { SchoolId = schoolId, Key = key });
+
+        return TypedResults.NoContent();
     }
 
     [EndpointSummary("Change a school's country")]

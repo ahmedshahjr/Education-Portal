@@ -79,6 +79,16 @@ public static class TestApp
         return school.Id;
     }
 
+    /// <summary>The id of the school on a domain, or <c>null</c>.</summary>
+    public static async Task<int?> FindSchoolIdAsync(string domain)
+    {
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        return await context.Schools.Where(s => s.Domain == domain).Select(s => (int?)s.Id).FirstOrDefaultAsync();
+    }
+
     public static string? GetUserId() => _userId;
 
     public static List<string>? GetRoles() => _roles;
@@ -150,6 +160,12 @@ public static class TestApp
         // Every request needs a tenant, so the master tenant is created again after each reset.
         var master = School.CreateMaster("Education Portal", MasterDomain);
         await AddAsync(master);
+
+        // The module catalog is seeded data, so it is added again too.
+        foreach (var module in ModuleCatalog.CreateModules())
+        {
+            await AddAsync(module);
+        }
         MasterSchoolId = master.Id;
         UseTenant(MasterSchoolId, isMaster: true);
     }
