@@ -32,7 +32,6 @@ describe('RequestSchoolPage', () => {
   it('sends the request and confirms it', async () => {
     const { fixture, element } = setup();
     fill(element, 'schoolName', 'Greenfield School');
-    fill(element, 'requestedDomain', 'greenfield.example');
     fill(element, 'contactName', 'Ayesha Khan');
     fill(element, 'contactEmail', 'ayesha@greenfield.example');
     fixture.detectChanges();
@@ -42,7 +41,7 @@ describe('RequestSchoolPage', () => {
     const request = http.expectOne('/api/SchoolRequests');
     expect(request.request.method).toBe('POST');
     // The generated client sends the command as JSON text.
-    expect(JSON.parse(request.request.body as string)).toMatchObject({ schoolName: 'Greenfield School', requestedDomain: 'greenfield.example' });
+    expect(JSON.parse(request.request.body as string)).toMatchObject({ schoolName: 'Greenfield School', contactEmail: 'ayesha@greenfield.example' });
     request.flush(new Blob(['1'], { type: 'application/json' }));
 
     await vi.waitFor(() => expect(element.querySelector('[role="status"]')).not.toBeNull());

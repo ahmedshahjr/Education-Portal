@@ -11,9 +11,6 @@ public record SubmitSchoolRequestCommand : IRequest<int>
 {
     public string SchoolName { get; init; } = string.Empty;
 
-    /// <summary>The host name the school wants, for example <c>school1.com</c>.</summary>
-    public string RequestedDomain { get; init; } = string.Empty;
-
     public string ContactName { get; init; } = string.Empty;
 
     public string ContactEmail { get; init; } = string.Empty;
@@ -21,25 +18,11 @@ public record SubmitSchoolRequestCommand : IRequest<int>
 
 public class SubmitSchoolRequestCommandValidator : AbstractValidator<SubmitSchoolRequestCommand>
 {
-    public SubmitSchoolRequestCommandValidator(IApplicationDbContext context)
+    public SubmitSchoolRequestCommandValidator()
     {
         RuleFor(r => r.SchoolName)
             .NotEmpty()
             .MaximumLength(SchoolRequest.SchoolNameMaxLength);
-
-        RuleFor(r => r.RequestedDomain)
-            .NotEmpty()
-            .MaximumLength(School.DomainMaxLength)
-            .Must(domain => School.IsValidDomain(Normalize(domain)))
-            .WithMessage("The domain must be a host name such as school1.com.")
-            .MustAsync(async (domain, cancellationToken) =>
-                !await context.Schools.AnyAsync(s => s.Domain == Normalize(domain), cancellationToken))
-            .WithMessage("This domain is already used by a school.")
-            .MustAsync(async (domain, cancellationToken) =>
-                !await context.SchoolRequests.AnyAsync(
-                    r => r.RequestedDomain == Normalize(domain) && r.Status == SchoolRequestStatus.Pending,
-                    cancellationToken))
-            .WithMessage("A request for this domain is already waiting for approval.");
 
         RuleFor(r => r.ContactName)
             .NotEmpty()
@@ -51,14 +34,13 @@ public class SubmitSchoolRequestCommandValidator : AbstractValidator<SubmitSchoo
             .EmailAddress();
     }
 
-    private static string Normalize(string domain) => domain.Trim().TrimEnd('.').ToLowerInvariant();
 }
 
 public class SubmitSchoolRequestCommandHandler(IApplicationDbContext context) : IRequestHandler<SubmitSchoolRequestCommand, int>
 {
     public async Task<int> Handle(SubmitSchoolRequestCommand request, CancellationToken cancellationToken)
     {
-        var schoolRequest = SchoolRequest.Submit(request.SchoolName, request.RequestedDomain, request.ContactName, request.ContactEmail);
+        var schoolRequest = SchoolRequest.Submit(request.SchoolName, request.ContactName, request.ContactEmail);
 
         context.SchoolRequests.Add(schoolRequest);
         await context.SaveChangesAsync(cancellationToken);
