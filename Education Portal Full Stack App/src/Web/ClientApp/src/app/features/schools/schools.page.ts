@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,6 +11,7 @@ import { problemMessages } from '../../core/http/problem-details';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { SearchInputComponent } from '../../shared/components/search-input/search-input.component';
 import {
   BrandingDto,
   CountriesClient,
@@ -26,7 +27,10 @@ import { SchoolModulesComponent } from './school-modules.component';
 
 const PAGE_SIZE = 25;
 
-/** Master portal: every school, its country (languages, time zone, currency) and its branding. Master tenant administrators only. */
+/** How long the search box waits after the last key press before asking the server, in milliseconds. */
+export const SEARCH_DELAY_MS = 300;
+
+/** Master portal: every school (searchable by name and limited to one country on request), its country (languages, time zone, currency) and its branding. Master tenant administrators only. */
 @Component({
   selector: 'app-schools-page',
   imports: [
@@ -39,6 +43,7 @@ const PAGE_SIZE = 25;
     PageHeaderComponent,
     LoadingStateComponent,
     EmptyStateComponent,
+    SearchInputComponent,
     BrandingEditorComponent,
     SchoolModulesComponent,
   ],
@@ -53,6 +58,30 @@ const PAGE_SIZE = 25;
 
     <mat-card class="mm-card mm-elevated mm-schools">
       <mat-card-content>
+        <div class="mm-table-toolbar">
+          <div class="mm-table-toolbar__search">
+            <app-search-input
+              [value]="search()"
+              (valueChange)="changeSearch($event)"
+              placeholder="Search schools by name"
+              i18n-placeholder="@@schools.searchPlaceholder"
+              ariaLabel="Search schools by name"
+              i18n-ariaLabel="@@schools.searchLabel"
+            />
+          </div>
+          <div class="mm-table-toolbar__extra">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-schools__country-filter">
+              <mat-label i18n="@@schools.countryFilter">Country</mat-label>
+              <mat-select [value]="countryFilter()" (selectionChange)="changeCountryFilter($event.value)">
+                <mat-option [value]="null" i18n="@@schools.allCountries">All countries</mat-option>
+                @for (country of countries(); track country.id) {
+                  <mat-option [value]="country.id">{{ country.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
         @if (loadError(); as message) {
           <app-empty-state
             icon="alert-triangle"
@@ -64,7 +93,18 @@ const PAGE_SIZE = 25;
             (action)="loadPage(pageIndex())"
           />
         } @else if (page(); as schools) {
-          @if (schools.items.length === 0) {
+          @if (schools.items.length === 0 && isFiltered()) {
+            <app-empty-state
+              icon="search"
+              title="No schools match"
+              i18n-title="@@schools.noMatch"
+              description="No school matches the search and country you picked."
+              i18n-description="@@schools.noMatchDescription"
+              actionLabel="Clear filters"
+              i18n-actionLabel="@@schools.clearFilters"
+              (action)="clearFilters()"
+            />
+          } @else if (schools.items.length === 0) {
             <app-empty-state
               icon="layers"
               title="No schools yet"
@@ -164,6 +204,31 @@ const PAGE_SIZE = 25;
       margin-bottom: var(--mm-grid-gap);
     }
 
+    .mm-table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: var(--mm-space-4);
+    }
+
+    .mm-table-toolbar__search {
+      width: 280px;
+      max-width: 100%;
+    }
+
+    .mm-table-toolbar__extra {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .mm-schools__country-filter {
+      min-width: 200px;
+    }
+
     .mm-schools__table {
       width: 100%;
     }
@@ -212,7 +277,14 @@ export class SchoolsPage {
   protected readonly countries = signal<readonly CountryDto[]>([]);
   protected readonly assigning = signal<number | null>(null);
 
+  /** The name search and the country the table is limited to; the server filters, so paging stays correct. */
+  protected readonly search = signal('');
+  protected readonly countryFilter = signal<number | null>(null);
+  protected readonly isFiltered = computed(() => this.search().trim() !== '' || this.countryFilter() !== null);
+  private searchTimer: ReturnType<typeof setTimeout> | undefined;
+
   constructor() {
+    inject(DestroyRef).onDestroy(() => clearTimeout(this.searchTimer));
     this.loadPage(0);
     this.countriesClient.getCountries(1, 100).subscribe({
       next: (page) => this.countries.set(page.items),
@@ -239,10 +311,29 @@ export class SchoolsPage {
     this.loadError.set(null);
     this.page.set(null);
     this.pageIndex.set(index);
-    this.client.getSchools(index + 1, PAGE_SIZE).subscribe({
+    const search = this.search().trim();
+    this.client.getSchools(index + 1, PAGE_SIZE, search || undefined, this.countryFilter() ?? undefined).subscribe({
       next: (page) => this.page.set(page),
       error: (error: unknown) => this.loadError.set(problemMessages(error)[0]),
     });
+  }
+
+  protected changeSearch(search: string): void {
+    this.search.set(search);
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => this.loadPage(0), SEARCH_DELAY_MS);
+  }
+
+  protected changeCountryFilter(countryId: number | null): void {
+    this.countryFilter.set(countryId);
+    this.loadPage(0);
+  }
+
+  protected clearFilters(): void {
+    clearTimeout(this.searchTimer);
+    this.search.set('');
+    this.countryFilter.set(null);
+    this.loadPage(0);
   }
 
   protected changePage(event: PageEvent): void {
