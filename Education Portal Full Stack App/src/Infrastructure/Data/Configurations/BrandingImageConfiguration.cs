@@ -8,7 +8,7 @@ public class BrandingImageConfiguration : IEntityTypeConfiguration<BrandingImage
 {
     public void Configure(EntityTypeBuilder<BrandingImage> builder)
     {
-        builder.Property(i => i.Kind).IsRequired().HasConversion<string>().HasMaxLength(16);
+        builder.Property(i => i.Kind).IsRequired(); // stored as its number (ENG-ENUM-02)
         builder.Property(i => i.ContentType).IsRequired().HasMaxLength(BrandingImage.ContentTypeMaxLength);
         builder.Property(i => i.Content).IsRequired();
         builder.Property(i => i.Version).IsRequired().HasMaxLength(BrandingImage.VersionLength);

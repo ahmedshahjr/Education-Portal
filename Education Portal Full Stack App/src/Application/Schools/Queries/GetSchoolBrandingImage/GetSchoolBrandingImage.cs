@@ -11,13 +11,13 @@ namespace EducationPortal.Application.Schools.Queries.GetSchoolBrandingImage;
 /// administrators only (SEC-AUTHZ-07). Returns <c>null</c> when the school uses the default image.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetSchoolBrandingImageQuery(int SchoolId, BrandingImageKind Kind) : IRequest<BrandingImageDto?>;
+public record GetSchoolBrandingImageQuery(Guid SchoolId, BrandingImageKind Kind) : IRequest<BrandingImageDto?>;
 
 public class GetSchoolBrandingImageQueryValidator : AbstractValidator<GetSchoolBrandingImageQuery>
 {
     public GetSchoolBrandingImageQueryValidator()
     {
-        RuleFor(q => q.SchoolId).GreaterThan(0);
+        RuleFor(q => q.SchoolId).NotEmpty();
         RuleFor(q => q.Kind).IsInEnum();
     }
 }
@@ -35,7 +35,7 @@ public class GetSchoolBrandingImageQueryHandler : IRequestHandler<GetSchoolBrand
     {
         return await _context.BrandingImages
             .AsNoTracking()
-            .Where(i => i.SchoolId == request.SchoolId && i.Kind == request.Kind)
+            .Where(i => i.Kind == request.Kind && _context.Schools.Any(s => s.Id == i.SchoolId && s.PublicId == request.SchoolId))
             .Select(i => new BrandingImageDto(i.ContentType, i.Content))
             .SingleOrDefaultAsync(cancellationToken);
     }

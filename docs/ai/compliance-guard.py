@@ -101,11 +101,44 @@ CHECKS = [
       r"\.(Result|Wait\(\s*\))(?![\w(])|\.GetAwaiter\(\)\s*\.\s*GetResult\(\)"),
     c("datetime-now", "ENG-ENTITY-08", "use an injected TimeProvider and DateTimeOffset (UTC)", SRC_CS,
       r"\bDateTime(Offset)?\s*\.\s*(Utc)?Now\b"),
+    c("enum-stored-as-string", "ENG-ENUM-03", "store enums as their number with a lookup table, not as strings", SRC_CS,
+      r"HasConversion<string>\(\)|\bEnumToStringConverter\b"),
+    c("int-route", "ENG-ID-02", "routes take the Guid public id, never the internal int key", SRC_CS,
+      r"\{\w*[iI]d:int\}"),
     c("angular-ngmodule", "ENG-UI-01", "use standalone components, not NgModules", CLIENT + r".*\.ts$",
       r"@NgModule\s*\(|\bstandalone\s*:\s*false\b"),
     c("angular-legacy-control-flow", "ENG-UI-03", "use @if / @for / @switch, not *ngIf / *ngFor / *ngSwitch",
       CLIENT + r".*\.(html|ts)$", r"\*ng(If|For|Switch\w*)\b"),
 ]
+
+
+ENUM_FILES = re.compile(SRC_CS)
+ENUM_CHECK = Check("enum-implicit-value", "ENG-ENUM-02", "give every enum member an explicit number (Name = 1)",
+                   ENUM_FILES, re.compile(""))
+CHECKS.append(ENUM_CHECK)
+ENUM_START = re.compile(r"\benum\s+\w+(\s*:\s*\w+)?\s*$|\benum\s+\w+(\s*:\s*\w+)?\s*\{")
+ENUM_MEMBER = re.compile(r"^\s*([A-Za-z_]\w*)\s*(=\s*[^,]+)?,?\s*(//.*)?$")
+
+
+def implicit_enum_members(lines: list[str]) -> list[tuple[int, str]]:
+    """(line number, line) of each enum member declared without an explicit value (ENG-ENUM-02)."""
+    found, inside, depth = [], False, 0
+    for i, line in enumerate(lines, start=1):
+        stripped = line.strip()
+        if not inside:
+            if ENUM_START.search(line):
+                inside, depth = True, line.count("{") - line.count("}")
+            continue
+        depth += line.count("{") - line.count("}")
+        if depth <= 0 and "}" in line:
+            inside = False
+            continue
+        if not stripped or stripped.startswith(("//", "///", "[", "{", "/*", "*")):
+            continue
+        member = ENUM_MEMBER.match(line)
+        if member and member.group(2) is None:
+            found.append((i, line))
+    return found
 
 
 def iter_files(args: list[str]) -> list[Path]:
@@ -144,7 +177,7 @@ def main() -> int:
         except (UnicodeDecodeError, OSError):
             continue
         for check in CHECKS:
-            if not check.files.search(rel):
+            if check is ENUM_CHECK or not check.files.search(rel):
                 continue
             for i, line in enumerate(lines):
                 if not check.pattern.search(line):
@@ -152,6 +185,12 @@ def main() -> int:
                 if EXCEPTION.search(line) or (i > 0 and EXCEPTION.search(lines[i - 1])):
                     continue
                 counts.setdefault((check.id, rel), []).append(f"{rel}:{i + 1}: {line.strip()[:160]}")
+
+        if ENUM_FILES.search(rel):
+            for line_no, line in implicit_enum_members(lines):
+                if EXCEPTION.search(line) or (line_no > 1 and EXCEPTION.search(lines[line_no - 2])):
+                    continue
+                counts.setdefault((ENUM_CHECK.id, rel), []).append(f"{rel}:{line_no}: {line.strip()[:160]}")
 
     failures, shrunk = [], []
     by_id = {ch.id: ch for ch in CHECKS}

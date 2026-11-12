@@ -11,7 +11,7 @@ public class SchoolRequestConfiguration : IEntityTypeConfiguration<SchoolRequest
         builder.Property(r => r.SchoolName).IsRequired().HasMaxLength(SchoolRequest.SchoolNameMaxLength);
         builder.Property(r => r.ContactName).IsRequired().HasMaxLength(SchoolRequest.ContactNameMaxLength);
         builder.Property(r => r.ContactEmail).IsRequired().HasMaxLength(SchoolRequest.ContactEmailMaxLength);
-        builder.Property(r => r.Status).IsRequired().HasConversion<string>().HasMaxLength(16);
+        builder.Property(r => r.Status).IsRequired(); // stored as its number (ENG-ENUM-02)
 
         builder.HasIndex(r => r.Status);
     }

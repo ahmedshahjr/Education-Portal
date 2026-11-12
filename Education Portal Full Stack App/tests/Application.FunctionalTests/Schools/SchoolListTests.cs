@@ -12,8 +12,8 @@ namespace EducationPortal.Application.FunctionalTests.Schools;
 /// </summary>
 public class SchoolListTests : TestBase
 {
-    private int _pakistanId;
-    private int _uaeId;
+    private EntityIds _pakistanId = null!;
+    private EntityIds _uaeId = null!;
 
     [SetUp]
     public async Task AddSchools()
@@ -21,9 +21,9 @@ public class SchoolListTests : TestBase
         _pakistanId = await TestApp.AddCountryAsync("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR");
         _uaeId = await TestApp.AddCountryAsync("AE", "United Arab Emirates", ["en", "ar"], "en", "Asia/Dubai", "AED");
 
-        await TestApp.AddSchoolAsync("Alpha Academy", "alpha.localhost", _pakistanId);
-        await TestApp.AddSchoolAsync("Beta Academy", "beta.localhost", _uaeId);
-        await TestApp.AddSchoolAsync("Alpha Grammar", "grammar.localhost", _uaeId);
+        await TestApp.AddSchoolAsync("Alpha Academy", "alpha.localhost", _pakistanId.Id);
+        await TestApp.AddSchoolAsync("Beta Academy", "beta.localhost", _uaeId.Id);
+        await TestApp.AddSchoolAsync("Alpha Grammar", "grammar.localhost", _uaeId.Id);
         await TestApp.AddSchoolAsync("Gamma School", "gamma.localhost");
     }
 
@@ -77,10 +77,10 @@ public class SchoolListTests : TestBase
     {
         using var master = await SignInAsMasterAsync();
 
-        var page = await ReadSchoolsAsync(master, $"?countryId={_uaeId}");
+        var page = await ReadSchoolsAsync(master, $"?countryId={_uaeId.PublicId}");
 
         page.Items.Select(s => s.Name).ShouldBe(["Alpha Grammar", "Beta Academy"]);
-        page.Items.ShouldAllBe(s => s.CountryId == _uaeId);
+        page.Items.ShouldAllBe(s => s.CountryId == _uaeId.PublicId);
     }
 
     [Test]
@@ -88,7 +88,7 @@ public class SchoolListTests : TestBase
     {
         using var master = await SignInAsMasterAsync();
 
-        var page = await ReadSchoolsAsync(master, $"?search=alpha&countryId={_pakistanId}");
+        var page = await ReadSchoolsAsync(master, $"?search=alpha&countryId={_pakistanId.PublicId}");
 
         page.Items.ShouldHaveSingleItem().Name.ShouldBe("Alpha Academy");
     }
@@ -113,22 +113,24 @@ public class SchoolListTests : TestBase
         using var master = await SignInAsMasterAsync();
 
         using var tooLong = await master.GetAsync($"/api/Schools?search={new string('a', GetSchoolsQuery.MaxSearchLength + 1)}");
-        using var badCountry = await master.GetAsync("/api/Schools?countryId=0");
+        using var emptyCountry = await master.GetAsync($"/api/Schools?countryId={Guid.Empty}");
+        using var internalCountryId = await master.GetAsync($"/api/Schools?countryId={_pakistanId.Id}");
 
         tooLong.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        badCountry.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        emptyCountry.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        internalCountryId.StatusCode.ShouldBe(HttpStatusCode.BadRequest); // ENG-ID-02: the internal key is never accepted
     }
 
     [Test]
     public async Task ShouldKeepTheSchoolListAwayFromSchoolAdministrators()
     {
         const string adminEmail = "admin@alpha.local";
-        var schoolId = (await TestApp.FindSchoolIdAsync("alpha.localhost"))!.Value;
-        await TestApp.RunAsUserAsync(schoolId, adminEmail, TestApp.AdministratorPassword, [Roles.Administrator]);
+        var schoolId = (await TestApp.FindSchoolIdAsync("alpha.localhost"))!;
+        await TestApp.RunAsUserAsync(schoolId.Id, adminEmail, TestApp.AdministratorPassword, [Roles.Administrator]);
         using var session = TestHttp.CreateDevelopmentSession("alpha.localhost");
         (await session.SignInAsync(adminEmail, TestApp.AdministratorPassword)).Dispose();
 
-        using var response = await session.GetAsync($"/api/Schools?search=alpha&countryId={_pakistanId}");
+        using var response = await session.GetAsync($"/api/Schools?search=alpha&countryId={_pakistanId.PublicId}");
 
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }

@@ -17,7 +17,7 @@ public class GetSchoolsQueryValidatorTests
     [Test]
     public void ShouldAcceptASearchAndACountry()
     {
-        _validator.Validate(new GetSchoolsQuery { Search = "academy", CountryId = 1 }).IsValid.ShouldBeTrue();
+        _validator.Validate(new GetSchoolsQuery { Search = "academy", CountryId = Guid.CreateVersion7() }).IsValid.ShouldBeTrue();
     }
 
     [Test]
@@ -36,11 +36,10 @@ public class GetSchoolsQueryValidatorTests
         _validator.Validate(query).Errors.ShouldContain(e => e.PropertyName == nameof(GetSchoolsQuery.Search));
     }
 
-    [TestCase(0)]
-    [TestCase(-1)]
-    public void ShouldRefuseACountryIdThatIsNotPositive(int countryId)
+    [Test]
+    public void ShouldRefuseAnEmptyCountryId()
     {
-        var query = new GetSchoolsQuery { CountryId = countryId };
+        var query = new GetSchoolsQuery { CountryId = Guid.Empty };
 
         _validator.Validate(query).Errors.ShouldContain(e => e.PropertyName == nameof(GetSchoolsQuery.CountryId));
     }

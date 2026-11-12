@@ -23,11 +23,11 @@ public record GetSchoolsQuery : IRequest<PaginatedList<SchoolSummaryDto>>
     public string? Search { get; init; }
 
     /// <summary>Only schools in this country. <c>null</c> means every school.</summary>
-    public int? CountryId { get; init; }
+    public Guid? CountryId { get; init; }
 }
 
 /// <param name="CountryId">The school's country, or <c>null</c> for the platform defaults.</param>
-public sealed record SchoolSummaryDto(int Id, string Name, string Domain, bool IsMaster, int? CountryId);
+public sealed record SchoolSummaryDto(Guid Id, string Name, string Domain, bool IsMaster, Guid? CountryId);
 
 public class GetSchoolsQueryValidator : AbstractValidator<GetSchoolsQuery>
 {
@@ -36,7 +36,7 @@ public class GetSchoolsQueryValidator : AbstractValidator<GetSchoolsQuery>
         RuleFor(q => q.PageNumber).GreaterThanOrEqualTo(1);
         RuleFor(q => q.PageSize).InclusiveBetween(1, PaginatedList<SchoolSummaryDto>.MaxPageSize);
         RuleFor(q => q.Search).MaximumLength(GetSchoolsQuery.MaxSearchLength);
-        RuleFor(q => q.CountryId).GreaterThan(0);
+        RuleFor(q => q.CountryId).NotEqual(Guid.Empty);
     }
 }
 
@@ -62,7 +62,7 @@ public class GetSchoolsQueryHandler : IRequestHandler<GetSchoolsQuery, Paginated
 
         if (request.CountryId is { } countryId)
         {
-            schools = schools.Where(s => s.CountryId == countryId);
+            schools = schools.Where(s => _context.Countries.Any(c => c.Id == s.CountryId && c.PublicId == countryId));
         }
 
         // The master tenant comes first, then the schools by name; the id keeps the order stable (ENG-EF-05).
@@ -70,7 +70,12 @@ public class GetSchoolsQueryHandler : IRequestHandler<GetSchoolsQuery, Paginated
             .OrderByDescending(s => s.IsMaster)
             .ThenBy(s => s.Name)
             .ThenBy(s => s.Id)
-            .Select(s => new SchoolSummaryDto(s.Id, s.Name, s.Domain, s.IsMaster, s.CountryId));
+            .Select(s => new SchoolSummaryDto(
+                s.PublicId,
+                s.Name,
+                s.Domain,
+                s.IsMaster,
+                _context.Countries.Where(c => c.Id == s.CountryId).Select(c => (Guid?)c.PublicId).FirstOrDefault()));
 
         return await PaginatedList<SchoolSummaryDto>.CreateAsync(page, request.PageNumber, request.PageSize, cancellationToken);
     }

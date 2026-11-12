@@ -9,7 +9,7 @@ import { SchoolsPage } from './schools.page';
 
 const blob = (body: unknown) => new Blob([JSON.stringify(body)], { type: 'application/json' });
 
-const pageOf = (items: { id: number; name: string; countryId?: number }[]) =>
+const pageOf = (items: { id: string; name: string; countryId?: string }[]) =>
   blob({
     items: items.map((s) => ({ ...s, domain: `${s.name.toLowerCase().replace(/ /g, '')}.localhost`, isMaster: false })),
     pageNumber: 1,
@@ -19,8 +19,8 @@ const pageOf = (items: { id: number; name: string; countryId?: number }[]) =>
 
 const countries = blob({
   items: [
-    { id: 1, code: 'PK', name: 'Pakistan', languages: ['en'], defaultLanguage: 'en', timeZoneId: 'Asia/Karachi', currencyCode: 'PKR' },
-    { id: 2, code: 'AE', name: 'United Arab Emirates', languages: ['en'], defaultLanguage: 'en', timeZoneId: 'Asia/Dubai', currencyCode: 'AED' },
+    { id: '0190f3a0-0000-7000-8000-000000000001', code: 'PK', name: 'Pakistan', languages: ['en'], defaultLanguage: 'en', timeZoneId: 'Asia/Karachi', currencyCode: 'PKR' },
+    { id: '0190f3a0-0000-7000-8000-000000000002', code: 'AE', name: 'United Arab Emirates', languages: ['en'], defaultLanguage: 'en', timeZoneId: 'Asia/Dubai', currencyCode: 'AED' },
   ],
   pageNumber: 1,
   totalPages: 1,
@@ -36,7 +36,7 @@ async function render() {
   });
   const fixture = TestBed.createComponent(SchoolsPage);
   const http = TestBed.inject(HttpTestingController);
-  http.expectOne(isSchoolsRequest).flush(pageOf([{ id: 2, name: 'Alpha Academy', countryId: 1 }, { id: 3, name: 'Beta School' }]));
+  http.expectOne(isSchoolsRequest).flush(pageOf([{ id: '0190f3a0-0000-7000-8000-000000000007', name: 'Alpha Academy', countryId: '0190f3a0-0000-7000-8000-000000000001' }, { id: '0190f3a0-0000-7000-8000-000000000008', name: 'Beta School' }]));
   http.expectOne((r) => r.url.startsWith('/api/Countries?')).flush(countries);
   const element = fixture.nativeElement as HTMLElement;
   await rowsShouldBe(fixture, ['Alpha Academy', 'Beta School']);
@@ -78,7 +78,7 @@ describe('SchoolsPage', () => {
 
     const request = await nextSchoolsRequest(http);
     expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25&search=alpha');
-    request.flush(pageOf([{ id: 2, name: 'Alpha Academy', countryId: 1 }]));
+    request.flush(pageOf([{ id: '0190f3a0-0000-7000-8000-000000000007', name: 'Alpha Academy', countryId: '0190f3a0-0000-7000-8000-000000000001' }]));
 
     await rowsShouldBe(fixture, ['Alpha Academy']);
   });
@@ -92,7 +92,7 @@ describe('SchoolsPage', () => {
     await filter.clickOptions({ text: 'United Arab Emirates' });
 
     const request = await nextSchoolsRequest(http);
-    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25&countryId=2');
+    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25&countryId=0190f3a0-0000-7000-8000-000000000002');
     request.flush(pageOf([]));
 
     await vi.waitFor(async () => {
@@ -115,7 +115,7 @@ describe('SchoolsPage', () => {
 
     const request = await nextSchoolsRequest(http);
     expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25');
-    request.flush(pageOf([{ id: 2, name: 'Alpha Academy', countryId: 1 }, { id: 3, name: 'Beta School' }]));
+    request.flush(pageOf([{ id: '0190f3a0-0000-7000-8000-000000000007', name: 'Alpha Academy', countryId: '0190f3a0-0000-7000-8000-000000000001' }, { id: '0190f3a0-0000-7000-8000-000000000008', name: 'Beta School' }]));
 
     await rowsShouldBe(fixture, ['Alpha Academy', 'Beta School']);
     expect(element.querySelector<HTMLInputElement>('input[type="search"]')!.value).toBe('');

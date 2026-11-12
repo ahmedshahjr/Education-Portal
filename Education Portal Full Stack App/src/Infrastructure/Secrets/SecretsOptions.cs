@@ -1,14 +1,16 @@
+using EducationPortal.Domain.Common;
+
 namespace EducationPortal.Infrastructure.Secrets;
 
 /// <summary>The secret stores that <c>Secrets:Provider</c> can select (ADR-006).</summary>
 public enum SecretProviderKind
 {
     /// <summary><c>Secrets:Provider</c> is empty: no secret store, the app runs on normal configuration.</summary>
-    None,
-    HashiCorp,
-    AzureKeyVault,
-    Aws,
-    Gcp,
+    None = 0,
+    HashiCorp = 1,
+    AzureKeyVault = 2,
+    Aws = 3,
+    Gcp = 4,
 }
 
 /// <summary>
@@ -39,17 +41,17 @@ public sealed class SecretsOptions
     /// <summary>The selected store, or <c>null</c> when <see cref="Provider"/> is not a known name.</summary>
     public SecretProviderKind? Kind =>
         string.IsNullOrWhiteSpace(Provider) ? SecretProviderKind.None
-        : Enum.TryParse<SecretProviderKind>(Provider, ignoreCase: true, out var kind) && kind != SecretProviderKind.None ? kind
+        : EnumNames.TryParse<SecretProviderKind>(Provider, out var kind) && kind != SecretProviderKind.None ? kind
         : null;
 }
 
 public enum HashiCorpAuthMethod
 {
     /// <summary>A Vault token, for local development (<c>Secrets__HashiCorp__Token</c>).</summary>
-    Token,
+    Token = 1,
 
     /// <summary>AppRole (<c>Secrets__HashiCorp__RoleId</c> and <c>Secrets__HashiCorp__SecretId</c>).</summary>
-    AppRole,
+    AppRole = 2,
 }
 
 public sealed class HashiCorpVaultOptions

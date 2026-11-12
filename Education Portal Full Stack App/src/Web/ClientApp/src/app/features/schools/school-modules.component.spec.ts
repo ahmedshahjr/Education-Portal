@@ -17,9 +17,9 @@ async function render() {
   TestBed.configureTestingModule({ imports: [SchoolModulesComponent], providers: [provideHttpClient(), provideHttpClientTesting()] });
   const http = TestBed.inject(HttpTestingController);
   const fixture = TestBed.createComponent(SchoolModulesComponent);
-  fixture.componentRef.setInput('school', new SchoolSummaryDto({ id: 5, name: 'School One', domain: 'school1.com', isMaster: false, countryId: undefined }));
+  fixture.componentRef.setInput('school', new SchoolSummaryDto({ id: '0190f3a0-0000-7000-8000-000000000005', name: 'School One', domain: 'school1.com', isMaster: false, countryId: undefined }));
   fixture.detectChanges();
-  http.expectOne('/api/Schools/5/modules').flush(json(modules));
+  http.expectOne('/api/Schools/0190f3a0-0000-7000-8000-000000000005/modules').flush(json(modules));
   const element = fixture.nativeElement as HTMLElement;
   // The generated client reads every response as a Blob, which is read asynchronously.
   await vi.waitFor(() => {
@@ -48,7 +48,7 @@ describe('SchoolModulesComponent', () => {
 
     element.querySelectorAll<HTMLButtonElement>('button[role="switch"]')[2].click();
 
-    const request = http.expectOne('/api/Schools/5/modules/Parents');
+    const request = http.expectOne('/api/Schools/0190f3a0-0000-7000-8000-000000000005/modules/Parents');
     expect(request.request.method).toBe('PUT');
     expect(request.request.body).toContain('"isEnabled":true');
     request.flush(null, { status: 204, statusText: 'No Content' });

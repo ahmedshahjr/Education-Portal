@@ -10,7 +10,7 @@ namespace EducationPortal.Application.Modules.Queries.GetSchoolModules;
 /// master's choice. A master-tenant use case, so the school id may come from the route (SEC-AUTHZ-04, SEC-AUTHZ-07).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetSchoolModulesQuery(int SchoolId) : IRequest<IReadOnlyList<SchoolModuleDto>>;
+public record GetSchoolModulesQuery(Guid SchoolId) : IRequest<IReadOnlyList<SchoolModuleDto>>;
 
 public class GetSchoolModulesQueryHandler : IRequestHandler<GetSchoolModulesQuery, IReadOnlyList<SchoolModuleDto>>
 {
@@ -25,7 +25,7 @@ public class GetSchoolModulesQueryHandler : IRequestHandler<GetSchoolModulesQuer
     {
         var school = await _context.Schools
             .AsNoTracking()
-            .Where(s => s.Id == request.SchoolId)
+            .Where(s => s.PublicId == request.SchoolId)
             .Select(s => new { s.Id, s.IsMaster })
             .FirstOrDefaultAsync(cancellationToken);
         Guard.Against.NotFound(request.SchoolId, school);

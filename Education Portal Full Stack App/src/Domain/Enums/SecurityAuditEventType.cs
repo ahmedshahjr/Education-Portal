@@ -2,7 +2,7 @@ namespace EducationPortal.Domain.Enums;
 
 /// <summary>
 /// Security-relevant actions that are written to the security audit log (SEC-LOG-03).
-/// Stored by name, so append new values and never rename existing ones.
+/// Stored as its number (ENG-ENUM-02), so append new members with the next number and never change or reuse a number.
 /// </summary>
 public enum SecurityAuditEventType
 {

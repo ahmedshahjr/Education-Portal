@@ -30,7 +30,11 @@ public static class TestApp
     private static ResolvedTenant? _tenant;
 
     /// <summary>The master tenant, created again after each database reset.</summary>
+    /// <summary>The master tenant's internal key, for the tenant and users in tests.</summary>
     public static int MasterSchoolId { get; private set; }
+
+    /// <summary>The master tenant's public id, for API routes (ENG-ID-02).</summary>
+    public static Guid MasterSchoolPublicId { get; private set; }
 
     /// <summary>Sends a request as the current user, on the tenant chosen by <see cref="UseTenant"/> (the master by default).</summary>
     public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
@@ -55,38 +59,49 @@ public static class TestApp
     public static void UseTenant(int schoolId, bool isMaster = false) => _tenant = new ResolvedTenant(schoolId, isMaster);
 
     /// <summary>Adds a school with its own domain and returns its id.</summary>
-    public static async Task<int> AddSchoolAsync(string name, string domain)
+    public static async Task<EntityIds> AddSchoolAsync(string name, string domain)
     {
         var school = School.Create(name, domain);
         await AddAsync(school);
-        return school.Id;
+        return new EntityIds(school.Id, school.PublicId);
     }
 
     /// <summary>Adds a country with its regional settings and returns its id.</summary>
-    public static async Task<int> AddCountryAsync(string code, string name, string[] languages, string defaultLanguage, string timeZoneId, string currencyCode)
+    public static async Task<EntityIds> AddCountryAsync(string code, string name, string[] languages, string defaultLanguage, string timeZoneId, string currencyCode)
     {
         var country = Country.Create(code, name, languages, defaultLanguage, timeZoneId, currencyCode);
         await AddAsync(country);
-        return country.Id;
+        return new EntityIds(country.Id, country.PublicId);
     }
 
     /// <summary>Adds a school with its own domain in a country and returns its id.</summary>
-    public static async Task<int> AddSchoolAsync(string name, string domain, int countryId)
+    public static async Task<EntityIds> AddSchoolAsync(string name, string domain, int countryId)
     {
         var school = School.Create(name, domain);
         school.AssignCountry(countryId);
         await AddAsync(school);
-        return school.Id;
+        return new EntityIds(school.Id, school.PublicId);
     }
 
-    /// <summary>The id of the school on a domain, or <c>null</c>.</summary>
-    public static async Task<int?> FindSchoolIdAsync(string domain)
+    /// <summary>The ids of the school on a domain, or <c>null</c>.</summary>
+    public static async Task<EntityIds?> FindSchoolIdAsync(string domain)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        return await context.Schools.Where(s => s.Domain == domain).Select(s => (int?)s.Id).FirstOrDefaultAsync();
+        return await context.Schools.Where(s => s.Domain == domain).Select(s => new EntityIds(s.Id, s.PublicId)).FirstOrDefaultAsync();
+    }
+
+    /// <summary>The internal key of the row with a public id (ENG-ID-03). Test helpers run as the master tenant, so the tenant filters do not hide it.</summary>
+    public static async Task<int> FindIdAsync<TEntity>(Guid publicId)
+        where TEntity : EducationPortal.Domain.Common.BaseEntity
+    {
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        return await context.Set<TEntity>().Where(e => e.PublicId == publicId).Select(e => e.Id).SingleAsync();
     }
 
     public static string? GetUserId() => _userId;
@@ -167,6 +182,7 @@ public static class TestApp
             await AddAsync(module);
         }
         MasterSchoolId = master.Id;
+        MasterSchoolPublicId = master.PublicId;
         UseTenant(MasterSchoolId, isMaster: true);
     }
 
@@ -228,3 +244,9 @@ public static class TestApp
 
     private static string NewPassword() => $"{Guid.NewGuid():N}{Guid.NewGuid():N}";
 }
+
+/// <summary>
+/// The two identities of a row a test added (ENG-ID-01, ENG-ID-02): <see cref="Id"/> for the tenant and users set up in
+/// the test, <see cref="PublicId"/> for API routes and bodies, which never take the internal key.
+/// </summary>
+public sealed record EntityIds(int Id, Guid PublicId);

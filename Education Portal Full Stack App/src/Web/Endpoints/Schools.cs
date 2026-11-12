@@ -18,7 +18,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EducationPortal.Web.Endpoints;
 
-/// <summary>Master portal: every school. Master tenant administrators only (SEC-AUTHZ-07).</summary>
+/// <summary>
+/// Master portal: every school. Master tenant administrators only (SEC-AUTHZ-07). Schools and countries are named by
+/// their public <see cref="Guid"/>; the internal <c>int</c> keys never reach the API (ENG-ID-02).
+/// </summary>
 public class Schools : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
@@ -26,38 +29,38 @@ public class Schools : IEndpointGroup
         groupBuilder.MapGet(GetSchools)
             .RequireAuthorization();
 
-        groupBuilder.MapGet(GetSchoolBranding, "{schoolId:int}/branding")
+        groupBuilder.MapGet(GetSchoolBranding, "{schoolId:guid}/branding")
             .RequireAuthorization();
 
-        groupBuilder.MapGet(GetSchoolBrandingImage, "{schoolId:int}/branding/images/{kind}")
+        groupBuilder.MapGet(GetSchoolBrandingImage, "{schoolId:guid}/branding/images/{kind:alpha}")
             .RequireAuthorization();
 
-        groupBuilder.MapPut(UpdateSchoolBranding, "{schoolId:int}/branding")
+        groupBuilder.MapPut(UpdateSchoolBranding, "{schoolId:guid}/branding")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
-        groupBuilder.MapPut(UpdateSchoolCountry, "{schoolId:int}/country")
+        groupBuilder.MapPut(UpdateSchoolCountry, "{schoolId:guid}/country")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
-        groupBuilder.MapGet(GetSchoolModules, "{schoolId:int}/modules")
+        groupBuilder.MapGet(GetSchoolModules, "{schoolId:guid}/modules")
             .RequireAuthorization();
 
-        groupBuilder.MapPut(SetSchoolModule, "{schoolId:int}/modules/{key}")
+        groupBuilder.MapPut(SetSchoolModule, "{schoolId:guid}/modules/{key}")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
     }
 
     [EndpointSummary("List a school's modules")]
     [EndpointDescription("Returns every module as it stands for the school: on or off, and whether that follows the module's default or the master's choice. Master tenant only.")]
-    public static async Task<Ok<IReadOnlyList<SchoolModuleDto>>> GetSchoolModules(ISender sender, int schoolId)
+    public static async Task<Ok<IReadOnlyList<SchoolModuleDto>>> GetSchoolModules(ISender sender, Guid schoolId)
     {
         return TypedResults.Ok(await sender.Send(new GetSchoolModulesQuery(schoolId)));
     }
 
     [EndpointSummary("Switch a module on or off for a school")]
     [EndpointDescription("The choice wins over the module's default from then on. The master tenant cannot be changed. Master tenant only.")]
-    public static async Task<NoContent> SetSchoolModule(ISender sender, int schoolId, string key, SetSchoolModuleCommand command)
+    public static async Task<NoContent> SetSchoolModule(ISender sender, Guid schoolId, string key, SetSchoolModuleCommand command)
     {
         // The route names the school and the module; values in the body are ignored.
         await sender.Send(command with { SchoolId = schoolId, Key = key });
@@ -67,7 +70,7 @@ public class Schools : IEndpointGroup
 
     [EndpointSummary("Change a school's country")]
     [EndpointDescription("Assigns a school to a country, which sets its languages, time zone and currency, or to none (English only, UTC). Master tenant only.")]
-    public static async Task<NoContent> UpdateSchoolCountry(ISender sender, int schoolId, UpdateSchoolCountryCommand command)
+    public static async Task<NoContent> UpdateSchoolCountry(ISender sender, Guid schoolId, UpdateSchoolCountryCommand command)
     {
         // The route names the school; an id in the body is ignored.
         await sender.Send(command with { SchoolId = schoolId });
@@ -82,7 +85,7 @@ public class Schools : IEndpointGroup
         int pageNumber = 1,
         int pageSize = 25,
         string? search = null,
-        int? countryId = null)
+        Guid? countryId = null)
     {
         return TypedResults.Ok(await sender.Send(new GetSchoolsQuery
         {
@@ -95,21 +98,21 @@ public class Schools : IEndpointGroup
 
     [EndpointSummary("Get a school's branding")]
     [EndpointDescription("Returns any school's branding. Master tenant only.")]
-    public static async Task<Ok<BrandingDto>> GetSchoolBranding(ISender sender, int schoolId)
+    public static async Task<Ok<BrandingDto>> GetSchoolBranding(ISender sender, Guid schoolId)
     {
         return TypedResults.Ok(await sender.Send(new GetSchoolBrandingQuery(schoolId)));
     }
 
     [EndpointSummary("Get a school's logo or favicon")]
     [EndpointDescription("Returns any school's logo or favicon, or 404 when it uses the default one. Master tenant only.")]
-    public static async Task<Results<FileContentHttpResult, NotFound>> GetSchoolBrandingImage(ISender sender, HttpContext httpContext, int schoolId, BrandingImageKind kind)
+    public static async Task<Results<FileContentHttpResult, NotFound>> GetSchoolBrandingImage(ISender sender, HttpContext httpContext, Guid schoolId, BrandingImageKind kind)
     {
         return Branding.ToImageResult(await sender.Send(new GetSchoolBrandingImageQuery(schoolId, kind)), kind, httpContext);
     }
 
     [EndpointSummary("Change a school's branding")]
     [EndpointDescription("Sets any school's accent colour, sidebar colour, logo and favicon, with the same checks as the school's own branding. Master tenant only.")]
-    public static async Task<NoContent> UpdateSchoolBranding(ISender sender, int schoolId, [FromForm] BrandingForm form, CancellationToken cancellationToken)
+    public static async Task<NoContent> UpdateSchoolBranding(ISender sender, Guid schoolId, [FromForm] BrandingForm form, CancellationToken cancellationToken)
     {
         await sender.Send(new UpdateSchoolBrandingCommand
         {

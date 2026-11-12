@@ -2,6 +2,7 @@ using System.Reflection;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Domain.Common;
 using EducationPortal.Domain.Entities;
+using EducationPortal.Infrastructure.Data.Lookups;
 using EducationPortal.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +43,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
+        // Enum columns hold numbers; a seeded lookup table per enum names them for reports (ENG-ENUM-04).
+        EnumLookupTables.Configure(builder);
+
         // Tenant isolation (SEC-AUTHZ-03): a school sees only its own rows, the master tenant sees every school's. With
         // no resolved tenant, CurrentSchoolId is null and nothing matches.
         builder.Entity<BrandingImage>()
@@ -49,6 +53,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
         builder.Entity<SchoolModule>()
             .HasQueryFilter(m => IsMasterTenant || m.SchoolId == CurrentSchoolId);
+
+        // Every entity's Guid PublicId is an alternate key (a unique constraint), the only identity the API exposes. The
+        // int Id stays the primary key for joins and foreign keys (ENG-ID-01, ENG-ID-02).
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType) && entityType.BaseType is null)
+            {
+                builder.Entity(entityType.ClrType).HasAlternateKey(nameof(BaseEntity.PublicId));
+            }
+        }
 
         // Soft delete: every soft-deletable entity hides its deleted rows from every query, the master
         // tenant included. Rows stay in the table for audit.

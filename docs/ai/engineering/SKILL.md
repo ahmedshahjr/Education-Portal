@@ -26,6 +26,7 @@ These rules say how code in this repository is designed, written, reviewed and m
 | [design-principles](design-principles/SKILL.md) | ENG-DESIGN | Designing any class, interface, handler, service or component; deciding whether to add an abstraction |
 | [code-quality-process](code-quality-process/SKILL.md) | ENG-CODE, ENG-PROC | Writing or reviewing any code or test; committing; opening or reviewing a PR; adding or upgrading a dependency |
 | [csharp-entities](csharp-entities/SKILL.md) | ENG-ENTITY | Adding or changing a class in `src/Domain` (entity, value object, enum, domain event) |
+| [identifiers-enums](identifiers-enums/SKILL.md) | ENG-ID, ENG-ENUM | Adding or changing an entity, a DTO, a command or query with an id, an endpoint route, an enum or an enum column |
 | [efcore](efcore/SKILL.md) | ENG-EF | Writing a query, a command handler that saves data, an entity configuration, a query filter or a migration |
 | [angular-material-ui](angular-material-ui/SKILL.md) | ENG-UI | Changing anything in `src/Web/ClientApp`: components, templates, styles, forms, routing, services, tests |
 | [ai-agents](ai-agents/SKILL.md) | ENG-AGENT | Any AI agent or swarm working in this repo, and any code that exposes tools or APIs to an AI agent |
@@ -54,6 +55,7 @@ The same checklist is in `.github/pull_request_template.md`. AI assistants that 
 - [ ] Tests describe behaviour and were written first for new logic (ENG-CODE-03, ENG-AGENT-05)
 - [ ] Errors fail fast and loud; no empty catch (ENG-CODE-04/05)
 - [ ] Entities and EF Core changes follow ENG-ENTITY / ENG-EF, or not applicable
+- [ ] Only `Guid` public ids in DTOs and routes, `int` keys inside; enums by name on the API, explicit numbers in the database (ENG-ID, ENG-ENUM), or not applicable
 - [ ] Angular changes follow ENG-UI (standalone, signals, OnPush, Material, a11y) and reuse the project theme in `Theme Angular/` (ENG-UI-17), or not applicable
 - [ ] Definition of done met: built, tested, documented, README updated (ENG-PROC-02)
 ```
@@ -75,6 +77,9 @@ The cheap, mechanical rules are checked by `docs/ai/compliance-guard.py`, which 
 | `empty-catch` | ENG-CODE-05 | `catch { }` or `catch (Exception) { }` that silently swallows an error |
 | `sync-over-async` | ENG-EF-06 | `.Result`, `.Wait()` or `.GetAwaiter().GetResult()` in `src/` |
 | `datetime-now` | ENG-ENTITY-08 | `DateTime.Now` / `DateTime.UtcNow` in `src/`; use `TimeProvider` and `DateTimeOffset` |
+| `enum-implicit-value` | ENG-ENUM-02 | An enum member without an explicit `= number` in `src/` |
+| `enum-stored-as-string` | ENG-ENUM-03 | `HasConversion<string>()` or `EnumToStringConverter` on an enum |
+| `int-route` | ENG-ID-02 | An `{id:int}` (or `{...Id:int}`) route in `src/`: routes take the `Guid` public id |
 | `angular-ngmodule` | ENG-UI-01 | `@NgModule` or `standalone: false` in the Angular app |
 | `angular-legacy-control-flow` | ENG-UI-03 | `*ngIf`, `*ngFor`, `*ngSwitch` in templates; use `@if`, `@for`, `@switch` |
 

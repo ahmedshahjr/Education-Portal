@@ -13,14 +13,15 @@ namespace EducationPortal.Application.Countries.Commands.UpdateCountry;
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
 public record UpdateCountryCommand : CountryFields, IRequest
 {
-    public int Id { get; init; }
+    /// <summary>The country's public id; the API never sees the internal key (ENG-ID-02).</summary>
+    public Guid Id { get; init; }
 }
 
 public class UpdateCountryCommandValidator : CountryFieldsValidator<UpdateCountryCommand>
 {
     public UpdateCountryCommandValidator()
     {
-        RuleFor(c => c.Id).GreaterThan(0);
+        RuleFor(c => c.Id).NotEmpty();
     }
 }
 
@@ -37,7 +38,7 @@ public class UpdateCountryCommandHandler : IRequestHandler<UpdateCountryCommand>
 
     public async Task Handle(UpdateCountryCommand request, CancellationToken cancellationToken)
     {
-        var country = await _context.Countries.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
+        var country = await _context.Countries.FirstOrDefaultAsync(c => c.PublicId == request.Id, cancellationToken);
         Guard.Against.NotFound(request.Id, country);
 
         country.Update(request.Name, request.Languages, request.DefaultLanguage, request.TimeZoneId, request.CurrencyCode);

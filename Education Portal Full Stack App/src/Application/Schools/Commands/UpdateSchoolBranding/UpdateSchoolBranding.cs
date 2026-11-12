@@ -1,5 +1,6 @@
 using EducationPortal.Application.Branding.Common;
 using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Common.Security;
 using EducationPortal.Domain.Constants;
 
@@ -12,14 +13,15 @@ namespace EducationPortal.Application.Schools.Commands.UpdateSchoolBranding;
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
 public record UpdateSchoolBrandingCommand : BrandingUpdate, IRequest
 {
-    public int SchoolId { get; init; }
+    /// <summary>The school's public id (ENG-ID-02).</summary>
+    public Guid SchoolId { get; init; }
 }
 
 public class UpdateSchoolBrandingCommandValidator : BrandingUpdateValidator<UpdateSchoolBrandingCommand>
 {
     public UpdateSchoolBrandingCommandValidator()
     {
-        RuleFor(c => c.SchoolId).GreaterThan(0);
+        RuleFor(c => c.SchoolId).NotEmpty();
     }
 }
 
@@ -36,12 +38,14 @@ public class UpdateSchoolBrandingCommandHandler : IRequestHandler<UpdateSchoolBr
 
     public async Task Handle(UpdateSchoolBrandingCommand request, CancellationToken cancellationToken)
     {
-        await BrandingStore.WriteAsync(_context, request.SchoolId, request, cancellationToken);
+        var schoolId = await _context.Schools.ResolveIdAsync(request.SchoolId, cancellationToken);
+
+        await BrandingStore.WriteAsync(_context, schoolId, request, cancellationToken);
 
         await _auditLog.WriteAsync(
             SecurityAuditEventType.BrandingChanged,
             SecurityAuditOutcome.Success,
             targetType: nameof(School),
-            targetId: request.SchoolId.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            targetId: schoolId.ToString(System.Globalization.CultureInfo.InvariantCulture));
     }
 }

@@ -2,14 +2,14 @@ namespace EducationPortal.Application.Common.Models;
 
 public enum PasswordSignInStatus
 {
-    Succeeded,
-    Failed,
-    LockedOut,
-    RequiresTwoFactor,
-    NotAllowed,
+    Succeeded = 1,
+    Failed = 2,
+    LockedOut = 3,
+    RequiresTwoFactor = 4,
+    NotAllowed = 5,
 
     /// <summary>The account belongs to another school than the domain the sign-in came from.</summary>
-    WrongSchool,
+    WrongSchool = 6,
 }
 
 /// <summary>

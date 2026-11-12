@@ -8,7 +8,7 @@ namespace EducationPortal.Application.Countries.Commands.CreateCountry;
 
 /// <summary>Adds a country that schools can be assigned to. Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record CreateCountryCommand : CountryFields, IRequest<int>
+public record CreateCountryCommand : CountryFields, IRequest<Guid>
 {
     /// <summary>The ISO 3166-1 alpha-2 code, for example <c>PK</c>. It cannot be changed later.</summary>
     public string Code { get; init; } = string.Empty;
@@ -27,7 +27,7 @@ public class CreateCountryCommandValidator : CountryFieldsValidator<CreateCountr
     }
 }
 
-public class CreateCountryCommandHandler : IRequestHandler<CreateCountryCommand, int>
+public class CreateCountryCommandHandler : IRequestHandler<CreateCountryCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
@@ -38,7 +38,7 @@ public class CreateCountryCommandHandler : IRequestHandler<CreateCountryCommand,
         _auditLog = auditLog;
     }
 
-    public async Task<int> Handle(CreateCountryCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(CreateCountryCommand request, CancellationToken cancellationToken)
     {
         var country = Country.Create(request.Code, request.Name, request.Languages, request.DefaultLanguage, request.TimeZoneId, request.CurrencyCode);
 
@@ -51,6 +51,6 @@ public class CreateCountryCommandHandler : IRequestHandler<CreateCountryCommand,
             targetType: nameof(Country),
             targetId: country.Id.ToString(CultureInfo.InvariantCulture));
 
-        return country.Id;
+        return country.PublicId;
     }
 }

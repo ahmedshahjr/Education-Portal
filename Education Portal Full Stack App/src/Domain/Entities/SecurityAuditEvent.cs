@@ -7,7 +7,11 @@ namespace EducationPortal.Domain.Entities;
 /// </summary>
 public class SecurityAuditEvent
 {
+    /// <summary>The internal key (ENG-ID-01). The audit log is never served by the API.</summary>
     public long Id { get; init; }
+
+    /// <summary>The identity to use if a record is ever exposed (ENG-ID-02), for example in an audit export.</summary>
+    public Guid PublicId { get; init; } = Guid.CreateVersion7();
 
     /// <summary>When it happened, in UTC.</summary>
     public required DateTimeOffset OccurredAt { get; init; }

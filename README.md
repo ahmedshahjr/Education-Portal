@@ -317,6 +317,8 @@ flowchart TB
 
 A record from another school or branch returns 404 rather than 403, so ids can't be used to probe other tenants.
 
+**Ids on the API** (decided 2026-11-11, [ADR-008](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-008-Guid-Public-Ids-And-Numeric-Enums.md), [identifiers-enums skill](docs/ai/engineering/identifiers-enums/SKILL.md)). Every entity has an internal `int Id` (PostgreSQL `integer`) for keys, joins and query filters, and a `Guid PublicId` (version 7, an alternate key). The API only ever shows the `Guid`: routes are `{id:guid}`, DTOs carry `Guid` ids, and an internal number in a route or query string is refused. Handlers turn the `Guid` into the `int` before any business logic (`ResolveIdAsync`), through the tenant query filters, so another school's id is simply not found. Enums travel by name (`"Logo"`, never `2`), are stored as their number, and each enum column has a seeded lookup table (for example `ModuleTypes`, `SecurityAuditEventTypes`) so SQL reports can read the names.
+
 - **School requests** (decided 2026-11-10). The login page links to a public "Request a school" form (`POST /api/SchoolRequests`, rate-limited per address). It creates a pending request only. The master tenant approves it; nothing else is created. Soft-deleted and inactive schools are hidden or refused (see below).
 - **Soft delete and active switch.** Schools and countries inherit `BaseSoftDeletableEntity`: deleted rows are hidden everywhere by a global query filter, and an inactive school's host is refused at tenant resolution. The master tenant cannot be switched off.
 - **Exactly one master tenant.** A unique index on the `Schools` table allows only one row with `IsMaster`, and the master is created only by seeding. Every other school is a school-owner tenant.
@@ -327,6 +329,7 @@ A record from another school or branch returns 404 rather than 403, so ids can't
 ### Data and database
 
 - `ApplicationDbContext` (in `Infrastructure`) is the EF Core context for both Identity and the app's own tables. Entity mappings are `IEntityTypeConfiguration<T>` classes in `src/Infrastructure/Data/Configurations/`, picked up automatically.
+- Keys are `int` internally and every entity also has a unique `Guid PublicId`, the only id the API exposes (ENG-ID-01..03). Enum columns are integers with a foreign key to a lookup table seeded from the enum (`Infrastructure/Data/Lookups`, ENG-ENUM-03/04).
 - `AuditableEntityInterceptor` fills `Created`, `CreatedBy`, `LastModified` and `LastModifiedBy` on entities that inherit `BaseAuditableEntity`.
 - Entities raise domain events instead of calling services. `DispatchDomainEventsInterceptor` publishes them through MediatR just before the changes are saved.
 - Aspire passes the connection string (`ConnectionStrings__EducationPortalDb`) to the API, so there is nothing to configure locally.
@@ -520,6 +523,8 @@ Role rights per module (View, Create, Edit, Delete) and branch checks are added 
 ```mermaid
 flowchart TB
     subgraph read["Reading"]
+        guid["Request Guid id"] --> resolve["Handler resolves Guid PublicId<br/>to the int Id (ResolveIdAsync)"]
+        resolve --> q
         q["Handler LINQ query on IApplicationDbContext"] --> filters["Global query filters<br/>SchoolId = host school (master sees all)<br/>IsDeleted = false"]
         filters --> npgsqlR["Npgsql: SQL to PostgreSQL<br/>(traced as Npgsql spans)"]
     end
@@ -728,11 +733,11 @@ Every change also follows [docs/ai/engineering/SKILL.md](docs/ai/engineering/SKI
 
 - **Design:** SOLID, KISS, DRY and YAGNI as strict rules, applied the way the ADRs already do (for example, handlers use `IApplicationDbContext` directly, no repository layer).
 - **Code and process:** readable over clever, tests that describe behaviour, fail fast and loud, surgical changes, small PRs, a shared definition of done, bug fixes separate from refactoring, and dependencies treated as code you don't control.
-- **Backend:** C# entities follow Microsoft's domain model guidance (private setters, guard clauses, value objects, domain events, `TimeProvider`), and EF Core follows Microsoft's performance and modelling docs (projections, no N+1, paging, async with cancellation, Fluent API, tenant query filters, migrations).
+- **Backend:** C# entities follow Microsoft's domain model guidance (private setters, guard clauses, value objects, domain events, `TimeProvider`), keys are `int` inside and `Guid` on the API, enums go over the API by name and into the database as explicit numbers with lookup tables, and EF Core follows Microsoft's performance and modelling docs (projections, no N+1, paging, async with cancellation, Fluent API, tenant query filters, migrations).
 - **Frontend:** Angular follows the Angular team's best practices (standalone, signals, native control flow, Signal Forms) and Google's Material Design 3 through Angular Material, with WCAG 2.2 AA accessibility.
 - **AI agents and swarms (including Ruflo):** human approval for high-stakes or irreversible actions, only the context a task needs, a failing test first as the target, small single-purpose tools, and strict validation, retries and fallbacks around anything an agent produces.
 
-The PR template has an engineering checklist next to the security one, and the CI guard also blocks empty `catch` blocks, blocking on async code, `DateTime.Now`, new `NgModule`s and the old `*ngIf`/`*ngFor` syntax. Every skill names the official guidance it follows (Angular team, Angular Material, Material Design 3, Microsoft .NET and EF Core docs, the official `angular/skills` and `dotnet/skills` collections, Google engineering practices, OWASP), and the same twice-monthly check that watches the compliance standards opens an issue with a link to the exact upstream diff when one of them changes. Rules are never overwritten automatically; a reviewed PR applies each change.
+The PR template has an engineering checklist next to the security one, and the CI guard also blocks empty `catch` blocks, blocking on async code, `DateTime.Now`, enum members without an explicit number, enums stored as strings and `{id:int}` routes, new `NgModule`s and the old `*ngIf`/`*ngFor` syntax. Every skill names the official guidance it follows (Angular team, Angular Material, Material Design 3, Microsoft .NET and EF Core docs, the official `angular/skills` and `dotnet/skills` collections, Google engineering practices, OWASP), and the same twice-monthly check that watches the compliance standards opens an issue with a link to the exact upstream diff when one of them changes. Rules are never overwritten automatically; a reviewed PR applies each change.
 
 <!-- BEGIN GENERATED: engineering skills (docs/ai/sync-ai-wrappers.py) -->
 #### Engineering skills and update checks
@@ -748,6 +753,7 @@ All engineering skills in the repository (generated from `docs/ai/engineering/` 
 | [csharp-entities](docs/ai/engineering/csharp-entities/SKILL.md) | Topic | EF Core 10; .NET Microservices: Architecture for Containerized .NET Applications (current edition on Learn); .NET design guidelines (current on Learn); C# 14 / .NET 10 coding conventions |
 | [design-principles](docs/ai/engineering/design-principles/SKILL.md) | Topic | .NET design guidelines (current on Learn); Architect Modern Web Applications with ASP.NET Core and Azure (current edition on Learn) |
 | [efcore](docs/ai/engineering/efcore/SKILL.md) | Topic | EF Core 10; Npgsql.EntityFrameworkCore.PostgreSQL 10; dotnet/skills plugins/dotnet-data (main) |
+| [identifiers-enums](docs/ai/engineering/identifiers-enums/SKILL.md) | Topic | EF Core 10; .NET design guidelines (current on Learn); ASP.NET Core 10; Azure Architecture Center API design guidance (current on Learn) |
 <!-- END GENERATED: engineering skills -->
 
 ### Roadmap
@@ -783,15 +789,15 @@ Record new or changed decisions in `AGENTS.md` in the same pull request, and wri
 
 Work from the inside out. Using a `Courses` feature as the example:
 
-1. **Domain:** add `src/Domain/Entities/Course.cs`, inheriting `BaseAuditableEntity`. Give tenant-owned entities a `SchoolId`, and also a `BranchId` if they belong to a branch. Label personal data fields with their data class.
+1. **Domain:** add `src/Domain/Entities/Course.cs`, inheriting `BaseAuditableEntity` (which brings the `int Id` and the `Guid PublicId`). Give tenant-owned entities an `int SchoolId`, and also a `BranchId` if they belong to a branch. Label personal data fields with their data class.
 2. **Application:** scaffold the use cases from the `src/Application` folder:
 
    ```cmd
-   dotnet new ca-usecase -n CreateCourse -fn Courses -ut command -rt int
+   dotnet new ca-usecase -n CreateCourse -fn Courses -ut command -rt Guid
    dotnet new ca-usecase -n GetCourses -fn Courses -ut query -rt CoursesVm
    ```
 
-   Each creates one file under `Courses/Commands/` or `Courses/Queries/` with the request, its validator and its handler. Validate every input in the validator. Mark the request with `[Authorize]` and, from step 2, the module and right it needs. Requests are explicit DTOs and never carry a `SchoolId`.
+   Each creates one file under `Courses/Commands/` or `Courses/Queries/` with the request, its validator and its handler. Validate every input in the validator. Mark the request with `[Authorize]` and, from step 2, the module and right it needs. Requests are explicit DTOs and never carry a `SchoolId`. Ids in requests and DTOs are the `Guid` public id; the handler resolves them to the `int` key.
 3. **Infrastructure:** add `DbSet<Course>` to `IApplicationDbContext` and `ApplicationDbContext`, and a `CourseConfiguration` in `Data/Configurations/`. Check that the tenant query filter covers the new entity.
 4. **Web:** add an endpoint group. It is found automatically and served under `/api/Courses`:
 
@@ -813,7 +819,7 @@ Work from the inside out. Using a `Courses` feature as the example:
            return TypedResults.Ok(vm);
        }
 
-       public static async Task<Created<int>> CreateCourse(ISender sender, CreateCourseCommand command)
+       public static async Task<Created<Guid>> CreateCourse(ISender sender, CreateCourseCommand command)
        {
            var id = await sender.Send(command);
 
@@ -857,7 +863,7 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | Angular unit tests | `npx ng test --watch=false` in `src\Web\ClientApp` |
 | Check npm packages for known vulnerabilities | `npm audit --audit-level=high` in `src\Web\ClientApp` |
 | Install the scaffolding template (once) | `dotnet new install Clean.Architecture.Solution.Template` |
-| Scaffold a use case | `dotnet new ca-usecase -n CreateCourse -fn Courses -ut command -rt int` in `src\Application` |
+| Scaffold a use case | `dotnet new ca-usecase -n CreateCourse -fn Courses -ut command -rt Guid` in `src\Application` |
 | Install the Playwright browsers (once, after a build) | `pwsh artifacts\bin\Web.AcceptanceTests\debug\playwright.ps1 install` |
 | Trust the HTTPS development certificate (once) | `dotnet dev-certs https --trust` |
 

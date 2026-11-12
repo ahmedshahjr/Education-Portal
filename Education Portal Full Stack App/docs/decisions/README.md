@@ -13,3 +13,4 @@ An ADR captures a significant architectural decision: the context that led to it
 | [ADR-005](ADR-005-Localization-Per-Country.md) | Languages and Regional Settings per Country | 2026-11-10 | Accepted |
 | [ADR-006](ADR-006-Cloud-Agnostic-Secrets.md) | Cloud-Agnostic Secrets Layer | 2026-11-11 | Accepted |
 | [ADR-007](ADR-007-OpenTelemetry-Observability.md) | Open-Source Observability with OpenTelemetry | 2026-11-11 | Accepted |
+| [ADR-008](ADR-008-Guid-Public-Ids-And-Numeric-Enums.md) | Guid Public Ids and Numeric Enums | 2026-11-11 | Accepted |
