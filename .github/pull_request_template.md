@@ -6,6 +6,17 @@
 
 <!-- Commands run (dotnet build, dotnet test, npm test) and their results. -->
 
+### Review checklist ([AGENTS.md section 7, rule 9](../AGENTS.md))
+
+Ask each question of the change itself: read the code and the tests, not this description. Fix what you find, or explain it under "What and why", then tick the box. CI fails until all six are ticked (`docs/ai/review-checklist-guard.py`).
+
+- [ ] Does it actually do what it claims? Read the logic, not the PR description. (REVIEW-01)
+- [ ] Does it fit the architecture, or is it a local shortcut? (REVIEW-02)
+- [ ] What does this change break somewhere else? (REVIEW-03)
+- [ ] Are nulls, empty inputs, errors and retries handled? (REVIEW-04)
+- [ ] Do the tests cover real failures, or only the happy path? (REVIEW-05)
+- [ ] Is it over-engineered or under-built for the real constraints? (REVIEW-06)
+
 ### Security & compliance checklist ([rules](../docs/ai/secure-compliance/SKILL.md))
 
 Tick each item or explain why it does not apply.

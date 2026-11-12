@@ -244,6 +244,16 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
    - **CI enforces this:** `docs/ai/readme-guard.py` runs on every pull request and fails when the PR changes technologies, flows, setup or configuration (new or removed NuGet or npm packages, `global.json`, `Directory.Build.props`, `src/AppHost/`, `appsettings*.json`, `src/Web/Program.cs`, added or removed projects, endpoint groups, entities, ADRs, workflows or git hooks) without changing `README.md`. Run it yourself before pushing: `python3 docs/ai/readme-guard.py --base origin/development`.
    - If a flagged change really does not affect the README, write `README: not needed - <reason>` on its own line in the PR description. The reviewer checks the reason. Do not use it to postpone a README update.
 
+9. **Answer the six review questions on every PR** (decided 2026-11-12, enforced by CI). Before asking for review, the author (human or AI) asks each question of the change itself, reading the code and tests rather than the PR description, fixes what it finds or explains it under "What and why", and ticks the matching box in the PR's **Review checklist**. Reviewers ask the same questions.
+   1. Does it actually do what it claims? Read the logic, not the PR description. (REVIEW-01)
+   2. Does it fit the architecture, or is it a local shortcut? (REVIEW-02)
+   3. What does this change break somewhere else? (REVIEW-03)
+   4. Are nulls, empty inputs, errors and retries handled? (REVIEW-04)
+   5. Do the tests cover real failures, or only the happy path? (REVIEW-05)
+   6. Is it over-engineered or under-built for the real constraints? (REVIEW-06)
+   - **CI enforces this:** `docs/ai/review-checklist-guard.py` runs on every pull request and fails when the Review checklist section is missing, an item is missing or duplicated, or an item is not ticked. It matches the `(REVIEW-0N)` tags, so keep them when copying the list. Run it yourself on a saved description: `python3 docs/ai/review-checklist-guard.py --pr-body-file body.md`.
+   - A tick is a statement that the question was asked honestly. Do not tick a box to get CI green.
+
 <!-- BEGIN GENERATED: ai skills (docs/ai/sync-ai-wrappers.py) -->
 All AI skills (same list for every tool). Read both overviews (`secure-compliance` and `engineering-standards`) first, then every skill that matches the change:
 
