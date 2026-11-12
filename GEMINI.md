@@ -39,6 +39,7 @@ Gemini CLI imports every skill below into context at start, so all compliance an
 @./docs/ai/engineering/design-principles/SKILL.md
 @./docs/ai/engineering/efcore/SKILL.md
 @./docs/ai/engineering/identifiers-enums/SKILL.md
+@./docs/ai/engineering/localization-i18n/SKILL.md
 <!-- END GENERATED: ai skills -->
 
 Key rules, in short (details in AGENTS.md):

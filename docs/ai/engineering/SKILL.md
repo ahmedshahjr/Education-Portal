@@ -1,6 +1,6 @@
 ---
 name: engineering-standards
-description: Overview and index of the mandatory Education Portal engineering rules (SOLID, KISS, DRY, YAGNI, code quality, process, C# entity design, EF Core, Angular with Material Design, and rules for AI agents). Always read first, before any code, test or pipeline change, then load the matching topic skills.
+description: Overview and index of the mandatory Education Portal engineering rules (SOLID, KISS, DRY, YAGNI, code quality, process, C# entity design, EF Core, localization and internationalization, Angular with Material Design, and rules for AI agents). Always read first, before any code, test or pipeline change, then load the matching topic skills.
 ---
 
 # Engineering standards: overview (MUST follow)
@@ -28,6 +28,7 @@ These rules say how code in this repository is designed, written, reviewed and m
 | [csharp-entities](csharp-entities/SKILL.md) | ENG-ENTITY | Adding or changing a class in `src/Domain` (entity, value object, enum, domain event) |
 | [identifiers-enums](identifiers-enums/SKILL.md) | ENG-ID, ENG-ENUM | Adding or changing an entity, a DTO, a command or query with an id, an endpoint route, an enum or an enum column |
 | [efcore](efcore/SKILL.md) | ENG-EF | Writing a query, a command handler that saves data, an entity configuration, a query filter or a migration |
+| [localization-i18n](localization-i18n/SKILL.md) | ENG-I18N | Adding or changing any user-visible text, message, date, time, number, currency, layout direction, language or culture setting, or a translation file (backend and Angular) |
 | [angular-material-ui](angular-material-ui/SKILL.md) | ENG-UI | Changing anything in `src/Web/ClientApp`: components, templates, styles, forms, routing, services, tests |
 | [ai-agents](ai-agents/SKILL.md) | ENG-AGENT | Any AI agent or swarm working in this repo, and any code that exposes tools or APIs to an AI agent |
 

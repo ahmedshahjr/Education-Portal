@@ -197,6 +197,65 @@
       "watch": {"type": "github-path", "repo": "MicrosoftDocs/architecture-center", "path": "docs/best-practices/api-design.md"},
       "last_seen_sha": "",
       "last_reviewed": "2026-11-11"
+    },
+    {
+      "id": "ms-globalization",
+      "name": "Microsoft Globalization documentation: software internationalization and localization overview",
+      "portal": "https://learn.microsoft.com/globalization/",
+      "tracked_version": "Microsoft Learn Globalization docs (current on Learn)",
+      "skills": ["localization-i18n"],
+      "watch": {"type": "github-path", "repo": "MicrosoftDocs/globalization", "path": "globalization"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-12"
+    },
+    {
+      "id": "cse-playbook-i18n",
+      "name": "Microsoft Code With Engineering Playbook: internationalization and localization",
+      "portal": "https://microsoft.github.io/code-with-engineering-playbook/non-functional-requirements/internationalization/",
+      "tracked_version": "Engineering playbook (main)",
+      "skills": ["localization-i18n"],
+      "watch": {"type": "github-path", "repo": "microsoft/code-with-engineering-playbook", "path": "docs/non-functional-requirements/internationalization.md"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-12"
+    },
+    {
+      "id": "dotnet-globalization",
+      "name": ".NET globalization and localization (resources, culture-explicit formatting and comparison, time zones)",
+      "portal": "https://learn.microsoft.com/dotnet/core/extensions/globalization",
+      "tracked_version": ".NET 10",
+      "skills": ["localization-i18n"],
+      "watch": {"type": "github-path", "repo": "dotnet/docs", "path": "docs/core/extensions/globalization.md"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-12"
+    },
+    {
+      "id": "aspnetcore-localization",
+      "name": "Globalization and localization in ASP.NET Core (request localization, IStringLocalizer)",
+      "portal": "https://learn.microsoft.com/aspnet/core/fundamentals/localization",
+      "tracked_version": "ASP.NET Core 10",
+      "skills": ["localization-i18n"],
+      "watch": {"type": "github-path", "repo": "dotnet/AspNetCore.Docs", "path": "aspnetcore/fundamentals/localization"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-12"
+    },
+    {
+      "id": "angular-i18n",
+      "name": "Angular internationalization guide (i18n, $localize, ICU, custom ids, locale data)",
+      "portal": "https://angular.dev/guide/i18n",
+      "tracked_version": "Angular v22 guide (adev/src/content/guide/i18n)",
+      "skills": ["localization-i18n"],
+      "watch": {"type": "github-path", "repo": "angular/angular", "path": "adev/src/content/guide/i18n"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-12"
+    },
+    {
+      "id": "poeditor-angular-i18n",
+      "name": "POEditor: Angular internationalization and localization best practices",
+      "portal": "https://poeditor.com/blog/angular-internationalization-localization/",
+      "tracked_version": "Article as read on 2026-11-12",
+      "skills": ["localization-i18n"],
+      "watch": null,
+      "last_reviewed": "2026-11-12"
     }
   ]
 }
