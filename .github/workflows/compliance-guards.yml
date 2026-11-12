@@ -61,6 +61,14 @@ jobs:
           jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH" > "$RUNNER_TEMP/pr-body.md"
           python3 docs/ai/readme-guard.py --base "origin/$GITHUB_BASE_REF" --pr-body-file "$RUNNER_TEMP/pr-body.md"
 
+      - name: PR answers and ticks the six review questions (AGENTS.md section 7, rule 9)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH" > "$RUNNER_TEMP/pr-body.md"
+          python3 docs/ai/review-checklist-guard.py --pr-body-file "$RUNNER_TEMP/pr-body.md"
+
       - name: PR includes the security and engineering checklists
         if: github.event_name == 'pull_request'
         shell: bash
