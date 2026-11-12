@@ -6,6 +6,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { problemMessages } from '../../core/http/problem-details';
+import { moduleText, ModuleTextPipe } from '../../core/i18n/module-text.pipe';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
@@ -19,6 +20,7 @@ import { ModuleDto, ModulesClient, ModuleType, UpdateModuleCommand } from '../..
 @Component({
   selector: 'app-modules-page',
   imports: [
+    ModuleTextPipe,
     MatCardModule,
     MatTableModule,
     MatFormFieldModule,
@@ -54,8 +56,8 @@ import { ModuleDto, ModulesClient, ModuleType, UpdateModuleCommand } from '../..
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef i18n="@@modules.module">Module</th>
               <td mat-cell *matCellDef="let module">
-                <div class="mm-modules__name">{{ module.name }}</div>
-                <div class="mm-modules__description">{{ module.description }}</div>
+                <div class="mm-modules__name">{{ module | moduleText }}</div>
+                <div class="mm-modules__description">{{ module | moduleText: 'description' }}</div>
               </td>
             </ng-container>
 
@@ -64,7 +66,7 @@ import { ModuleDto, ModulesClient, ModuleType, UpdateModuleCommand } from '../..
               <td mat-cell *matCellDef="let module">
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-modules__type">
                   <mat-select
-                    aria-label="Type of {{ module.name }}"
+                    aria-label="Type of {{ module | moduleText }}"
                     i18n-aria-label="@@modules.typeOf"
                     [value]="module.type"
                     [disabled]="saving() === module.key"
@@ -84,7 +86,7 @@ import { ModuleDto, ModulesClient, ModuleType, UpdateModuleCommand } from '../..
                   [checked]="module.isActive"
                   [disabled]="saving() === module.key"
                   (change)="save(module, module.type, $event.checked)"
-                  aria-label="{{ module.name }} is active"
+                  aria-label="{{ module | moduleText }} is active"
                   i18n-aria-label="@@modules.activeOf"
                 />
               </td>
@@ -149,7 +151,7 @@ export class ModulesPage {
       next: () => {
         this.saving.set(null);
         this.replace(new ModuleDto({ ...module, type, isActive }));
-        this.snackBar.open($localize`:@@modules.saved:${module.name}:MODULE: saved`, undefined, { duration: 3000 });
+        this.snackBar.open($localize`:@@modules.saved:${moduleText(module)}:MODULE: saved`, undefined, { duration: 3000 });
       },
       error: (error: unknown) => {
         this.saving.set(null);
