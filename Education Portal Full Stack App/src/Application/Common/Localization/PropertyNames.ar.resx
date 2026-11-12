@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Name" xml:space="preserve"><value>الاسم</value></data>
+  <data name="Code" xml:space="preserve"><value>الرمز</value></data>
+  <data name="Languages" xml:space="preserve"><value>اللغات</value></data>
+  <data name="DefaultLanguage" xml:space="preserve"><value>اللغة الافتراضية</value></data>
+  <data name="TimeZoneId" xml:space="preserve"><value>المنطقة الزمنية</value></data>
+  <data name="CurrencyCode" xml:space="preserve"><value>العملة</value></data>
+  <data name="SchoolName" xml:space="preserve"><value>اسم المدرسة</value></data>
+  <data name="ContactName" xml:space="preserve"><value>اسم جهة الاتصال</value></data>
+  <data name="ContactEmail" xml:space="preserve"><value>البريد الإلكتروني لجهة الاتصال</value></data>
+  <data name="Email" xml:space="preserve"><value>البريد الإلكتروني</value></data>
+  <data name="Password" xml:space="preserve"><value>كلمة المرور</value></data>
+  <data name="Language" xml:space="preserve"><value>اللغة</value></data>
+  <data name="Search" xml:space="preserve"><value>البحث</value></data>
+  <data name="PageNumber" xml:space="preserve"><value>رقم الصفحة</value></data>
+  <data name="PageSize" xml:space="preserve"><value>حجم الصفحة</value></data>
+  <data name="AccentColor" xml:space="preserve"><value>لون التمييز</value></data>
+  <data name="SidebarColor" xml:space="preserve"><value>لون الشريط الجانبي</value></data>
+  <data name="Key" xml:space="preserve"><value>المفتاح</value></data>
+</root>

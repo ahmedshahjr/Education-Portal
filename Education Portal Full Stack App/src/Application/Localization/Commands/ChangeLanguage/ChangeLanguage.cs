@@ -17,7 +17,7 @@ public class ChangeLanguageCommandValidator : AbstractValidator<ChangeLanguageCo
             .NotEmpty()
             .MaximumLength(Domain.Localization.Language.CodeLength)
             .MustAsync(async (language, cancellationToken) => (await settings.GetAsync(cancellationToken)).Offers(language))
-            .WithMessage("This school does not offer that language.");
+            .WithMessage(_ => ValidationMessages.LanguageNotOffered);
     }
 }
 

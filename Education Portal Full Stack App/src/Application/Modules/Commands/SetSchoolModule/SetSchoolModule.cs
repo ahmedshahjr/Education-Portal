@@ -31,7 +31,7 @@ public class SetSchoolModuleCommandValidator : AbstractValidator<SetSchoolModule
 
         RuleFor(c => c.SchoolId)
             .MustAsync(async (schoolId, cancellationToken) => !await context.Schools.AnyAsync(s => s.PublicId == schoolId && s.IsMaster, cancellationToken))
-            .WithMessage("The master tenant always has every module.");
+            .WithMessage(_ => ValidationMessages.MasterHasEveryModule);
     }
 }
 

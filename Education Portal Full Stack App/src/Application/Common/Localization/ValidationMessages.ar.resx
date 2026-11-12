@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="CountryCodeFormat" xml:space="preserve"><value>يجب أن يتكون الرمز من حرفين (ISO 3166-1 alpha-2)، مثل PK.</value></data>
+  <data name="CountryCodeTaken" xml:space="preserve"><value>توجد دولة بهذا الرمز بالفعل.</value></data>
+  <data name="CountryTooManyLanguages" xml:space="preserve"><value>يمكن للدولة أن تقدّم كل لغة مدعومة مرة واحدة على الأكثر.</value></data>
+  <data name="LanguageNotSupported" xml:space="preserve"><value>لا تتوفر في البوابة ترجمات للغة '{PropertyValue}'.</value></data>
+  <data name="LanguageListedTwice" xml:space="preserve"><value>يمكن إدراج كل لغة مرة واحدة فقط.</value></data>
+  <data name="DefaultLanguageNotOffered" xml:space="preserve"><value>يجب أن تكون اللغة الافتراضية إحدى لغات الدولة.</value></data>
+  <data name="TimeZoneInvalid" xml:space="preserve"><value>يجب أن تكون المنطقة الزمنية من مناطق IANA، مثل Asia/Karachi.</value></data>
+  <data name="CurrencyInvalid" xml:space="preserve"><value>يجب أن تكون العملة رمز ISO 4217، مثل PKR.</value></data>
+  <data name="MasterHasEveryModule" xml:space="preserve"><value>يمتلك المستأجر الرئيسي جميع الوحدات دائمًا.</value></data>
+  <data name="CountryNotFound" xml:space="preserve"><value>الدولة غير موجودة.</value></data>
+  <data name="LanguageNotOffered" xml:space="preserve"><value>هذه المدرسة لا تقدّم هذه اللغة.</value></data>
+  <data name="AccentColorFormat" xml:space="preserve"><value>يجب أن يكون لون التمييز بالصيغة #rrggbb.</value></data>
+  <data name="SidebarColorFormat" xml:space="preserve"><value>يجب أن يكون لون الشريط الجانبي بالصيغة #rrggbb.</value></data>
+  <data name="LogoInvalid" xml:space="preserve"><value>يجب أن يكون الشعار صورة PNG أو JPEG أو WebP بحجم {0} كيلوبايت على الأكثر.</value></data>
+  <data name="FaviconInvalid" xml:space="preserve"><value>يجب أن تكون أيقونة الموقع صورة ICO أو PNG بحجم {0} كيلوبايت على الأكثر.</value></data>
+  <data name="LogoUploadAndRemove" xml:space="preserve"><value>ارفع شعارًا جديدًا أو احذفه، وليس كليهما.</value></data>
+  <data name="FaviconUploadAndRemove" xml:space="preserve"><value>ارفع أيقونة موقع جديدة أو احذفها، وليس كليهما.</value></data>
+</root>

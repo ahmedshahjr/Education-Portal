@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using EducationPortal.Application.Localization.Queries.GetLocalization;
 using Microsoft.AspNetCore.Mvc;
@@ -146,6 +146,35 @@ public class LocalizationTests : TestBase
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         var problem = (await response.Content.ReadFromJsonAsync<ProblemDetails>())!;
         problem.Title.ShouldBe("تصدیق میں ایک یا زیادہ غلطیاں ملیں۔");
+    }
+
+    [TestCase(PakistanDomain, "ur", "ar", "یہ اسکول یہ زبان پیش نہیں کرتا۔")]
+    [TestCase(UaeDomain, "ar", "ur", "هذه المدرسة لا تقدّم هذه اللغة.")]
+    [TestCase(UaeDomain, "en", "ur", "This school does not offer that language.")]
+    public async Task ShouldWriteValidationErrorsInTheRequestsLanguage(string domain, string acceptLanguage, string requested, string expected)
+    {
+        using var session = TestHttp.CreateDevelopmentSession(domain);
+        session.SetHeader("Accept-Language", acceptLanguage);
+
+        using var response = await session.PutAsync("/api/Localization/language", new { language = requested });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var problem = (await response.Content.ReadFromJsonAsync<ValidationProblemDetails>())!;
+        problem.Errors["Language"].ShouldContain(expected);
+    }
+
+    [Test]
+    public async Task ShouldWriteBuiltInValidationErrorsInUrdu()
+    {
+        // FluentValidation ships no Urdu; the portal adds it, with the property name translated too.
+        using var session = TestHttp.CreateDevelopmentSession(PakistanDomain);
+        session.SetHeader("Accept-Language", "ur");
+
+        using var response = await session.PutAsync("/api/Localization/language", new { language = "" });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var problem = (await response.Content.ReadFromJsonAsync<ValidationProblemDetails>())!;
+        problem.Errors["Language"].ShouldContain("'زبان' خالی نہیں ہونا چاہیے۔");
     }
 
     [Test]

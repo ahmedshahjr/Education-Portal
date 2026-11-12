@@ -1,3 +1,4 @@
+using System.Globalization;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.ValueObjects;
 
@@ -37,31 +38,31 @@ public abstract class BrandingUpdateValidator<T> : AbstractValidator<T>
     {
         RuleFor(u => u.AccentColor)
             .Must(HexColor.IsValid)
-            .WithMessage("The accent colour must have the form #rrggbb.");
+            .WithMessage(_ => ValidationMessages.AccentColorFormat);
 
         RuleFor(u => u.SidebarColor)
             .Must(HexColor.IsValid)
             .When(u => u.SidebarColor is not null)
-            .WithMessage("The sidebar colour must have the form #rrggbb.");
+            .WithMessage(_ => ValidationMessages.SidebarColorFormat);
 
         RuleFor(u => u.Logo)
             .Must(logo => BrandingImageRules.AllowedContentType(BrandingImageKind.Logo, logo) is not null)
             .When(u => u.Logo is not null)
-            .WithMessage($"The logo must be a PNG, JPEG or WebP image of at most {BrandingImageRules.MaxLogoBytes / 1024} KB.");
+            .WithMessage(_ => string.Format(CultureInfo.CurrentCulture, ValidationMessages.LogoInvalid, BrandingImageRules.MaxLogoBytes / 1024));
 
         RuleFor(u => u.Favicon)
             .Must(favicon => BrandingImageRules.AllowedContentType(BrandingImageKind.Favicon, favicon) is not null)
             .When(u => u.Favicon is not null)
-            .WithMessage($"The favicon must be an ICO or PNG image of at most {BrandingImageRules.MaxFaviconBytes / 1024} KB.");
+            .WithMessage(_ => string.Format(CultureInfo.CurrentCulture, ValidationMessages.FaviconInvalid, BrandingImageRules.MaxFaviconBytes / 1024));
 
         RuleFor(u => u.RemoveLogo)
             .Equal(false)
             .When(u => u.Logo is not null)
-            .WithMessage("Upload a new logo or remove it, not both.");
+            .WithMessage(_ => ValidationMessages.LogoUploadAndRemove);
 
         RuleFor(u => u.RemoveFavicon)
             .Equal(false)
             .When(u => u.Favicon is not null)
-            .WithMessage("Upload a new favicon or remove it, not both.");
+            .WithMessage(_ => ValidationMessages.FaviconUploadAndRemove);
     }
 }

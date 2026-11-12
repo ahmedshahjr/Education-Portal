@@ -30,28 +30,28 @@ public abstract class CountryFieldsValidator<T> : AbstractValidator<T>
         RuleFor(c => c.Languages)
             .NotEmpty()
             .Must(languages => languages.Count <= Language.All.Count)
-            .WithMessage("A country can offer at most every supported language once.");
+            .WithMessage(_ => ValidationMessages.CountryTooManyLanguages);
 
         RuleForEach(c => c.Languages)
             .Must(Language.IsSupported)
-            .WithMessage("The portal has no translations for '{PropertyValue}'.");
+            .WithMessage(_ => ValidationMessages.LanguageNotSupported);
 
         RuleFor(c => c.Languages)
             .Must(languages => languages.Distinct(StringComparer.OrdinalIgnoreCase).Count() == languages.Count)
-            .WithMessage("Each language can be listed once.");
+            .WithMessage(_ => ValidationMessages.LanguageListedTwice);
 
         RuleFor(c => c.DefaultLanguage)
             .NotEmpty()
             .Must((fields, language) => fields.Languages.Contains(language, StringComparer.OrdinalIgnoreCase))
-            .WithMessage("The default language must be one of the country's languages.");
+            .WithMessage(_ => ValidationMessages.DefaultLanguageNotOffered);
 
         RuleFor(c => c.TimeZoneId)
             .Must(Country.IsValidTimeZone)
-            .WithMessage("The time zone must be an IANA time zone, for example Asia/Karachi.");
+            .WithMessage(_ => ValidationMessages.TimeZoneInvalid);
 
         RuleFor(c => c.CurrencyCode)
             .NotEmpty()
             .Matches("^[A-Z]{3}$")
-            .WithMessage("The currency must be an ISO 4217 code, for example PKR.");
+            .WithMessage(_ => ValidationMessages.CurrencyInvalid);
     }
 }

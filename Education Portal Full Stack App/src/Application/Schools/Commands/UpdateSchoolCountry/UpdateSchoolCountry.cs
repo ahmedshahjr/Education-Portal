@@ -30,7 +30,7 @@ public class UpdateSchoolCountryCommandValidator : AbstractValidator<UpdateSchoo
         RuleFor(c => c.CountryId)
             .MustAsync(async (countryId, cancellationToken) => await context.Countries.AnyAsync(c => c.PublicId == countryId, cancellationToken))
             .When(c => c.CountryId is not null)
-            .WithMessage("The country does not exist.");
+            .WithMessage(_ => ValidationMessages.CountryNotFound);
     }
 }
 

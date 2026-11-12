@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="CountryCodeFormat" xml:space="preserve"><value>The code must be two letters (ISO 3166-1 alpha-2), for example PK.</value></data>
+  <data name="CountryCodeTaken" xml:space="preserve"><value>A country with this code already exists.</value></data>
+  <data name="CountryTooManyLanguages" xml:space="preserve"><value>A country can offer at most every supported language once.</value></data>
+  <data name="LanguageNotSupported" xml:space="preserve"><value>The portal has no translations for '{PropertyValue}'.</value></data>
+  <data name="LanguageListedTwice" xml:space="preserve"><value>Each language can be listed once.</value></data>
+  <data name="DefaultLanguageNotOffered" xml:space="preserve"><value>The default language must be one of the country's languages.</value></data>
+  <data name="TimeZoneInvalid" xml:space="preserve"><value>The time zone must be an IANA time zone, for example Asia/Karachi.</value></data>
+  <data name="CurrencyInvalid" xml:space="preserve"><value>The currency must be an ISO 4217 code, for example PKR.</value></data>
+  <data name="MasterHasEveryModule" xml:space="preserve"><value>The master tenant always has every module.</value></data>
+  <data name="CountryNotFound" xml:space="preserve"><value>The country does not exist.</value></data>
+  <data name="LanguageNotOffered" xml:space="preserve"><value>This school does not offer that language.</value></data>
+  <data name="AccentColorFormat" xml:space="preserve"><value>The accent colour must have the form #rrggbb.</value></data>
+  <data name="SidebarColorFormat" xml:space="preserve"><value>The sidebar colour must have the form #rrggbb.</value></data>
+  <data name="LogoInvalid" xml:space="preserve"><value>The logo must be a PNG, JPEG or WebP image of at most {0} KB.</value></data>
+  <data name="FaviconInvalid" xml:space="preserve"><value>The favicon must be an ICO or PNG image of at most {0} KB.</value></data>
+  <data name="LogoUploadAndRemove" xml:space="preserve"><value>Upload a new logo or remove it, not both.</value></data>
+  <data name="FaviconUploadAndRemove" xml:space="preserve"><value>Upload a new favicon or remove it, not both.</value></data>
+</root>
