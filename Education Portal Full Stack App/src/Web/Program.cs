@@ -40,10 +40,6 @@ app.UseTenantResolution();
 // tenant.id on the request's span and log scope, once the tenant is known (ADR-007).
 app.UseTenantTelemetry();
 
-// The language comes from the visitor's choice or browser, limited to the school's languages, so it runs after the
-// tenant is known. Server messages (validation, problem details) are then in that language.
-app.UseTenantRequestLocalization();
-
 app.UseRateLimiter();
 
 // The Angular files are static and anonymous (SEC-AUTHN-01).
@@ -53,6 +49,12 @@ app.UseFileServer();
 // calls, WebApplication inserts both middlewares straight after routing, which is before the headers and the token.
 app.UseAuthentication();
 app.UseTenantSessionCheck();
+
+// The language comes from the user's saved choice, this browser's choice or its languages, limited to the school's
+// languages, so it runs once the tenant and the user are known. Server messages (validation, problem details) are then
+// in that language.
+app.UseTenantRequestLocalization();
+
 app.UseAntiforgeryTokenCookie();
 app.UseAuthorization();
 app.UseAntiforgery();

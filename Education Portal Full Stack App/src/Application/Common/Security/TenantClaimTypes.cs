@@ -4,4 +4,9 @@ namespace EducationPortal.Application.Common.Security;
 public static class TenantClaimTypes
 {
     public const string SchoolId = "education_portal/school_id";
+
+    /// <summary>
+    /// The user's saved language (ISO 639-1), when they chose one. Named like the OpenID Connect <c>locale</c> claim.
+    /// </summary>
+    public const string Language = "locale";
 }

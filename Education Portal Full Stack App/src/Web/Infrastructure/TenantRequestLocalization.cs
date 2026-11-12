@@ -1,5 +1,6 @@
 using System.Globalization;
 using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Common.Security;
 using EducationPortal.Domain.Localization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -46,7 +47,10 @@ public static class TenantRequestLocalization
         return services;
     }
 
-    /// <summary>Runs after tenant resolution, so the provider knows the school.</summary>
+    /// <summary>
+    /// Runs after tenant resolution, so the provider knows the school, and after authentication and the session check,
+    /// so it knows the user's saved language.
+    /// </summary>
     public static IApplicationBuilder UseTenantRequestLocalization(this IApplicationBuilder app) => app.UseRequestLocalization();
 
     /// <summary>Remembers the visitor's language for a year on this school's domain.</summary>
@@ -69,8 +73,9 @@ public static class TenantRequestLocalization
 }
 
 /// <summary>
-/// Picks the request's language: the visitor's saved choice, then their browser's languages by preference, then the
-/// school's default; the first one the school offers wins.
+/// Picks the request's language: a signed-in user's saved language (it follows them to every device), then this
+/// browser's saved choice, then the browser's languages by preference, then the school's default; the first one the
+/// school offers wins.
 /// </summary>
 internal sealed class TenantRequestCultureProvider : RequestCultureProvider
 {
@@ -93,6 +98,12 @@ internal sealed class TenantRequestCultureProvider : RequestCultureProvider
 
     private static IEnumerable<string> CandidateLanguages(HttpContext httpContext)
     {
+        // Set only by the claims factory from the account; authentication runs before this middleware.
+        if (httpContext.User.FindFirst(TenantClaimTypes.Language)?.Value is { Length: > 0 } saved)
+        {
+            yield return saved;
+        }
+
         if (httpContext.Request.Cookies.TryGetValue(TenantRequestLocalization.CookieName, out var cookie)
             && CookieRequestCultureProvider.ParseCookieValue(cookie) is { } chosen)
         {

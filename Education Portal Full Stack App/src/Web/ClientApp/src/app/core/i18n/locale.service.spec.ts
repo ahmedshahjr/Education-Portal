@@ -58,4 +58,28 @@ describe('LocaleService', () => {
     await vi.waitFor(() => expect(failed).toHaveBeenCalled());
     expect(reload).not.toHaveBeenCalled();
   });
+
+  it('reports when the user\u2019s saved language differs from the page after sign-in', async () => {
+    const service = TestBed.inject(LocaleService);
+    const result = vi.fn();
+
+    service.languageChangedBySignIn().subscribe(result);
+    TestBed.inject(HttpTestingController)
+      .expectOne('/api/Localization')
+      .flush(new Blob([JSON.stringify({ language: 'ur', culture: 'ur-PK', languages: [] })], { type: 'application/json' }));
+
+    await vi.waitFor(() => expect(result).toHaveBeenCalledWith(true));
+  });
+
+  it('reports no change when the saved language is the page\u2019s', async () => {
+    const service = TestBed.inject(LocaleService);
+    const result = vi.fn();
+
+    service.languageChangedBySignIn().subscribe(result);
+    TestBed.inject(HttpTestingController)
+      .expectOne('/api/Localization')
+      .flush(new Blob([JSON.stringify({ language: 'en', culture: 'en', languages: [] })], { type: 'application/json' }));
+
+    await vi.waitFor(() => expect(result).toHaveBeenCalledWith(false));
+  });
 });

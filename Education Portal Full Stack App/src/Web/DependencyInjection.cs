@@ -28,6 +28,7 @@ public static class DependencyInjection
 
         // Each request is answered in one of the languages of its school's country (TenantRequestLocalization).
         builder.Services.AddTenantRequestLocalization();
+        builder.Services.AddScoped<IRequestTimeZone, RequestTimeZone>();
 
         builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 

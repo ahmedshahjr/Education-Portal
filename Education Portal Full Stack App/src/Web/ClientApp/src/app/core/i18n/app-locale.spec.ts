@@ -42,6 +42,8 @@ describe('loadAppLocale', () => {
 
     const locale = await loadAppLocale(fetchFn, document);
 
+    const sent = new Headers((fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1]?.headers as HeadersInit);
+    expect(sent.get('X-Time-Zone')).toBe(Intl.DateTimeFormat().resolvedOptions().timeZone);
     expect(locale.language).toBe('ur');
     expect(locale.culture).toBe('ur-PK');
     expect(document.documentElement.dir).toBe('rtl');
@@ -70,6 +72,11 @@ describe('loadAppLocale', () => {
 });
 
 describe('toAppLocale', () => {
+  it('shows dates in the user\u2019s own time zone, else the school\u2019s', () => {
+    expect(toAppLocale({ ...urdu, userTimeZone: 'Asia/Dubai' }).userTimeZone).toBe('Asia/Dubai');
+    expect(toAppLocale(urdu).userTimeZone).toBe('Asia/Karachi');
+  });
+
   it('keeps only well-formed languages', () => {
     const locale = toAppLocale({ ...urdu, languages: [...urdu.languages, { nativeName: 'no code' }, null] });
 

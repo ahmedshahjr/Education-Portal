@@ -3,8 +3,10 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { BrandingService } from '../../core/branding/branding.service';
+import { LocaleService } from '../../core/i18n/locale.service';
 import { FormInputComponent } from '../../shared/components/form-input/form-input.component';
 import { LanguageMenuComponent } from '../../shared/components/language-menu/language-menu.component';
 
@@ -185,6 +187,7 @@ export class LoginPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly locale = inject(LocaleService);
   protected readonly branding = inject(BrandingService);
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
@@ -205,6 +208,19 @@ export class LoginPage {
     return this.branding.isMaster() ? '/schools' : '/';
   }
 
+  /**
+   * Opens the page after sign-in. The user's saved language (chosen on any device) now applies; when it differs from
+   * this page's, the page reloads there so its translations load.
+   */
+  private async openDestination(): Promise<void> {
+    const languageChanged = await firstValueFrom(this.locale.languageChangedBySignIn()).catch(() => false);
+    await this.router.navigateByUrl(this.destination());
+
+    if (languageChanged) {
+      this.locale.reloadPage();
+    }
+  }
+
   protected submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -216,7 +232,7 @@ export class LoginPage {
     this.busy.set(true);
 
     this.auth.signIn(email, password).subscribe({
-      next: () => void this.router.navigateByUrl(this.destination()),
+      next: () => void this.openDestination(),
       error: (error: unknown) => {
         this.busy.set(false);
         this.error.set(messageFor(statusOf(error)));

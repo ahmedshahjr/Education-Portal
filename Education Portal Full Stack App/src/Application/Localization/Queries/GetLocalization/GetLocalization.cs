@@ -18,6 +18,8 @@ public record GetLocalizationQuery : IRequest<LocalizationDto>;
 /// <param name="IsRightToLeft">True when the page is laid out right to left.</param>
 /// <param name="Languages">The languages the school offers, in menu order.</param>
 /// <param name="TimeZone">The school's IANA time zone.</param>
+/// <param name="UserTimeZone">The time zone this caller reads dates in: their own (sent by the browser), else the
+/// school's.</param>
 /// <param name="CurrencyCode">The school's ISO 4217 currency, or <c>null</c> when it has no country.</param>
 public sealed record LocalizationDto(
     string Language,
@@ -25,15 +27,18 @@ public sealed record LocalizationDto(
     bool IsRightToLeft,
     IReadOnlyList<LanguageDto> Languages,
     string TimeZone,
+    string UserTimeZone,
     string? CurrencyCode);
 
 public class GetLocalizationQueryHandler : IRequestHandler<GetLocalizationQuery, LocalizationDto>
 {
     private readonly ITenantLocaleSettings _settings;
+    private readonly IRequestTimeZone _timeZone;
 
-    public GetLocalizationQueryHandler(ITenantLocaleSettings settings)
+    public GetLocalizationQueryHandler(ITenantLocaleSettings settings, IRequestTimeZone timeZone)
     {
         _settings = settings;
+        _timeZone = timeZone;
     }
 
     public async Task<LocalizationDto> Handle(GetLocalizationQuery request, CancellationToken cancellationToken)
@@ -58,6 +63,7 @@ public class GetLocalizationQueryHandler : IRequestHandler<GetLocalizationQuery,
             language.IsRightToLeft,
             offered,
             locale.TimeZoneId,
+            (await _timeZone.GetAsync(cancellationToken)).Id,
             locale.CurrencyCode);
     }
 }

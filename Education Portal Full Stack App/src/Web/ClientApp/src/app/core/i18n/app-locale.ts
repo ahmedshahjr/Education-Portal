@@ -1,6 +1,7 @@
 import { registerLocaleData } from '@angular/common';
 import { DEFAULT_CURRENCY_CODE, InjectionToken, LOCALE_ID, Provider } from '@angular/core';
 import { loadTranslations } from '@angular/localize';
+import { browserTimeZone, TIME_ZONE_HEADER } from './time-zone';
 
 /** A language the school offers, as the language menu shows it. */
 export interface LanguageOption {
@@ -23,6 +24,11 @@ export interface AppLocale {
   readonly languages: readonly LanguageOption[];
   /** IANA time zone of the school, for example `Asia/Karachi`. */
   readonly timeZone: string;
+  /**
+   * IANA time zone dates are shown in: this device's own (the user's location), else the school's. The server uses the
+   * same one, because the app sends it with every request.
+   */
+  readonly userTimeZone: string;
   /** ISO 4217 code of the school's currency, or null without a country. */
   readonly currencyCode: string | null;
 }
@@ -33,6 +39,7 @@ export const DEFAULT_LOCALE: AppLocale = {
   isRightToLeft: false,
   languages: [{ code: 'en', nativeName: 'English', isRightToLeft: false }],
   timeZone: 'UTC',
+  userTimeZone: browserTimeZone() ?? 'UTC',
   currencyCode: null,
 };
 
@@ -81,7 +88,9 @@ export function provideAppLocale(locale: AppLocale): Provider[] {
 
 async function fetchLocale(fetchFn: typeof fetch): Promise<AppLocale> {
   try {
-    const response = await fetchFn('api/Localization', { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+    const zone = browserTimeZone();
+    const headers: Record<string, string> = { Accept: 'application/json', ...(zone ? { [TIME_ZONE_HEADER]: zone } : {}) };
+    const response = await fetchFn('api/Localization', { credentials: 'same-origin', headers });
     return response.ok ? toAppLocale(await response.json()) : DEFAULT_LOCALE;
   } catch {
     // Offline or the server is restarting: the page still starts, in English.
@@ -95,7 +104,7 @@ async function loadLanguage(locale: AppLocale, fetchFn: typeof fetch): Promise<A
   try {
     const response = await fetchFn(translationsUrl(locale.language), { credentials: 'same-origin' });
     if (!response.ok || !localeData) {
-      return { ...DEFAULT_LOCALE, languages: locale.languages };
+      return { ...DEFAULT_LOCALE, languages: locale.languages, userTimeZone: locale.userTimeZone };
     }
 
     const file = (await response.json()) as { translations?: Record<string, string> };
@@ -104,7 +113,7 @@ async function loadLanguage(locale: AppLocale, fetchFn: typeof fetch): Promise<A
     return locale;
   } catch {
     // Without its translations the language cannot be shown; English keeps the page usable.
-    return { ...DEFAULT_LOCALE, languages: locale.languages };
+    return { ...DEFAULT_LOCALE, languages: locale.languages, userTimeZone: locale.userTimeZone };
   }
 }
 
@@ -129,12 +138,15 @@ export function toAppLocale(value: unknown): AppLocale {
     return DEFAULT_LOCALE;
   }
 
+  const timeZone = typeof data['timeZone'] === 'string' ? data['timeZone'] : 'UTC';
+
   return {
     language: data['language'],
     culture: typeof data['culture'] === 'string' ? data['culture'] : data['language'],
     isRightToLeft: data['isRightToLeft'] === true,
     languages,
-    timeZone: typeof data['timeZone'] === 'string' ? data['timeZone'] : 'UTC',
+    timeZone,
+    userTimeZone: typeof data['userTimeZone'] === 'string' ? data['userTimeZone'] : timeZone,
     currencyCode: typeof data['currencyCode'] === 'string' ? data['currencyCode'] : null,
   };
 }
