@@ -1,0 +1,202 @@
+// ============================================================================
+// MaterialM Dashboard 3 - Centralized Design Tokens
+// Extracted & aligned with MaterialM Angular 22 Design System
+// ============================================================================
+
+// SCSS Breakpoints
+$bp-xl: 1440px;
+$bp-lg: 1280px;
+$bp-md: 1024px;
+$bp-sm: 768px;
+$bp-xs: 480px;
+
+@mixin respond-max($max-width) {
+  @media (max-width: $max-width) {
+    @content;
+  }
+}
+
+:root {
+  // Brand & Semantic Palette
+  --mm-primary: #00a1ff;
+  --mm-primary-rgb: 0, 161, 255;
+  --mm-primary-hover: #008ee0;
+
+  --mm-secondary: #8965e5;
+  --mm-secondary-rgb: 137, 101, 229;
+
+  --mm-success: #00ceb6;
+  --mm-success-rgb: 0, 206, 182;
+
+  --mm-warning: #ffae1f;
+  --mm-warning-rgb: 255, 174, 31;
+
+  --mm-error: #ff6692;
+  --mm-error-rgb: 255, 102, 146;
+
+  --mm-pink-surface-rgb: 247, 68, 86;
+  --mm-info: #539bff;
+  --mm-info-rgb: 83, 155, 255;
+
+  // Soft Translucent Surface Tints (Dashboard 3 KPI & Badge Surfaces)
+  --mm-light-primary: rgba(var(--mm-primary-rgb), 0.15);
+  --mm-light-secondary: rgba(var(--mm-secondary-rgb), 0.15);
+  --mm-light-success: rgba(var(--mm-success-rgb), 0.15);
+  --mm-light-warning: rgba(var(--mm-warning-rgb), 0.15);
+  --mm-light-error: rgba(var(--mm-pink-surface-rgb), 0.15);
+  --mm-light-info: rgba(var(--mm-info-rgb), 0.15);
+
+  // Surfaces & Backgrounds (Light Theme)
+  --mm-bg-canvas: #f8fafd;
+  --mm-bg-surface: #ffffff;
+  --mm-bg-subtle: #f2f6fa;
+  --mm-bg-hover: rgba(var(--mm-primary-rgb), 0.06);
+  --mm-bg-card-navy: #1f2a3d;
+  --mm-bg-bar-muted: rgba(0, 0, 0, 0.07);
+  --mm-bg-pink-bar-muted: rgba(231, 208, 217, 0.85);
+  --mm-bg-donut-track: #b2efe8;
+
+  // Typography Colors
+  --mm-text-primary: #111c2d;
+  --mm-text-body: #1a1b1f;
+  --mm-text-secondary: rgba(17, 28, 45, 0.65);
+  --mm-text-muted: #637381;
+  --mm-text-inverse: #ffffff;
+
+  // Borders & Dividers
+  --mm-border-color: #e4ebf0;
+  --mm-border-subtle: #e0e6eb;
+  --mm-border-pill: rgba(17, 28, 45, 0.35);
+
+  // Typography Scale
+  --mm-font-sans: 'Inter', 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mm-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --mm-text-xs: 0.75rem;     // 12px
+  --mm-text-sm: 0.875rem;    // 14px
+  --mm-text-base: 1rem;      // 16px
+  --mm-text-lg: 1.125rem;    // 18px
+  --mm-text-xl: 1.25rem;     // 20px
+  --mm-text-2xl: 1.5rem;     // 24px
+  --mm-text-3xl: 1.875rem;   // 30px
+
+  --mm-lh-tight: 1.25;
+  --mm-lh-snug: 1.35;
+  --mm-lh-base: 1.5;
+
+  // Spacing Scale
+  --mm-space-1: 0.25rem;  // 4px
+  --mm-space-2: 0.5rem;   // 8px
+  --mm-space-3: 0.75rem;  // 12px
+  --mm-space-4: 1rem;     // 16px
+  --mm-space-5: 1.25rem;  // 20px
+  --mm-space-6: 1.5rem;   // 24px
+  --mm-space-8: 2rem;     // 32px
+  --mm-space-10: 2.5rem;  // 40px
+
+  --mm-grid-gap: 24px;
+  --mm-card-pad: 24px;
+  --mm-page-pad-x: 16px;
+  --mm-page-pad-y: 24px;
+
+  // Border Radius Scale
+  --mm-radius-xs: 4px;
+  --mm-radius-sm: 8px;
+  --mm-radius-md: 12px;
+  --mm-radius-lg: 16px;
+  --mm-radius-card: 24px;
+  --mm-radius-pill: 9999px;
+
+  // Shadows
+  --mm-shadow-sm: 0px 2px 4px -1px rgba(175, 182, 201, 0.2);
+  --mm-shadow-card: 0 1px 4px rgba(133, 146, 173, 0.2);
+  --mm-shadow-lg: 0 15px 30px rgba(0, 0, 0, 0.12);
+
+  // Shell Dimensions
+  --mm-sidebar-width: 265px;
+  --mm-sidebar-mini-width: 80px;
+  --mm-header-height: 70px;
+  --mm-nav-item-height: 45px;
+
+  // Transitions
+  --mm-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --mm-duration: 200ms;
+
+  // Scrollbar
+  --mm-scrollbar-thumb: rgba(17, 28, 45, 0.16);
+
+  // School branding. BrandingService overrides these on <html> when a school sets a sidebar colour; until then the
+  // sidebar follows the surface (light and dark mode) and the login page uses the theme's navy panel.
+  --mm-sidebar-bg: var(--mm-bg-surface);
+  --mm-sidebar-text: var(--mm-text-primary);
+  --mm-sidebar-muted: var(--mm-text-muted);
+  --mm-sidebar-hover-bg: var(--mm-bg-hover);
+  --mm-sidebar-active-bg: var(--mm-light-primary);
+  --mm-sidebar-active-text: var(--mm-primary);
+  --mm-auth-aside-bg: #111c2d;
+  --mm-auth-aside-text: #ffffff;
+}
+
+// Primary Accent Theme Presets (controlled by ThemeCustomizer)
+html.theme-cyan {
+  --mm-primary: #00a1ff;
+  --mm-primary-rgb: 0, 161, 255;
+  --mm-primary-hover: #008ee0;
+}
+
+html.theme-blue {
+  --mm-primary: #0074ba;
+  --mm-primary-rgb: 0, 116, 186;
+  --mm-primary-hover: #00619c;
+}
+
+html.theme-purple {
+  --mm-primary: #763ebd;
+  --mm-primary-rgb: 118, 62, 189;
+  --mm-primary-hover: #622fa3;
+}
+
+html.theme-ocean {
+  --mm-primary: #0a7ea4;
+  --mm-primary-rgb: 10, 126, 164;
+  --mm-primary-hover: #076787;
+}
+
+html.theme-teal {
+  --mm-primary: #00ceb6;
+  --mm-primary-rgb: 0, 206, 182;
+  --mm-primary-hover: #00b09c;
+}
+
+html.theme-coral {
+  --mm-primary: #fa896b;
+  --mm-primary-rgb: 250, 137, 107;
+  --mm-primary-hover: #e47153;
+}
+
+// Dark Mode Tokens (matched to MaterialM Dark Mode)
+html.dark-theme {
+  color-scheme: dark;
+
+  --mm-bg-canvas: #141d2c;
+  --mm-bg-surface: #1a2537;
+  --mm-bg-subtle: #223047;
+  --mm-bg-hover: rgba(var(--mm-primary-rgb), 0.12);
+  --mm-bg-card-navy: #121b29;
+  --mm-bg-bar-muted: rgba(255, 255, 255, 0.08);
+  --mm-bg-pink-bar-muted: rgba(255, 102, 146, 0.2);
+  --mm-bg-donut-track: rgba(0, 206, 182, 0.24);
+
+  --mm-text-primary: #f1f5f9;
+  --mm-text-body: #e2e8f0;
+  --mm-text-secondary: rgba(226, 232, 240, 0.72);
+  --mm-text-muted: #94a3b8;
+
+  --mm-border-color: rgba(255, 255, 255, 0.09);
+  --mm-border-subtle: rgba(255, 255, 255, 0.08);
+  --mm-border-pill: rgba(226, 232, 240, 0.35);
+
+  --mm-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.28);
+  --mm-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.25);
+  --mm-scrollbar-thumb: rgba(255, 255, 255, 0.18);
+}

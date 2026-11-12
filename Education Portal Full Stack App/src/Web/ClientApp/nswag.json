@@ -4,7 +4,7 @@
   "documentGenerator": {
     "fromDocument": {
       "json": null,
-      "url": "../wwwroot/openapi/v1.json",
+      "url": "../openapi/v1.json",
       "output": null,
       "newLineBehavior": "Auto"
     }

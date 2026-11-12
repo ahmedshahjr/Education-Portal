@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="CountryCodeFormat" xml:space="preserve"><value>کوڈ دو حروف پر مشتمل ہونا چاہیے (ISO 3166-1 alpha-2)، مثلاً PK۔</value></data>
+  <data name="CountryCodeTaken" xml:space="preserve"><value>اس کوڈ کے ساتھ ایک ملک پہلے سے موجود ہے۔</value></data>
+  <data name="CountryTooManyLanguages" xml:space="preserve"><value>ایک ملک ہر معاون زبان زیادہ سے زیادہ ایک بار پیش کر سکتا ہے۔</value></data>
+  <data name="LanguageNotSupported" xml:space="preserve"><value>پورٹل میں '{PropertyValue}' کے ترجمے موجود نہیں ہیں۔</value></data>
+  <data name="LanguageListedTwice" xml:space="preserve"><value>ہر زبان صرف ایک بار درج کی جا سکتی ہے۔</value></data>
+  <data name="DefaultLanguageNotOffered" xml:space="preserve"><value>طے شدہ زبان ملک کی زبانوں میں سے ایک ہونی چاہیے۔</value></data>
+  <data name="TimeZoneInvalid" xml:space="preserve"><value>ٹائم زون IANA ٹائم زون ہونا چاہیے، مثلاً Asia/Karachi۔</value></data>
+  <data name="CurrencyInvalid" xml:space="preserve"><value>کرنسی ISO 4217 کوڈ ہونی چاہیے، مثلاً PKR۔</value></data>
+  <data name="MasterHasEveryModule" xml:space="preserve"><value>ماسٹر ٹیننٹ کے پاس ہمیشہ تمام ماڈیولز ہوتے ہیں۔</value></data>
+  <data name="CountryNotFound" xml:space="preserve"><value>یہ ملک موجود نہیں ہے۔</value></data>
+  <data name="LanguageNotOffered" xml:space="preserve"><value>یہ اسکول یہ زبان پیش نہیں کرتا۔</value></data>
+  <data name="AccentColorFormat" xml:space="preserve"><value>نمایاں رنگ #rrggbb کی شکل میں ہونا چاہیے۔</value></data>
+  <data name="SidebarColorFormat" xml:space="preserve"><value>سائیڈبار کا رنگ #rrggbb کی شکل میں ہونا چاہیے۔</value></data>
+  <data name="LogoInvalid" xml:space="preserve"><value>لوگو PNG، JPEG یا WebP تصویر ہونا چاہیے جس کا سائز زیادہ سے زیادہ {0} KB ہو۔</value></data>
+  <data name="FaviconInvalid" xml:space="preserve"><value>فیویکان ICO یا PNG تصویر ہونا چاہیے جس کا سائز زیادہ سے زیادہ {0} KB ہو۔</value></data>
+  <data name="LogoUploadAndRemove" xml:space="preserve"><value>نیا لوگو اپ لوڈ کریں یا اسے ہٹائیں، دونوں نہیں۔</value></data>
+  <data name="FaviconUploadAndRemove" xml:space="preserve"><value>نیا فیویکان اپ لوڈ کریں یا اسے ہٹائیں، دونوں نہیں۔</value></data>
+</root>

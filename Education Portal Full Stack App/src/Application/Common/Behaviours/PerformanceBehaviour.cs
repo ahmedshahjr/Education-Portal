@@ -1,27 +1,26 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using EducationPortal.Application.Common.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace EducationPortal.Application.Common.Behaviours;
 
+/// <summary>
+/// Warns about requests that take longer than 500 ms. Logs the request name and user id only, never the
+/// request itself (SEC-LOG-02, SEC-PII-02).
+/// </summary>
 public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly Stopwatch _timer;
     private readonly ILogger<TRequest> _logger;
     private readonly IUser _user;
-    private readonly IIdentityService _identityService;
 
-    public PerformanceBehaviour(
-        ILogger<TRequest> logger,
-        IUser user,
-        IIdentityService identityService)
+    public PerformanceBehaviour(ILogger<TRequest> logger, IUser user)
     {
         _timer = new Stopwatch();
 
         _logger = logger;
         _user = user;
-        _identityService = identityService;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -36,17 +35,8 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 
         if (elapsedMilliseconds > 500)
         {
-            var requestName = typeof(TRequest).Name;
-            var userId = _user.Id ?? string.Empty;
-            var userName = string.Empty;
-
-            if (!string.IsNullOrEmpty(userId))
-            {
-                userName = await _identityService.GetUserNameAsync(userId);
-            }
-
-            _logger.LogWarning("EducationPortal Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@UserName} {@Request}",
-                requestName, elapsedMilliseconds, userId, userName, request);
+            _logger.LogWarning("EducationPortal Long Running Request: {RequestName} ({ElapsedMilliseconds} milliseconds) {UserId}",
+                typeof(TRequest).Name, elapsedMilliseconds, _user.Id ?? string.Empty);
         }
 
         return response;

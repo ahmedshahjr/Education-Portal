@@ -32,3 +32,13 @@ Most students are children. Treat their data with the highest care.
 | SEC-PII-08 | Which privacy laws apply (e.g. FERPA and COPPA in the US, GDPR/UK GDPR, local education data laws) is a **TODO** legal decision. Do not claim compliance with any of them in product text. |
 
 Supports: 800-53 AC-3, AC-21, AU-3(3), SC-28, SI-12, SI-12(1), SI-12(2), SI-12(3), PM-5(1), PT family where adopted; SOC 2 C1.1, C1.2, P1–P8 (if the Privacy criteria are in scope); ISO 5.34, 8.10, 8.11, 8.12, 8.33.
+
+<!-- BEGIN GENERATED: sources (docs/ai/sync-ai-wrappers.py) -->
+## Sources and update checks
+
+This skill is written against the versions below, recorded in [sources.json](../sources.json). `.github/workflows/compliance-sources-review.yml` checks every source on the 1st and 16th of each month and opens or updates a `compliance-review` issue. To apply a change: update this skill and any affected topic skills, then `tracked_version`, `last_seen_sha` and `last_reviewed` in sources.json, in one PR into `development`, and run `python3 docs/ai/sync-ai-wrappers.py`. The workflow never edits rules itself.
+
+| Source | Version tracked | How it is checked | Last reviewed |
+|---|---|---|---|
+| [EU GDPR and EDPB guidelines (incl. children's data)](https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en) | Regulation (EU) 2016/679 and current EDPB guidelines | Manual: listed for a portal check | 2026-11-09 |
+<!-- END GENERATED: sources -->

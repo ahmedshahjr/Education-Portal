@@ -1,4 +1,5 @@
 using EducationPortal.Infrastructure.Data;
+using EducationPortal.Web.Infrastructure;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,7 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.AddServiceDefaults();
 
-builder.AddKeyVaultIfConfigured();
+// Logs, metrics and traces over OTLP to Observability:OtlpEndpoint (ADR-007).
+builder.Services.AddObservability(builder.Configuration, builder.Environment);
+
+// Platform secrets (such as the database connection string) come from the secret store chosen by Secrets:Provider,
+// before the DbContext is registered. Without a provider, normal configuration is used (ADR-006).
+await builder.AddPlatformSecretsAsync();
 builder.AddApplicationServices();
 builder.AddInfrastructureServices();
 builder.AddWebServices();
@@ -20,27 +26,50 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // HSTS for one year, including subdomains (SEC-WEB-01). Development keeps plain HTTP for local tools.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-app.UseCors(static builder => 
-    builder.AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowAnyOrigin());
+app.UseExceptionHandler(options => { });
+app.UseSecurityHeaders();
 
+// Every request belongs to the school that owns its host; unknown hosts get 404 and nothing else (SEC-AUTHZ-10).
+app.UseTenantResolution();
+
+// tenant.id on the request's span and log scope, once the tenant is known (ADR-007).
+app.UseTenantTelemetry();
+
+app.UseRateLimiter();
+
+// The Angular files are static and anonymous (SEC-AUTHN-01).
 app.UseFileServer();
 
-app.MapOpenApi();
-app.MapScalarApiReference();
+// Authentication and authorization run after the security headers, so a 401 or 403 carries them too. Without these
+// calls, WebApplication inserts both middlewares straight after routing, which is before the headers and the token.
+app.UseAuthentication();
+app.UseTenantSessionCheck();
 
-app.UseExceptionHandler(options => { });
+// The language comes from the user's saved choice, this browser's choice or its languages, limited to the school's
+// languages, so it runs once the tenant and the user are known. Server messages (validation, problem details) are then
+// in that language.
+app.UseTenantRequestLocalization();
 
+app.UseAntiforgeryTokenCookie();
+app.UseAuthorization();
+app.UseAntiforgery();
+
+if (app.Environment.IsDevelopment())
+{
+    // The OpenAPI document and the API reference exist only in Development (SEC-WEB-05).
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
 
 app.MapDefaultEndpoints();
 app.MapEndpoints(typeof(Program).Assembly);
 
-app.MapFallbackToFile("index.html");
+// compliance-exception: SEC-AUTHN-01 serves the Angular shell, a static page without data
+app.MapFallbackToFile("index.html").AllowAnonymous();
 
 app.Run();

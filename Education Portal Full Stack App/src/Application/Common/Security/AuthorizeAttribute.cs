@@ -20,4 +20,17 @@ public class AuthorizeAttribute : Attribute
     /// Gets or sets the policy name that determines access to the resource.
     /// </summary>
     public string Policy { get; set; } = string.Empty;
+
+    /// <summary>
+    /// When true, the request is a master-tenant (cross-school) use case and is allowed only on the master tenant's
+    /// domain (SEC-AUTHZ-07). Other schools get 403.
+    /// </summary>
+    public bool MasterTenant { get; set; }
+
+    /// <summary>
+    /// The key of the module the request belongs to (a <c>ModuleKeys</c> constant). When set, the request is refused with
+    /// 403 unless the module is switched on for the school the request's host resolves to (SEC-AUTHZ-01). The master
+    /// tenant is never limited by modules.
+    /// </summary>
+    public string Module { get; set; } = string.Empty;
 }

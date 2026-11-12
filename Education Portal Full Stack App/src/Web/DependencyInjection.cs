@@ -1,8 +1,15 @@
-using Azure.Identity;
+using System.Diagnostics;
+using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Infrastructure.Data;
+using EducationPortal.Web.Infrastructure;
 using EducationPortal.Web.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -14,9 +21,29 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<IUser, CurrentUser>();
 
+        builder.Services.AddScoped<CurrentTenant>();
+        builder.Services.AddScoped<ICurrentTenant>(provider => provider.GetRequiredService<CurrentTenant>());
+
         builder.Services.AddHttpContextAccessor();
 
+        // Each request is answered in one of the languages of its school's country (TenantRequestLocalization).
+        builder.Services.AddTenantRequestLocalization();
+        builder.Services.AddScoped<IRequestTimeZone, RequestTimeZone>();
+
         builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
+
+        builder.Services.AddProblemDetails(options =>
+        {
+            // The trace id lets support find the logs for a failed request (SEC-WEB-06).
+            options.CustomizeProblemDetails = context =>
+                context.ProblemDetails.Extensions["traceId"] = Activity.Current?.TraceId.ToString() ?? context.HttpContext.TraceIdentifier;
+        });
+
+        // Enums travel by name only (ENG-ENUM-01), for example "Logo": the API stays readable, Angular gets named enums,
+        // and the numbers the database stores stay private. Numbers are refused (allowIntegerValues: false), so a client
+        // cannot send "2" or an undefined "99".
+        builder.Services.ConfigureHttpJsonOptions(options =>
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false)));
 
         // Customise default API behaviour
         builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -27,20 +54,60 @@ public static class DependencyInjection
         builder.Services.AddOpenApi(options =>
         {
             options.AddOperationTransformer<ApiExceptionOperationTransformer>();
-            options.AddOperationTransformer<IdentityApiOperationTransformer>();
+            options.AddOperationTransformer<MultipartFormOperationTransformer>();
+            options.AddSchemaTransformer<FormFileSchemaTransformer>();
         });
 
-        builder.Services.AddCors();
-    }
-
-    public static void AddKeyVaultIfConfigured(this IHostApplicationBuilder builder)
-    {
-        var keyVaultUri = builder.Configuration["AZURE_KEY_VAULT_ENDPOINT"];
-        if (!string.IsNullOrWhiteSpace(keyVaultUri))
+        builder.Services.AddAntiforgery(options =>
         {
-            builder.Configuration.AddAzureKeyVault(
-                new Uri(keyVaultUri),
-                new DefaultAzureCredential());
-        }
+            // The header that Angular sends the request token in (SEC-WEB-03).
+            options.HeaderName = AntiforgeryTokenCookie.HeaderName;
+            options.Cookie.Name = "__Host-Antiforgery";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.SameSite = SameSiteMode.Strict;
+        });
+
+        builder.Services.AddHsts(options =>
+        {
+            // One year, including subdomains (SEC-WEB-01).
+            options.MaxAge = TimeSpan.FromDays(365);
+            options.IncludeSubDomains = true;
+        });
+
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            var signInPermitLimit = builder.Configuration.GetValue<int>("RateLimiting:SignInPermitLimit", 5);
+
+            // Sign-in attempts per client address and minute (SEC-WEB-07). Each account is protected separately by
+            // the lockout in Identity.
+            options.AddPolicy(RateLimitPolicies.SignIn, context => RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = signInPermitLimit,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0,
+                }));
+
+            // Public school requests per client address and hour (SEC-WEB-07). Kept apart from sign-in so spam cannot lock out sign-ins.
+            options.AddPolicy(RateLimitPolicies.SchoolRequest, context => RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromHours(1),
+                    QueueLimit = 0,
+                }));
+        });
+
+        builder.Services.Configure<KestrelServerOptions>(options =>
+        {
+            // Do not advertise the server software (SEC-WEB-09), and cap request bodies at 1 MB (SEC-WEB-07).
+            options.AddServerHeader = false;
+            options.Limits.MaxRequestBodySize = 1024 * 1024;
+        });
     }
 }

@@ -1,0 +1,19 @@
+# Local Prometheus (ADR-007). Metrics arrive from the OpenTelemetry Collector through the native OTLP receiver
+# (--web.enable-otlp-receiver), so there is nothing to scrape.
+global:
+  evaluation_interval: 15s
+
+storage:
+  tsdb:
+    # The Collector batches, so samples can arrive slightly out of order.
+    out_of_order_time_window: 30m
+
+otlp:
+  # Recommended by the Prometheus OpenTelemetry guide; service.name and service.instance.id become job and instance.
+  promote_resource_attributes:
+    - service.instance.id
+    - service.name
+    - service.namespace
+    - service.version
+    - deployment.environment
+    - deployment.environment.name

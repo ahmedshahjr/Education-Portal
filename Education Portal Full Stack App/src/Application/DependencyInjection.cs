@@ -11,7 +11,10 @@ public static class DependencyInjection
         builder.Services.AddAutoMapper(cfg => 
             cfg.AddMaps(Assembly.GetExecutingAssembly()));
 
+        builder.Services.AddScoped<EducationPortal.Application.Common.Interfaces.IModuleAccess, EducationPortal.Application.Modules.Common.ModuleAccess>();
+
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        EducationPortal.Application.Common.Localization.ValidationLocalization.Configure();
 
         builder.Services.AddMediatR(cfg => {
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());

@@ -71,3 +71,16 @@ Data processing agreements with schools, privacy notices, records of processing 
 3. If EU law changes (the twice-monthly sources review lists EU sources), update this skill in a PR.
 
 Supports: GDPR Art. 5, 8, 9, 12–22, 25, 28, 30, 32–35, 44–49; ePrivacy Art. 5(3); NIS2 Art. 21, 23; EU AI Act Art. 5, Annex III(3); CRA Annex I; Web Accessibility Directive / EN 301 549; ISO 5.34; SOC 2 P1–P8.
+
+<!-- BEGIN GENERATED: sources (docs/ai/sync-ai-wrappers.py) -->
+## Sources and update checks
+
+This skill is written against the versions below, recorded in [sources.json](../sources.json). `.github/workflows/compliance-sources-review.yml` checks every source on the 1st and 16th of each month and opens or updates a `compliance-review` issue. To apply a change: update this skill and any affected topic skills, then `tracked_version`, `last_seen_sha` and `last_reviewed` in sources.json, in one PR into `development`, and run `python3 docs/ai/sync-ai-wrappers.py`. The workflow never edits rules itself.
+
+| Source | Version tracked | How it is checked | Last reviewed |
+|---|---|---|---|
+| [EU GDPR and EDPB guidelines (incl. children's data)](https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en) | Regulation (EU) 2016/679 and current EDPB guidelines | Manual: listed for a portal check | 2026-11-09 |
+| [EU AI Act (Regulation (EU) 2024/1689), implementation timeline and guidance](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai) | Regulation (EU) 2024/1689 | Manual: listed for a portal check | 2026-11-09 |
+| [NIS2 Directive and national transposition](https://digital-strategy.ec.europa.eu/en/policies/nis2-directive) | Directive (EU) 2022/2555 | Manual: listed for a portal check | 2026-11-09 |
+| [EU Cyber Resilience Act](https://digital-strategy.ec.europa.eu/en/policies/cyber-resilience-act) | Regulation (EU) 2024/2847 | Manual: listed for a portal check | 2026-11-09 |
+<!-- END GENERATED: sources -->

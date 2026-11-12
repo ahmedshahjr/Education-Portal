@@ -10,13 +10,19 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
 {
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
+    private readonly ICurrentTenant _tenant;
+    private readonly IModuleAccess _moduleAccess;
 
     public AuthorizationBehaviour(
         IUser user,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        ICurrentTenant tenant,
+        IModuleAccess moduleAccess)
     {
         _user = user;
         _identityService = identityService;
+        _tenant = tenant;
+        _moduleAccess = moduleAccess;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -29,6 +35,33 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
             if (_user.Id == null)
             {
                 throw new UnauthorizedAccessException();
+            }
+
+            // Master-tenant use cases run only on the master tenant's domain (SEC-AUTHZ-07)
+            if (authorizeAttributes.Any(a => a.MasterTenant) && !_tenant.IsMaster)
+            {
+                throw new ForbiddenAccessException();
+            }
+
+            // Module switches per school (SEC-AUTHZ-01): a module the master tenant has not switched on for this school is
+            // refused for everyone in it. The master tenant oversees every school, so modules never limit it.
+            var modules = authorizeAttributes
+                .Select(a => a.Module)
+                .Where(m => !string.IsNullOrWhiteSpace(m))
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+
+            if (modules.Count > 0 && !_tenant.IsMaster)
+            {
+                var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+
+                foreach (var module in modules)
+                {
+                    if (!await _moduleAccess.IsEnabledAsync(schoolId, module, cancellationToken))
+                    {
+                        throw new ForbiddenAccessException();
+                    }
+                }
             }
 
             // Role-based authorization

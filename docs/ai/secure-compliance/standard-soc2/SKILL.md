@@ -49,3 +49,13 @@ CC1 (control environment), CC2 (communication), CC3 (risk assessment), CC5 (cont
 2. Changes must keep the evidence an assessor will ask for: the PR (with the security checklist), the review approval, the CI run, and tests. Never bypass the PR flow (SEC-CHG-01).
 3. Do not invent control parameters, scope or legal applicability. If the standard needs a value the maintainer has not set (marked **TODO**), ask.
 4. If the standard updates (the twice-monthly sources review opens an issue), update this skill and the affected topic skills in one PR.
+
+<!-- BEGIN GENERATED: sources (docs/ai/sync-ai-wrappers.py) -->
+## Sources and update checks
+
+This skill is written against the versions below, recorded in [sources.json](../sources.json). `.github/workflows/compliance-sources-review.yml` checks every source on the 1st and 16th of each month and opens or updates a `compliance-review` issue. To apply a change: update this skill and any affected topic skills, then `tracked_version`, `last_seen_sha` and `last_reviewed` in sources.json, in one PR into `development`, and run `python3 docs/ai/sync-ai-wrappers.py`. The workflow never edits rules itself.
+
+| Source | Version tracked | How it is checked | Last reviewed |
+|---|---|---|---|
+| [AICPA SOC 2 Trust Services Criteria](https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2) | 2017 Trust Services Criteria with revised points of focus (2022) | Manual: listed for a portal check | 2026-11-09 |
+<!-- END GENERATED: sources -->

@@ -1,12 +1,25 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EducationPortal.Domain.Common;
 
+/// <summary>
+/// Every entity has two identities (ENG-ID-01, ENG-ID-02):
+/// <list type="bullet">
+/// <item><see cref="Id"/> is the internal <c>int</c> (PostgreSQL <c>integer</c>, identity) primary key. Foreign keys, joins and
+/// query filters use it. It never leaves the server: no DTO, route, query string or response carries it.</item>
+/// <item><see cref="PublicId"/> is the <see cref="Guid"/> alternate key that the API exposes. Handlers resolve it to
+/// <see cref="Id"/> before any business logic.</item>
+/// </list>
+/// </summary>
 public abstract class BaseEntity
 {
-    // This can easily be modified to be BaseEntity<T> and public T Id to support different key types.
-    // Using non-generic integer types for simplicity
     public int Id { get; set; }
+
+    /// <summary>
+    /// The identity the API exposes. Version 7 (time-ordered) so the unique index stays compact as rows are added. Set
+    /// once when the object is created and never changed.
+    /// </summary>
+    public Guid PublicId { get; private set; } = Guid.CreateVersion7();
 
     private readonly List<BaseEvent> _domainEvents = new();
 

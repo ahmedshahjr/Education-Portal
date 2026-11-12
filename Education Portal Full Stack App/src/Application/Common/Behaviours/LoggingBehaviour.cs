@@ -1,35 +1,30 @@
-﻿using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Common.Interfaces;
 using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
 
 namespace EducationPortal.Application.Common.Behaviours;
 
+/// <summary>
+/// Logs which request runs and for which user id. The request itself and the user's name or email are
+/// never logged, because requests carry personal data (SEC-LOG-02, SEC-PII-02).
+/// </summary>
 public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest>
     where TRequest : notnull
 {
     private readonly ILogger _logger;
     private readonly IUser _user;
-    private readonly IIdentityService _identityService;
 
-    public LoggingBehaviour(ILogger<TRequest> logger, IUser user, IIdentityService identityService)
+    public LoggingBehaviour(ILogger<TRequest> logger, IUser user)
     {
         _logger = logger;
         _user = user;
-        _identityService = identityService;
     }
 
-    public async Task Process(TRequest request, CancellationToken cancellationToken)
+    public Task Process(TRequest request, CancellationToken cancellationToken)
     {
-        var requestName = typeof(TRequest).Name;
-        var userId = _user.Id ?? string.Empty;
-        string? userName = string.Empty;
+        _logger.LogInformation("EducationPortal Request: {RequestName} {UserId}",
+            typeof(TRequest).Name, _user.Id ?? string.Empty);
 
-        if (!string.IsNullOrEmpty(userId))
-        {
-            userName = await _identityService.GetUserNameAsync(userId);
-        }
-
-        _logger.LogInformation("EducationPortal Request: {Name} {@UserId} {@UserName} {@Request}",
-            requestName, userId, userName, request);
+        return Task.CompletedTask;
     }
 }

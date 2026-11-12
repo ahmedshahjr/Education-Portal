@@ -1,0 +1,42 @@
+# Grafana data sources for the local stack (ADR-007). URLs come from environment variables that the AppHost sets.
+# "$$" is a literal "$" for Grafana's own variables; a single "$" is an environment variable.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: ${PROMETHEUS_URL}
+    isDefault: true
+    jsonData:
+      httpMethod: POST
+
+  - name: Loki
+    uid: loki
+    type: loki
+    access: proxy
+    url: ${LOKI_URL}
+    jsonData:
+      # Logs to trace: each log line's trace_id (OTLP structured metadata) links to the trace in Jaeger.
+      derivedFields:
+        - name: TraceID
+          matcherType: label
+          matcherRegex: trace_id
+          datasourceUid: jaeger
+          url: "$${__value.raw}"
+          urlDisplayLabel: View trace
+
+  - name: Jaeger
+    uid: jaeger
+    type: jaeger
+    access: proxy
+    url: ${JAEGER_URL}
+    jsonData:
+      # Trace to logs: a span links to the Loki lines that carry the same trace_id.
+      tracesToLogsV2:
+        datasourceUid: loki
+        spanStartTimeShift: "-5m"
+        spanEndTimeShift: "5m"
+        customQuery: true
+        query: '{service_name=~".+"} | trace_id="$${__trace.traceId}"'

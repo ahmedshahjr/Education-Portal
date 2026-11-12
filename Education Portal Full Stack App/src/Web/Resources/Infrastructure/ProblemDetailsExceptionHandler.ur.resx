@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="One or more validation errors occurred." xml:space="preserve"><value>تصدیق میں ایک یا زیادہ غلطیاں ملیں۔</value></data>
+  <data name="The specified resource was not found." xml:space="preserve"><value>مطلوبہ چیز نہیں ملی۔</value></data>
+  <data name="Unauthorized" xml:space="preserve"><value>غیر مجاز</value></data>
+  <data name="The request is not valid." xml:space="preserve"><value>درخواست درست نہیں ہے۔</value></data>
+  <data name="Forbidden" xml:space="preserve"><value>اجازت نہیں ہے</value></data>
+</root>
