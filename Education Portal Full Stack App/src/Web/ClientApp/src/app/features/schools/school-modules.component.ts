@@ -3,6 +3,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { problemMessages } from '../../core/http/problem-details';
+import { moduleText, ModuleTextPipe } from '../../core/i18n/module-text.pipe';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
@@ -15,7 +16,7 @@ import { ModuleType, SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchool
  */
 @Component({
   selector: 'app-school-modules',
-  imports: [MatCardModule, MatSlideToggleModule, LoadingStateComponent, EmptyStateComponent, StatusBadgeComponent],
+  imports: [ModuleTextPipe, MatCardModule, MatSlideToggleModule, LoadingStateComponent, EmptyStateComponent, StatusBadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-card class="mm-card mm-elevated">
@@ -36,7 +37,7 @@ import { ModuleType, SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchool
               <li class="mm-school-modules__row">
                 <div class="mm-school-modules__text">
                   <div class="mm-school-modules__name">
-                    {{ module.name }}
+                    {{ module | moduleText }}
                     @if (module.type === types.Default) {
                       <app-status-badge tone="success" i18n="@@modules.default">Default</app-status-badge>
                     } @else {
@@ -46,13 +47,13 @@ import { ModuleType, SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchool
                       <app-status-badge tone="error" i18n="@@modules.inactive">Inactive</app-status-badge>
                     }
                   </div>
-                  <div class="mm-school-modules__description">{{ module.description }}</div>
+                  <div class="mm-school-modules__description">{{ module | moduleText: 'description' }}</div>
                 </div>
                 <mat-slide-toggle
                   [checked]="module.isEnabled"
                   [disabled]="school().isMaster || !module.isActive || saving() === module.key"
                   (change)="setEnabled(module, $event)"
-                  aria-label="{{ module.name }} for {{ school().name }}"
+                  aria-label="{{ module | moduleText }} for {{ school().name }}"
                   i18n-aria-label="@@modules.enabledFor"
                 />
               </li>
@@ -136,7 +137,7 @@ export class SchoolModulesComponent {
             list?.map((m) => (m.key === module.key ? new SchoolModuleDto({ ...m, isEnabled: event.checked, followsDefault: false }) : m)) ??
             null
         );
-        this.snackBar.open($localize`:@@modules.savedFor:${module.name}:MODULE: saved for ${school.name}:SCHOOL:`, undefined, {
+        this.snackBar.open($localize`:@@modules.savedFor:${moduleText(module)}:MODULE: saved for ${school.name}:SCHOOL:`, undefined, {
           duration: 3000,
         });
       },

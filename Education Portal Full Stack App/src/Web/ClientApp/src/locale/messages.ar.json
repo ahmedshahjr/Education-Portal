@@ -187,6 +187,24 @@
     "branding.previewAction": "زر رئيسي",
     "branding.viewLogo": "عرض الشعار",
     "branding.viewFavicon": "عرض الأيقونة",
-    "branding.closeImage": "إغلاق"
+    "branding.closeImage": "إغلاق",
+    "module.branches.name": "الفروع",
+    "module.branches.description": "إنشاء فروع المدرسة وتعديلها.",
+    "module.usersAndRoles.name": "المستخدمون والأدوار",
+    "module.usersAndRoles.description": "حسابات الموظفين، والأدوار مع الصلاحيات لكل وحدة، وتعيين الفروع.",
+    "module.students.name": "الطلاب",
+    "module.students.description": "سجلات الطلاب، والانتساب إلى الفروع، والربط بأولياء الأمور.",
+    "module.parents.name": "أولياء الأمور",
+    "module.parents.description": "سجلات أولياء الأمور، والربط بالأبناء.",
+    "module.teachers.name": "المعلمون",
+    "module.teachers.description": "سجلات المعلمين، والانتساب إلى الفروع.",
+    "module.courses.name": "المقررات",
+    "module.courses.description": "المقررات لكل فرع، والمعلمون المكلفون بها.",
+    "module.enrolments.name": "التسجيلات",
+    "module.enrolments.description": "تسجيل الطلاب في المقررات.",
+    "module.grades.name": "الدرجات",
+    "module.grades.description": "التقييمات والدرجات لكل تسجيل.",
+    "module.dashboard.name": "لوحة التحكم",
+    "module.dashboard.description": "نظرة عامة على المدرسة والفروع للمالكين والموظفين."
   }
 }
