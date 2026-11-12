@@ -20,10 +20,10 @@ public class CreateCountryCommandValidator : CountryFieldsValidator<CreateCountr
     {
         RuleFor(c => c.Code)
             .Must(Country.IsValidCode)
-            .WithMessage("The code must be two letters (ISO 3166-1 alpha-2), for example PK.")
+            .WithMessage(_ => ValidationMessages.CountryCodeFormat)
             .MustAsync(async (code, cancellationToken) =>
                 !await context.Countries.AnyAsync(c => c.Code == code.ToUpperInvariant(), cancellationToken))
-            .WithMessage("A country with this code already exists.");
+            .WithMessage(_ => ValidationMessages.CountryCodeTaken);
     }
 }
 

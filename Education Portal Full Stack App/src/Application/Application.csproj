@@ -18,4 +18,21 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Server text in every portal language (ADR-005). The classes are generated at build time from the neutral
+         (English) files; Arabic and Urdu sit next to them as satellite resources. -->
+    <EmbeddedResource Update="Common\Localization\ValidationMessages.resx">
+      <StronglyTypedFileName>$(IntermediateOutputPath)ValidationMessages.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>EducationPortal.Application.Common.Localization</StronglyTypedNamespace>
+      <StronglyTypedClassName>ValidationMessages</StronglyTypedClassName>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Common\Localization\PropertyNames.resx">
+      <StronglyTypedFileName>$(IntermediateOutputPath)PropertyNames.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>EducationPortal.Application.Common.Localization</StronglyTypedNamespace>
+      <StronglyTypedClassName>PropertyNames</StronglyTypedClassName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>
