@@ -31,7 +31,6 @@ public class SecretKeyTests
     [TestCase("platform/db-connection")]
     [TestCase("tenants/5/sms-api-key")]
     [TestCase("tenants/2147483647/x")]
-    [TestCase("tenants/9223372036854775807/x")] // long.MaxValue: tenant ids are long (ENG-ID-01)
     public void ShouldParseAndRoundTrip(string path)
     {
         SecretKey.Parse(path).Path.ShouldBe(path);
@@ -53,8 +52,7 @@ public class SecretKeyTests
     [TestCase("tenants/-1/name")]
     [TestCase("tenants/05/name")]
     [TestCase("tenants/abc/name")]
-    [TestCase("tenants/9223372036854775808/name")] // one more than long.MaxValue
-    [TestCase("tenants/99999999999999999999/name")]
+    [TestCase("tenants/9999999999/name")]
     [TestCase("tenants/5/../6/name")]
     [TestCase("tenants/5/name/extra")]
     [TestCase("other/name")]
@@ -99,7 +97,7 @@ public class SecretKeyTests
 
     [TestCase(0)]
     [TestCase(-3)]
-    public void ShouldRejectANonPositiveTenantId(long tenantId)
+    public void ShouldRejectANonPositiveTenantId(int tenantId)
     {
         Should.Throw<ArgumentOutOfRangeException>(() => SecretKey.ForTenant(tenantId, "name"));
     }

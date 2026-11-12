@@ -35,6 +35,6 @@ Tick each item or explain why it does not apply.
 - [ ] Backend logic has unit tests in the matching `*.UnitTests` or integration project: valid, rejected and boundary cases (ENG-CODE-10), or not applicable
 - [ ] Errors fail fast and loud; no empty catch (ENG-CODE-04/05)
 - [ ] Entities and EF Core changes follow ENG-ENTITY / ENG-EF, or not applicable
-- [ ] Only `Guid` public ids in DTOs and routes, `long` keys inside; enums by name on the API, explicit numbers in the database (ENG-ID, ENG-ENUM), or not applicable
+- [ ] Only `Guid` public ids in DTOs and routes, `int` keys inside; enums by name on the API, explicit numbers in the database (ENG-ID, ENG-ENUM), or not applicable
 - [ ] Angular changes follow ENG-UI (standalone, signals, OnPush, Material, a11y) and reuse the project theme in `Theme Angular/` (ENG-UI-17), or not applicable
 - [ ] Definition of done met: built, tested, documented, README updated (ENG-PROC-02)

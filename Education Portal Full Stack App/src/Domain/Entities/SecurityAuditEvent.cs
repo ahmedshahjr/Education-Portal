@@ -24,10 +24,10 @@ public class SecurityAuditEvent
     public string? ActorUserId { get; init; }
 
     /// <summary>The actor's school, once schools exist (step 2b).</summary>
-    public long? ActorSchoolId { get; init; }
+    public int? ActorSchoolId { get; init; }
 
     /// <summary>The actor's current branch, once branches exist (step 2b).</summary>
-    public long? ActorBranchId { get; init; }
+    public int? ActorBranchId { get; init; }
 
     /// <summary>The kind of thing acted on, for example <c>User</c> or a request name.</summary>
     public string? TargetType { get; init; }

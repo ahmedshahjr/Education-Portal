@@ -6,4 +6,4 @@ public interface ITenantResolver
     Task<ResolvedTenant?> ResolveAsync(string host, CancellationToken cancellationToken);
 }
 
-public sealed record ResolvedTenant(long SchoolId, bool IsMaster);
+public sealed record ResolvedTenant(int SchoolId, bool IsMaster);

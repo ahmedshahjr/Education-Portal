@@ -42,7 +42,7 @@ public class KeyTranslationTests
     [Test]
     public void DashedNamesShouldMatchAzureAndGcpRules()
     {
-        var longest = SecretKey.ForTenant(long.MaxValue, "a" + new string('z', SecretKey.MaxNameLength - 1));
+        var longest = SecretKey.ForTenant(int.MaxValue, "a" + new string('z', SecretKey.MaxNameLength - 1));
         var name = AzureKeyVaultSecretProvider.ToSecretName(longest);
 
         // Azure Key Vault: 1-127 characters, letters, digits and dashes. Google Secret Manager: up to 255 characters,

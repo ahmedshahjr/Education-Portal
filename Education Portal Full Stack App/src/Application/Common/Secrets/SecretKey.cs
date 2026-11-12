@@ -19,7 +19,7 @@ public sealed partial record SecretKey
     public const string TenantPrefix = "tenants";
     public const int MaxNameLength = 63;
 
-    private SecretKey(long? tenantId, string name)
+    private SecretKey(int? tenantId, string name)
     {
         TenantId = tenantId;
         Name = name;
@@ -29,7 +29,7 @@ public sealed partial record SecretKey
     }
 
     /// <summary>The school a tenant secret belongs to, or <c>null</c> for a platform secret.</summary>
-    public long? TenantId { get; }
+    public int? TenantId { get; }
 
     /// <summary>The secret's name without its prefix, for example <c>sms-api-key</c>.</summary>
     public string Name { get; }
@@ -45,7 +45,7 @@ public sealed partial record SecretKey
     /// A tenant secret. Application code does not call this: it uses <c>ITenantSecretProvider</c>, which takes the
     /// school from the request's host (SEC-AUTHZ-04).
     /// </summary>
-    public static SecretKey ForTenant(long tenantId, string name)
+    public static SecretKey ForTenant(int tenantId, string name)
     {
         if (tenantId <= 0)
         {
@@ -69,7 +69,7 @@ public sealed partial record SecretKey
 
         if (parts is [TenantPrefix, var tenant, var tenantName]
             && TenantIdPattern().IsMatch(tenant)
-            && long.TryParse(tenant, NumberStyles.None, CultureInfo.InvariantCulture, out var tenantId))
+            && int.TryParse(tenant, NumberStyles.None, CultureInfo.InvariantCulture, out var tenantId))
         {
             return ForTenant(tenantId, tenantName);
         }
@@ -97,6 +97,6 @@ public sealed partial record SecretKey
     [GeneratedRegex("^[a-z][a-z0-9-]{0,62}$", RegexOptions.CultureInvariant)]
     private static partial Regex NamePattern();
 
-    [GeneratedRegex("^[1-9][0-9]{0,18}$", RegexOptions.CultureInvariant)]
+    [GeneratedRegex("^[1-9][0-9]{0,9}$", RegexOptions.CultureInvariant)]
     private static partial Regex TenantIdPattern();
 }

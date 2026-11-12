@@ -17,11 +17,11 @@ Based on Microsoft's guidance for [domain model entities](https://learn.microsof
 | ENG-ENTITY-04 | **Collections are read-only to the outside.** Expose `IReadOnlyCollection<T>` backed by a private `List<T>` field (`private readonly List<Assessment> _assessments = [];`) and change them through methods. EF Core maps the backing field. |
 | ENG-ENTITY-05 | **Value objects** for concepts defined by their values, not identity (email address, score, school domain name, date range). Inherit the template's `ValueObject` or use a `record`/`readonly record struct`, make them immutable and validate in the constructor. Map them as owned or complex types (ENG-EF-09). |
 | ENG-ENTITY-06 | **Nullable reference types reflect the model.** Required strings are non-nullable and initialised; optional ones are `string?`. Use `required` members or constructor parameters, not `= null!`, except for EF Core navigation properties that are always loaded with the entity. |
-| ENG-ENTITY-07 | **Tenant ownership.** Every school-owned entity has `long SchoolId`; branch-scoped entities also have `long BranchId` (AGENTS.md section 2, SEC-AUTHZ-03). Both are set once at creation (no public setter) and are never taken from client input. |
+| ENG-ENTITY-07 | **Tenant ownership.** Every school-owned entity has `int SchoolId`; branch-scoped entities also have `int BranchId` (AGENTS.md section 2, SEC-AUTHZ-03). Both are set once at creation (no public setter) and are never taken from client input. |
 | ENG-ENTITY-08 | **Time** is `DateTimeOffset` in UTC, obtained from an injected `TimeProvider` in the caller and passed into the entity method. Entities and services never call `DateTime.Now`, `DateTime.UtcNow` or `DateTimeOffset.Now`. Dates without time (birth date) use `DateOnly`. |
 | ENG-ENTITY-09 | **Domain events** for side effects other parts of the system react to (`StudentEnrolledEvent`). Name them in the past tense, inherit `BaseEvent`, raise them with `AddDomainEvent` inside the entity method, and keep them small (ids and the values that changed). Entities never call services directly. |
 | ENG-ENTITY-10 | **Enums** are singular (`EnrolmentStatus`) and follow the [identifiers-enums skill](../identifiers-enums/SKILL.md): an explicit number for every member (ENG-ENUM-02), stored as that number (ENG-ENUM-03), sent over the API by name (ENG-ENUM-01). `[Flags]` enums are plural and powers of two. |
-| ENG-ENTITY-11 | **Identity and equality.** Entities are equal by `Id`, value objects by value. Do not override `Equals` on entities to compare properties. Every entity has the internal `long Id` and the public `Guid PublicId` from `BaseEntity`; only the `Guid` leaves the server ([identifiers-enums](../identifiers-enums/SKILL.md), ENG-ID-01..03). |
+| ENG-ENTITY-11 | **Identity and equality.** Entities are equal by `Id`, value objects by value. Do not override `Equals` on entities to compare properties. Every entity has the internal `int Id` and the public `Guid PublicId` from `BaseEntity`; only the `Guid` leaves the server ([identifiers-enums](../identifiers-enums/SKILL.md), ENG-ID-01..03). |
 | ENG-ENTITY-12 | Keep entities persistence-ignorant but EF-friendly: no data annotations for mapping (`[Table]`, `[Column]`, `[MaxLength]`); put all mapping in `IEntityTypeConfiguration<T>` classes in `src/Infrastructure/Data/Configurations` (the template's `[NotMapped]` on `DomainEvents` is the only exception). |
 | ENG-ENTITY-13 | XML doc comments on public entity members that carry a business rule or a compliance reason (as in `SecurityAuditEvent`). Do not document the obvious. |
 
@@ -34,7 +34,7 @@ public class Enrolment : BaseAuditableEntity
 
     private Enrolment() { } // EF Core
 
-    public Enrolment(long schoolId, long branchId, long courseId, long studentId, DateTimeOffset enrolledAt)
+    public Enrolment(int schoolId, int branchId, int courseId, int studentId, DateTimeOffset enrolledAt)
     {
         SchoolId = Guard.Against.NegativeOrZero(schoolId);
         BranchId = Guard.Against.NegativeOrZero(branchId);
@@ -45,10 +45,10 @@ public class Enrolment : BaseAuditableEntity
         AddDomainEvent(new StudentEnrolledEvent(this));
     }
 
-    public long SchoolId { get; private set; }
-    public long BranchId { get; private set; }
-    public long CourseId { get; private set; }
-    public long StudentId { get; private set; }
+    public int SchoolId { get; private set; }
+    public int BranchId { get; private set; }
+    public int CourseId { get; private set; }
+    public int StudentId { get; private set; }
     public DateTimeOffset EnrolledAt { get; private set; }
     public EnrolmentStatus Status { get; private set; }
     public IReadOnlyCollection<Assessment> Assessments => _assessments.AsReadOnly();

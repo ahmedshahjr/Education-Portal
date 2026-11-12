@@ -14,7 +14,7 @@ public class BaseEntityTests
 
         school.PublicId.ShouldNotBe(Guid.Empty);
         school.PublicId.Version.ShouldBe(7);
-        school.Id.ShouldBe(0L);
+        school.Id.ShouldBe(0);
     }
 
     [Test]

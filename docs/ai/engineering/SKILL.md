@@ -55,7 +55,7 @@ The same checklist is in `.github/pull_request_template.md`. AI assistants that 
 - [ ] Tests describe behaviour and were written first for new logic (ENG-CODE-03, ENG-AGENT-05)
 - [ ] Errors fail fast and loud; no empty catch (ENG-CODE-04/05)
 - [ ] Entities and EF Core changes follow ENG-ENTITY / ENG-EF, or not applicable
-- [ ] Only `Guid` public ids in DTOs and routes, `long` keys inside; enums by name on the API, explicit numbers in the database (ENG-ID, ENG-ENUM), or not applicable
+- [ ] Only `Guid` public ids in DTOs and routes, `int` keys inside; enums by name on the API, explicit numbers in the database (ENG-ID, ENG-ENUM), or not applicable
 - [ ] Angular changes follow ENG-UI (standalone, signals, OnPush, Material, a11y) and reuse the project theme in `Theme Angular/` (ENG-UI-17), or not applicable
 - [ ] Definition of done met: built, tested, documented, README updated (ENG-PROC-02)
 ```
@@ -79,7 +79,7 @@ The cheap, mechanical rules are checked by `docs/ai/compliance-guard.py`, which 
 | `datetime-now` | ENG-ENTITY-08 | `DateTime.Now` / `DateTime.UtcNow` in `src/`; use `TimeProvider` and `DateTimeOffset` |
 | `enum-implicit-value` | ENG-ENUM-02 | An enum member without an explicit `= number` in `src/` |
 | `enum-stored-as-string` | ENG-ENUM-03 | `HasConversion<string>()` or `EnumToStringConverter` on an enum |
-| `int-key` | ENG-ID-01 | An `int Id` or `int ...Id` key property, or an `{id:int}` route, in `src/` |
+| `int-route` | ENG-ID-02 | An `{id:int}` (or `{...Id:int}`) route in `src/`: routes take the `Guid` public id |
 | `angular-ngmodule` | ENG-UI-01 | `@NgModule` or `standalone: false` in the Angular app |
 | `angular-legacy-control-flow` | ENG-UI-03 | `*ngIf`, `*ngFor`, `*ngSwitch` in templates; use `@if`, `@for`, `@switch` |
 

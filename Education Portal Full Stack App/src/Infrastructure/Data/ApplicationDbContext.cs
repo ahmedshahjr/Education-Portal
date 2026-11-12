@@ -34,7 +34,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<SchoolModule> SchoolModules => Set<SchoolModule>();
 
     // Read by the query filters on every query, so each request sees its own tenant (ENG-EF-10).
-    private long? CurrentSchoolId => _tenant.SchoolId;
+    private int? CurrentSchoolId => _tenant.SchoolId;
 
     private bool IsMasterTenant => _tenant.IsMaster;
 
@@ -55,7 +55,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
             .HasQueryFilter(m => IsMasterTenant || m.SchoolId == CurrentSchoolId);
 
         // Every entity's Guid PublicId is an alternate key (a unique constraint), the only identity the API exposes. The
-        // long Id stays the primary key for joins and foreign keys (ENG-ID-01, ENG-ID-02).
+        // int Id stays the primary key for joins and foreign keys (ENG-ID-01, ENG-ID-02).
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType) && entityType.BaseType is null)

@@ -19,7 +19,7 @@ public class BrandingImage : BaseAuditableEntity
         Version = string.Empty;
     }
 
-    public BrandingImage(long schoolId, BrandingImageKind kind, byte[] content)
+    public BrandingImage(int schoolId, BrandingImageKind kind, byte[] content)
         : this()
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(schoolId);
@@ -34,7 +34,7 @@ public class BrandingImage : BaseAuditableEntity
         Replace(content);
     }
 
-    public long SchoolId { get; private set; }
+    public int SchoolId { get; private set; }
 
     public BrandingImageKind Kind { get; private set; }
 

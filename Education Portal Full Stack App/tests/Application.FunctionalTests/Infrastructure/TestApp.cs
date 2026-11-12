@@ -31,7 +31,7 @@ public static class TestApp
 
     /// <summary>The master tenant, created again after each database reset.</summary>
     /// <summary>The master tenant's internal key, for the tenant and users in tests.</summary>
-    public static long MasterSchoolId { get; private set; }
+    public static int MasterSchoolId { get; private set; }
 
     /// <summary>The master tenant's public id, for API routes (ENG-ID-02).</summary>
     public static Guid MasterSchoolPublicId { get; private set; }
@@ -56,7 +56,7 @@ public static class TestApp
     }
 
     /// <summary>Makes <see cref="SendAsync{TResponse}"/> run as if the request came to this school's domain.</summary>
-    public static void UseTenant(long schoolId, bool isMaster = false) => _tenant = new ResolvedTenant(schoolId, isMaster);
+    public static void UseTenant(int schoolId, bool isMaster = false) => _tenant = new ResolvedTenant(schoolId, isMaster);
 
     /// <summary>Adds a school with its own domain and returns its id.</summary>
     public static async Task<EntityIds> AddSchoolAsync(string name, string domain)
@@ -75,7 +75,7 @@ public static class TestApp
     }
 
     /// <summary>Adds a school with its own domain in a country and returns its id.</summary>
-    public static async Task<EntityIds> AddSchoolAsync(string name, string domain, long countryId)
+    public static async Task<EntityIds> AddSchoolAsync(string name, string domain, int countryId)
     {
         var school = School.Create(name, domain);
         school.AssignCountry(countryId);
@@ -94,7 +94,7 @@ public static class TestApp
     }
 
     /// <summary>The internal key of the row with a public id (ENG-ID-03). Test helpers run as the master tenant, so the tenant filters do not hide it.</summary>
-    public static async Task<long> FindIdAsync<TEntity>(Guid publicId)
+    public static async Task<int> FindIdAsync<TEntity>(Guid publicId)
         where TEntity : EducationPortal.Domain.Common.BaseEntity
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
@@ -124,7 +124,7 @@ public static class TestApp
         RunAsUserAsync(MasterSchoolId, userName, password, roles);
 
     /// <summary>Creates a user of <paramref name="schoolId"/> and runs as that user, on that school's tenant.</summary>
-    public static async Task<string> RunAsUserAsync(long schoolId, string userName, string password, string[] roles)
+    public static async Task<string> RunAsUserAsync(int schoolId, string userName, string password, string[] roles)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
 
@@ -249,4 +249,4 @@ public static class TestApp
 /// The two identities of a row a test added (ENG-ID-01, ENG-ID-02): <see cref="Id"/> for the tenant and users set up in
 /// the test, <see cref="PublicId"/> for API routes and bodies, which never take the internal key.
 /// </summary>
-public sealed record EntityIds(long Id, Guid PublicId);
+public sealed record EntityIds(int Id, Guid PublicId);

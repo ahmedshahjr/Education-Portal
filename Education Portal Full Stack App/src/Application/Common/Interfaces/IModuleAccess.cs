@@ -7,8 +7,8 @@ namespace EducationPortal.Application.Common.Interfaces;
 public interface IModuleAccess
 {
     /// <summary>True when the module is switched on for the school. An unknown key is never on (fail closed).</summary>
-    Task<bool> IsEnabledAsync(long schoolId, string moduleKey, CancellationToken cancellationToken);
+    Task<bool> IsEnabledAsync(int schoolId, string moduleKey, CancellationToken cancellationToken);
 
     /// <summary>The keys of the modules switched on for the school.</summary>
-    Task<IReadOnlyList<string>> GetEnabledKeysAsync(long schoolId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<string>> GetEnabledKeysAsync(int schoolId, CancellationToken cancellationToken);
 }

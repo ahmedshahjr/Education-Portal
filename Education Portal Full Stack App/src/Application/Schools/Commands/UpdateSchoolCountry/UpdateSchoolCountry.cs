@@ -50,7 +50,7 @@ public class UpdateSchoolCountryCommandHandler : IRequestHandler<UpdateSchoolCou
         var school = await _context.Schools.FirstOrDefaultAsync(s => s.PublicId == request.SchoolId, cancellationToken);
         Guard.Against.NotFound(request.SchoolId, school);
 
-        long? countryId = request.CountryId is { } countryPublicId
+        int? countryId = request.CountryId is { } countryPublicId
             ? await _context.Countries.ResolveIdAsync(countryPublicId, cancellationToken)
             : null;
 

@@ -20,7 +20,7 @@ namespace EducationPortal.Web.Endpoints;
 
 /// <summary>
 /// Master portal: every school. Master tenant administrators only (SEC-AUTHZ-07). Schools and countries are named by
-/// their public <see cref="Guid"/>; the internal <c>long</c> keys never reach the API (ENG-ID-02).
+/// their public <see cref="Guid"/>; the internal <c>int</c> keys never reach the API (ENG-ID-02).
 /// </summary>
 public class Schools : IEndpointGroup
 {

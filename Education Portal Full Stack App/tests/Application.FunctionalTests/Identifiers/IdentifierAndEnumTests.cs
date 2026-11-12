@@ -14,7 +14,7 @@ namespace EducationPortal.Application.FunctionalTests.Identifiers;
 
 /// <summary>
 /// Keys and enums across the layers (identifiers-enums skill): the API shows only Guid public ids and refuses the internal
-/// long key (ENG-ID-02, ENG-ID-03); enums travel by name only (ENG-ENUM-01), are stored as numbers (ENG-ENUM-03) and have
+/// int key (ENG-ID-02, ENG-ID-03); enums travel by name only (ENG-ENUM-01), are stored as numbers (ENG-ENUM-03) and have
 /// a seeded lookup table that refuses an undefined number (ENG-ENUM-04).
 /// </summary>
 public class IdentifierAndEnumTests : TestBase
@@ -114,7 +114,7 @@ public class IdentifierAndEnumTests : TestBase
         foreach (var type in new[] { typeof(School), typeof(Country), typeof(PortalModule), typeof(SchoolModule), typeof(BrandingImage), typeof(SchoolRequest) })
         {
             var entity = context.Model.FindEntityType(type)!;
-            entity.FindPrimaryKey()!.Properties.Single().ClrType.ShouldBe(typeof(long), type.Name);
+            entity.FindPrimaryKey()!.Properties.Single().ClrType.ShouldBe(typeof(int), type.Name);
             entity.GetKeys().ShouldContain(k => !k.IsPrimaryKey() && k.Properties.Single().Name == "PublicId", type.Name);
         }
     }

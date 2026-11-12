@@ -8,7 +8,7 @@ namespace EducationPortal.Web.Services;
 /// </summary>
 public sealed class CurrentTenant : ICurrentTenant
 {
-    public long? SchoolId { get; private set; }
+    public int? SchoolId { get; private set; }
 
     public bool IsMaster { get; private set; }
 
