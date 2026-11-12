@@ -4,14 +4,18 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BrandingService } from '../../core/branding/branding.service';
+import { PAGE_RELOAD } from '../../core/i18n/locale.service';
 import { BrandingDto } from '../../web-api-client';
 import { localReturnUrl, LoginPage } from './login.page';
 
 describe('LoginPage', () => {
+  const reload = vi.fn();
+
   beforeEach(() => {
+    reload.mockReset();
     TestBed.configureTestingModule({
       imports: [LoginPage],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: PAGE_RELOAD, useValue: reload }],
     });
     TestBed.inject(BrandingService).apply(
       new BrandingDto({ schoolName: 'Demo School', isMaster: false, accentColor: '#00a1ff', sidebarColor: undefined, logoVersion: undefined, faviconVersion: undefined })
@@ -43,6 +47,51 @@ describe('LoginPage', () => {
       expect(element.querySelector('#login-error')?.textContent).toContain('Invalid email or password.');
     });
   });
+});
+
+describe('LoginPage language after sign-in', () => {
+  const reload = vi.fn();
+
+  beforeEach(() => {
+    reload.mockReset();
+    TestBed.configureTestingModule({
+      imports: [LoginPage],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: PAGE_RELOAD, useValue: reload }],
+    });
+  });
+
+  for (const [saved, reloads] of [['ur', true], ['en', false]] as const) {
+    it(`${reloads ? 'reloads' : 'does not reload'} when the account's saved language is ${saved}`, async () => {
+      const fixture = TestBed.createComponent(LoginPage);
+      await fixture.whenStable();
+      const element: HTMLElement = fixture.nativeElement;
+      const backend = TestBed.inject(HttpTestingController);
+
+      setValue(element, '#email', 'teacher@demo.localhost');
+      setValue(element, '#password', 'a long enough password');
+      element.querySelector<HTMLButtonElement>('button[type="submit"]')!.click();
+      backend.expectOne('/api/Users/login').flush(new Blob([JSON.stringify(true)], { type: 'application/json' }));
+
+      await vi.waitFor(() => {
+        for (const request of backend.match('/api/Users/me')) {
+          request.flush(new Blob([JSON.stringify({ userName: 'teacher@demo.localhost', roles: [] })], { type: 'application/json' }));
+        }
+        for (const request of backend.match('/api/Modules/enabled')) {
+          request.flush(new Blob([JSON.stringify([])], { type: 'application/json' }));
+        }
+        backend
+          .expectOne('/api/Localization')
+          .flush(new Blob([JSON.stringify({ language: saved, culture: saved, languages: [] })], { type: 'application/json' }));
+      });
+
+      if (reloads) {
+        await vi.waitFor(() => expect(reload).toHaveBeenCalledOnce());
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        expect(reload).not.toHaveBeenCalled();
+      }
+    });
+  }
 });
 
 describe('localReturnUrl', () => {

@@ -413,12 +413,12 @@ flowchart TB
     exc --> headers["Security headers"]
     headers --> tenant["UseTenantResolution<br/>host to school, unknown host = 404"]
     tenant --> tel["UseTenantTelemetry<br/>tenant.id on span and log scope"]
-    tel --> loc["UseTenantRequestLocalization<br/>culture from the school's languages"]
-    loc --> rate["Rate limiter"]
+    tel --> rate["Rate limiter"]
     rate --> files["Static files (Angular build)"]
     files --> authn["Authentication (Identity cookie)"]
     authn --> session["UseTenantSessionCheck<br/>cookie school must equal host school"]
-    session --> xsrf["Antiforgery token cookie"]
+    session --> loc["UseTenantRequestLocalization<br/>culture from the school's languages<br/>and the user's saved language"]
+    loc --> xsrf["Antiforgery token cookie"]
     xsrf --> authz["Authorization"]
     authz --> anti["Antiforgery validation"]
     anti --> ep["Endpoints: /api/*, /health, /alive,<br/>/openapi and /scalar in Development,<br/>fallback to index.html"]
@@ -600,8 +600,10 @@ Traces are sampled at 100% in Development and 10% elsewhere. Jaeger stays on 2.2
 
 ```mermaid
 flowchart TB
-    req(["Request, after tenant resolution"]) --> langs["School's languages<br/>from its country (none = English only)"]
-    langs --> cookie{"__Host-Culture cookie<br/>in the school's languages?"}
+    req(["Request, after tenant resolution<br/>and authentication"]) --> langs["School's languages<br/>from its country (none = English only)"]
+    langs --> saved{"Signed in, and the account's<br/>saved language (locale claim)<br/>in the school's languages?"}
+    saved -- yes --> pick
+    saved -- no --> cookie{"__Host-Culture cookie<br/>in the school's languages?"}
     cookie -- yes --> pick["Use it"]
     cookie -- no --> accept{"Accept-Language<br/>in the school's languages?"}
     accept -- yes --> pick
@@ -609,6 +611,9 @@ flowchart TB
     def --> pick
     pick --> culture["Culture = language + country, e.g. ur-PK<br/>server messages from .resx in src/Web/Resources"]
 ```
+
+- **The language follows the user.** Changing the language while signed in also saves it on the account (`AspNetUsers.PreferredLanguage`), so it applies on every device after sign-in; the sign-in page reloads into it when it differs. Before sign-in, the browser's cookie and languages decide.
+- **Time zones.** Dates are stored and sent as UTC. The Angular app sends the device's IANA time zone in an `X-Time-Zone` header with every request to its own server (`timeZoneInterceptor`, and `main.ts` for the first call). `IRequestTimeZone` gives handlers that zone, else the school's country zone, else UTC, for anything the server turns into text or a calendar day. `GET /api/Localization` returns it as `userTimeZone`, and screens show dates in it.
 
 ### Angular start-up flow
 
@@ -622,8 +627,8 @@ sequenceDiagram
     participant Api as webapi
     participant App as Angular app
     Br->>Main: load index.html and main.js
-    Main->>Api: GET /api/Localization (which language?)
-    Api-->>Main: language for this school and visitor
+    Main->>Api: GET /api/Localization (which language?)<br/>X-Time-Zone: device time zone
+    Api-->>Main: language for this school and visitor,<br/>school and user time zones
     Main->>Main: load /i18n/messages.{lang}.json,<br/>loadTranslations, set html lang and dir
     Main->>App: import App and bootstrapApplication (zoneless)
     par app initializer
@@ -634,7 +639,7 @@ sequenceDiagram
         Api-->>App: user and antiforgery token, or 401
     end
     App->>Br: first screen in the school's theme<br/>(login page when not signed in)
-    Note over App,Api: Later requests send the session cookie (sessionInterceptor)<br/>and X-XSRF-TOKEN on unsafe methods (antiforgeryInterceptor)
+    Note over App,Api: Later requests send the session cookie (sessionInterceptor),<br/>X-XSRF-TOKEN on unsafe methods (antiforgeryInterceptor)<br/>and X-Time-Zone (timeZoneInterceptor)
 ```
 
 ### NSwag API client generation flow

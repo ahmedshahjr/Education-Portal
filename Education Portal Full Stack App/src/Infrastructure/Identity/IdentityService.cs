@@ -48,6 +48,25 @@ public class IdentityService : IIdentityService
         return (result.ToApplicationResult(), user.Id);
     }
 
+    public async Task<Result> SetPreferredLanguageAsync(string userId, string language)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            return Result.Failure(["The user does not exist."]);
+        }
+
+        if (string.Equals(user.PreferredLanguage, language, StringComparison.Ordinal))
+        {
+            return Result.Success();
+        }
+
+        user.PreferredLanguage = language;
+
+        return (await _userManager.UpdateAsync(user)).ToApplicationResult();
+    }
+
     public async Task<bool> IsInRoleAsync(string userId, string role)
     {
         var user = await _userManager.FindByIdAsync(userId);

@@ -28,4 +28,7 @@ public interface IIdentityService
     Task SignOutAsync(string userId);
 
     Task<CurrentUserDto?> GetCurrentUserAsync(string userId);
+
+    /// <summary>Saves the user's language on their account, so it follows them to other devices.</summary>
+    Task<Result> SetPreferredLanguageAsync(string userId, string language);
 }

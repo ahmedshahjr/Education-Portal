@@ -9,4 +9,10 @@ public class ApplicationUser : IdentityUser
     /// it as a claim that must match the domain on every request (AGENTS.md section 2).
     /// </summary>
     public int SchoolId { get; set; }
+
+    /// <summary>
+    /// The language the user last chose (ISO 639-1), or null when they never chose one. Saved on the account, so it
+    /// follows them to every device; used only while the school offers it (ADR-005).
+    /// </summary>
+    public string? PreferredLanguage { get; set; }
 }

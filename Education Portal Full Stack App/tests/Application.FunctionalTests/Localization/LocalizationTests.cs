@@ -17,12 +17,16 @@ public class LocalizationTests : TestBase
     private const string UaeDomain = "ae.localhost";
     private const string NoCountryDomain = "plain.localhost";
 
+    private const string TeacherEmail = "teacher@pk.local";
+
+    private int _pakistanSchoolId;
+
     [SetUp]
     public async Task AddSchools()
     {
         var pakistan = await TestApp.AddCountryAsync("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR");
         var uae = await TestApp.AddCountryAsync("AE", "United Arab Emirates", ["en", "ar"], "ar", "Asia/Dubai", "AED");
-        await TestApp.AddSchoolAsync("Lahore School", PakistanDomain, pakistan.Id);
+        _pakistanSchoolId = (await TestApp.AddSchoolAsync("Lahore School", PakistanDomain, pakistan.Id)).Id;
         await TestApp.AddSchoolAsync("Dubai School", UaeDomain, uae.Id);
         await TestApp.AddSchoolAsync("Plain School", NoCountryDomain);
     }
@@ -194,6 +198,81 @@ public class LocalizationTests : TestBase
         var localization = await ReadAsync(session);
         localization.Languages.Select(l => l.Code).ShouldBe(["ur"]);
         localization.Language.ShouldBe("ur");
+    }
+
+    [Test]
+    public async Task ShouldFollowTheSignedInUserToAnotherDevice()
+    {
+        await TestApp.RunAsUserAsync(_pakistanSchoolId, TeacherEmail, TestApp.AdministratorPassword, []);
+
+        using (var laptop = TestHttp.CreateDevelopmentSession(PakistanDomain))
+        {
+            (await laptop.SignInAsync(TeacherEmail, TestApp.AdministratorPassword)).Dispose();
+            using var changed = await laptop.PutAsync("/api/Localization/language", new { language = "ur" });
+            changed.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        }
+
+        // A new browser with no language cookie and an English browser language.
+        using var phone = TestHttp.CreateDevelopmentSession(PakistanDomain);
+        phone.SetHeader("Accept-Language", "en");
+        (await ReadAsync(phone)).Language.ShouldBe("en"); // before sign-in the account is unknown
+
+        (await phone.SignInAsync(TeacherEmail, TestApp.AdministratorPassword)).Dispose();
+
+        (await ReadAsync(phone)).Language.ShouldBe("ur");
+    }
+
+    [Test]
+    public async Task ShouldPreferTheUsersSavedLanguageOverThisBrowsersCookie()
+    {
+        await TestApp.RunAsUserAsync(_pakistanSchoolId, TeacherEmail, TestApp.AdministratorPassword, []);
+
+        using var session = TestHttp.CreateDevelopmentSession(PakistanDomain);
+        (await session.SignInAsync(TeacherEmail, TestApp.AdministratorPassword)).Dispose();
+        (await session.PutAsync("/api/Localization/language", new { language = "ur" })).Dispose();
+
+        // An older cookie from before, for example after the user changed the language on another device.
+        session.SetCookie("__Host-Culture", Uri.EscapeDataString("c=en|uic=en"));
+
+        (await ReadAsync(session)).Language.ShouldBe("ur");
+    }
+
+    [Test]
+    public async Task ShouldIgnoreASavedLanguageTheSchoolNoLongerOffers()
+    {
+        await TestApp.RunAsUserAsync(_pakistanSchoolId, TeacherEmail, TestApp.AdministratorPassword, []);
+
+        using var session = TestHttp.CreateDevelopmentSession(PakistanDomain);
+        (await session.SignInAsync(TeacherEmail, TestApp.AdministratorPassword)).Dispose();
+        (await session.PutAsync("/api/Localization/language", new { language = "ur" })).Dispose();
+
+        await using (var scope = FunctionalTestSetup.ScopeFactory.CreateAsyncScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<EducationPortal.Infrastructure.Data.ApplicationDbContext>();
+            var pakistan = await context.Countries.SingleAsync(c => c.Code == "PK");
+            pakistan.Update("Pakistan", ["en"], "en", "Asia/Karachi", "PKR");
+            await context.SaveChangesAsync();
+        }
+
+        (await ReadAsync(session)).Language.ShouldBe("en");
+    }
+
+    [TestCase(PakistanDomain, "Asia/Dubai", "Asia/Dubai")] // the caller's own time zone wins
+    [TestCase(PakistanDomain, null, "Asia/Karachi")] // else the school's country
+    [TestCase(PakistanDomain, "Not/AZone", "Asia/Karachi")] // an unknown value is ignored
+    [TestCase(PakistanDomain, "Pakistan Standard Time", "Asia/Karachi")] // only IANA ids are accepted
+    [TestCase(NoCountryDomain, null, "UTC")] // no country: UTC
+    public async Task ShouldUseTheCallersTimeZoneElseTheSchools(string domain, string? header, string expected)
+    {
+        using var session = TestHttp.CreateDevelopmentSession(domain);
+        if (header is not null)
+        {
+            session.SetHeader("X-Time-Zone", header);
+        }
+
+        var localization = await ReadAsync(session);
+
+        localization.UserTimeZone.ShouldBe(expected);
     }
 
     private static async Task<LocalizationDto> ReadAsync(HttpSession session)
