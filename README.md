@@ -760,6 +760,7 @@ All engineering skills in the repository (generated from `docs/ai/engineering/` 
 | [design-principles](docs/ai/engineering/design-principles/SKILL.md) | Topic | .NET design guidelines (current on Learn); Architect Modern Web Applications with ASP.NET Core and Azure (current edition on Learn) |
 | [efcore](docs/ai/engineering/efcore/SKILL.md) | Topic | EF Core 10; Npgsql.EntityFrameworkCore.PostgreSQL 10; dotnet/skills plugins/dotnet-data (main) |
 | [identifiers-enums](docs/ai/engineering/identifiers-enums/SKILL.md) | Topic | EF Core 10; .NET design guidelines (current on Learn); ASP.NET Core 10; Azure Architecture Center API design guidance (current on Learn) |
+| [localization-i18n](docs/ai/engineering/localization-i18n/SKILL.md) | Topic | Microsoft Learn Globalization docs (current on Learn); Engineering playbook (main); .NET 10; ASP.NET Core 10; Angular v22 guide (adev/src/content/guide/i18n); Article as read on 2026-11-12 |
 <!-- END GENERATED: engineering skills -->
 
 ### Roadmap
