@@ -60,6 +60,29 @@ public class TenantModule : BaseAuditableEntity
     /// <summary>Switches a suspended module back on.</summary>
     public void Reactivate() => Status = TenantModuleStatus.Active;
 
+    /// <summary>Ends the module's grant now (removed from the subscription). The row is kept for audit.</summary>
+    public void Expire(DateTimeOffset now)
+    {
+        Status = TenantModuleStatus.Expired;
+
+        if (ValidTo is null || ValidTo > now)
+        {
+            ValidTo = now > ValidFrom ? now : ValidFrom.AddTicks(1);
+        }
+    }
+
+    /// <summary>Gives an expired or suspended grant back until <paramref name="validTo"/> (the module is on the subscription again).</summary>
+    public void Restore(DateTimeOffset validTo)
+    {
+        if (validTo <= ValidFrom)
+        {
+            throw new ArgumentException("A module is valid for a period that ends after it starts.", nameof(validTo));
+        }
+
+        Status = TenantModuleStatus.Active;
+        ValidTo = validTo;
+    }
+
     /// <summary>Moves the end of the module's validity later (a paid renewal). It never shortens it.</summary>
     public void ExtendTo(DateTimeOffset validTo)
     {

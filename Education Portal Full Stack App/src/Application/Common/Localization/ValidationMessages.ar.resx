@@ -66,4 +66,13 @@
   <data name="SchoolDomainTaken" xml:space="preserve"><value>تستخدم مدرسة أخرى هذا النطاق بالفعل.</value></data>
   <data name="EmailTaken" xml:space="preserve"><value>يستخدم حساب آخر هذا البريد الإلكتروني بالفعل.</value></data>
   <data name="NewPasswordSameAsCurrent" xml:space="preserve"><value>يجب أن تختلف كلمة المرور الجديدة عن الحالية.</value></data>
+  <data name="SubscriptionCannotBeSuspended" xml:space="preserve"><value>الاشتراك معلّق بالفعل.</value></data>
+  <data name="SubscriptionCannotBeReactivated" xml:space="preserve"><value>لا يمكن إعادة تفعيل إلا الاشتراك المعلّق أو المتأخر السداد.</value></data>
+  <data name="ModuleAlreadyInSubscription" xml:space="preserve"><value>الاشتراك يتضمن هذه الوحدة بالفعل.</value></data>
+  <data name="ModuleNotInSubscription" xml:space="preserve"><value>هذه الوحدة ليست إضافة في الاشتراك.</value></data>
+  <data name="ModuleStillIncluded" xml:space="preserve"><value>ما زالت الباقة أو وحدة أخرى في الاشتراك تتضمن هذه الوحدة، لذا لا يمكن إزالتها.</value></data>
+  <data name="SubscriptionCurrencyMismatch" xml:space="preserve"><value>عملة قائمة الأسعار تختلف عن عملة الاشتراك.</value></data>
+  <data name="SubscriptionNeededForAddOn" xml:space="preserve"><value>تحتاج المدرسة إلى اشتراك قبل طلب إضافة.</value></data>
+  <data name="AddOnRequestPending" xml:space="preserve"><value>يوجد طلب لهذه الوحدة بانتظار القرار.</value></data>
+  <data name="AddOnRequestNotPending" xml:space="preserve"><value>لا يمكن الموافقة أو الرفض إلا على الطلب المعلّق.</value></data>
 </root>

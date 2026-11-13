@@ -18,7 +18,7 @@ A multi-tenant **Education Portal** for schools, built as an **MVP**. Prefer the
 
 - **Core entities:** School (tenant), Branch, Student, Teacher, Parent, Admin/staff user, Course, Enrolment, Grade.
 - **Architecture:** one Clean Architecture solution (modular monolith hosted by Aspire), same shape as the template. **Not microservices** for the MVP.
-- **Frontend:** Angular with Angular Material. The maintainer's theme in `Theme Angular/` (repo root) is the guide for every screen and component: reuse its components, styles and `--mm-*` tokens before building anything new (ENG-UI-17, decided 2026-11-10).
+- **Frontend:** Angular with Angular Material. The maintainer's theme in `Theme Angular/` (repo root) is the guide for every screen and component: reuse its components, styles and `--mm-*` tokens before building anything new (ENG-UI-17, decided 2026-11-10). Every component keeps its template and styles in external files, `templateUrl` and `styleUrl` (ENG-UI-18, decided 2026-11-13).
 - **Database:** **PostgreSQL only** (decided 2026-11-09), one shared database for all schools. SQL Server and SQLite code from the template is removed; do not add it back.
 
 ## 2. Multi-tenancy and permissions
@@ -89,7 +89,9 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 
    **Billing** (phase 5, [ADR-013](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-013-Invoices-And-Manual-Payments.md)): the master issues an `Invoice` (with `InvoiceLine`s) for a subscription period, copying amount, currency and the tax rate (the school's `TaxRateOverride` if set, else the country's `PriceBook.TaxRate`); one open invoice per subscription, a period invoiced once. The master records a manual `Payment` (bank transfer, cash, cheque, wallet) for the whole total through `IPaymentProvider` (only `ManualPaymentProvider` today; no card or gateway, PCI skill applies if one is added), the invoice becomes Paid and `Subscription.ApplyPayment` activates or extends the subscription and its modules in the same save. API, master only: `/api/Invoices` (list, issue), `/api/Invoices/{id}` (get), `/api/Invoices/{id}/payments`, `/api/Invoices/{id}/void`; the country's tax rate is set with `PUT /api/PriceBooks/{id}` and a school's own with `PUT /api/Schools/{id}/tax-rate`.
 
-   Master-only areas (not tenant modules): Schools, module switches per school, countries and their languages, and the cross-school overview.
+   **Subscription management and add-on requests** (phase 6, [ADR-014](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-014-Subscription-Management-And-Add-On-Requests.md)): the master suspends, reactivates, extends (1 to 366 days, no payment), changes the plan and adds or removes add-on modules under `/api/Schools/{id}/subscription/...` (`suspend`, `reactivate`, `extend`, `plan`, `modules`); all go through `SubscriptionChanges` and `Subscription.Reconfigure`, take effect at once with no proration, expire (never delete) modules that leave, and are audited as `SubscriptionChanged`. A school administrator reads `GET /api/Subscriptions/mine` and asks for a paid module with `POST /api/AddOnRequests` (`AddOnRequest`, one pending per module); the master lists, approves (adds the module) or rejects them under `/api/AddOnRequests`.
+
+Master-only areas (not tenant modules): Schools, module switches per school, countries and their languages, and the cross-school overview.
 2. **Roles per school (owner controls):** each school owner creates roles with **View / Create / Edit / Delete** rights per module.
 3. **Branches per user:** each staff user is assigned to one or more branches and can only act on data in those branches.
 4. **Fixed rules:** teachers grade only their own courses; parents see only their own children; students and parents have read-only access.

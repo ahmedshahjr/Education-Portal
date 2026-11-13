@@ -13,7 +13,7 @@ public static class EnumLookupTables
     /// tests (Respawn) leaves them alone.
     /// </summary>
     public static IReadOnlyList<string> Tables { get; } =
-        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes", "BillingCycles", "SubscriptionStatuses", "TenantModuleStatuses", "DataRegions", "InvoiceStatuses", "PaymentMethods"];
+        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes", "BillingCycles", "SubscriptionStatuses", "TenantModuleStatuses", "DataRegions", "InvoiceStatuses", "PaymentMethods", "AddOnRequestStatuses"];
 
     internal static void Configure(ModelBuilder builder)
     {
@@ -28,6 +28,7 @@ public static class EnumLookupTables
         Map<School, DataRegion?>(builder, Tables[8], s => s.DataRegion);
         Map<Invoice, InvoiceStatus>(builder, Tables[9], i => i.Status);
         Map<Payment, PaymentMethod>(builder, Tables[10], p => p.Method);
+        Map<AddOnRequest, AddOnRequestStatus>(builder, Tables[11], r => r.Status);
 
         // More columns of an enum that already has its lookup table.
         Reference<Subscription, BillingCycle>(builder, s => s.BillingCycle);

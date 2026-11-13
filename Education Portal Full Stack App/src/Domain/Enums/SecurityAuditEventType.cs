@@ -101,4 +101,13 @@ public enum SecurityAuditEventType
 
     /// <summary>A user changed their password (including replacing a one-time password).</summary>
     PasswordChanged = 35,
+
+    /// <summary>The master tenant suspended, reactivated, extended or changed a school's subscription or its modules.</summary>
+    SubscriptionChanged = 36,
+
+    /// <summary>A school administrator asked for an add-on module.</summary>
+    AddOnRequested = 37,
+
+    /// <summary>The master tenant approved or rejected an add-on request.</summary>
+    AddOnRequestDecided = 38,
 }

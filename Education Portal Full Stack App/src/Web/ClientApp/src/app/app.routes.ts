@@ -35,9 +35,19 @@ export const routes: Routes = [
           import('./features/branding/branding-settings.page').then((m) => m.BrandingSettingsPage),
       },
       {
+        path: 'subscription',
+        canActivate: [administratorGuard],
+        loadComponent: () => import('./features/subscription/my-subscription.page').then((m) => m.MySubscriptionPage),
+      },
+      {
         path: 'schools',
         canActivate: [masterAdministratorGuard],
         loadComponent: () => import('./features/schools/schools.page').then((m) => m.SchoolsPage),
+      },
+      {
+        path: 'add-on-requests',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () => import('./features/add-on-requests/add-on-requests.page').then((m) => m.AddOnRequestsPage),
       },
       {
         path: 'countries',

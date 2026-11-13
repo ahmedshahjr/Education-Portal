@@ -53,3 +53,16 @@ public class TenantModuleConfiguration : IEntityTypeConfiguration<TenantModule>
         builder.HasIndex(m => m.BranchId);
     }
 }
+
+public class AddOnRequestConfiguration : IEntityTypeConfiguration<AddOnRequest>
+{
+    public void Configure(EntityTypeBuilder<AddOnRequest> builder)
+    {
+        builder.HasOne<School>().WithMany().HasForeignKey(r => r.SchoolId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PortalModule>().WithMany().HasForeignKey(r => r.ModuleId).OnDelete(DeleteBehavior.Restrict);
+
+        // A school has at most one pending request per module (Pending = 1).
+        builder.HasIndex(r => new { r.SchoolId, r.ModuleId }).IsUnique().HasFilter("\"Status\" = 1");
+        builder.HasIndex(r => r.ModuleId);
+    }
+}
