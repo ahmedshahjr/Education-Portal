@@ -38,7 +38,7 @@ internal static class ObservabilityStack
                 "--storage.tsdb.path=/prometheus",
                 "--storage.tsdb.retention.time=7d",
                 "--web.enable-otlp-receiver")
-            .WithHttpEndpoint(port: 9090, targetPort: 9090, name: "http")
+            .WithHttpEndpoint(port: LocalPorts.Prometheus, targetPort: 9090, name: "http")
             .WithHttpHealthCheck("/-/ready");
 
         var loki = builder.AddContainer(Services.Loki, LokiImage, LokiTag)
@@ -46,7 +46,7 @@ internal static class ObservabilityStack
             .WithBindMount($"{ConfigDirectory}/loki.yaml", "/etc/loki/loki.yaml", isReadOnly: true)
             .WithVolume("educationportal-loki-data", "/loki")
             .WithArgs("-config.file=/etc/loki/loki.yaml")
-            .WithHttpEndpoint(port: 3100, targetPort: 3100, name: "http")
+            .WithHttpEndpoint(port: LocalPorts.Loki, targetPort: 3100, name: "http")
             .WithHttpHealthCheck("/ready");
 
         // The Jaeger image declares /tmp as its data volume; Badger keeps traces there.
@@ -55,8 +55,8 @@ internal static class ObservabilityStack
             .WithBindMount($"{ConfigDirectory}/jaeger.yaml", "/etc/jaeger/config.yaml", isReadOnly: true)
             .WithVolume("educationportal-jaeger-data", "/tmp")
             .WithArgs("--config", "/etc/jaeger/config.yaml")
-            .WithHttpEndpoint(port: 16686, targetPort: 16686, name: "http")
-            .WithEndpoint(targetPort: 4317, name: "otlp", scheme: "http")
+            .WithHttpEndpoint(port: LocalPorts.JaegerUi, targetPort: 16686, name: "http")
+            .WithEndpoint(port: LocalPorts.JaegerOtlp, targetPort: 4317, name: "otlp", scheme: "http")
             .WithHttpHealthCheck("/", endpointName: "http");
 
         // The dashboard's OTLP endpoint is plain HTTP with the "http" launch profile and HTTPS with "https".
@@ -67,9 +67,9 @@ internal static class ObservabilityStack
         var collector = builder.AddContainer(Services.OtelCollector, CollectorImage, CollectorTag)
             .WithBindMount($"{ConfigDirectory}/otel-collector.yaml", "/etc/otelcol/config.yaml", isReadOnly: true)
             .WithArgs("--config=/etc/otelcol/config.yaml")
-            .WithEndpoint(port: 4317, targetPort: 4317, name: "grpc", scheme: "http")
-            .WithEndpoint(port: 4318, targetPort: 4318, name: "http", scheme: "http")
-            .WithHttpEndpoint(targetPort: 13133, name: "health")
+            .WithEndpoint(port: LocalPorts.CollectorGrpc, targetPort: 4317, name: "grpc", scheme: "http")
+            .WithEndpoint(port: LocalPorts.CollectorHttp, targetPort: 4318, name: "http", scheme: "http")
+            .WithHttpEndpoint(port: LocalPorts.CollectorHealth, targetPort: 13133, name: "health")
             .WithHttpHealthCheck("/", endpointName: "health")
             .WithEnvironment("PROMETHEUS_OTLP_ENDPOINT", ReferenceExpression.Create($"{prometheus.GetEndpoint("http")}/api/v1/otlp"))
             .WithEnvironment("LOKI_OTLP_ENDPOINT", ReferenceExpression.Create($"{loki.GetEndpoint("http")}/otlp"))
@@ -93,6 +93,8 @@ internal static class ObservabilityStack
             .WaitFor(loki)
             .WaitFor(jaeger);
 
+        // Host port 13000, not Grafana's default 3000: a persistent container binds its host port directly, so when
+        // another tool on the machine already holds 3000 the container cannot start (Aspire shows "Failed to start").
         // Anonymous admin with no sign-in form: safe only because this container runs locally (SEC-CFG-01).
         builder.AddContainer(Services.Grafana, GrafanaImage, GrafanaTag)
             .WithLifetime(ContainerLifetime.Persistent)
@@ -107,7 +109,7 @@ internal static class ObservabilityStack
             .WithEnvironment("PROMETHEUS_URL", prometheus.GetEndpoint("http"))
             .WithEnvironment("LOKI_URL", loki.GetEndpoint("http"))
             .WithEnvironment("JAEGER_URL", jaeger.GetEndpoint("http"))
-            .WithHttpEndpoint(port: 3000, targetPort: 3000, name: "http")
+            .WithHttpEndpoint(port: LocalPorts.Grafana, targetPort: 3000, name: "http")
             .WithHttpHealthCheck("/api/health")
             .WaitFor(prometheus)
             .WaitFor(loki)

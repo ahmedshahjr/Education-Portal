@@ -280,13 +280,13 @@ flowchart LR
 
 | Resource | Source | What it does |
 |---|---|---|
-| `webfrontend` | `src/Web/ClientApp` | Runs `npm start` (`ng serve`) on a port Aspire picks. Development only. |
+| `webfrontend` | `src/Web/ClientApp` | Runs `npm start` (`ng serve`); open it on `http://localhost:14200`. Development only. |
 | `webapi` | `src/Web` | The API. Also serves the Scalar API reference at `/scalar` and, in production, the built Angular app. |
-| `dbserver` | Container | PostgreSQL with the `EducationPortalDb` database. The container is persistent: it keeps running after you stop the app, until you stop it in Docker Desktop. |
+| `dbserver` | Container | PostgreSQL with the `EducationPortalDb` database, on host port `15432`. The container is persistent: it keeps running after you stop the app, until you stop it in Docker Desktop. |
 | `vault` | Container | HashiCorp Vault in dev mode on `http://localhost:8200`, the local secret store ([secrets](#secrets)). Persistent like `dbserver`, but its data lives in memory. Development only. |
 | `otel-collector` | Container | OpenTelemetry Collector on `localhost:4317` (gRPC) and `4318` (HTTP). The API's only telemetry endpoint; forwards to Prometheus, Loki, Jaeger and the Aspire dashboard ([observability](#observability)). Development only. |
-| `prometheus`, `loki`, `jaeger` | Containers | Metrics on `http://localhost:9090`, logs on `http://localhost:3100`, traces on `http://localhost:16686`. Persistent, with named volumes and 7 days of data. Development only. |
-| `grafana` | Container | Dashboards on `http://localhost:3000` (anonymous admin, local only), with the three data sources and the **Education Portal overview** dashboard provisioned. Development only. |
+| `prometheus`, `loki`, `jaeger` | Containers | Metrics on `http://localhost:9090`, logs on `http://localhost:3100`, traces on `http://localhost:16686` (Jaeger's own OTLP port on `14317`). Persistent, with named volumes and 7 days of data. Development only. |
+| `grafana` | Container | Dashboards on `http://localhost:13000` (anonymous admin, local only), with the three data sources and the **Education Portal overview** dashboard provisioned. Development only. |
 
 Every local container is declared in the AppHost as an Aspire resource. The project has no docker-compose files (AGENTS.md section 6).
 
@@ -488,7 +488,7 @@ The scripts read the token from the AppHost's user-secrets (or `VAULT_TOKEN`) an
 
 ### Observability
 
-The API sends OpenTelemetry logs, metrics and traces over OTLP to one endpoint, `Observability:OtlpEndpoint` ([ADR-007](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-007-OpenTelemetry-Observability.md)), so the backend can change by configuration alone. Locally that is the `otel-collector` container, which forwards metrics to Prometheus, logs to Loki, traces to Jaeger and a copy of everything to the Aspire dashboard. Grafana (`http://localhost:3000`) links a trace to its logs and back by trace id, and its **Education Portal overview** dashboard shows request rate, error rate, p95 latency, the slowest endpoints and the vault cache hit ratio. Every request span and log line carries `tenant.id` (the SchoolId); EF Core and PostgreSQL calls show up in the traces. How to start it, the walkthrough, what must never be recorded and how to add a span or metric are in [docs/observability.md](Education%20Portal%20Full%20Stack%20App/docs/observability.md). `ServiceDefaults` adds resilience and service discovery to `HttpClient` and maps the health endpoints `/health` and `/alive` (Development only). Security-relevant actions, such as sign-ins, role and module changes and cross-tenant attempts, will also write audit events.
+The API sends OpenTelemetry logs, metrics and traces over OTLP to one endpoint, `Observability:OtlpEndpoint` ([ADR-007](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-007-OpenTelemetry-Observability.md)), so the backend can change by configuration alone. Locally that is the `otel-collector` container, which forwards metrics to Prometheus, logs to Loki, traces to Jaeger and a copy of everything to the Aspire dashboard. Grafana (`http://localhost:13000`) links a trace to its logs and back by trace id, and its **Education Portal overview** dashboard shows request rate, error rate, p95 latency, the slowest endpoints and the vault cache hit ratio. Every request span and log line carries `tenant.id` (the SchoolId); EF Core and PostgreSQL calls show up in the traces. How to start it, the walkthrough, what must never be recorded and how to add a span or metric are in [docs/observability.md](Education%20Portal%20Full%20Stack%20App/docs/observability.md). `ServiceDefaults` adds resilience and service discovery to `HttpClient` and maps the health endpoints `/health` and `/alive` (Development only). Security-relevant actions, such as sign-ins, role and module changes and cross-tenant attempts, will also write audit events.
 
 ### Tests
 
@@ -1008,11 +1008,12 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | Aspire dashboard | `https://educationportal.dev.localhost:17080` (the console prints a sign-in link) |
 | API (`webapi`) | `https://localhost:7052` and `http://localhost:5132` |
 | API reference and health (in Development) | Scalar at `/scalar`, the OpenAPI document at `/openapi/v1.json`, health at `/health` and `/alive` |
-| Angular app (`webfrontend`) | A port chosen by Aspire. Open it from the dashboard. |
+| Angular app (`webfrontend`) | `http://localhost:14200` (master tenant) or `http://demo.localhost:14200` (Demo School) |
 | Database connection | Passed in by Aspire as `ConnectionStrings__EducationPortalDb` |
 | Development seed accounts | `administrator@localhost` (master tenant, on `localhost`), `administrator@demo.localhost` (Demo School, Pakistan, on `demo.localhost`), `administrator@uae.localhost` (Demo School UAE, on `uae.localhost`) and `administrator@usa.localhost` (Demo School USA, on `usa.localhost`), password `Local-Dev-Only-2026!` (local database, Development only) |
 | Allowed hosts | `localhost` and `*.localhost` in Development (`AllowedHosts`); each school's domain is added when it is deployed |
-| Observability | `Observability:OtlpEndpoint` (set to the local Collector by Aspire), `TraceSampleRatio` (1.0 in Development, 0.1 elsewhere), `TenantIdAsMetricLabel` (off), `Enabled`. Grafana `http://localhost:3000`, Prometheus `http://localhost:9090`, Jaeger `http://localhost:16686`, Loki `http://localhost:3100`, Collector `localhost:4317`/`4318` ([docs/observability.md](Education%20Portal%20Full%20Stack%20App/docs/observability.md)) |
+| Observability | `Observability:OtlpEndpoint` (set to the local Collector by Aspire), `TraceSampleRatio` (1.0 in Development, 0.1 elsewhere), `TenantIdAsMetricLabel` (off), `Enabled`. Grafana `http://localhost:13000`, Prometheus `http://localhost:9090`, Jaeger `http://localhost:16686`, Loki `http://localhost:3100`, Collector `localhost:4317`/`4318` ([docs/observability.md](Education%20Portal%20Full%20Stack%20App/docs/observability.md)) |
+| Fixed local ports | Every resource keeps the same port on every restart; all of them live in `src/AppHost/LocalPorts.cs` (no two share a port). `webfrontend` 14200, `webapi` 7052 (https) and 5132 (http), `dbserver` 15432, `vault` 8200, `otel-collector` 4317 (gRPC), 4318 (HTTP) and 13133 (health), `prometheus` 9090, `loki` 3100, `jaeger` 16686 (UI) and 14317 (OTLP), `grafana` 13000. Defaults that other tools often hold (3000, 4200, 5432) have 10000 added. |
 | Secrets | `Secrets:Provider` selects the store ([secrets](#secrets)). Locally Aspire runs HashiCorp Vault on `http://localhost:8200` and sets it up for you. Store credentials come from environment variables or user-secrets; never put secrets in `appsettings*.json` or any other file in the repository. |
 
 ## Troubleshooting
@@ -1021,6 +1022,7 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 |---|---|
 | `webfrontend` exits with code 3 | Upgrade Node.js to 22.22.3+ or 24.15+, then run `npm install` again. |
 | `dbserver` never becomes healthy | Start Docker Desktop and wait until it says it is running. |
+| A container shows **Failed to start** in the dashboard | Its host port is probably taken by another program. On Windows run `netstat -ano | findstr :<port>` to find it; stop that program or change the port in `src/AppHost/LocalPorts.cs`. |
 | Build fails on a warning | Warnings are errors in this solution; fix the warning. |
 | "A compatible .NET SDK was not found" | Install .NET SDK 10.0.403 or newer (see `global.json`), or update Visual Studio. |
 | Certificate warning in the browser, or the dashboard won't open | Run `dotnet dev-certs https --trust` once and restart the app. |

@@ -24,7 +24,7 @@ aspire run                                 # or: dotnet run --project src/AppHos
 
 | What | Local URL | Notes |
 |---|---|---|
-| Grafana | http://localhost:3000 | Anonymous admin, local only. Dashboard: **Education Portal > Education Portal overview** |
+| Grafana | http://localhost:13000 | Anonymous admin, local only. Dashboard: **Education Portal > Education Portal overview** |
 | Prometheus | http://localhost:9090 | Receives OTLP at `/api/v1/otlp` |
 | Jaeger UI | http://localhost:16686 | Service `webapi` |
 | Loki | http://localhost:3100 | API only; browse logs in Grafana (Explore > Loki) |
@@ -57,7 +57,7 @@ curl -s -G http://localhost:3100/loki/api/v1/query_range --data-urlencode 'query
 ## Walkthrough: from a request to its trace and logs
 
 1. Open the Angular app from the Aspire dashboard and click around, or run the `curl` loop above.
-2. Open Grafana at http://localhost:3000 > **Dashboards > Education Portal > Education Portal overview**. Request rate, error rate and p95 latency are at the top; the **Top 10 slow endpoints** table shows the slowest routes.
+2. Open Grafana at http://localhost:13000 > **Dashboards > Education Portal > Education Portal overview**. Request rate, error rate and p95 latency are at the top; the **Top 10 slow endpoints** table shows the slowest routes.
 3. **Find the trace.** Go to **Explore**, pick **Jaeger**, search service `webapi`, and open a trace such as `GET /api/Branding/`. The HTTP span carries `tenant.id`; the `postgresql` child spans are the EF Core queries.
 4. **Trace to logs.** In the trace view, click the log icon on a span (**Logs for this span**). Grafana runs `{service_name=~".+"} | trace_id="<trace id>"` against Loki and shows every log line of that request.
 5. **Logs to trace.** In the overview dashboard's **Recent logs** panel (or Explore > Loki with `{service_name="webapi"}`), expand a line. Its `trace_id` field has a **View trace** link that opens the trace in Jaeger.
