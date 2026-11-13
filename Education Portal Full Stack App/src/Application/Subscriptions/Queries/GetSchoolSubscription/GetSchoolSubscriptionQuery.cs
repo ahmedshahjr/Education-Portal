@@ -26,35 +26,9 @@ public class GetSchoolSubscriptionQueryHandler : IRequestHandler<GetSchoolSubscr
     {
         var schoolId = await _context.Schools.ResolveIdAsync(request.SchoolId, cancellationToken);
 
-        var subscription = await (
-                from s in _context.Subscriptions.AsNoTracking()
-                join p in _context.Plans on s.PlanId equals p.Id into plans
-                from p in plans.DefaultIfEmpty()
-                join b in _context.PriceBooks on s.PriceBookId equals b.Id
-                where s.SchoolId == schoolId && s.Status != SubscriptionStatus.Cancelled
-                select new { s.Id, s.PublicId, PlanCode = p.Code, b.CountryCode, s.CurrencyCode, s.BillingCycle, s.Amount, s.Status, s.StartDate, s.EndDate, s.TrialEndDate })
-            .FirstOrDefaultAsync(cancellationToken);
+        var subscription = await SubscriptionReader.ReadAsync(_context, schoolId, cancellationToken);
         Guard.Against.NotFound(request.SchoolId, subscription);
 
-        var modules = await (
-                from t in _context.TenantModules.AsNoTracking()
-                join m in _context.Modules on t.ModuleId equals m.Id
-                where t.SubscriptionId == subscription.Id
-                orderby m.SortOrder, m.Code
-                select new TenantModuleDto(m.Code, t.Status, t.ValidFrom, t.ValidTo))
-            .ToListAsync(cancellationToken);
-
-        return new SubscriptionDto(
-            subscription.PublicId,
-            subscription.PlanCode,
-            subscription.CountryCode,
-            subscription.CurrencyCode,
-            subscription.BillingCycle,
-            subscription.Amount,
-            subscription.Status,
-            subscription.StartDate,
-            subscription.EndDate,
-            subscription.TrialEndDate,
-            modules);
+        return subscription;
     }
 }

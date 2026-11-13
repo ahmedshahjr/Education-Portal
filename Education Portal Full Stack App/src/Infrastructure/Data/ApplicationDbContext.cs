@@ -51,6 +51,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<TenantModule> TenantModules => Set<TenantModule>();
 
+    public DbSet<AddOnRequest> AddOnRequests => Set<AddOnRequest>();
+
     public DbSet<Invoice> Invoices => Set<Invoice>();
 
     public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
@@ -88,6 +90,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
         builder.Entity<TenantModule>()
             .HasQueryFilter(m => IsMasterTenant || m.SchoolId == CurrentSchoolId);
+
+        builder.Entity<AddOnRequest>()
+            .HasQueryFilter(r => IsMasterTenant || r.SchoolId == CurrentSchoolId);
 
         builder.Entity<Invoice>()
             .HasQueryFilter(i => IsMasterTenant || i.SchoolId == CurrentSchoolId);

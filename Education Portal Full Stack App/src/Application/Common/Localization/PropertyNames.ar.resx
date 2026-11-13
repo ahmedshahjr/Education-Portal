@@ -46,4 +46,5 @@
   <data name="AdministratorPassword" xml:space="preserve"><value>كلمة المرور لمرة واحدة</value></data>
   <data name="CurrentPassword" xml:space="preserve"><value>كلمة المرور الحالية</value></data>
   <data name="NewPassword" xml:space="preserve"><value>كلمة المرور الجديدة</value></data>
+  <data name="Days" xml:space="preserve"><value>الأيام</value></data>
 </root>

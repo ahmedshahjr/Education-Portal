@@ -66,4 +66,13 @@
   <data name="SchoolDomainTaken" xml:space="preserve"><value>Another school already uses this domain.</value></data>
   <data name="EmailTaken" xml:space="preserve"><value>Another account already uses this email.</value></data>
   <data name="NewPasswordSameAsCurrent" xml:space="preserve"><value>The new password must be different from the current one.</value></data>
+  <data name="SubscriptionCannotBeSuspended" xml:space="preserve"><value>The subscription is already suspended.</value></data>
+  <data name="SubscriptionCannotBeReactivated" xml:space="preserve"><value>Only a suspended or past-due subscription can be reactivated.</value></data>
+  <data name="ModuleAlreadyInSubscription" xml:space="preserve"><value>The subscription already has this module.</value></data>
+  <data name="ModuleNotInSubscription" xml:space="preserve"><value>This module is not an add-on of the subscription.</value></data>
+  <data name="ModuleStillIncluded" xml:space="preserve"><value>The plan or another module of the subscription still includes this module, so it cannot be removed.</value></data>
+  <data name="SubscriptionCurrencyMismatch" xml:space="preserve"><value>The price book's currency differs from the subscription's currency.</value></data>
+  <data name="SubscriptionNeededForAddOn" xml:space="preserve"><value>The school needs a subscription before it can ask for an add-on.</value></data>
+  <data name="AddOnRequestPending" xml:space="preserve"><value>A request for this module is already waiting for a decision.</value></data>
+  <data name="AddOnRequestNotPending" xml:space="preserve"><value>Only a pending request can be approved or rejected.</value></data>
 </root>

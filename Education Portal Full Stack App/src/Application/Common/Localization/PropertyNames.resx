@@ -46,4 +46,5 @@
   <data name="AdministratorPassword" xml:space="preserve"><value>One-time password</value></data>
   <data name="CurrentPassword" xml:space="preserve"><value>Current password</value></data>
   <data name="NewPassword" xml:space="preserve"><value>New password</value></data>
+  <data name="Days" xml:space="preserve"><value>Days</value></data>
 </root>

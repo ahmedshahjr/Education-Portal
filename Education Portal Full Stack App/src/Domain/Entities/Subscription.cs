@@ -148,6 +148,116 @@ public class Subscription : BaseAuditableEntity
         }
     }
 
+    /// <summary>Stops the subscription: it and every module it gives are suspended (data is kept). Cancelled and already suspended subscriptions are refused.</summary>
+    public void Suspend()
+    {
+        if (Status is SubscriptionStatus.Cancelled or SubscriptionStatus.Suspended)
+        {
+            throw new InvalidOperationException("Only a subscription that is running can be suspended.");
+        }
+
+        Status = SubscriptionStatus.Suspended;
+        foreach (var module in _modules.Where(m => m.Status == TenantModuleStatus.Active))
+        {
+            module.Suspend();
+        }
+    }
+
+    /// <summary>Brings a suspended or past-due subscription back: it becomes Active and its suspended modules are active again.</summary>
+    public void Reactivate()
+    {
+        if (Status is not (SubscriptionStatus.Suspended or SubscriptionStatus.PastDue))
+        {
+            throw new InvalidOperationException("Only a suspended or past-due subscription can be reactivated.");
+        }
+
+        Status = SubscriptionStatus.Active;
+        foreach (var module in _modules.Where(m => m.Status == TenantModuleStatus.Suspended))
+        {
+            module.Reactivate();
+        }
+    }
+
+    public const int MaxExtensionDays = 366;
+
+    /// <summary>
+    /// Moves the end of the current period (and of the trial, while on trial) later by <paramref name="days"/> without a
+    /// payment, and every module's validity with it. A cancelled subscription is refused.
+    /// </summary>
+    public void Extend(int days)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(days);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(days, MaxExtensionDays);
+
+        if (Status == SubscriptionStatus.Cancelled)
+        {
+            throw new InvalidOperationException("A cancelled subscription cannot be extended.");
+        }
+
+        EndDate = EndDate.AddDays(days);
+        if (Status == SubscriptionStatus.Trial)
+        {
+            TrialEndDate = EndDate;
+        }
+
+        foreach (var module in _modules)
+        {
+            module.ExtendTo(EndDate);
+        }
+    }
+
+    /// <summary>
+    /// Changes what the subscription gives and costs: the plan, the price for one cycle and the modules (every module, core
+    /// and paid). Modules no longer in the list end now (their rows are kept); new ones start now and run to the end of the
+    /// current period; modules that return are restored. The price book must have the subscription's currency. A
+    /// cancelled subscription is refused. Changes take effect at once, with no credit or charge for the current period.
+    /// </summary>
+    public void Reconfigure(Plan? plan, PriceBook priceBook, decimal amount, IReadOnlyCollection<PortalModule> modules, DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(priceBook);
+        ArgumentNullException.ThrowIfNull(modules);
+
+        if (Status == SubscriptionStatus.Cancelled)
+        {
+            throw new InvalidOperationException("A cancelled subscription cannot be changed.");
+        }
+
+        if (priceBook.CurrencyCode != CurrencyCode)
+        {
+            throw new ArgumentException("The price book's currency is not the subscription's.", nameof(priceBook));
+        }
+
+        if (!PriceBookItem.IsValidPrice(amount))
+        {
+            throw new ArgumentOutOfRangeException(nameof(amount), amount, "An amount is zero or more, with at most two decimal places.");
+        }
+
+        PlanId = plan?.Id;
+        PriceBookId = priceBook.Id;
+        Amount = amount;
+
+        var wanted = modules.Select(m => m.Id).ToHashSet();
+        foreach (var grant in _modules.Where(m => m.BranchId is null))
+        {
+            if (!wanted.Contains(grant.ModuleId))
+            {
+                if (grant.Status != TenantModuleStatus.Expired)
+                {
+                    grant.Expire(now);
+                }
+            }
+            else if (grant.Status == TenantModuleStatus.Expired)
+            {
+                grant.Restore(EndDate);
+            }
+        }
+
+        foreach (var module in modules.Where(m => _modules.All(g => g.BranchId is not null || g.ModuleId != m.Id)))
+        {
+            _modules.Add(new TenantModule(this, module, null, now < EndDate ? now : StartDate, EndDate));
+        }
+    }
+
     public TenantModule AddModule(PortalModule module, Branch? branch = null)
     {
         ArgumentNullException.ThrowIfNull(module);

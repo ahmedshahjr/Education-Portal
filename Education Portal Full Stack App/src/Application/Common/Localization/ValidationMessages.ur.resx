@@ -66,4 +66,13 @@
   <data name="SchoolDomainTaken" xml:space="preserve"><value>یہ ڈومین پہلے ہی کوئی دوسرا اسکول استعمال کر رہا ہے۔</value></data>
   <data name="EmailTaken" xml:space="preserve"><value>یہ ای میل پہلے ہی کوئی دوسرا اکاؤنٹ استعمال کر رہا ہے۔</value></data>
   <data name="NewPasswordSameAsCurrent" xml:space="preserve"><value>نیا پاس ورڈ موجودہ پاس ورڈ سے مختلف ہونا چاہیے۔</value></data>
+  <data name="SubscriptionCannotBeSuspended" xml:space="preserve"><value>سبسکرپشن پہلے ہی معطل ہے۔</value></data>
+  <data name="SubscriptionCannotBeReactivated" xml:space="preserve"><value>صرف معطل یا واجب الادا سبسکرپشن دوبارہ فعال کی جا سکتی ہے۔</value></data>
+  <data name="ModuleAlreadyInSubscription" xml:space="preserve"><value>سبسکرپشن میں یہ ماڈیول پہلے سے موجود ہے۔</value></data>
+  <data name="ModuleNotInSubscription" xml:space="preserve"><value>یہ ماڈیول سبسکرپشن کا ایڈ آن نہیں ہے۔</value></data>
+  <data name="ModuleStillIncluded" xml:space="preserve"><value>پلان یا سبسکرپشن کا کوئی اور ماڈیول اب بھی اسے شامل کرتا ہے، اس لیے اسے ہٹایا نہیں جا سکتا۔</value></data>
+  <data name="SubscriptionCurrencyMismatch" xml:space="preserve"><value>پرائس بک کی کرنسی سبسکرپشن کی کرنسی سے مختلف ہے۔</value></data>
+  <data name="SubscriptionNeededForAddOn" xml:space="preserve"><value>ایڈ آن مانگنے سے پہلے اسکول کو سبسکرپشن درکار ہے۔</value></data>
+  <data name="AddOnRequestPending" xml:space="preserve"><value>اس ماڈیول کی درخواست پہلے سے فیصلے کی منتظر ہے۔</value></data>
+  <data name="AddOnRequestNotPending" xml:space="preserve"><value>صرف زیر التوا درخواست منظور یا مسترد کی جا سکتی ہے۔</value></data>
 </root>

@@ -127,4 +127,106 @@ public class SubscriptionTests
         school.DataRegion.ShouldBeNull();
         Should.Throw<ArgumentOutOfRangeException>(() => school.AssignDataRegion((DataRegion)99));
     }
+
+    private static Subscription WithModules(params PortalModule[] modules)
+    {
+        var subscription = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 100m, Start, 0);
+        foreach (var module in modules)
+        {
+            subscription.AddModule(module);
+        }
+
+        return subscription;
+    }
+
+    [Test]
+    public void ShouldSuspendAndReactivateTheSubscriptionAndItsModules()
+    {
+        var subscription = WithModules(Module("FEES", 7), Module("EXAMS", 8));
+
+        subscription.Suspend();
+
+        subscription.Status.ShouldBe(SubscriptionStatus.Suspended);
+        subscription.Modules.ShouldAllBe(m => m.Status == TenantModuleStatus.Suspended);
+
+        subscription.Reactivate();
+
+        subscription.Status.ShouldBe(SubscriptionStatus.Active);
+        subscription.Modules.ShouldAllBe(m => m.Status == TenantModuleStatus.Active);
+    }
+
+    [Test]
+    public void ShouldRefuseToSuspendTwiceOrAReactivationOfARunningSubscription()
+    {
+        var subscription = WithModules(Module("FEES", 7));
+
+        Should.Throw<InvalidOperationException>(() => subscription.Reactivate());
+        subscription.Suspend();
+        Should.Throw<InvalidOperationException>(() => subscription.Suspend());
+    }
+
+    [Test]
+    public void ShouldExtendThePeriodAndEveryModuleAndTheTrialWhileOnTrial()
+    {
+        var trial = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 100m, Start, 14);
+        trial.AddModule(Module("FEES", 7));
+
+        trial.Extend(10);
+
+        trial.ShouldSatisfyAllConditions(
+            s => s.EndDate.ShouldBe(Start.AddDays(24)),
+            s => s.TrialEndDate.ShouldBe(Start.AddDays(24)),
+            s => s.Modules.Single().ValidTo.ShouldBe(Start.AddDays(24)));
+
+        var active = WithModules(Module("FEES", 7));
+        var end = active.EndDate;
+        active.Extend(Subscription.MaxExtensionDays);
+        active.EndDate.ShouldBe(end.AddDays(Subscription.MaxExtensionDays));
+        active.TrialEndDate.ShouldBeNull();
+    }
+
+    [TestCase(0)]
+    [TestCase(-1)]
+    [TestCase(Subscription.MaxExtensionDays + 1)]
+    public void ShouldRefuseABadExtension(int days) =>
+        Should.Throw<ArgumentOutOfRangeException>(() => WithModules().Extend(days));
+
+    [Test]
+    public void ShouldEndModulesThatLeaveAndStartModulesThatJoinWhenReconfigured()
+    {
+        var fees = Module("FEES", 7);
+        var exams = Module("EXAMS", 8);
+        var library = Module("LIBRARY", 9);
+        var subscription = WithModules(fees, exams);
+        var now = Start.AddDays(5);
+
+        subscription.Reconfigure(null, Book(), 250m, [fees, library], now);
+
+        subscription.Amount.ShouldBe(250m);
+        var byModule = subscription.Modules.ToDictionary(m => m.ModuleId);
+        byModule[8].Status.ShouldBe(TenantModuleStatus.Expired);
+        byModule[8].ValidTo.ShouldBe(now);
+        byModule[7].Status.ShouldBe(TenantModuleStatus.Active);
+        byModule[9].ShouldSatisfyAllConditions(
+            m => m.Status.ShouldBe(TenantModuleStatus.Active),
+            m => m.ValidFrom.ShouldBe(now),
+            m => m.ValidTo.ShouldBe(subscription.EndDate));
+
+        // A module that returns is restored for the rest of the period; no second row is made for it.
+        subscription.Reconfigure(null, Book(), 300m, [fees, exams, library], now.AddDays(1));
+
+        subscription.Modules.Count.ShouldBe(3);
+        byModule[8].Status.ShouldBe(TenantModuleStatus.Active);
+        byModule[8].ValidTo.ShouldBe(subscription.EndDate);
+    }
+
+    [Test]
+    public void ShouldRefuseAReconfigurationInAnotherCurrencyOrWithABadAmount()
+    {
+        var subscription = WithModules(Module("FEES", 7));
+        var dollars = Saved(PriceBook.Create("US", "USD"), 4);
+
+        Should.Throw<ArgumentException>(() => subscription.Reconfigure(null, dollars, 1m, [], Start));
+        Should.Throw<ArgumentOutOfRangeException>(() => subscription.Reconfigure(null, Book(), 1.234m, [], Start));
+    }
 }

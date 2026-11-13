@@ -10,7 +10,13 @@ using EducationPortal.Application.Schools.Commands.UpdateSchoolCountry;
 using EducationPortal.Application.Schools.Queries.GetSchoolBranding;
 using EducationPortal.Application.Schools.Queries.GetSchoolBrandingImage;
 using EducationPortal.Application.Schools.Queries.GetSchools;
+using EducationPortal.Application.Subscriptions.Commands.AddSubscriptionModule;
+using EducationPortal.Application.Subscriptions.Commands.ChangeSubscriptionPlan;
 using EducationPortal.Application.Subscriptions.Commands.CreateSubscription;
+using EducationPortal.Application.Subscriptions.Commands.ExtendSubscription;
+using EducationPortal.Application.Subscriptions.Commands.ReactivateSubscription;
+using EducationPortal.Application.Subscriptions.Commands.RemoveSubscriptionModule;
+using EducationPortal.Application.Subscriptions.Commands.SuspendSubscription;
 using EducationPortal.Application.Subscriptions.Common;
 using EducationPortal.Application.Subscriptions.Queries.GetSchoolSubscription;
 using EducationPortal.Domain.Enums;
@@ -69,6 +75,30 @@ public class Schools : IEndpointGroup
         groupBuilder.MapPost(CreateSubscription, "{schoolId:guid}/subscription")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapPost(SuspendSubscription, "{schoolId:guid}/subscription/suspend")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapPost(ReactivateSubscription, "{schoolId:guid}/subscription/reactivate")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapPost(ExtendSubscription, "{schoolId:guid}/subscription/extend")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapPut(ChangeSubscriptionPlan, "{schoolId:guid}/subscription/plan")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapPost(AddSubscriptionModule, "{schoolId:guid}/subscription/modules")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapDelete(RemoveSubscriptionModule, "{schoolId:guid}/subscription/modules/{moduleCode}")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
     }
 
     [EndpointSummary("Add a school")]
@@ -93,6 +123,63 @@ public class Schools : IEndpointGroup
     {
         // The route names the school; an id in the body is ignored.
         return TypedResults.Ok(await sender.Send(command with { SchoolId = schoolId }));
+    }
+
+    [EndpointSummary("Suspend a school's subscription")]
+    [EndpointDescription("Suspends the subscription and every module it gives: requests to them are refused with 403 and the data is kept. Master tenant only.")]
+    public static async Task<NoContent> SuspendSubscription(ISender sender, Guid schoolId)
+    {
+        await sender.Send(new SuspendSubscriptionCommand(schoolId));
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Reactivate a school's subscription")]
+    [EndpointDescription("Brings a suspended or past-due subscription back to Active with its modules. Master tenant only.")]
+    public static async Task<NoContent> ReactivateSubscription(ISender sender, Guid schoolId)
+    {
+        await sender.Send(new ReactivateSubscriptionCommand(schoolId));
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Extend a school's subscription")]
+    [EndpointDescription("Moves the end of the current period (and trial) later by 1 to 366 days without a payment. Master tenant only.")]
+    public static async Task<NoContent> ExtendSubscription(ISender sender, Guid schoolId, ExtendSubscriptionCommand command)
+    {
+        // The route names the school; an id in the body is ignored.
+        await sender.Send(command with { SchoolId = schoolId });
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Change a school's plan")]
+    [EndpointDescription("Moves the subscription to another plan (planCode), keeping its add-on modules. Modules the new plan lacks end now and their data is kept; the price follows the new plan; the current period is neither credited nor charged. Master tenant only.")]
+    public static async Task<NoContent> ChangeSubscriptionPlan(ISender sender, Guid schoolId, ChangeSubscriptionPlanCommand command)
+    {
+        // The route names the school; an id in the body is ignored.
+        await sender.Send(command with { SchoolId = schoolId });
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Add a module to a school's subscription")]
+    [EndpointDescription("Adds a paid add-on module (moduleCode) and the modules it requires, and raises the price by its price in the price book. Master tenant only.")]
+    public static async Task<NoContent> AddSubscriptionModule(ISender sender, Guid schoolId, AddSubscriptionModuleCommand command)
+    {
+        // The route names the school; an id in the body is ignored.
+        await sender.Send(command with { SchoolId = schoolId });
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Remove a module from a school's subscription")]
+    [EndpointDescription("Removes an add-on module: it ends now and its data is kept. A module the plan includes, or another module requires, cannot be removed. Master tenant only.")]
+    public static async Task<NoContent> RemoveSubscriptionModule(ISender sender, Guid schoolId, string moduleCode)
+    {
+        await sender.Send(new RemoveSubscriptionModuleCommand { SchoolId = schoolId, ModuleCode = moduleCode });
+
+        return TypedResults.NoContent();
     }
 
     [EndpointSummary("Set a school's data region")]

@@ -47,6 +47,8 @@ public interface IApplicationDbContext
 
     DbSet<TenantModule> TenantModules { get; }
 
+    DbSet<AddOnRequest> AddOnRequests { get; }
+
     DbSet<Invoice> Invoices { get; }
 
     DbSet<InvoiceLine> InvoiceLines { get; }
