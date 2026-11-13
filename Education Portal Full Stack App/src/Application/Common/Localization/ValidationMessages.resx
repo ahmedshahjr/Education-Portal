@@ -44,4 +44,9 @@
   <data name="ModuleNotFound" xml:space="preserve"><value>The module does not exist.</value></data>
   <data name="PriceExists" xml:space="preserve"><value>This price book already has a price for that plan or module and billing cycle.</value></data>
   <data name="PriceInvalid" xml:space="preserve"><value>A price is zero or more, with at most two decimal places.</value></data>
+  <data name="SubscriptionExists" xml:space="preserve"><value>The school already has a subscription.</value></data>
+  <data name="SchoolHasNoCountry" xml:space="preserve"><value>Give the school a country first: its price book follows from the country.</value></data>
+  <data name="PriceMissing" xml:space="preserve"><value>There is no price for this choice in the country's price book.</value></data>
+  <data name="ModuleInactive" xml:space="preserve"><value>A module in this subscription is not active.</value></data>
+  <data name="SubscriptionNeedsPlanOrModule" xml:space="preserve"><value>Choose a plan or at least one module.</value></data>
 </root>

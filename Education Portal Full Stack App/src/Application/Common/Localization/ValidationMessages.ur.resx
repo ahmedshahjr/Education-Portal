@@ -44,4 +44,9 @@
   <data name="ModuleNotFound" xml:space="preserve"><value>ماڈیول موجود نہیں ہے۔</value></data>
   <data name="PriceExists" xml:space="preserve"><value>اس فہرست میں اُس پلان یا ماڈیول اور بلنگ کی مدت کی قیمت پہلے سے موجود ہے۔</value></data>
   <data name="PriceInvalid" xml:space="preserve"><value>قیمت صفر یا اس سے زیادہ ہو، زیادہ سے زیادہ دو اعشاریہ مقامات کے ساتھ۔</value></data>
+  <data name="SubscriptionExists" xml:space="preserve"><value>اسکول کی پہلے سے سبسکرپشن موجود ہے۔</value></data>
+  <data name="SchoolHasNoCountry" xml:space="preserve"><value>پہلے اسکول کا ملک مقرر کریں: قیمتوں کی فہرست ملک سے طے ہوتی ہے۔</value></data>
+  <data name="PriceMissing" xml:space="preserve"><value>ملک کی قیمتوں کی فہرست میں اس انتخاب کی قیمت موجود نہیں۔</value></data>
+  <data name="ModuleInactive" xml:space="preserve"><value>اس سبسکرپشن کا ایک ماڈیول فعال نہیں ہے۔</value></data>
+  <data name="SubscriptionNeedsPlanOrModule" xml:space="preserve"><value>کوئی پلان یا کم از کم ایک ماڈیول منتخب کریں۔</value></data>
 </root>

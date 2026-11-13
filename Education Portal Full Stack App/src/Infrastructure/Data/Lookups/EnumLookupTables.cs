@@ -13,7 +13,7 @@ public static class EnumLookupTables
     /// tests (Respawn) leaves them alone.
     /// </summary>
     public static IReadOnlyList<string> Tables { get; } =
-        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes", "BillingCycles"];
+        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes", "BillingCycles", "SubscriptionStatuses", "TenantModuleStatuses", "DataRegions"];
 
     internal static void Configure(ModelBuilder builder)
     {
@@ -23,10 +23,39 @@ public static class EnumLookupTables
         Map<SchoolRequest, SchoolRequestStatus>(builder, Tables[3], r => r.Status);
         Map<State, StateType>(builder, Tables[4], s => s.Type);
         Map<PriceBookItem, BillingCycle>(builder, Tables[5], i => i.BillingCycle);
+        Map<Subscription, SubscriptionStatus>(builder, Tables[6], s => s.Status);
+        Map<TenantModule, TenantModuleStatus>(builder, Tables[7], m => m.Status);
+        Map<School, DataRegion?>(builder, Tables[8], s => s.DataRegion);
+
+        // More columns of an enum that already has its lookup table.
+        Reference<Subscription, BillingCycle>(builder, s => s.BillingCycle);
     }
 
-    private static void Map<TEntity, TEnum>(ModelBuilder builder, string table, Expression<Func<TEntity, TEnum>> column)
+    // A nullable enum column (TColumn is TEnum?) is allowed to be empty; its lookup table is the one of TEnum.
+    private static void Map<TEntity, TColumn>(ModelBuilder builder, string table, Expression<Func<TEntity, TColumn>> column)
         where TEntity : class
+    {
+        var enumType = Nullable.GetUnderlyingType(typeof(TColumn)) ?? typeof(TColumn);
+        typeof(EnumLookupTables)
+            .GetMethod(nameof(ConfigureLookup), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
+            .MakeGenericMethod(enumType)
+            .Invoke(null, [builder, table]);
+
+        Reference<TEntity, TColumn>(builder, column, enumType);
+    }
+
+    private static void Reference<TEntity, TColumn>(ModelBuilder builder, Expression<Func<TEntity, TColumn>> column, Type? enumType = null)
+        where TEntity : class
+    {
+        enumType ??= Nullable.GetUnderlyingType(typeof(TColumn)) ?? typeof(TColumn);
+        builder.Entity<TEntity>()
+            .HasOne(typeof(EnumLookup<>).MakeGenericType(enumType), null)
+            .WithMany()
+            .HasForeignKey(((MemberExpression)column.Body).Member.Name)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
+
+    private static void ConfigureLookup<TEnum>(ModelBuilder builder, string table)
         where TEnum : struct, Enum
     {
         builder.Entity<EnumLookup<TEnum>>(lookup =>
@@ -37,15 +66,6 @@ public static class EnumLookupTables
             lookup.Property(l => l.Name).IsRequired().HasMaxLength(EnumLookup<TEnum>.NameMaxLength);
             lookup.HasData(Enum.GetValues<TEnum>().Select(value => new EnumLookup<TEnum> { Id = value, Name = value.ToString() }));
         });
-
-        builder.Entity<TEntity>()
-            .HasOne<EnumLookup<TEnum>>()
-            .WithMany()
-            .HasForeignKey(Convert(column))
-            .OnDelete(DeleteBehavior.Restrict);
     }
 
-    // HasForeignKey takes an expression returning object.
-    private static Expression<Func<TEntity, object?>> Convert<TEntity, TEnum>(Expression<Func<TEntity, TEnum>> column) =>
-        Expression.Lambda<Func<TEntity, object?>>(Expression.Convert(column.Body, typeof(object)), column.Parameters);
 }

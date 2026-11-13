@@ -227,9 +227,10 @@ public static class TestApp
         await context.SaveChangesAsync();
     }
 
+    /// <summary>Counts rows as the current tenant sees them (the master by default), so tenant query filters apply.</summary>
     public static async Task<int> CountAsync<TEntity>() where TEntity : class
     {
-        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+        using var scope = CreateTenantScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 

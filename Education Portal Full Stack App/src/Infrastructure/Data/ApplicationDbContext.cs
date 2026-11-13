@@ -47,6 +47,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<PriceBookItem> PriceBookItems => Set<PriceBookItem>();
 
+    public DbSet<Branch> Branches => Set<Branch>();
+
+    public DbSet<Subscription> Subscriptions => Set<Subscription>();
+
+    public DbSet<TenantModule> TenantModules => Set<TenantModule>();
+
     // Read by the query filters on every query, so each request sees its own tenant (ENG-EF-10).
     private int? CurrentSchoolId => _tenant.SchoolId;
 
@@ -66,6 +72,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
             .HasQueryFilter(i => IsMasterTenant || i.SchoolId == CurrentSchoolId);
 
         builder.Entity<SchoolModule>()
+            .HasQueryFilter(m => IsMasterTenant || m.SchoolId == CurrentSchoolId);
+
+        builder.Entity<Branch>()
+            .HasQueryFilter(b => IsMasterTenant || b.SchoolId == CurrentSchoolId);
+
+        builder.Entity<Subscription>()
+            .HasQueryFilter(s => IsMasterTenant || s.SchoolId == CurrentSchoolId);
+
+        builder.Entity<TenantModule>()
             .HasQueryFilter(m => IsMasterTenant || m.SchoolId == CurrentSchoolId);
 
         // Every entity's Guid PublicId is an alternate key (a unique constraint), the only identity the API exposes. The

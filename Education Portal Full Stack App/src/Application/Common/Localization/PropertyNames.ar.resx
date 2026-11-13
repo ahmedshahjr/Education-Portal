@@ -31,4 +31,7 @@
   <data name="BillingCycle" xml:space="preserve"><value>دورة الفوترة</value></data>
   <data name="PlanId" xml:space="preserve"><value>الخطة</value></data>
   <data name="ModuleCode" xml:space="preserve"><value>الوحدة</value></data>
+  <data name="PlanCode" xml:space="preserve"><value>الخطة</value></data>
+  <data name="TrialDays" xml:space="preserve"><value>أيام التجربة</value></data>
+  <data name="DataRegion" xml:space="preserve"><value>منطقة البيانات</value></data>
 </root>
