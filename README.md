@@ -803,7 +803,7 @@ flowchart TB
     scope --> trials["1. Trial past TrialEndDate → PastDue"]
     trials --> invoices["2. Open invoice past DueDate → OverdueSince<br/>its Active subscription → PastDue"]
     invoices --> ended["3. Active past EndDate → PastDue"]
-    ended --> suspend["4. PastDue + GracePeriodDays passed → Suspended<br/>modules suspended, data kept"]
+    ended --> suspend["4. PastDue + GracePeriodDays (default 30) passed → Suspended<br/>modules suspended, data kept"]
     suspend --> remind["5. Trial or Active ending soon →<br/>RenewalReminder for the nearest ReminderDays"]
     remind --> save[("One SaveChanges<br/>nothing saved on error")]
     save --> after["Drop cached entitlements of changed schools<br/>audit as system:subscription-lifecycle"]
