@@ -71,12 +71,14 @@ public class CreateSubscriptionCommandHandler : IRequestHandler<CreateSubscripti
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
     private readonly TimeProvider _timeProvider;
+    private readonly IModuleEntitlementStore _entitlements;
 
-    public CreateSubscriptionCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, TimeProvider timeProvider)
+    public CreateSubscriptionCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, TimeProvider timeProvider, IModuleEntitlementStore entitlements)
     {
         _context = context;
         _auditLog = auditLog;
         _timeProvider = timeProvider;
+        _entitlements = entitlements;
     }
 
     public async Task<Guid> Handle(CreateSubscriptionCommand request, CancellationToken cancellationToken)
@@ -100,6 +102,9 @@ public class CreateSubscriptionCommandHandler : IRequestHandler<CreateSubscripti
         // One save: the subscription and its modules are written in one transaction.
         _context.Subscriptions.Add(subscription);
         await _context.SaveChangesAsync(cancellationToken);
+
+        // The school's modules just changed, so its cached entitlements are stale.
+        _entitlements.Invalidate(school.Id);
 
         await _auditLog.WriteAsync(
             SecurityAuditEventType.SubscriptionCreated,

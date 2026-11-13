@@ -51,13 +51,15 @@ public class DeleteModuleCommandHandler : IRequestHandler<DeleteModuleCommand>
     private readonly ISecurityAuditLog _auditLog;
     private readonly IUser _user;
     private readonly TimeProvider _timeProvider;
+    private readonly IModuleEntitlementStore _entitlements;
 
-    public DeleteModuleCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, IUser user, TimeProvider timeProvider)
+    public DeleteModuleCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, IUser user, TimeProvider timeProvider, IModuleEntitlementStore entitlements)
     {
         _context = context;
         _auditLog = auditLog;
         _user = user;
         _timeProvider = timeProvider;
+        _entitlements = entitlements;
     }
 
     public async Task Handle(DeleteModuleCommand request, CancellationToken cancellationToken)
@@ -71,6 +73,7 @@ public class DeleteModuleCommandHandler : IRequestHandler<DeleteModuleCommand>
         module.Delete(_timeProvider.GetUtcNow(), _user.Id);
 
         await _context.SaveChangesAsync(cancellationToken);
+        _entitlements.InvalidateAll();
 
         await _auditLog.WriteAsync(
             SecurityAuditEventType.ModuleDeleted,

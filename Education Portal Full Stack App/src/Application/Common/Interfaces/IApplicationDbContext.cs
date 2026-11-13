@@ -29,8 +29,6 @@ public interface IApplicationDbContext
     DbSet<ModuleDependency> ModuleDependencies { get; }
 
     /// <summary>The master tenant's per-school module switches. Covered by the tenant query filter (SEC-AUTHZ-03).</summary>
-    DbSet<SchoolModule> SchoolModules { get; }
-
     /// <summary>The plans the master tenant sells. Platform reference data that only the master tenant changes.</summary>
     DbSet<Plan> Plans { get; }
 
@@ -48,6 +46,10 @@ public interface IApplicationDbContext
     DbSet<Subscription> Subscriptions { get; }
 
     DbSet<TenantModule> TenantModules { get; }
+
+    DbSet<SchoolRole> SchoolRoles { get; }
+
+    DbSet<RolePermission> RolePermissions { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

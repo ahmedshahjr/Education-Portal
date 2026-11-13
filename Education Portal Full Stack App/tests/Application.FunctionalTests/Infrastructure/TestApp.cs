@@ -1,5 +1,6 @@
 using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.Enums;
 using EducationPortal.Infrastructure.Data;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Infrastructure.Identity;
@@ -162,6 +163,41 @@ public static class TestApp
         throw new Exception($"Unable to create {userName}.{Environment.NewLine}{errors}");
     }
 
+    /// <summary>
+    /// Gives a school a subscription that grants the paid modules, without going through plans and pricing (those have
+    /// their own tests). The subscription starts at <paramref name="start"/> (now by default) and runs one month; with a
+    /// branch, the modules are for that branch only. The school's cached entitlements are dropped, as after a real change.
+    /// </summary>
+    public static async Task<Subscription> SubscribeAsync(int schoolId, string[] moduleCodes, DateTimeOffset? start = null, int? branchId = null)
+    {
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+
+        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(MasterSchoolId, IsMaster: true));
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var book = await context.PriceBooks.FirstOrDefaultAsync(b => b.CountryCode == "XX");
+        if (book is null)
+        {
+            book = PriceBook.Create("XX", "XXX");
+            context.PriceBooks.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        var branch = branchId is null ? null : await context.Branches.FirstAsync(b => b.Id == branchId);
+        var subscription = Subscription.Create(schoolId, null, book, BillingCycle.Monthly, 0m, start ?? DateTimeOffset.UtcNow, trialDays: 0);
+        foreach (var module in await context.Modules.Where(m => moduleCodes.Contains(m.Code)).ToListAsync())
+        {
+            subscription.AddModule(module, branch);
+        }
+
+        context.Subscriptions.Add(subscription);
+        await context.SaveChangesAsync();
+
+        scope.ServiceProvider.GetRequiredService<IModuleEntitlementStore>().Invalidate(schoolId);
+
+        return subscription;
+    }
+
     public static async Task ResetState()
     {
         if (FunctionalTestSetup.DbResetter is not null)
@@ -171,6 +207,9 @@ public static class TestApp
 
         _userId = null;
         _roles = null;
+
+        // Module entitlements are cached per school; the database was just emptied.
+        FunctionalTestSetup.ScopeFactory.CreateScope().ServiceProvider.GetRequiredService<IModuleEntitlementStore>().InvalidateAll();
 
         // Every request needs a tenant, so the master tenant is created again after each reset.
         var master = School.CreateMaster("Education Portal", MasterDomain);

@@ -81,16 +81,6 @@ public partial class PortalModule : BaseSoftDeletableEntity
         SortOrder = sortOrder;
     }
 
-    /// <summary>Whether the module is on for a school, given the master's switch for that school (or <c>null</c> when it has none).</summary>
-    public bool IsEnabledFor(bool? schoolChoice) => IsEnabled(IsActive, IsCore, schoolChoice);
-
-    /// <summary>
-    /// The rule behind <see cref="IsEnabledFor"/>, for queries that project the fields instead of loading modules: an
-    /// inactive module is off; a core module is on; a paid module is on only when the master switched it on.
-    /// </summary>
-    public static bool IsEnabled(bool isActive, bool isCore, bool? schoolChoice) =>
-        isActive && (isCore || schoolChoice == true);
-
     /// <summary>True for a code of upper-case letters, digits and underscores that starts with a letter and fits the column.</summary>
     public static bool IsValidCode(string? code) =>
         code is not null && code.Length <= CodeMaxLength && CodePattern().IsMatch(code);

@@ -9,7 +9,7 @@ namespace EducationPortal.Application.Branding.Commands.UpdateBranding;
 /// Changes the branding of the administrator's own school, the one that owns the request's domain (SEC-AUTHZ-04).
 /// Administrators only, until roles with rights per module arrive in step 2b. The change is audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.School)]
 public record UpdateBrandingCommand : BrandingUpdate, IRequest;
 
 public class UpdateBrandingCommandValidator : BrandingUpdateValidator<UpdateBrandingCommand>;

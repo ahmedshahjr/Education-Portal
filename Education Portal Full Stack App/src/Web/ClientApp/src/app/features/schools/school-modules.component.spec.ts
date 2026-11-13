@@ -24,7 +24,7 @@ async function render() {
   // The generated client reads every response as a Blob, which is read asynchronously.
   await vi.waitFor(() => {
     fixture.detectChanges();
-    expect(element.querySelectorAll('mat-slide-toggle').length).toBe(3);
+    expect(element.querySelectorAll('li').length).toBe(3);
   });
   return { fixture, http, element };
 }
@@ -32,25 +32,16 @@ async function render() {
 describe('SchoolModulesComponent', () => {
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
-  it('locks core and inactive modules and leaves active paid modules switchable', async () => {
+  it('shows which modules are on and has no switch, because modules change through the subscription', async () => {
     const { element } = await render();
 
-    const switches = [...element.querySelectorAll<HTMLButtonElement>('button[role="switch"]')];
-    expect(switches.map((s) => s.disabled)).toEqual([true, true, false]);
-    expect(switches.map((s) => s.getAttribute('aria-checked'))).toEqual(['true', 'false', 'false']);
-    expect(element.textContent).toContain('Core');
-    expect(element.textContent).toContain('Paid');
-    expect(element.textContent).toContain('Inactive');
-  });
-
-  it('switches a paid module on for the school', async () => {
-    const { element, http } = await render();
-
-    element.querySelectorAll<HTMLButtonElement>('button[role="switch"]')[2].click();
-
-    const request = http.expectOne('/api/Schools/0190f3a0-0000-7000-8000-000000000005/modules/FEES');
-    expect(request.request.method).toBe('PUT');
-    expect(request.request.body).toContain('"isEnabled":true');
-    request.flush(null, { status: 204, statusText: 'No Content' });
+    expect(element.querySelector('mat-slide-toggle')).toBeNull();
+    const rows = [...element.querySelectorAll('li')].map((row) => row.textContent ?? '');
+    expect(rows[0]).toContain('Core');
+    expect(rows[0]).toContain('On');
+    expect(rows[1]).toContain('Inactive');
+    expect(rows[1]).toContain('Off');
+    expect(rows[2]).toContain('Paid');
+    expect(rows[2]).toContain('Off');
   });
 });

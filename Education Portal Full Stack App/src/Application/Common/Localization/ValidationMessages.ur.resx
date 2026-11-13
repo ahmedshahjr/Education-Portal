@@ -49,4 +49,8 @@
   <data name="PriceMissing" xml:space="preserve"><value>ملک کی قیمتوں کی فہرست میں اس انتخاب کی قیمت موجود نہیں۔</value></data>
   <data name="ModuleInactive" xml:space="preserve"><value>اس سبسکرپشن کا ایک ماڈیول فعال نہیں ہے۔</value></data>
   <data name="SubscriptionNeedsPlanOrModule" xml:space="preserve"><value>کوئی پلان یا کم از کم ایک ماڈیول منتخب کریں۔</value></data>
+  <data name="RoleNameTaken" xml:space="preserve"><value>اسکول میں اس نام کا کردار پہلے سے موجود ہے۔</value></data>
+  <data name="RightsNeedView" xml:space="preserve"><value>بنانے، ترمیم اور حذف کے لیے دیکھنے کا حق ضروری ہے۔</value></data>
+  <data name="ModuleNotEnabledForSchool" xml:space="preserve"><value>اسکول کے پاس یہ ماڈیول نہیں ہے، اس لیے اس میں حقوق نہیں دیے جا سکتے۔</value></data>
+  <data name="RoleNotFound" xml:space="preserve"><value>کردار موجود نہیں ہے۔</value></data>
 </root>

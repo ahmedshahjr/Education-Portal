@@ -42,6 +42,8 @@ public static class DependencyInjection
         builder.Services.AddScoped<LocationDataImporter>();
 
         builder.Services.AddSingleton(TimeProvider.System);
+        builder.Services.AddMemoryCache();
+        builder.Services.AddSingleton<IModuleEntitlementStore, ModuleEntitlementStore>();
 
         AddIdentity(builder.Services);
         ConfigureSessions(builder.Services);

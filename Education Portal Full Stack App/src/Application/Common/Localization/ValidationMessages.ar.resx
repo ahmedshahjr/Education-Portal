@@ -49,4 +49,8 @@
   <data name="PriceMissing" xml:space="preserve"><value>لا يوجد سعر لهذا الاختيار في قائمة أسعار الدولة.</value></data>
   <data name="ModuleInactive" xml:space="preserve"><value>إحدى الوحدات في هذا الاشتراك غير نشطة.</value></data>
   <data name="SubscriptionNeedsPlanOrModule" xml:space="preserve"><value>اختر خطة أو وحدة واحدة على الأقل.</value></data>
+  <data name="RoleNameTaken" xml:space="preserve"><value>لدى المدرسة دور بهذا الاسم بالفعل.</value></data>
+  <data name="RightsNeedView" xml:space="preserve"><value>يتطلب الإنشاء والتعديل والحذف صلاحية العرض.</value></data>
+  <data name="ModuleNotEnabledForSchool" xml:space="preserve"><value>لا تملك المدرسة هذه الوحدة، لذا لا يمكن منح صلاحيات فيها.</value></data>
+  <data name="RoleNotFound" xml:space="preserve"><value>الدور غير موجود.</value></data>
 </root>

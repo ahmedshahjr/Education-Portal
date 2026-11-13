@@ -37,8 +37,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<ModuleDependency> ModuleDependencies => Set<ModuleDependency>();
 
-    public DbSet<SchoolModule> SchoolModules => Set<SchoolModule>();
-
     public DbSet<Plan> Plans => Set<Plan>();
 
     public DbSet<PlanModule> PlanModules => Set<PlanModule>();
@@ -52,6 +50,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
     public DbSet<TenantModule> TenantModules => Set<TenantModule>();
+
+    public DbSet<SchoolRole> SchoolRoles => Set<SchoolRole>();
+
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 
     // Read by the query filters on every query, so each request sees its own tenant (ENG-EF-10).
     private int? CurrentSchoolId => _tenant.SchoolId;
@@ -71,9 +73,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         builder.Entity<BrandingImage>()
             .HasQueryFilter(i => IsMasterTenant || i.SchoolId == CurrentSchoolId);
 
-        builder.Entity<SchoolModule>()
-            .HasQueryFilter(m => IsMasterTenant || m.SchoolId == CurrentSchoolId);
-
         builder.Entity<Branch>()
             .HasQueryFilter(b => IsMasterTenant || b.SchoolId == CurrentSchoolId);
 
@@ -82,6 +81,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
         builder.Entity<TenantModule>()
             .HasQueryFilter(m => IsMasterTenant || m.SchoolId == CurrentSchoolId);
+
+        builder.Entity<SchoolRole>()
+            .HasQueryFilter(r => IsMasterTenant || r.SchoolId == CurrentSchoolId);
+
+        builder.Entity<RolePermission>()
+            .HasQueryFilter(p => IsMasterTenant || p.SchoolId == CurrentSchoolId);
 
         // Every entity's Guid PublicId is an alternate key (a unique constraint), the only identity the API exposes. The
         // int Id stays the primary key for joins and foreign keys (ENG-ID-01, ENG-ID-02).

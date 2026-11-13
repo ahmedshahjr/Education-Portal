@@ -13,9 +13,14 @@ public class TenantModule : BaseAuditableEntity
         // For EF Core.
     }
 
-    internal TenantModule(Subscription subscription, PortalModule module, DateTimeOffset validFrom, DateTimeOffset? validTo)
+    internal TenantModule(Subscription subscription, PortalModule module, Branch? branch, DateTimeOffset validFrom, DateTimeOffset? validTo)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(module.Id);
+
+        if (branch is not null)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(branch.Id);
+        }
 
         if (validTo is not null && validTo <= validFrom)
         {
@@ -25,6 +30,7 @@ public class TenantModule : BaseAuditableEntity
         Subscription = subscription;
         SchoolId = subscription.SchoolId;
         ModuleId = module.Id;
+        BranchId = branch?.Id;
         Status = TenantModuleStatus.Active;
         ValidFrom = validFrom;
         ValidTo = validTo;
@@ -47,4 +53,10 @@ public class TenantModule : BaseAuditableEntity
 
     /// <summary>When the module stops working unless renewed, or <c>null</c> for no end.</summary>
     public DateTimeOffset? ValidTo { get; private set; }
+
+    /// <summary>Switches the module off while the subscription is suspended. The module's data is kept.</summary>
+    public void Suspend() => Status = TenantModuleStatus.Suspended;
+
+    /// <summary>Switches a suspended module back on.</summary>
+    public void Reactivate() => Status = TenantModuleStatus.Active;
 }

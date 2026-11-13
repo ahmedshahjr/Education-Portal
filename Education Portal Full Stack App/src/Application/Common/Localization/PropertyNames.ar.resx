@@ -34,4 +34,5 @@
   <data name="PlanCode" xml:space="preserve"><value>الخطة</value></data>
   <data name="TrialDays" xml:space="preserve"><value>أيام التجربة</value></data>
   <data name="DataRegion" xml:space="preserve"><value>منطقة البيانات</value></data>
+  <data name="Permissions" xml:space="preserve"><value>الصلاحيات</value></data>
 </root>

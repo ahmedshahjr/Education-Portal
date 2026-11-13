@@ -41,7 +41,7 @@ public class ModuleAuthorizationTests
     [Test]
     public async Task ShouldRunWhenTheModuleIsOnForTheSchool()
     {
-        _modules.Setup(m => m.IsEnabledAsync(SchoolId, ModuleCodes.Exams, It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        _modules.Setup(m => m.HasModuleAsync(SchoolId, ModuleCodes.Exams, null, It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         var result = await Behaviour<GradesRequest>().Handle(new GradesRequest(), _ => Task.FromResult(42), CancellationToken.None);
 
@@ -51,13 +51,16 @@ public class ModuleAuthorizationTests
     [Test]
     public async Task ShouldRefuseWhenTheModuleIsOffForTheSchool()
     {
-        _modules.Setup(m => m.IsEnabledAsync(SchoolId, ModuleCodes.Exams, It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        _modules.Setup(m => m.HasModuleAsync(SchoolId, ModuleCodes.Exams, null, It.IsAny<CancellationToken>())).ReturnsAsync(false);
         var ran = false;
 
-        await Should.ThrowAsync<ForbiddenAccessException>(() =>
+        var thrown = await Should.ThrowAsync<ModuleNotEnabledException>(() =>
             Behaviour<GradesRequest>().Handle(new GradesRequest(), _ => { ran = true; return Task.FromResult(42); }, CancellationToken.None));
 
         ran.ShouldBeFalse();
+        thrown.ModuleCode.ShouldBe(ModuleCodes.Exams);
+        thrown.ShouldBeAssignableTo<ForbiddenAccessException>(); // still a 403 for anything that handles forbidden requests
+        ModuleNotEnabledException.ErrorCode.ShouldBe("MODULE_NOT_ENABLED");
     }
 
     [Test]

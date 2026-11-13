@@ -104,17 +104,25 @@ public class Subscription : BaseAuditableEntity
 
     public IReadOnlyCollection<TenantModule> Modules => _modules;
 
-    /// <summary>Gives the school a module for the subscription's current period.</summary>
-    public TenantModule AddModule(PortalModule module)
+    /// <summary>
+    /// Gives the school a module for the subscription's current period: for the whole school, or for one of its branches
+    /// when <paramref name="branch"/> is given. The same module can be given to several branches, but only once to each.
+    /// </summary>
+    public TenantModule AddModule(PortalModule module, Branch? branch = null)
     {
         ArgumentNullException.ThrowIfNull(module);
 
-        if (_modules.Any(m => m.ModuleId == module.Id))
+        if (branch is not null && branch.SchoolId != SchoolId)
+        {
+            throw new ArgumentException("A branch belongs to the subscription's school.", nameof(branch));
+        }
+
+        if (_modules.Any(m => m.ModuleId == module.Id && m.BranchId == branch?.Id))
         {
             throw new InvalidOperationException("The subscription already has this module.");
         }
 
-        var tenantModule = new TenantModule(this, module, StartDate, EndDate);
+        var tenantModule = new TenantModule(this, module, branch, StartDate, EndDate);
         _modules.Add(tenantModule);
         return tenantModule;
     }
