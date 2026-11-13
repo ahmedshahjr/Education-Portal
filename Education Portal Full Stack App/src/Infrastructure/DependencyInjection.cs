@@ -1,6 +1,7 @@
 ﻿using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Security;
 using EducationPortal.Infrastructure.Data;
+using EducationPortal.Infrastructure.Data.Locations;
 using EducationPortal.Infrastructure.Data.Interceptors;
 using EducationPortal.Infrastructure.Identity;
 using EducationPortal.Infrastructure.Localization;
@@ -38,6 +39,7 @@ public static class DependencyInjection
         builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         builder.Services.AddScoped<ApplicationDbContextInitialiser>();
+        builder.Services.AddScoped<LocationDataImporter>();
 
         builder.Services.AddSingleton(TimeProvider.System);
 

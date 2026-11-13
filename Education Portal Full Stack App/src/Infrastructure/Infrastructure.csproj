@@ -28,6 +28,8 @@
   <ItemGroup>
     <!-- Common passwords for PasswordPolicyValidator (SEC-AUTHN-03). Source and licence: CommonPasswords.LICENSE.txt -->
     <EmbeddedResource Include="Identity\CommonPasswords.txt.gz" LogicalName="EducationPortal.Infrastructure.Identity.CommonPasswords.txt.gz" />
+    <!-- Countries, states and cities for the address dropdowns (LocationDataImporter). Source and licence: the file's "source" block; rebuild with scripts/update-location-data.cs -->
+    <EmbeddedResource Include="Data\Locations\locations.json" LogicalName="EducationPortal.Infrastructure.Data.Locations.locations.json" />
   </ItemGroup>
 
   <ItemGroup>

@@ -22,6 +22,11 @@ public class CountryConfiguration : IEntityTypeConfiguration<Country>
             .IsRequired()
             .ElementType(element => element.HasMaxLength(Language.CodeLength));
 
+        builder.Property(c => c.Iso3).HasMaxLength(Country.Iso3Length).IsFixedLength();
+        builder.Property(c => c.PhoneCode).HasMaxLength(Country.PhoneCodeMaxLength);
+        builder.Property(c => c.NativeName).HasMaxLength(Country.NativeNameMaxLength);
+
         builder.HasIndex(c => c.Code).IsUnique();
+        builder.HasIndex(c => c.Iso3).IsUnique();
     }
 }

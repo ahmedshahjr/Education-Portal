@@ -95,4 +95,41 @@ public class CountryTests
         Language.Find("en")!.IsRightToLeft.ShouldBeFalse();
         Language.Find("fr").ShouldBeNull();
     }
+
+    [Test]
+    public void ShouldSetTheReferenceCodesFromTheLocationData()
+    {
+        var country = Country.Create("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR");
+
+        country.SetReferenceCodes("pak", "+92", " پاکستان ");
+
+        country.Iso3.ShouldBe("PAK");
+        country.PhoneCode.ShouldBe("92");
+        country.NativeName.ShouldBe("پاکستان");
+        country.Name.ShouldBe("Pakistan");
+        country.Languages.ShouldBe(["en", "ur"]);
+    }
+
+    [Test]
+    public void ShouldAcceptADashedPhoneCodeAndNoNativeName()
+    {
+        var country = Country.Create("US", "United States", ["en"], "en", "America/New_York", "USD");
+
+        country.SetReferenceCodes("USA", "1-684", null);
+
+        country.PhoneCode.ShouldBe("1-684");
+        country.NativeName.ShouldBeNull();
+    }
+
+    [TestCase("PK", "92")]
+    [TestCase("PAKI", "92")]
+    [TestCase("P4K", "92")]
+    [TestCase("PAK", "9a")]
+    [TestCase("PAK", "12345")]
+    public void ShouldRefuseInvalidReferenceCodes(string iso3, string phoneCode)
+    {
+        var country = Country.Create("PK", "Pakistan", ["en"], "en", "Asia/Karachi", "PKR");
+
+        Should.Throw<ArgumentException>(() => country.SetReferenceCodes(iso3, phoneCode, null));
+    }
 }

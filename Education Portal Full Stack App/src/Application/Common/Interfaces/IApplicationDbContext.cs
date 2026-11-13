@@ -16,6 +16,12 @@ public interface IApplicationDbContext
     /// <summary>Countries and their regional settings. Platform reference data that only the master tenant changes.</summary>
     DbSet<Country> Countries { get; }
 
+    /// <summary>States and provinces of each country, for address dropdowns. Platform reference data, not owned by a school.</summary>
+    DbSet<State> States { get; }
+
+    /// <summary>Cities of each state, for address dropdowns. Platform reference data, not owned by a school.</summary>
+    DbSet<City> Cities { get; }
+
     /// <summary>The portal's modules and which are default. Platform reference data that only the master tenant changes.</summary>
     DbSet<PortalModule> Modules { get; }
 

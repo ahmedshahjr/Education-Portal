@@ -1,5 +1,6 @@
 ﻿using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
+using EducationPortal.Infrastructure.Data.Locations;
 using EducationPortal.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Builder;
@@ -25,7 +26,22 @@ public static class InitialiserExtensions
         var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
 
         await initialiser.InitialiseAsync();
+
+        // The location data comes before the demo seed, which assigns its schools to the imported countries.
+        await scope.ServiceProvider.GetRequiredService<LocationDataImporter>().ImportAsync();
+
         await initialiser.SeedAsync();
+    }
+
+    /// <summary>
+    /// Imports the built-in countries, states and cities (<see cref="LocationDataImporter"/>). Runs on every start-up outside
+    /// Development, where <see cref="InitialiseDatabaseAsync"/> does it; safe to run again. The schema must already exist.
+    /// </summary>
+    public static async Task ImportLocationDataAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+
+        await scope.ServiceProvider.GetRequiredService<LocationDataImporter>().ImportAsync();
     }
 }
 
@@ -102,25 +118,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        // Countries: the master tenant manages these; one per market so each demo school offers its own languages.
-        // Add any the seed knows and the database lacks, like the modules above. The United States has several time
-        // zones; the country's zone is only the fallback, because each user's own browser zone wins (X-Time-Zone).
-        Country[] seedCountries =
-        [
-            Country.Create("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR"),
-            Country.Create("AE", "United Arab Emirates", ["en", "ar"], "en", "Asia/Dubai", "AED"),
-            Country.Create("US", "United States", ["en"], "en", "America/New_York", "USD"),
-        ];
-
-        var knownCountries = await _context.Countries.Select(c => c.Code).ToListAsync();
-        var missingCountries = seedCountries.Where(c => !knownCountries.Contains(c.Code)).ToList();
-
-        if (missingCountries.Count > 0)
-        {
-            _context.Countries.AddRange(missingCountries);
-            await _context.SaveChangesAsync();
-        }
-
+        // Countries come from the location data import, which runs before this seed (LocationDataImporter).
         var pakistan = await _context.Countries.SingleAsync(c => c.Code == "PK");
         var uae = await _context.Countries.SingleAsync(c => c.Code == "AE");
         var usa = await _context.Countries.SingleAsync(c => c.Code == "US");

@@ -16,6 +16,9 @@ public partial class Country : BaseSoftDeletableEntity
     public const int NameMaxLength = 100;
     public const int TimeZoneIdMaxLength = 64;
     public const int CurrencyCodeLength = 3;
+    public const int Iso3Length = 3;
+    public const int PhoneCodeMaxLength = 16;
+    public const int NativeNameMaxLength = 200;
 
     private readonly List<string> _languages = [];
 
@@ -56,6 +59,15 @@ public partial class Country : BaseSoftDeletableEntity
     public string Code { get; private set; }
 
     public string Name { get; private set; }
+
+    /// <summary>The ISO 3166-1 alpha-3 code, for example <c>PAK</c>. Filled by the location data import; <c>null</c> for a country it does not cover.</summary>
+    public string? Iso3 { get; private set; }
+
+    /// <summary>The international dialling code without the plus sign, for example <c>92</c>.</summary>
+    public string? PhoneCode { get; private set; }
+
+    /// <summary>The name in the country's own language and script, for example <c>پاکستان</c>.</summary>
+    public string? NativeName { get; private set; }
 
     /// <summary>The ISO 639-1 codes of the languages schools in this country offer, in menu order.</summary>
     public IReadOnlyList<string> Languages => _languages.AsReadOnly();
@@ -114,6 +126,34 @@ public partial class Country : BaseSoftDeletableEntity
         CurrencyCode = currencyCode;
     }
 
+    /// <summary>
+    /// Sets the reference codes that come from the location dataset. The master tenant's own settings (name, languages,
+    /// time zone and currency) are left alone, so a data update never overwrites them.
+    /// </summary>
+    public void SetReferenceCodes(string iso3, string? phoneCode, string? nativeName)
+    {
+        if (iso3 is null || !Iso3Pattern().IsMatch(iso3))
+        {
+            throw new ArgumentException("An ISO 3166-1 alpha-3 code is three letters, for example PAK.", nameof(iso3));
+        }
+
+        var phone = string.IsNullOrWhiteSpace(phoneCode) ? null : phoneCode.Trim().TrimStart('+');
+        if (phone is not null && !PhoneCodePattern().IsMatch(phone))
+        {
+            throw new ArgumentException("A phone code is digits, optionally with a dash, for example 92 or 1-684.", nameof(phoneCode));
+        }
+
+        var native = string.IsNullOrWhiteSpace(nativeName) ? null : nativeName.Trim();
+        if (native is not null)
+        {
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(native.Length, NativeNameMaxLength, nameof(nativeName));
+        }
+
+        Iso3 = iso3.ToUpperInvariant();
+        PhoneCode = phone;
+        NativeName = native;
+    }
+
     public bool Offers(string? language) =>
         language is not null && _languages.Contains(language.ToLowerInvariant());
 
@@ -134,4 +174,10 @@ public partial class Country : BaseSoftDeletableEntity
 
     [GeneratedRegex("^[A-Z]{3}$")]
     private static partial Regex CurrencyCodePattern();
+
+    [GeneratedRegex("^[A-Za-z]{3}$")]
+    private static partial Regex Iso3Pattern();
+
+    [GeneratedRegex("^[0-9]{1,4}(-[0-9]{1,4})?$")]
+    private static partial Regex PhoneCodePattern();
 }
