@@ -44,4 +44,9 @@
   <data name="ModuleNotFound" xml:space="preserve"><value>الوحدة غير موجودة.</value></data>
   <data name="PriceExists" xml:space="preserve"><value>تحتوي قائمة الأسعار هذه بالفعل على سعر لتلك الخطة أو الوحدة ودورة الفوترة.</value></data>
   <data name="PriceInvalid" xml:space="preserve"><value>السعر صفر أو أكثر، وبحد أقصى منزلتين عشريتين.</value></data>
+  <data name="SubscriptionExists" xml:space="preserve"><value>لدى المدرسة اشتراك بالفعل.</value></data>
+  <data name="SchoolHasNoCountry" xml:space="preserve"><value>حدّد دولة للمدرسة أولاً: تحدَّد قائمة الأسعار بحسب الدولة.</value></data>
+  <data name="PriceMissing" xml:space="preserve"><value>لا يوجد سعر لهذا الاختيار في قائمة أسعار الدولة.</value></data>
+  <data name="ModuleInactive" xml:space="preserve"><value>إحدى الوحدات في هذا الاشتراك غير نشطة.</value></data>
+  <data name="SubscriptionNeedsPlanOrModule" xml:space="preserve"><value>اختر خطة أو وحدة واحدة على الأقل.</value></data>
 </root>

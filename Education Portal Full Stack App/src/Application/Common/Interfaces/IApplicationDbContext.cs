@@ -43,5 +43,11 @@ public interface IApplicationDbContext
     /// <summary>The prices of plans and add-on modules in each price book.</summary>
     DbSet<PriceBookItem> PriceBookItems { get; }
 
+    DbSet<Branch> Branches { get; }
+
+    DbSet<Subscription> Subscriptions { get; }
+
+    DbSet<TenantModule> TenantModules { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

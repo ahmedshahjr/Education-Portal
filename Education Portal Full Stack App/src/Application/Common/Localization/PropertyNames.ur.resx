@@ -31,4 +31,7 @@
   <data name="BillingCycle" xml:space="preserve"><value>بلنگ کی مدت</value></data>
   <data name="PlanId" xml:space="preserve"><value>پلان</value></data>
   <data name="ModuleCode" xml:space="preserve"><value>ماڈیول</value></data>
+  <data name="PlanCode" xml:space="preserve"><value>پلان</value></data>
+  <data name="TrialDays" xml:space="preserve"><value>آزمائشی دن</value></data>
+  <data name="DataRegion" xml:space="preserve"><value>ڈیٹا کا خطہ</value></data>
 </root>

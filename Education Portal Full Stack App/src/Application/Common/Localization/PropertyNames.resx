@@ -31,4 +31,7 @@
   <data name="BillingCycle" xml:space="preserve"><value>Billing cycle</value></data>
   <data name="PlanId" xml:space="preserve"><value>Plan</value></data>
   <data name="ModuleCode" xml:space="preserve"><value>Module</value></data>
+  <data name="PlanCode" xml:space="preserve"><value>Plan</value></data>
+  <data name="TrialDays" xml:space="preserve"><value>Trial days</value></data>
+  <data name="DataRegion" xml:space="preserve"><value>Data region</value></data>
 </root>

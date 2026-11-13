@@ -65,4 +65,10 @@ public enum SecurityAuditEventType
 
     /// <summary>The master tenant added, changed or removed a price in a price book.</summary>
     PriceChanged = 23,
+
+    /// <summary>The master tenant started a subscription for a school.</summary>
+    SubscriptionCreated = 24,
+
+    /// <summary>The master tenant set a school's data region.</summary>
+    DataRegionChanged = 25,
 }

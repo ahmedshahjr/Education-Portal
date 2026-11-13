@@ -72,6 +72,19 @@ public class School : BaseSoftDeletableEntity
         CountryId = countryId;
     }
 
+    /// <summary>Where the school's data is kept, or <c>null</c> when not set. Only the master tenant sets it.</summary>
+    public DataRegion? DataRegion { get; private set; }
+
+    public void AssignDataRegion(DataRegion? dataRegion)
+    {
+        if (dataRegion is { } region && !Enum.IsDefined(region))
+        {
+            throw new ArgumentOutOfRangeException(nameof(dataRegion), dataRegion, "Unknown data region.");
+        }
+
+        DataRegion = dataRegion;
+    }
+
     public void UpdateBranding(HexColor accentColor, HexColor? sidebarColor)
     {
         ArgumentNullException.ThrowIfNull(accentColor);

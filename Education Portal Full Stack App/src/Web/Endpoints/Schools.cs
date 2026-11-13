@@ -3,11 +3,15 @@ using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Modules.Commands.SetSchoolModule;
 using EducationPortal.Application.Modules.Common;
 using EducationPortal.Application.Modules.Queries.GetSchoolModules;
+using EducationPortal.Application.Schools.Commands.SetDataRegion;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolBranding;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolCountry;
 using EducationPortal.Application.Schools.Queries.GetSchoolBranding;
 using EducationPortal.Application.Schools.Queries.GetSchoolBrandingImage;
 using EducationPortal.Application.Schools.Queries.GetSchools;
+using EducationPortal.Application.Subscriptions.Commands.CreateSubscription;
+using EducationPortal.Application.Subscriptions.Common;
+using EducationPortal.Application.Subscriptions.Queries.GetSchoolSubscription;
 using EducationPortal.Domain.Enums;
 using EducationPortal.Web.Infrastructure;
 using MediatR;
@@ -49,6 +53,42 @@ public class Schools : IEndpointGroup
         groupBuilder.MapPut(SetSchoolModule, "{schoolId:guid}/modules/{code}")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapPut(SetDataRegion, "{schoolId:guid}/data-region")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapGet(GetSchoolSubscription, "{schoolId:guid}/subscription")
+            .RequireAuthorization();
+
+        groupBuilder.MapPost(CreateSubscription, "{schoolId:guid}/subscription")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+    }
+
+    [EndpointSummary("Get a school's subscription")]
+    [EndpointDescription("Returns the school's current subscription (not cancelled): its plan, billing cycle, the price and currency copied from the price book, status, dates and the modules it gives. Answers 404 when the school has none. Master tenant only.")]
+    public static async Task<Ok<SubscriptionDto>> GetSchoolSubscription(ISender sender, Guid schoolId)
+    {
+        return TypedResults.Ok(await sender.Send(new GetSchoolSubscriptionQuery(schoolId)));
+    }
+
+    [EndpointSummary("Start a school's subscription")]
+    [EndpointDescription("Starts a subscription from a plan (planCode) and/or add-on module codes, one billing cycle and optional trialDays, and returns its id. The school gets the plan's modules, the add-ons, the modules they require and every core module, priced from its country's price book. The school needs a country and no subscription that is not cancelled; the master tenant needs none. Master tenant only.")]
+    public static async Task<Ok<Guid>> CreateSubscription(ISender sender, Guid schoolId, CreateSubscriptionCommand command)
+    {
+        // The route names the school; an id in the body is ignored.
+        return TypedResults.Ok(await sender.Send(command with { SchoolId = schoolId }));
+    }
+
+    [EndpointSummary("Set a school's data region")]
+    [EndpointDescription("Sets where the school's data is kept (SouthAsia, MiddleEast or NorthAmerica), or clears it with null. Master tenant only.")]
+    public static async Task<NoContent> SetDataRegion(ISender sender, Guid schoolId, SetDataRegionCommand command)
+    {
+        // The route names the school; an id in the body is ignored.
+        await sender.Send(command with { SchoolId = schoolId });
+
+        return TypedResults.NoContent();
     }
 
     [EndpointSummary("List a school's modules")]
