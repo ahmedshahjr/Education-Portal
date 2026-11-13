@@ -9,4 +9,7 @@ public static class TenantClaimTypes
     /// The user's saved language (ISO 639-1), when they chose one. Named like the OpenID Connect <c>locale</c> claim.
     /// </summary>
     public const string Language = "locale";
+
+    /// <summary>Present (with the value <c>true</c>) while the account must replace its one-time password.</summary>
+    public const string MustChangePassword = "education_portal/must_change_password";
 }

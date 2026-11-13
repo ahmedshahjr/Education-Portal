@@ -37,6 +37,12 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
                 throw new UnauthorizedAccessException();
             }
 
+            // An account that still has its one-time password can only replace it, read itself and sign out.
+            if (_user.MustChangePassword && !authorizeAttributes.Any(a => a.AllowWhilePasswordChangeRequired))
+            {
+                throw new PasswordChangeRequiredException();
+            }
+
             // Master-tenant use cases run only on the master tenant's domain (SEC-AUTHZ-07)
             if (authorizeAttributes.Any(a => a.MasterTenant) && !_tenant.IsMaster)
             {

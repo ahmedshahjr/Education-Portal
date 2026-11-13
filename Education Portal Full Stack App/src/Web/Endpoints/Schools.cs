@@ -2,6 +2,7 @@ using EducationPortal.Application.Branding.Common;
 using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Modules.Common;
 using EducationPortal.Application.Modules.Queries.GetSchoolModules;
+using EducationPortal.Application.Schools.Commands.CreateSchool;
 using EducationPortal.Application.Schools.Commands.SetDataRegion;
 using EducationPortal.Application.Schools.Commands.SetSchoolTaxRate;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolBranding;
@@ -32,6 +33,10 @@ public class Schools : IEndpointGroup
     {
         groupBuilder.MapGet(GetSchools)
             .RequireAuthorization();
+
+        groupBuilder.MapPost(CreateSchool)
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
         groupBuilder.MapGet(GetSchoolBranding, "{schoolId:guid}/branding")
             .RequireAuthorization();
@@ -64,6 +69,15 @@ public class Schools : IEndpointGroup
         groupBuilder.MapPost(CreateSubscription, "{schoolId:guid}/subscription")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+    }
+
+    [EndpointSummary("Add a school")]
+    [EndpointDescription("Adds a school tenant on its own domain (a host name such as school1.com that no other school uses), optionally with its country, which sets its languages, time zone, currency and price book, and its data region. It starts with the default branding and no subscription. Returns the school's id. Master tenant only.")]
+    public static async Task<Created<Guid>> CreateSchool(ISender sender, CreateSchoolCommand command)
+    {
+        var id = await sender.Send(command);
+
+        return TypedResults.Created($"/api/Schools/{id}", id);
     }
 
     [EndpointSummary("Get a school's subscription")]

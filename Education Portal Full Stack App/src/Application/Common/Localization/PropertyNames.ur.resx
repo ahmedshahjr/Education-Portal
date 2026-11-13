@@ -41,4 +41,9 @@
   <data name="Method" xml:space="preserve"><value>ادائیگی کا طریقہ</value></data>
   <data name="TaxRate" xml:space="preserve"><value>ٹیکس کی شرح</value></data>
   <data name="NextPeriod" xml:space="preserve"><value>اگلی مدت</value></data>
+  <data name="Domain" xml:space="preserve"><value>ڈومین</value></data>
+  <data name="AdministratorEmail" xml:space="preserve"><value>منتظم کا ای میل</value></data>
+  <data name="AdministratorPassword" xml:space="preserve"><value>ایک بار کا پاس ورڈ</value></data>
+  <data name="CurrentPassword" xml:space="preserve"><value>موجودہ پاس ورڈ</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>نیا پاس ورڈ</value></data>
 </root>

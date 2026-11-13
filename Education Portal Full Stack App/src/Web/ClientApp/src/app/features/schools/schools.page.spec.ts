@@ -120,4 +120,62 @@ describe('SchoolsPage', () => {
     await rowsShouldBe(fixture, ['Alpha Academy', 'Beta School']);
     expect(element.querySelector<HTMLInputElement>('input[type="search"]')!.value).toBe('');
   });
+
+  it('adds a school with its first administrator and then shows it', async () => {
+    const { fixture, http, element } = await render();
+
+    [...element.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.trim() === 'Add school')!.click();
+    await fixture.whenStable();
+    fillField(element, 'name', 'New School');
+    fillField(element, 'domain', 'new.localhost');
+    fillField(element, 'administratorEmail', 'head@new.local');
+    fillField(element, 'administratorPassword', 'violet harbour lantern 47');
+    element.querySelector<HTMLButtonElement>('app-school-form button[type="submit"]')!.click();
+
+    const create = http.expectOne((r) => r.method === 'POST' && r.url === '/api/Schools');
+    expect(JSON.parse(create.request.body as string)).toEqual({
+      name: 'New School',
+      domain: 'new.localhost',
+      administratorEmail: 'head@new.local',
+      administratorPassword: 'violet harbour lantern 47',
+    });
+    create.flush(blob('0190f3a0-0000-7000-8000-000000000009'), { status: 201, statusText: 'Created' });
+
+    const request = await nextSchoolsRequest(http);
+    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25&search=New%20School');
+    request.flush(pageOf([{ id: '0190f3a0-0000-7000-8000-000000000009', name: 'New School' }]));
+
+    await rowsShouldBe(fixture, ['New School']);
+    expect(element.querySelector('app-school-form')).toBeNull();
+  });
+
+  it('keeps the form open and shows the server\'s message when the school is refused', async () => {
+    const { fixture, http, element } = await render();
+
+    [...element.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.trim() === 'Add school')!.click();
+    await fixture.whenStable();
+    fillField(element, 'name', 'Copy');
+    fillField(element, 'domain', 'alphaacademy.localhost');
+    fillField(element, 'administratorEmail', 'head@new.local');
+    fillField(element, 'administratorPassword', 'violet harbour lantern 47');
+    element.querySelector<HTMLButtonElement>('app-school-form button[type="submit"]')!.click();
+
+    http
+      .expectOne((r) => r.method === 'POST' && r.url === '/api/Schools')
+      .flush(blob({ status: 400, title: 'Bad Request', errors: { Domain: ['Another school already uses this domain.'] } }), {
+        status: 400,
+        statusText: 'Bad Request',
+      });
+
+    await vi.waitFor(async () => {
+      await fixture.whenStable();
+      expect(element.querySelector('app-school-form')?.textContent).toContain('Another school already uses this domain.');
+    });
+  });
 });
+
+function fillField(element: HTMLElement, name: string, value: string) {
+  const input = element.querySelector<HTMLInputElement>(`app-school-form input[formcontrolname="${name}"]`)!;
+  input.value = value;
+  input.dispatchEvent(new Event('input'));
+}

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { administratorGuard, authGuard, masterAdministratorGuard } from './core/auth/auth.guards';
+import { administratorGuard, authGuard, masterAdministratorGuard, signedInGuard } from './core/auth/auth.guards';
 
 export const routes: Routes = [
   {
@@ -11,6 +11,12 @@ export const routes: Routes = [
     path: 'request-school',
     title: $localize`:@@requestSchool.pageTitle:Request a school`,
     loadComponent: () => import('./features/school-requests/request-school.page').then((m) => m.RequestSchoolPage),
+  },
+  {
+    path: 'change-password',
+    title: $localize`:@@changePassword.pageTitle:Choose your password`,
+    canActivate: [signedInGuard],
+    loadComponent: () => import('./features/account/change-password.page').then((m) => m.ChangePasswordPage),
   },
   {
     path: '',

@@ -1,5 +1,6 @@
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Models;
+using EducationPortal.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
@@ -46,6 +47,68 @@ public class IdentityService : IIdentityService
         var result = await _userManager.CreateAsync(user, password);
 
         return (result.ToApplicationResult(), user.Id);
+    }
+
+    public async Task<bool> IsEmailTakenAsync(string email)
+    {
+        return await _userManager.FindByEmailAsync(email) is not null;
+    }
+
+    public async Task<(Result Result, string UserId)> CreateSchoolAdministratorAsync(int schoolId, string email, string oneTimePassword)
+    {
+        var user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            SchoolId = schoolId,
+            MustChangePassword = true,
+        };
+
+        var created = await _userManager.CreateAsync(user, oneTimePassword);
+
+        if (!created.Succeeded)
+        {
+            return (created.ToApplicationResult(), string.Empty);
+        }
+
+        var inRole = await _userManager.AddToRoleAsync(user, Roles.Administrator);
+
+        return (inRole.ToApplicationResult(), user.Id);
+    }
+
+    public async Task<Result> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            return Result.Failure(["The user does not exist."]);
+        }
+
+        // Checks the current password and the policy, saves the new hash and rotates the security stamp, which ends
+        // every other session of the user.
+        var changed = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+
+        if (!changed.Succeeded)
+        {
+            return changed.ToApplicationResult();
+        }
+
+        if (user.MustChangePassword)
+        {
+            user.MustChangePassword = false;
+            var updated = await _userManager.UpdateAsync(user);
+
+            if (!updated.Succeeded)
+            {
+                return updated.ToApplicationResult();
+            }
+        }
+
+        // The stamp changed, so this browser's cookie is renewed too; otherwise the next request would sign it out.
+        await _signInManager.RefreshSignInAsync(user);
+
+        return Result.Success();
     }
 
     public async Task<Result> SetPreferredLanguageAsync(string userId, string language)
@@ -159,7 +222,7 @@ public class IdentityService : IIdentityService
 
         var roles = await _userManager.GetRolesAsync(user);
 
-        return new CurrentUserDto(user.Id, user.Email ?? string.Empty, roles.ToList());
+        return new CurrentUserDto(user.Id, user.Email ?? string.Empty, roles.ToList(), user.MustChangePassword);
     }
 
     private string DummyPasswordHash()

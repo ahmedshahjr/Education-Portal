@@ -125,6 +125,30 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         }
     }
 
+    public async Task<T> ExecuteInTransactionAsync<T>(Func<CancellationToken, Task<T>> operation, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        if (Database.CurrentTransaction is not null)
+        {
+            return await operation(cancellationToken);
+        }
+
+        // Aspire's Npgsql integration retries transient failures, so the whole transaction runs as one retriable unit
+        // under that execution strategy. Disposing the transaction without a commit rolls it back, so any exception
+        // undoes every save (fail closed).
+        var strategy = Database.CreateExecutionStrategy();
+
+        return await strategy.ExecuteAsync(async token =>
+        {
+            await using var transaction = await Database.BeginTransactionAsync(token);
+            var result = await operation(token);
+            await transaction.CommitAsync(token);
+
+            return result;
+        }, cancellationToken);
+    }
+
     private static void ApplySoftDeleteFilter(ModelBuilder builder, Type entityClrType)
     {
         var method = typeof(ApplicationDbContext)

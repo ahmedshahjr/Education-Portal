@@ -29,6 +29,12 @@ internal sealed class ApplicationUserClaimsPrincipalFactory(
             identity.AddClaim(new Claim(TenantClaimTypes.Language, user.PreferredLanguage));
         }
 
+        // Rebuilt on each request too, so the block ends on the request after the password is changed.
+        if (user.MustChangePassword)
+        {
+            identity.AddClaim(new Claim(TenantClaimTypes.MustChangePassword, "true"));
+        }
+
         return identity;
     }
 }

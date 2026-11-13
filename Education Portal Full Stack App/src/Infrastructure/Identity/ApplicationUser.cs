@@ -15,4 +15,10 @@ public class ApplicationUser : IdentityUser
     /// follows them to every device; used only while the school offers it (ADR-005).
     /// </summary>
     public string? PreferredLanguage { get; set; }
+
+    /// <summary>
+    /// True while the account still has the one-time password it was created with. Until the user sets their own, every
+    /// request except reading their account, changing the password and signing out is refused.
+    /// </summary>
+    public bool MustChangePassword { get; set; }
 }

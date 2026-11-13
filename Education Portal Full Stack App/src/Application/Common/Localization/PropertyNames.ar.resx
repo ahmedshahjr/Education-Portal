@@ -41,4 +41,9 @@
   <data name="Method" xml:space="preserve"><value>طريقة الدفع</value></data>
   <data name="TaxRate" xml:space="preserve"><value>نسبة الضريبة</value></data>
   <data name="NextPeriod" xml:space="preserve"><value>الفترة التالية</value></data>
+  <data name="Domain" xml:space="preserve"><value>النطاق</value></data>
+  <data name="AdministratorEmail" xml:space="preserve"><value>البريد الإلكتروني للمسؤول</value></data>
+  <data name="AdministratorPassword" xml:space="preserve"><value>كلمة المرور لمرة واحدة</value></data>
+  <data name="CurrentPassword" xml:space="preserve"><value>كلمة المرور الحالية</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>كلمة المرور الجديدة</value></data>
 </root>

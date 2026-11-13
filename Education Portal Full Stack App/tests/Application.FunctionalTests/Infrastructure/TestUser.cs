@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Common.Security;
 using Microsoft.AspNetCore.Http;
 
 namespace EducationPortal.Application.FunctionalTests.Infrastructure;
@@ -17,4 +18,7 @@ internal sealed class TestUser(IHttpContextAccessor httpContextAccessor) : IUser
     public List<string>? Roles => httpContextAccessor.HttpContext is { } context
         ? context.User.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToList()
         : TestApp.GetRoles();
+
+    public bool MustChangePassword =>
+        httpContextAccessor.HttpContext?.User.HasClaim(TenantClaimTypes.MustChangePassword, "true") ?? false;
 }
