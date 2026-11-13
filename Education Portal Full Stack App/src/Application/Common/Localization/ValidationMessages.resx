@@ -53,4 +53,8 @@
   <data name="RightsNeedView" xml:space="preserve"><value>Creating, editing and deleting need the right to view.</value></data>
   <data name="ModuleNotEnabledForSchool" xml:space="preserve"><value>The school does not have this module, so it cannot get rights in it.</value></data>
   <data name="RoleNotFound" xml:space="preserve"><value>The role does not exist.</value></data>
+  <data name="SchoolDomainFormat" xml:space="preserve"><value>The domain must be a host name such as school1.com, without http://, a port or a path.</value></data>
+  <data name="SchoolDomainTaken" xml:space="preserve"><value>Another school already uses this domain.</value></data>
+  <data name="EmailTaken" xml:space="preserve"><value>Another account already uses this email.</value></data>
+  <data name="NewPasswordSameAsCurrent" xml:space="preserve"><value>The new password must be different from the current one.</value></data>
 </root>

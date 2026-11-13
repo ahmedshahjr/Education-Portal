@@ -52,4 +52,10 @@ public interface IApplicationDbContext
     DbSet<RolePermission> RolePermissions { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Runs <paramref name="operation"/> in one database transaction, so every save inside it, Identity's included, is
+    /// committed together or not at all. An exception rolls everything back. Inside a running transaction it just runs.
+    /// </summary>
+    Task<T> ExecuteInTransactionAsync<T>(Func<CancellationToken, Task<T>> operation, CancellationToken cancellationToken);
 }

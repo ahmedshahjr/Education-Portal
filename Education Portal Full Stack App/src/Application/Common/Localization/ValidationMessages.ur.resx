@@ -53,4 +53,8 @@
   <data name="RightsNeedView" xml:space="preserve"><value>بنانے، ترمیم اور حذف کے لیے دیکھنے کا حق ضروری ہے۔</value></data>
   <data name="ModuleNotEnabledForSchool" xml:space="preserve"><value>اسکول کے پاس یہ ماڈیول نہیں ہے، اس لیے اس میں حقوق نہیں دیے جا سکتے۔</value></data>
   <data name="RoleNotFound" xml:space="preserve"><value>کردار موجود نہیں ہے۔</value></data>
+  <data name="SchoolDomainFormat" xml:space="preserve"><value>ڈومین school1.com جیسا ہوسٹ نام ہونا چاہیے، http://، پورٹ یا پاتھ کے بغیر۔</value></data>
+  <data name="SchoolDomainTaken" xml:space="preserve"><value>یہ ڈومین پہلے ہی کوئی دوسرا اسکول استعمال کر رہا ہے۔</value></data>
+  <data name="EmailTaken" xml:space="preserve"><value>یہ ای میل پہلے ہی کوئی دوسرا اکاؤنٹ استعمال کر رہا ہے۔</value></data>
+  <data name="NewPasswordSameAsCurrent" xml:space="preserve"><value>نیا پاس ورڈ موجودہ پاس ورڈ سے مختلف ہونا چاہیے۔</value></data>
 </root>

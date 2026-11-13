@@ -15,6 +15,8 @@ import { SearchInputComponent } from '../../shared/components/search-input/searc
 import {
   BrandingDto,
   CountriesClient,
+  CreateSchoolCommand,
+  DataRegion2,
   CountryDto,
   PaginatedListOfSchoolSummaryDto,
   SchoolsClient,
@@ -23,6 +25,7 @@ import {
 } from '../../web-api-client';
 import { BrandingChanges, toFileParameter } from '../branding/branding-changes';
 import { BrandingEditorComponent } from '../branding/branding-editor.component';
+import { NewSchool, SchoolFormComponent } from './school-form.component';
 import { SchoolModulesComponent } from './school-modules.component';
 
 const PAGE_SIZE = 25;
@@ -30,7 +33,7 @@ const PAGE_SIZE = 25;
 /** How long the search box waits after the last key press before asking the server, in milliseconds. */
 export const SEARCH_DELAY_MS = 300;
 
-/** Master portal: every school (searchable by name and limited to one country on request), its country (languages, time zone, currency) and its branding. Master tenant administrators only. */
+/** Master portal: every school (searchable by name and limited to one country on request), adding a school with its first administrator, its country (languages, time zone, currency) and its branding. Master tenant administrators only. */
 @Component({
   selector: 'app-schools-page',
   imports: [
@@ -46,6 +49,7 @@ export const SEARCH_DELAY_MS = 300;
     SearchInputComponent,
     BrandingEditorComponent,
     SchoolModulesComponent,
+    SchoolFormComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -54,7 +58,23 @@ export const SEARCH_DELAY_MS = 300;
       i18n-title="@@schools.title"
       subtitle="Master portal: every school on the platform, its country, its modules and its branding."
       i18n-subtitle="@@schools.subtitle"
-    />
+    >
+      @if (!adding()) {
+        <button mat-flat-button type="button" (click)="startAdding()" i18n="@@schools.add">Add school</button>
+      }
+    </app-page-header>
+
+    @if (adding()) {
+      <div class="mm-schools__section">
+        <app-school-form
+          [countries]="countries()"
+          [saving]="creating()"
+          [errors]="createErrors()"
+          (save)="create($event)"
+          (cancel)="adding.set(false)"
+        />
+      </div>
+    }
 
     <mat-card class="mm-card mm-elevated mm-schools">
       <mat-card-content>
@@ -111,6 +131,9 @@ export const SEARCH_DELAY_MS = 300;
               i18n-title="@@schools.empty"
               description="Schools appear here once they are added."
               i18n-description="@@schools.emptyDescription"
+              actionLabel="Add school"
+              i18n-actionLabel="@@schools.add"
+              (action)="startAdding()"
             />
           } @else {
             <table mat-table [dataSource]="schools.items" class="mm-schools__table">
@@ -277,6 +300,11 @@ export class SchoolsPage {
   protected readonly countries = signal<readonly CountryDto[]>([]);
   protected readonly assigning = signal<string | null>(null);
 
+  /** The "Add school" form: whether it is open, being sent, and the server's messages. */
+  protected readonly adding = signal(false);
+  protected readonly creating = signal(false);
+  protected readonly createErrors = signal<readonly string[]>([]);
+
   /** The name search and the country the table is limited to; the server filters, so paging stays correct. */
   protected readonly search = signal('');
   protected readonly countryFilter = signal<string | null>(null);
@@ -289,6 +317,46 @@ export class SchoolsPage {
     this.countriesClient.getCountries(1, 100).subscribe({
       next: (page) => this.countries.set(page.items),
       error: (error: unknown) => this.loadError.set(problemMessages(error)[0]),
+    });
+  }
+
+  protected startAdding(): void {
+    this.createErrors.set([]);
+    this.adding.set(true);
+  }
+
+  protected create(school: NewSchool): void {
+    this.creating.set(true);
+    this.createErrors.set([]);
+    const command = new CreateSchoolCommand({
+      name: school.name,
+      domain: school.domain,
+      countryId: school.countryId ?? undefined,
+      // NSwag types a nullable enum as an empty class (DataRegion2); on the wire it is the enum's name, as here.
+      dataRegion: (school.dataRegion ?? undefined) as unknown as DataRegion2 | undefined,
+      administratorEmail: school.administratorEmail,
+      administratorPassword: school.administratorPassword,
+    });
+
+    this.client.createSchool(command).subscribe({
+      next: () => {
+        this.creating.set(false);
+        this.adding.set(false);
+        this.snackBar.open(
+          $localize`:@@schools.created:${school.name}:SCHOOL: added. Its administrator signs in on ${school.domain}:DOMAIN: and must change the one-time password.`,
+          undefined,
+          { duration: 6000 }
+        );
+        // Show the new school: search for it, so it is on the first page whatever the sort order.
+        clearTimeout(this.searchTimer);
+        this.search.set(school.name);
+        this.countryFilter.set(null);
+        this.loadPage(0);
+      },
+      error: (error: unknown) => {
+        this.creating.set(false);
+        this.createErrors.set(problemMessages(error));
+      },
     });
   }
 

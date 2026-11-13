@@ -78,6 +78,13 @@ public class ProblemDetailsExceptionHandler(
                     ["module"] = notEnabled.ModuleCode,
                 },
             }),
+            PasswordChangeRequiredException => (StatusCodes.Status403Forbidden, new ProblemDetails
+            {
+                Status = StatusCodes.Status403Forbidden,
+                Title = localizer["Forbidden"],
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.4",
+                Extensions = { ["code"] = PasswordChangeRequiredException.ErrorCode },
+            }),
             ForbiddenAccessException => (StatusCodes.Status403Forbidden, new ProblemDetails
             {
                 Status = StatusCodes.Status403Forbidden,

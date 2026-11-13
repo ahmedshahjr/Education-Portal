@@ -33,4 +33,11 @@ public class AuthorizeAttribute : Attribute
     /// tenant is never limited by modules.
     /// </summary>
     public string Module { get; set; } = string.Empty;
+
+    /// <summary>
+    /// When true, the request still runs while the user must replace a one-time password (reading their own account,
+    /// changing the password, signing out). Every other request is refused with 403 and the code
+    /// <c>PASSWORD_CHANGE_REQUIRED</c> until the password is changed.
+    /// </summary>
+    public bool AllowWhilePasswordChangeRequired { get; set; }
 }

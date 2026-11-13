@@ -381,9 +381,9 @@ Step 2 adds a permission check after authorization: the module is switched on fo
 ### Sign-in and accounts
 
 - ASP.NET Core Identity from the template (kept on purpose), with users and roles in the same PostgreSQL database.
-- Three endpoints under `/api/Users` (`login`, `logout` and `me`) replace the template's Identity API endpoints. Signing in sets a session cookie.
-- `CurrentUser` (in `Web`) gives the Application layer the signed-in user's id and roles through `IUser`.
-- There is no public sign-up: staff create accounts. The template's register endpoint and page are removed.
+- Four endpoints under `/api/Users` (`login`, `logout`, `me` and `me/password`) replace the template's Identity API endpoints. Signing in sets a session cookie.
+- `CurrentUser` (in `Web`) gives the Application layer the signed-in user's id, roles and whether they must change a one-time password through `IUser`.
+- There is no public sign-up: staff create accounts. The template's register endpoint and page are removed. The master tenant creates each new school's first administrator with a **one-time password** (Schools, Add school). Until that administrator chooses their own password (`POST /api/Users/me/password`, the Angular `/change-password` page), every request except `me`, `logout` and `me/password` is refused with 403 and the code `PASSWORD_CHANGE_REQUIRED` (`AspNetUsers.MustChangePassword`, checked in `AuthorizationBehaviour`). Changing the password checks the current one and the password policy, ends the user's other sessions and is audited.
 - The security rules ask for more than the template defaults: a stronger password policy, account lockout, secure host-only cookies, session timeouts, and MFA for master users, school owners and staff who can change data ([authentication skill](docs/ai/secure-compliance/authentication/SKILL.md)). Step 2a adds the stronger password policy, lockout, secure host-only cookies, session timeouts and sign-in rate limits. The decisions are in [ADR-004](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-004-Security-Baseline.md). MFA is not built yet.
 
 ### Multi-tenancy and permissions (step 2, in progress)
@@ -439,7 +439,7 @@ A record from another school or branch returns 404 rather than 403, so ids can't
 - **School requests** (decided 2026-11-10). The login page links to a public "Request a school" form (`POST /api/SchoolRequests`, rate-limited per address). It creates a pending request only. The master tenant approves it; nothing else is created. Soft-deleted and inactive schools are hidden or refused (see below).
 - **Soft delete and active switch.** Schools and countries inherit `BaseSoftDeletableEntity`: deleted rows are hidden everywhere by a global query filter, and an inactive school's host is refused at tenant resolution. The master tenant cannot be switched off.
 - **Exactly one master tenant.** A unique index on the `Schools` table allows only one row with `IsMaster`, and the master is created only by seeding. Every other school is a school-owner tenant.
-- **Branding per school.** Each school has an accent colour (a colour picker, stored as #rrggbb, default cyan), an optional sidebar colour, a logo and a favicon. `GET /api/Branding` and `GET /api/Branding/images/{Logo|Favicon}` are public, because the login page needs them before sign-in, and only ever return the school of the request's address. A school's administrator changes its own branding with `PUT /api/Branding` (Settings, Branding); the master tenant's administrator lists schools with `GET /api/Schools` (the Schools page searches them by name with `search`, ignoring case, and limits them to one country with `countryId`; both filter on the server, so paging stays right) changes any school's branding with `GET`/`PUT /api/Schools/{id}/branding`, and views any school's logo and favicon with `GET /api/Schools/{id}/branding/images/{Logo|Favicon}`. Uploads are checked by their bytes: logo PNG, JPEG or WebP up to 512 KB, favicon PNG or ICO up to 100 KB, never SVG. They are stored in the database and served as attachments with `nosniff`. Every change is audited.
+- **Branding per school.** Each school has an accent colour (a colour picker, stored as #rrggbb, default cyan), an optional sidebar colour, a logo and a favicon. `GET /api/Branding` and `GET /api/Branding/images/{Logo|Favicon}` are public, because the login page needs them before sign-in, and only ever return the school of the request's address. A school's administrator changes its own branding with `PUT /api/Branding` (Settings, Branding); the master tenant's administrator adds a school with `POST /api/Schools` (name, a domain no other school uses, optional country and data region, and the first administrator's email and one-time password, saved in one transaction; the Schools page's **Add school** form, which can generate the password), lists schools with `GET /api/Schools` (the Schools page searches them by name with `search`, ignoring case, and limits them to one country with `countryId`; both filter on the server, so paging stays right) changes any school's branding with `GET`/`PUT /api/Schools/{id}/branding`, and views any school's logo and favicon with `GET /api/Schools/{id}/branding/images/{Logo|Favicon}`. Uploads are checked by their bytes: logo PNG, JPEG or WebP up to 512 KB, favicon PNG or ICO up to 100 KB, never SVG. They are stored in the database and served as attachments with `nosniff`. Every change is audited.
 
 - **Module catalogue** (decided 2026-11-13, [ADR-009](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-009-Sellable-Module-Catalogue.md)). The master tenant manages what the platform sells: each module has a stable code (`FEES`), a name, a description, a sort order, an **Active** switch, and is **core** (in every subscription, always on, never sold alone) or **paid** (on for a school only when it gets it). Modules can require others (`ModuleDependencies`, for example FEES requires STUDENTS); a loop, a module requiring itself and a core module requiring a paid one are refused. The catalogue API is `GET/POST /api/Modules`, `GET/PUT/DELETE /api/Modules/{code}` and `POST /api/Modules/{code}/dependencies`, `DELETE /api/Modules/{code}/dependencies/{requiresCode}`; delete is a soft delete and refused for core modules, modules others require and modules a plan or price book uses. A school gets paid modules only through its subscription (see below); the master sees what a school has under Schools, Modules (`GET /api/Schools/{id}/modules`, read only); core modules cannot be switched off. Every change is audited. Signed-in users get their school's modules from `GET /api/Modules/enabled`, and the menu hides the rest; the server refuses a request to a module that is off with 403 and the error code `MODULE_NOT_ENABLED` (`[Authorize(Module = ...)]`). AGENTS.md has the module table. Schools, the catalogue and the cross-school overview are for the master tenant only.
 
@@ -609,7 +609,11 @@ sequenceDiagram
         SM-->>UI: host-only session cookie with the SchoolId claim<br/>(15 min sliding, 12 h absolute)
         E-->>UI: 200
         UI->>E: GET /api/Users/me
-        E-->>UI: current user and a fresh antiforgery token
+        E-->>UI: current user (with mustChangePassword) and a fresh antiforgery token
+        opt account still has its one-time password
+            UI->>E: /change-password page: POST /api/Users/me/password
+            E-->>UI: 204, other sessions ended, this cookie renewed, block lifted
+        end
     else any failure
         E-->>UI: 401 "Invalid email or password." (same message for every failure)
     end
@@ -625,7 +629,9 @@ flowchart TB
     has -- no --> next["Next behaviour (validation)"]
     has -- yes --> user{"Signed-in user?"}
     user -- no --> e401["401"]
-    user -- yes --> master{"MasterTenant use case<br/>on a school's domain?"}
+    user -- yes --> otp{"One-time password not yet replaced<br/>and request not marked<br/>AllowWhilePasswordChangeRequired?"}
+    otp -- yes --> e403p["403 PASSWORD_CHANGE_REQUIRED"]
+    otp -- no --> master{"MasterTenant use case<br/>on a school's domain?"}
     master -- yes --> e403a["403"]
     master -- no --> mod{"Module named and<br/>host is not the master?"}
     mod -- no --> roles

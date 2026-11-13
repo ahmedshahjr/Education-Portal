@@ -53,4 +53,8 @@
   <data name="RightsNeedView" xml:space="preserve"><value>يتطلب الإنشاء والتعديل والحذف صلاحية العرض.</value></data>
   <data name="ModuleNotEnabledForSchool" xml:space="preserve"><value>لا تملك المدرسة هذه الوحدة، لذا لا يمكن منح صلاحيات فيها.</value></data>
   <data name="RoleNotFound" xml:space="preserve"><value>الدور غير موجود.</value></data>
+  <data name="SchoolDomainFormat" xml:space="preserve"><value>يجب أن يكون النطاق اسم مضيف مثل school1.com، بدون http:// أو منفذ أو مسار.</value></data>
+  <data name="SchoolDomainTaken" xml:space="preserve"><value>تستخدم مدرسة أخرى هذا النطاق بالفعل.</value></data>
+  <data name="EmailTaken" xml:space="preserve"><value>يستخدم حساب آخر هذا البريد الإلكتروني بالفعل.</value></data>
+  <data name="NewPasswordSameAsCurrent" xml:space="preserve"><value>يجب أن تختلف كلمة المرور الجديدة عن الحالية.</value></data>
 </root>

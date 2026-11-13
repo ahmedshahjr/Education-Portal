@@ -80,4 +80,13 @@ public enum SecurityAuditEventType
 
     /// <summary>A school owner deleted a role.</summary>
     RoleDeleted = 28,
+
+    /// <summary>The master tenant added a school (and its first administrator, audited as <see cref="UserCreated"/>).</summary>
+    SchoolCreated = 29,
+
+    /// <summary>An account was created (for example a new school's first administrator).</summary>
+    UserCreated = 30,
+
+    /// <summary>A user changed their password (including replacing a one-time password).</summary>
+    PasswordChanged = 31,
 }

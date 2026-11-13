@@ -4,10 +4,21 @@ import { BrandingService } from '../branding/branding.service';
 import { ModulesService } from '../modules/modules.service';
 import { AuthService } from './auth.service';
 
-/** Sends visitors who are not signed in to the login page, and back here afterwards. */
+/**
+ * Sends visitors who are not signed in to the login page, and back here afterwards. An account that still has its
+ * one-time password goes to the change-password page first (the server refuses everything else anyway).
+ */
 export const authGuard: CanActivateFn = (_route, state) => {
   const auth = inject(AuthService);
-  return auth.isAuthenticated()
+  if (!auth.isAuthenticated()) {
+    return inject(Router).createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+  }
+  return auth.mustChangePassword() ? inject(Router).createUrlTree(['/change-password']) : true;
+};
+
+/** Signed-in users only, including one that must still replace a one-time password (the change-password page). */
+export const signedInGuard: CanActivateFn = (_route, state) => {
+  return inject(AuthService).isAuthenticated()
     ? true
     : inject(Router).createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
 };

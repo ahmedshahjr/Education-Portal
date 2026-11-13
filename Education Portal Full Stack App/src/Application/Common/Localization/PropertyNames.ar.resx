@@ -35,4 +35,9 @@
   <data name="TrialDays" xml:space="preserve"><value>أيام التجربة</value></data>
   <data name="DataRegion" xml:space="preserve"><value>منطقة البيانات</value></data>
   <data name="Permissions" xml:space="preserve"><value>الصلاحيات</value></data>
+  <data name="Domain" xml:space="preserve"><value>النطاق</value></data>
+  <data name="AdministratorEmail" xml:space="preserve"><value>البريد الإلكتروني للمسؤول</value></data>
+  <data name="AdministratorPassword" xml:space="preserve"><value>كلمة المرور لمرة واحدة</value></data>
+  <data name="CurrentPassword" xml:space="preserve"><value>كلمة المرور الحالية</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>كلمة المرور الجديدة</value></data>
 </root>

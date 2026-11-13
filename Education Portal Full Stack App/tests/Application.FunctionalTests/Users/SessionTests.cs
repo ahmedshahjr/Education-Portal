@@ -31,10 +31,11 @@ public class SessionTests : TestBase
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var account = await response.Content.ReadFromJsonAsync<JsonElement>();
-        account.EnumerateObject().Select(property => property.Name).ToArray().ShouldBe(new[] { "id", "email", "roles" });
+        account.EnumerateObject().Select(property => property.Name).ToArray().ShouldBe(new[] { "id", "email", "roles", "mustChangePassword" });
         account.GetProperty("id").GetString().ShouldBe(userId);
         account.GetProperty("email").GetString().ShouldBe(TestApp.DefaultUserEmail);
         account.GetProperty("roles").GetArrayLength().ShouldBe(0);
+        account.GetProperty("mustChangePassword").GetBoolean().ShouldBeFalse();
     }
 
     [Test]

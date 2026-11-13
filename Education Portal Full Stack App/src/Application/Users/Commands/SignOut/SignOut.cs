@@ -8,7 +8,7 @@ namespace EducationPortal.Application.Users.Commands.SignOut;
 /// Signs the current user out everywhere: the security stamp is rotated, so every session cookie the
 /// user has stops working on its next request (SEC-AUTHN-07).
 /// </summary>
-[Authorize]
+[Authorize(AllowWhilePasswordChangeRequired = true)]
 public record SignOutCommand : IRequest;
 
 public class SignOutCommandHandler : IRequestHandler<SignOutCommand>

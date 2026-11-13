@@ -1,4 +1,5 @@
 ﻿using EducationPortal.Application.Common.Models;
+using EducationPortal.Application.Users.Commands.ChangePassword;
 using EducationPortal.Application.Users.Commands.SignIn;
 using EducationPortal.Application.Users.Commands.SignOut;
 using EducationPortal.Application.Users.Queries.GetCurrentUser;
@@ -26,6 +27,20 @@ public class Users : IEndpointGroup
 
         groupBuilder.MapGet(GetCurrentUser, "me")
             .RequireAuthorization();
+
+        groupBuilder.MapPost(ChangePassword, "me/password")
+            .RequireAuthorization()
+            .RequireRateLimiting(RateLimitPolicies.SignIn) // it checks a password, so it gets the sign-in limit
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+    }
+
+    [EndpointSummary("Change my password")]
+    [EndpointDescription("Replaces the signed-in user's password after checking the current one. Required before anything else for an account created with a one-time password. Ends the user's other sessions and renews this one. Answers 400 when the current password is wrong or the new one breaks the password policy.")]
+    public static async Task<NoContent> ChangePassword(ISender sender, ChangePasswordCommand command)
+    {
+        await sender.Send(command);
+
+        return TypedResults.NoContent();
     }
 
     [EndpointSummary("Sign in")]
