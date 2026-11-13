@@ -675,11 +675,7 @@ flowchart TB
     init["Development start-up:<br/>EnsureDeleted, EnsureCreated, seed"] --> pg
 ```
 
-<<<<<<< HEAD
-The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Branch`, `Invoice`, `InvoiceLine`, `Payment`, `RenewalReminder`, `SchoolRole` and `RolePermission` today. Every new school-owned entity is added to them (AGENTS.md section 2).
-=======
-The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Branch`, `Invoice`, `InvoiceLine`, `Payment`, `AddOnRequest`, `SchoolRole` and `RolePermission` today. Every new school-owned entity is added to them (AGENTS.md section 2).
->>>>>>> origin/development
+The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Branch`, `Invoice`, `InvoiceLine`, `Payment`, `AddOnRequest`, `RenewalReminder`, `SchoolRole` and `RolePermission` today. Every new school-owned entity is added to them (AGENTS.md section 2).
 
 ### Secrets flow
 
