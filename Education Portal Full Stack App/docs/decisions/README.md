@@ -21,3 +21,4 @@ An ADR captures a significant architectural decision: the context that led to it
 | [ADR-013](ADR-013-Invoices-And-Manual-Payments.md) | Invoices and Manual Payments | 2026-11-13 | Accepted |
 | [ADR-014](ADR-014-Subscription-Management-And-Add-On-Requests.md) | Subscription Management and Add-On Requests | 2026-11-13 | Accepted |
 | [ADR-015](ADR-015-Subscription-Lifecycle-Job.md) | Daily Subscription Lifecycle Job | 2026-11-13 | Accepted |
+| [ADR-016](ADR-016-Change-Audit-For-Commercial-Records.md) | Change Audit for Commercial Records | 2026-11-13 | Accepted |

@@ -50,6 +50,41 @@ public class ModuleEntitlementsTests
     }
 
     [Test]
+    public void ShouldGiveAWholeSchoolGrantToEveryBranch()
+    {
+        var entitlements = With(new ModuleGrant("FEES", null, Now.AddDays(-1), null));
+
+        entitlements.Has("FEES", 5, Now).ShouldBeTrue();
+        entitlements.Has("FEES", 6, Now).ShouldBeTrue();
+    }
+
+    [Test]
+    public void ShouldTurnOffAnExpiredBranchGrantButKeepTheOtherBranchsGrant()
+    {
+        var entitlements = With(
+            new ModuleGrant("FEES", 5, Now.AddDays(-30), Now.AddDays(-1)),
+            new ModuleGrant("FEES", 6, Now.AddDays(-30), Now.AddDays(30)));
+
+        entitlements.Has("FEES", 5, Now).ShouldBeFalse();
+        entitlements.Has("FEES", 6, Now).ShouldBeTrue();
+        entitlements.EnabledCodes(Now).ShouldNotContain("FEES");
+    }
+
+    [Test]
+    public void ShouldTurnOffAnExpiredWholeSchoolGrantForEveryBranch()
+    {
+        var entitlements = With(new ModuleGrant("FEES", null, Now.AddDays(-30), Now.AddDays(-1)));
+
+        entitlements.Has("FEES", null, Now).ShouldBeFalse();
+        entitlements.Has("FEES", 5, Now).ShouldBeFalse();
+        entitlements.EnabledCodes(Now).ShouldNotContain("FEES");
+    }
+
+    [Test]
+    public void ShouldNotLetAGrantForOneModuleOpenAnother() =>
+        With(new ModuleGrant("FEES", null, Now.AddDays(-1), null)).Has("ATTENDANCE", null, Now).ShouldBeFalse();
+
+    [Test]
     public void ShouldListTheWholeSchoolModulesInCatalogueOrder()
     {
         var entitlements = With(

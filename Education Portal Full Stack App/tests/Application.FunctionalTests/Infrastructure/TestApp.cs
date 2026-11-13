@@ -109,6 +109,13 @@ public static class TestApp
 
     public static List<string>? GetRoles() => _roles;
 
+    /// <summary>Runs with no signed-in user, as a scheduled job does.</summary>
+    public static void RunAsSystem()
+    {
+        _userId = null;
+        _roles = null;
+    }
+
     /// <summary>Creates a user of the master tenant without roles and runs as that user.</summary>
     public static async Task<string> RunAsDefaultUserAsync()
     {

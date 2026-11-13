@@ -36,21 +36,12 @@ internal static class SubscriptionPlanner
             planModuleIds = (await context.PlanModules.Where(m => m.PlanId == plan!.Id).Select(m => m.ModuleId).ToListAsync(cancellationToken)).ToHashSet();
         }
 
-        var addOns = addOnCodes.Select(code => modules.FirstOrDefault(m => m.Code == code)).ToList();
-        Reject(addOns.Any(m => m is null), nameof(addOnCodes), ValidationMessages.UnknownModules);
-        Reject(addOns.Any(m => m!.IsCore), nameof(addOnCodes), ValidationMessages.CoreModuleNotSold);
-
         var dependencies = await context.ModuleDependencies
             .Select(d => new { d.ModuleId, d.RequiresModuleId })
             .ToListAsync(cancellationToken);
 
-        var chosen = planModuleIds.Concat(addOns.Select(m => m!.Id)).ToList();
-        var granted = ModuleDependencyGraph.RequiredBy(dependencies.Select(d => (d.ModuleId, d.RequiresModuleId)), chosen)
-            .Concat(modules.Where(m => m.IsCore).Select(m => m.Id))
-            .ToHashSet();
-
-        var given = modules.Where(m => granted.Contains(m.Id)).ToList();
-        Reject(given.Any(m => !m.IsActive), nameof(addOnCodes), ValidationMessages.ModuleInactive);
+        // Checked before the price book, so a bad module choice is reported first.
+        var given = SubscriptionQuoteRules.ResolveModules(modules, dependencies.Select(d => (d.ModuleId, d.RequiresModuleId)).ToList(), planModuleIds, addOnCodes);
 
         var book = await context.PriceBooks.AsNoTracking().FirstOrDefaultAsync(b => b.CountryCode == countryCode && b.IsActive, cancellationToken);
         Reject(book is null, nameof(countryCode), ValidationMessages.PriceMissing);
@@ -59,25 +50,12 @@ internal static class SubscriptionPlanner
             .Where(i => i.PriceBookId == book!.Id && i.BillingCycle == billingCycle)
             .ToListAsync(cancellationToken);
 
-        decimal amount = 0;
-        if (plan is not null)
-        {
-            var price = prices.FirstOrDefault(i => i.PlanId == plan.Id);
-            Reject(price is null, nameof(planCode), ValidationMessages.PriceMissing);
-            amount += price!.Price;
-        }
-
-        foreach (var module in given.Where(m => !m.IsCore && !planModuleIds.Contains(m.Id)))
-        {
-            var price = prices.FirstOrDefault(i => i.ModuleId == module.Id);
-            Reject(price is null, nameof(addOnCodes), ValidationMessages.PriceMissing);
-            amount += price!.Price;
-        }
+        var amount = SubscriptionQuoteRules.Price(plan, planModuleIds, given, prices);
 
         return new SubscriptionQuote(plan, book!, amount, given);
     }
 
-    private static void Reject(bool failed, string property, string message)
+    internal static void Reject(bool failed, string property, string message)
     {
         if (failed)
         {

@@ -26,6 +26,8 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         builder.Services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+        // Every commercial change with its old and new values, in the same save (ADR-016).
+        builder.Services.AddScoped<ISaveChangesInterceptor, ChangeAuditInterceptor>();
 
         builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
