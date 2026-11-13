@@ -52,9 +52,11 @@ public class ApplicationDbContextInitialiser
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly TimeProvider _timeProvider;
 
-    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, TimeProvider timeProvider)
     {
+        _timeProvider = timeProvider;
         _logger = logger;
         _context = context;
         _userManager = userManager;
@@ -176,6 +178,11 @@ public class ApplicationDbContextInitialiser
         var uaeDemoSchool = await _context.Schools.SingleAsync(s => s.Domain == UaeDemoSchoolDomain);
         var usaDemoSchool = await _context.Schools.SingleAsync(s => s.Domain == UsaDemoSchoolDomain);
 
+        // The demo schools run on the Full plan for a year, so every module works when developing.
+        await SeedDemoSubscriptionAsync(demoSchool, pakistan);
+        await SeedDemoSubscriptionAsync(uaeDemoSchool, uae);
+        await SeedDemoSubscriptionAsync(usaDemoSchool, usa);
+
         // Default roles
         var administratorRole = new IdentityRole(Roles.Administrator);
 
@@ -231,6 +238,27 @@ public class ApplicationDbContextInitialiser
                 await _userManager.AddToRolesAsync(usaAdministrator, new [] { administratorRole.Name });
             }
         }
+    }
+
+    /// <summary>
+    /// Gives a demo school a one-year subscription to the Full plan, priced from its country's price book. The database
+    /// is recreated on every start in Development, so this runs once per school.
+    /// </summary>
+    private async Task SeedDemoSubscriptionAsync(School school, Country country)
+    {
+        var plan = await _context.Plans.SingleAsync(p => p.Code == PricingCatalog.Full);
+        var book = await _context.PriceBooks.SingleAsync(b => b.CountryCode == country.Code);
+        var price = await _context.PriceBookItems.SingleAsync(i => i.PriceBookId == book.Id && i.PlanId == plan.Id && i.BillingCycle == BillingCycle.Yearly);
+        var planModuleIds = await _context.PlanModules.Where(m => m.PlanId == plan.Id).Select(m => m.ModuleId).ToListAsync();
+
+        var subscription = Subscription.Create(school.Id, plan, book, BillingCycle.Yearly, price.Price, _timeProvider.GetUtcNow(), trialDays: 0);
+        foreach (var module in await _context.Modules.Where(m => m.IsCore || planModuleIds.Contains(m.Id)).ToListAsync())
+        {
+            subscription.AddModule(module);
+        }
+
+        _context.Subscriptions.Add(subscription);
+        await _context.SaveChangesAsync();
     }
 
     /// <summary>Adds the starting plans, and the price books of the countries that exist. Safe to run again: it adds only what is missing.</summary>

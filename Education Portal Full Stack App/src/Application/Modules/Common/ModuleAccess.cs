@@ -6,27 +6,28 @@ namespace EducationPortal.Application.Modules.Common;
 public class ModuleAccess : IModuleAccess
 {
     private readonly IApplicationDbContext _context;
+    private readonly IModuleEntitlementStore _store;
+    private readonly TimeProvider _timeProvider;
 
-    public ModuleAccess(IApplicationDbContext context)
+    public ModuleAccess(IApplicationDbContext context, IModuleEntitlementStore store, TimeProvider timeProvider)
     {
         _context = context;
+        _store = store;
+        _timeProvider = timeProvider;
     }
 
-    public async Task<bool> IsEnabledAsync(int schoolId, string moduleCode, CancellationToken cancellationToken)
+    public async Task<bool> HasModuleAsync(int schoolId, string moduleCode, int? branchId, CancellationToken cancellationToken)
     {
-        var enabled = await GetEnabledCodesAsync(schoolId, cancellationToken);
-        return enabled.Contains(moduleCode, StringComparer.Ordinal);
+        var entitlements = await GetAsync(schoolId, cancellationToken);
+        return entitlements.Has(moduleCode, branchId, _timeProvider.GetUtcNow());
     }
 
     public async Task<IReadOnlyList<string>> GetEnabledCodesAsync(int schoolId, CancellationToken cancellationToken)
     {
-        // A handful of modules, so one small query per call (ENG-EF-02: no-tracking projection).
-        var modules = await ModuleStates.ForSchool(_context, schoolId)
-            .ToListAsync(cancellationToken);
-
-        return modules
-            .Where(m => PortalModule.IsEnabled(m.IsActive, m.IsCore, m.SchoolChoice))
-            .Select(m => m.Code)
-            .ToList();
+        var entitlements = await GetAsync(schoolId, cancellationToken);
+        return entitlements.EnabledCodes(_timeProvider.GetUtcNow());
     }
+
+    private Task<ModuleEntitlements> GetAsync(int schoolId, CancellationToken cancellationToken) =>
+        _store.GetAsync(schoolId, ct => ModuleEntitlementLoader.LoadAsync(_context, schoolId, ct), cancellationToken);
 }

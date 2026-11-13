@@ -58,11 +58,13 @@ public class UpdateModuleCommandHandler : IRequestHandler<UpdateModuleCommand>
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
+    private readonly IModuleEntitlementStore _entitlements;
 
-    public UpdateModuleCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog)
+    public UpdateModuleCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, IModuleEntitlementStore entitlements)
     {
         _context = context;
         _auditLog = auditLog;
+        _entitlements = entitlements;
     }
 
     public async Task Handle(UpdateModuleCommand request, CancellationToken cancellationToken)
@@ -83,6 +85,9 @@ public class UpdateModuleCommandHandler : IRequestHandler<UpdateModuleCommand>
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        // Switching a module on or off, or core or paid, changes what every school may use.
+        _entitlements.InvalidateAll();
 
         await _auditLog.WriteAsync(
             SecurityAuditEventType.ModuleChanged,

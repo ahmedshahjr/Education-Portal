@@ -71,4 +71,13 @@ public enum SecurityAuditEventType
 
     /// <summary>The master tenant set a school's data region.</summary>
     DataRegionChanged = 25,
+
+    /// <summary>A school owner added a role.</summary>
+    RoleCreated = 26,
+
+    /// <summary>A school owner changed a role's name or rights.</summary>
+    RoleChanged = 27,
+
+    /// <summary>A school owner deleted a role.</summary>
+    RoleDeleted = 28,
 }

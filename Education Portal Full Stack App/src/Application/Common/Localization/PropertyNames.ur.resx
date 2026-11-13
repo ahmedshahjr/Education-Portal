@@ -34,4 +34,5 @@
   <data name="PlanCode" xml:space="preserve"><value>پلان</value></data>
   <data name="TrialDays" xml:space="preserve"><value>آزمائشی دن</value></data>
   <data name="DataRegion" xml:space="preserve"><value>ڈیٹا کا خطہ</value></data>
+  <data name="Permissions" xml:space="preserve"><value>حقوق</value></data>
 </root>

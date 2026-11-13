@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using EducationPortal.Application.Modules.Common;
 using EducationPortal.Domain.Constants;
@@ -48,16 +48,14 @@ public class ModuleTests : TestBase
     }
 
     [Test]
-    public async Task ShouldLetTheMasterSwitchAPaidModuleOnForOneSchoolOnly()
+    public async Task ShouldGiveAPaidModuleOnlyToTheSchoolWhoseSubscriptionHasIt()
     {
         var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         await TestApp.AddSchoolAsync("School Two", OtherSchoolDomain);
-        var masterUserId = await TestApp.RunAsAdministratorAsync();
+        await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
+        await TestApp.SubscribeAsync(schoolId.Id, [ModuleCodes.Fees]);
 
-        using var response = await master.PutAsync($"/api/Schools/{schoolId.PublicId}/modules/{ModuleCodes.Fees}", new { isEnabled = true });
-
-        response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         var modules = await ReadSchoolModulesAsync(master, schoolId.PublicId);
         modules.Single(m => m.Code == ModuleCodes.Fees).IsEnabled.ShouldBeTrue();
         modules.Single(m => m.Code == ModuleCodes.Exams).IsEnabled.ShouldBeFalse();
@@ -71,23 +69,20 @@ public class ModuleTests : TestBase
         using var other = TestHttp.CreateDevelopmentSession(OtherSchoolDomain);
         (await other.SignInAsync("admin@school2.local", TestApp.AdministratorPassword)).Dispose();
         (await ReadEnabledAsync(other)).ShouldNotContain(ModuleCodes.Fees);
-
-        var audit = await TestApp.FindAuditEventsAsync(masterUserId);
-        audit.ShouldContain(e => e.EventType == SecurityAuditEventType.SchoolModuleChanged && e.TargetId == $"{schoolId.Id}/{ModuleCodes.Fees}");
     }
 
     [Test]
-    public async Task ShouldRefuseToSwitchACoreModuleOffForASchool()
+    public async Task ShouldNoLongerLetTheMasterSwitchModulesPerSchool()
     {
         var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
 
-        using var response = await master.PutAsync($"/api/Schools/{schoolId.PublicId}/modules/{ModuleCodes.Students}", new { isEnabled = false });
+        using var response = await master.PutAsync($"/api/Schools/{schoolId.PublicId}/modules/{ModuleCodes.Fees}", new { isEnabled = true });
 
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        (await TestApp.CountAsync<SchoolModule>()).ShouldBe(0);
-        (await ReadSchoolModulesAsync(master, schoolId.PublicId)).Single(m => m.Code == ModuleCodes.Students).IsEnabled.ShouldBeTrue();
+        // Modules now come from the school's subscription only (ADR-012), so the route is gone.
+        new[] { HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed }.ShouldContain(response.StatusCode);
+        (await ReadSchoolModulesAsync(master, schoolId.PublicId)).Single(m => m.Code == ModuleCodes.Fees).IsEnabled.ShouldBeFalse();
     }
 
     [Test]
@@ -96,7 +91,7 @@ public class ModuleTests : TestBase
         var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         var masterUserId = await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
-        (await master.PutAsync($"/api/Schools/{schoolId.PublicId}/modules/{ModuleCodes.Exams}", new { isEnabled = true })).Dispose();
+        await TestApp.SubscribeAsync(schoolId.Id, [ModuleCodes.Exams]);
 
         using var deactivated = await master.PutAsync($"/api/Modules/{ModuleCodes.Exams}", Update("Exams", isActive: false, sortOrder: 140));
 
@@ -105,7 +100,7 @@ public class ModuleTests : TestBase
         using var school = await SignInToSchoolAsync();
         (await ReadEnabledAsync(school)).ShouldNotContain(ModuleCodes.Exams);
 
-        // Switching it back on restores the school's switch.
+        // Switching it back on restores the school's module.
         (await master.PutAsync($"/api/Modules/{ModuleCodes.Exams}", Update("Exams", isActive: true, sortOrder: 140))).Dispose();
         (await ReadEnabledAsync(school)).ShouldContain(ModuleCodes.Exams);
 
@@ -250,15 +245,14 @@ public class ModuleTests : TestBase
     }
 
     [Test]
-    public async Task ShouldRefuseToLimitTheMasterTenant()
+    public async Task ShouldNeverLimitTheMasterTenant()
     {
         await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
 
-        using var response = await master.PutAsync($"/api/Schools/{TestApp.MasterSchoolPublicId}/modules/{ModuleCodes.Fees}", new { isEnabled = false });
-
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        // The master has no subscription and still has every module.
         (await ReadEnabledAsync(master)).Count.ShouldBe(ModuleCatalog.CreateModules().Count);
+        (await ReadSchoolModulesAsync(master, TestApp.MasterSchoolPublicId)).ShouldAllBe(m => m.IsEnabled);
     }
 
     [Test]
@@ -268,16 +262,12 @@ public class ModuleTests : TestBase
         await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
 
-        using var school = await master.PutAsync($"/api/Schools/{Guid.CreateVersion7()}/modules/{ModuleCodes.Fees}", new { isEnabled = true });
         using var schoolModules = await master.GetAsync($"/api/Schools/{Guid.CreateVersion7()}/modules");
-        using var module = await master.PutAsync($"/api/Schools/{schoolId.PublicId}/modules/CANTEEN", new { isEnabled = true });
         using var get = await master.GetAsync("/api/Modules/CANTEEN");
         using var update = await master.PutAsync("/api/Modules/CANTEEN", Update("Canteen", isActive: true, sortOrder: 0));
         using var delete = await master.DeleteAsync("/api/Modules/CANTEEN");
 
-        school.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         schoolModules.StatusCode.ShouldBe(HttpStatusCode.NotFound);
-        module.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         get.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         update.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         delete.StatusCode.ShouldBe(HttpStatusCode.NotFound);
@@ -299,7 +289,6 @@ public class ModuleTests : TestBase
             await session.PostAsync($"/api/Modules/{ModuleCodes.Fees}/dependencies", new { requiresCode = ModuleCodes.Admissions }),
             await session.DeleteAsync($"/api/Modules/{ModuleCodes.Fees}/dependencies/{ModuleCodes.Students}"),
             await session.GetAsync($"/api/Schools/{schoolId.PublicId}/modules"),
-            await session.PutAsync($"/api/Schools/{schoolId.PublicId}/modules/{ModuleCodes.Fees}", new { isEnabled = true }),
         };
 
         foreach (var response in responses)
@@ -308,7 +297,6 @@ public class ModuleTests : TestBase
             response.Dispose();
         }
 
-        (await TestApp.CountAsync<SchoolModule>()).ShouldBe(0);
         (await TestApp.CountAsync<PortalModule>()).ShouldBe(ModuleCatalog.CreateModules().Count);
         (await TestApp.CountAsync<ModuleDependency>()).ShouldBe(ModuleCatalog.Dependencies.Count);
         (await ReadEnabledAsync(session)).ShouldNotContain(ModuleCodes.Fees);
@@ -339,12 +327,10 @@ public class ModuleTests : TestBase
         using var enabled = await session.GetAsync("/api/Modules/enabled");
         using var catalog = await session.GetAsync("/api/Modules");
         using var create = await session.PostAsync("/api/Modules", new { code = "CANTEEN", name = "Canteen", description = "", isCore = false, sortOrder = 0 });
-        using var set = await session.PutAsync($"/api/Schools/{schoolId.PublicId}/modules/{ModuleCodes.Fees}", new { isEnabled = true });
 
         enabled.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         catalog.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         create.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
-        set.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
     private static object Update(string name, bool isActive, int sortOrder, bool isCore = false) =>

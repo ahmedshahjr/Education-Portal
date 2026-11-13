@@ -36,7 +36,7 @@ record of what it bought, at what price, and which modules that gives it.
   `School`. Currency and languages already come from the school's `Country`.
 - **API** (master tenant administrators only, audited as `SubscriptionCreated` and `DataRegionChanged`):
   `GET` and `POST /api/Schools/{id}/subscription`, `PUT /api/Schools/{id}/data-region`.
-- **Not in this phase:** `ModuleAccess` and `[Authorize(Module = ...)]` still read the master's per-school switches
+- **Not in this phase (done in phase 4, see [ADR-012](ADR-012-Module-Enforcement-And-School-Roles.md)):** `ModuleAccess` and `[Authorize(Module = ...)]` still read the master's per-school switches
   (`SchoolModules`). Phase 4 (enforcement) moves them to `TenantModule` and retires `SchoolModules`, so schools keep
   working in between. Changing a plan, extending, suspending and cancelling come with the master screens (phase 6) and
   the lifecycle job (phase 7).

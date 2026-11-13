@@ -1,22 +1,20 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { problemMessages } from '../../core/http/problem-details';
-import { moduleText, ModuleTextPipe } from '../../core/i18n/module-text.pipe';
+import { ModuleTextPipe } from '../../core/i18n/module-text.pipe';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
-import { SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchoolModuleCommand } from '../../web-api-client';
+import { SchoolModuleDto, SchoolsClient, SchoolSummaryDto } from '../../web-api-client';
 
 /**
- * Master portal: gives paid modules to one school or takes them away. Core modules are always on, so their switch is
- * locked. A module the master made inactive is off for every school, so its switch is locked here until it is active
- * again. The school's users can use only the modules that are on.
+ * Master portal: shows which modules one school can use now. Core modules are always on; paid modules are on while the
+ * school's subscription gives them, so they change through the subscription, not here. A module the master made
+ * inactive is off for every school. The school's users can use only the modules that are on.
  */
 @Component({
   selector: 'app-school-modules',
-  imports: [ModuleTextPipe, MatCardModule, MatSlideToggleModule, LoadingStateComponent, EmptyStateComponent, StatusBadgeComponent],
+  imports: [ModuleTextPipe, MatCardModule, LoadingStateComponent, EmptyStateComponent, StatusBadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-card class="mm-card mm-elevated">
@@ -49,13 +47,11 @@ import { SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchoolModuleComman
                   </div>
                   <div class="mm-school-modules__description">{{ module | moduleText: 'description' }}</div>
                 </div>
-                <mat-slide-toggle
-                  [checked]="module.isEnabled"
-                  [disabled]="school().isMaster || module.isCore || !module.isActive || saving() === module.code"
-                  (change)="setEnabled(module, $event)"
-                  aria-label="{{ module | moduleText }} for {{ school().name }}"
-                  i18n-aria-label="@@modules.enabledFor"
-                />
+                @if (module.isEnabled) {
+                  <app-status-badge tone="success" i18n="@@modules.on">On</app-status-badge>
+                } @else {
+                  <app-status-badge tone="primary" i18n="@@modules.off">Off</app-status-badge>
+                }
               </li>
             }
           </ul>
@@ -100,13 +96,11 @@ import { SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchoolModuleComman
 })
 export class SchoolModulesComponent {
   private readonly client = inject(SchoolsClient);
-  private readonly snackBar = inject(MatSnackBar);
 
   readonly school = input.required<SchoolSummaryDto>();
 
   protected readonly modules = signal<readonly SchoolModuleDto[] | null>(null);
   protected readonly loadError = signal<string | null>(null);
-  protected readonly saving = signal<string | null>(null);
 
   constructor() {
     effect(() => {
@@ -121,29 +115,6 @@ export class SchoolModulesComponent {
     this.client.getSchoolModules(this.school().id).subscribe({
       next: (modules) => this.modules.set(modules),
       error: (error: unknown) => this.loadError.set(problemMessages(error)[0]),
-    });
-  }
-
-  protected setEnabled(module: SchoolModuleDto, event: MatSlideToggleChange): void {
-    const school = this.school();
-    this.saving.set(module.code);
-    this.client.setSchoolModule(school.id, module.code, new SetSchoolModuleCommand({ isEnabled: event.checked })).subscribe({
-      next: () => {
-        this.saving.set(null);
-        this.modules.update(
-          (list) =>
-            list?.map((m) => (m.code === module.code ? new SchoolModuleDto({ ...m, isEnabled: event.checked }) : m)) ??
-            null
-        );
-        this.snackBar.open($localize`:@@modules.savedFor:${moduleText(module)}:MODULE: saved for ${school.name}:SCHOOL:`, undefined, {
-          duration: 3000,
-        });
-      },
-      error: (error: unknown) => {
-        this.saving.set(null);
-        event.source.checked = module.isEnabled;
-        this.snackBar.open(problemMessages(error)[0], undefined, { duration: 5000 });
-      },
     });
   }
 }

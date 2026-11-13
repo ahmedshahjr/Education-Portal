@@ -112,7 +112,7 @@ public class IdentifierAndEnumTests : TestBase
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        foreach (var type in new[] { typeof(School), typeof(Country), typeof(PortalModule), typeof(ModuleDependency), typeof(SchoolModule), typeof(BrandingImage), typeof(SchoolRequest) })
+        foreach (var type in new[] { typeof(School), typeof(Country), typeof(PortalModule), typeof(ModuleDependency), typeof(Subscription), typeof(TenantModule), typeof(Branch), typeof(Plan), typeof(PriceBook), typeof(BrandingImage), typeof(SchoolRequest) })
         {
             var entity = context.Model.FindEntityType(type)!;
             entity.FindPrimaryKey()!.Properties.Single().ClrType.ShouldBe(typeof(int), type.Name);

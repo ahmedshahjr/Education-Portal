@@ -43,8 +43,8 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
                 throw new ForbiddenAccessException();
             }
 
-            // Module switches per school (SEC-AUTHZ-01): a module the master tenant has not switched on for this school is
-            // refused for everyone in it. The master tenant oversees every school, so modules never limit it.
+            // Modules per school (SEC-AUTHZ-01): a module the school's subscription does not give it is refused for
+            // everyone in it, with the code MODULE_NOT_ENABLED. The master tenant oversees every school, so modules never limit it.
             var modules = authorizeAttributes
                 .Select(a => a.Module)
                 .Where(m => !string.IsNullOrWhiteSpace(m))
@@ -57,9 +57,10 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
 
                 foreach (var module in modules)
                 {
-                    if (!await _moduleAccess.IsEnabledAsync(schoolId, module, cancellationToken))
+                    // No branch is known here yet, so a module granted to one branch only does not count (fail closed).
+                    if (!await _moduleAccess.HasModuleAsync(schoolId, module, branchId: null, cancellationToken))
                     {
-                        throw new ForbiddenAccessException();
+                        throw new ModuleNotEnabledException(module);
                     }
                 }
             }

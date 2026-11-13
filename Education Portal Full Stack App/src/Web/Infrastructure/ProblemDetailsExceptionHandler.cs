@@ -67,6 +67,17 @@ public class ProblemDetailsExceptionHandler(
                 Title = localizer["The request is not valid."],
                 Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1"
             }),
+            ModuleNotEnabledException notEnabled => (StatusCodes.Status403Forbidden, new ProblemDetails
+            {
+                Status = StatusCodes.Status403Forbidden,
+                Title = localizer["Forbidden"],
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.4",
+                Extensions =
+                {
+                    ["code"] = ModuleNotEnabledException.ErrorCode,
+                    ["module"] = notEnabled.ModuleCode,
+                },
+            }),
             ForbiddenAccessException => (StatusCodes.Status403Forbidden, new ProblemDetails
             {
                 Status = StatusCodes.Status403Forbidden,

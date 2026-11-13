@@ -1,4 +1,4 @@
-using EducationPortal.Domain.Constants;
+﻿using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using NUnit.Framework;
 using Shouldly;
@@ -11,36 +11,14 @@ namespace EducationPortal.Domain.UnitTests.Entities;
 /// </summary>
 public class PortalModuleTests
 {
-    [TestCase(null)]
-    [TestCase(true)]
-    [TestCase(false)]
-    public void ShouldKeepACoreModuleOnForEverySchool(bool? choice)
-    {
-        var module = PortalModule.Create(ModuleCodes.Students, "Students", "", isCore: true, sortOrder: 50);
-
-        module.IsEnabledFor(choice).ShouldBeTrue();
-    }
-
-    [TestCase(null, false)]
-    [TestCase(true, true)]
-    [TestCase(false, false)]
-    public void ShouldKeepAPaidModuleOffUntilGivenToTheSchool(bool? choice, bool expected)
-    {
-        var module = PortalModule.Create(ModuleCodes.Fees, "Fees", "", isCore: false, sortOrder: 120);
-
-        module.IsEnabledFor(choice).ShouldBe(expected);
-    }
-
-    [TestCase(null)]
-    [TestCase(true)]
-    public void ShouldTurnAnInactivePaidModuleOffForEverySchool(bool? choice)
+    [Test]
+    public void ShouldTurnAModuleInactive()
     {
         var module = PortalModule.Create(ModuleCodes.Fees, "Fees", "", isCore: false, sortOrder: 120);
 
         module.Deactivate();
 
         module.IsActive.ShouldBeFalse();
-        module.IsEnabledFor(choice).ShouldBeFalse();
     }
 
     [Test]

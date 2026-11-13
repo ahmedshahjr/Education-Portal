@@ -1,6 +1,5 @@
 using EducationPortal.Application.Branding.Common;
 using EducationPortal.Application.Common.Models;
-using EducationPortal.Application.Modules.Commands.SetSchoolModule;
 using EducationPortal.Application.Modules.Common;
 using EducationPortal.Application.Modules.Queries.GetSchoolModules;
 using EducationPortal.Application.Schools.Commands.SetDataRegion;
@@ -50,10 +49,6 @@ public class Schools : IEndpointGroup
         groupBuilder.MapGet(GetSchoolModules, "{schoolId:guid}/modules")
             .RequireAuthorization();
 
-        groupBuilder.MapPut(SetSchoolModule, "{schoolId:guid}/modules/{code}")
-            .RequireAuthorization()
-            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
-
         groupBuilder.MapPut(SetDataRegion, "{schoolId:guid}/data-region")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
@@ -92,20 +87,10 @@ public class Schools : IEndpointGroup
     }
 
     [EndpointSummary("List a school's modules")]
-    [EndpointDescription("Returns every module as it stands for the school: core modules are always on, paid modules are on when the master switched them on. Master tenant only.")]
+    [EndpointDescription("Returns every module as it stands for the school: core modules are always on, paid modules are on when the school's subscription gives them now. Read only; change them through the subscription. Master tenant only.")]
     public static async Task<Ok<IReadOnlyList<SchoolModuleDto>>> GetSchoolModules(ISender sender, Guid schoolId)
     {
         return TypedResults.Ok(await sender.Send(new GetSchoolModulesQuery(schoolId)));
-    }
-
-    [EndpointSummary("Switch a paid module on or off for a school")]
-    [EndpointDescription("Core modules are always on and cannot be switched. The master tenant cannot be changed. Master tenant only.")]
-    public static async Task<NoContent> SetSchoolModule(ISender sender, Guid schoolId, string code, SetSchoolModuleCommand command)
-    {
-        // The route names the school and the module; values in the body are ignored.
-        await sender.Send(command with { SchoolId = schoolId, Code = code });
-
-        return TypedResults.NoContent();
     }
 
     [EndpointSummary("Change a school's country")]
