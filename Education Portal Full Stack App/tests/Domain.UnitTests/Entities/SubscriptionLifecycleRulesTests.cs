@@ -65,15 +65,15 @@ public class SubscriptionLifecycleRulesTests
         var lapsed = Start.AddDays(31);
         subscription.MarkPastDue(lapsed);
 
-        subscription.SuspendAfterGrace(lapsed.AddDays(14).AddTicks(-1), graceDays: 14).ShouldBeFalse();
+        subscription.SuspendAfterGrace(lapsed.AddDays(30).AddTicks(-1), graceDays: 30).ShouldBeFalse();
         subscription.Status.ShouldBe(SubscriptionStatus.PastDue);
 
-        subscription.SuspendAfterGrace(lapsed.AddDays(14), graceDays: 14).ShouldBeTrue();
+        subscription.SuspendAfterGrace(lapsed.AddDays(30), graceDays: 30).ShouldBeTrue();
         subscription.ShouldSatisfyAllConditions(
             s => s.Status.ShouldBe(SubscriptionStatus.Suspended),
             s => s.Modules.ShouldHaveSingleItem().Status.ShouldBe(TenantModuleStatus.Suspended));
 
-        subscription.SuspendAfterGrace(lapsed.AddDays(20), graceDays: 14).ShouldBeFalse();
+        subscription.SuspendAfterGrace(lapsed.AddDays(40), graceDays: 30).ShouldBeFalse();
     }
 
     [Test]

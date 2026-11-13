@@ -21,7 +21,7 @@ namespace EducationPortal.Application.FunctionalTests.Subscriptions;
 /// </summary>
 public class SubscriptionLifecycleTests : TestBase
 {
-    private const int GraceDays = 14;
+    private const int GraceDays = 30;
 
     // Today at 09:00 UTC: module access is also checked against the real clock, so the periods must be current.
     private static readonly DateTimeOffset Start = new DateTimeOffset(DateTime.UtcNow.Date, TimeSpan.Zero).AddHours(9);

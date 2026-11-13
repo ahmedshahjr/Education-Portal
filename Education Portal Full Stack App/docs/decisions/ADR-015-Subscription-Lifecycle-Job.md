@@ -23,7 +23,7 @@ for the scheduler.
   per instance. The schedule is in memory (no Quartz tables): every API instance runs the job, which is safe because a run
   is idempotent. A persistent, clustered job store is a later choice if the API scales out a lot.
 - **Configuration** (section `SubscriptionLifecycle`, validated at start-up): `Enabled` (true), `Schedule` (`0 0 1 * * ?`,
-  01:00 UTC daily), `GracePeriodDays` (14, 0 to 90) and `ReminderDays` (30, 7, 1; each 1 to 365, no duplicates; empty
+  01:00 UTC daily), `GracePeriodDays` (30, 0 to 90; 14 until the maintainer chose 30 on 2026-11-13) and `ReminderDays` (30, 7, 1; each 1 to 365, no duplicates; empty
   means the defaults). Tests switch the job off and run it by hand at a chosen time.
 - **Tenant:** the job has no request, so it opens its own scope and sets the **master tenant** on it. The rules refuse to
   run as anything else (`ForbiddenAccessException`): only the master tenant manages subscriptions (SEC-AUTHZ-07), and the
