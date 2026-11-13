@@ -39,6 +39,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<SchoolModule> SchoolModules => Set<SchoolModule>();
 
+    public DbSet<Plan> Plans => Set<Plan>();
+
+    public DbSet<PlanModule> PlanModules => Set<PlanModule>();
+
+    public DbSet<PriceBook> PriceBooks => Set<PriceBook>();
+
+    public DbSet<PriceBookItem> PriceBookItems => Set<PriceBookItem>();
+
     // Read by the query filters on every query, so each request sees its own tenant (ENG-EF-10).
     private int? CurrentSchoolId => _tenant.SchoolId;
 

@@ -32,4 +32,16 @@
   <data name="CoreModuleRequiresPaid" xml:space="preserve"><value>یہ ماڈیول غیر بنیادی ماڈیولز کا تقاضا کرتا ہے۔ پہلے یہ تقاضے ہٹائیں۔</value></data>
   <data name="ModuleRequiredByOthers" xml:space="preserve"><value>دوسرے ماڈیولز اس ماڈیول کا تقاضا کرتے ہیں۔ پہلے یہ تقاضے ہٹائیں۔</value></data>
   <data name="RequiredModuleNotFound" xml:space="preserve"><value>مطلوبہ ماڈیول موجود نہیں ہے۔</value></data>
+  <data name="PlanCodeFormat" xml:space="preserve"><value>کوڈ بڑے انگریزی حروف، ہندسوں اور انڈر اسکور پر مشتمل ہونا چاہیے اور حرف سے شروع ہونا چاہیے، مثلاً STARTER۔</value></data>
+  <data name="PlanCodeTaken" xml:space="preserve"><value>اس کوڈ کا پلان پہلے سے موجود ہے۔</value></data>
+  <data name="UnknownModules" xml:space="preserve"><value>ایک یا زیادہ ماڈیولز موجود نہیں ہیں۔</value></data>
+  <data name="ModuleListedTwice" xml:space="preserve"><value>ہر ماڈیول ایک بار درج کیا جا سکتا ہے۔</value></data>
+  <data name="CoreModuleNotSold" xml:space="preserve"><value>بنیادی ماڈیولز ہر سبسکرپشن میں شامل ہیں اور الگ سے فروخت نہیں ہوتے۔</value></data>
+  <data name="ModuleInUse" xml:space="preserve"><value>پلان یا قیمتوں کی فہرستیں یہ ماڈیول استعمال کرتی ہیں۔ پہلے اسے ان سے ہٹائیں۔</value></data>
+  <data name="PriceBookCountryTaken" xml:space="preserve"><value>اس ملک کی قیمتوں کی فہرست پہلے سے موجود ہے۔</value></data>
+  <data name="PriceTargetRequired" xml:space="preserve"><value>یا تو پلان دیں یا ماڈیول، دونوں نہیں۔</value></data>
+  <data name="PlanNotFound" xml:space="preserve"><value>پلان موجود نہیں ہے۔</value></data>
+  <data name="ModuleNotFound" xml:space="preserve"><value>ماڈیول موجود نہیں ہے۔</value></data>
+  <data name="PriceExists" xml:space="preserve"><value>اس فہرست میں اُس پلان یا ماڈیول اور بلنگ کی مدت کی قیمت پہلے سے موجود ہے۔</value></data>
+  <data name="PriceInvalid" xml:space="preserve"><value>قیمت صفر یا اس سے زیادہ ہو، زیادہ سے زیادہ دو اعشاریہ مقامات کے ساتھ۔</value></data>
 </root>

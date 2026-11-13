@@ -44,4 +44,25 @@ public enum SecurityAuditEventType
 
     /// <summary>The master tenant removed a dependency between two modules.</summary>
     ModuleDependencyRemoved = 16,
+
+    /// <summary>The master tenant added a plan.</summary>
+    PlanCreated = 17,
+
+    /// <summary>The master tenant changed a plan (name, description, active, or its modules).</summary>
+    PlanChanged = 18,
+
+    /// <summary>The master tenant deleted a plan (soft delete).</summary>
+    PlanDeleted = 19,
+
+    /// <summary>The master tenant added a price book.</summary>
+    PriceBookCreated = 20,
+
+    /// <summary>The master tenant changed a price book's currency or active switch.</summary>
+    PriceBookChanged = 21,
+
+    /// <summary>The master tenant deleted a price book (soft delete).</summary>
+    PriceBookDeleted = 22,
+
+    /// <summary>The master tenant added, changed or removed a price in a price book.</summary>
+    PriceChanged = 23,
 }

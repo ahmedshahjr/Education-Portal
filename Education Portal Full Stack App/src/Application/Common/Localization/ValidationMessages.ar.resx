@@ -32,4 +32,16 @@
   <data name="CoreModuleRequiresPaid" xml:space="preserve"><value>تتطلب هذه الوحدة وحدات غير أساسية. أزل هذه المتطلبات أولاً.</value></data>
   <data name="ModuleRequiredByOthers" xml:space="preserve"><value>وحدات أخرى تتطلب هذه الوحدة. أزل هذه المتطلبات أولاً.</value></data>
   <data name="RequiredModuleNotFound" xml:space="preserve"><value>الوحدة المطلوبة غير موجودة.</value></data>
+  <data name="PlanCodeFormat" xml:space="preserve"><value>يجب أن يتكون الرمز من أحرف إنجليزية كبيرة وأرقام وشرطات سفلية، ويبدأ بحرف، مثل STARTER.</value></data>
+  <data name="PlanCodeTaken" xml:space="preserve"><value>توجد خطة بهذا الرمز بالفعل.</value></data>
+  <data name="UnknownModules" xml:space="preserve"><value>وحدة واحدة أو أكثر غير موجودة.</value></data>
+  <data name="ModuleListedTwice" xml:space="preserve"><value>يمكن إدراج كل وحدة مرة واحدة.</value></data>
+  <data name="CoreModuleNotSold" xml:space="preserve"><value>الوحدات الأساسية مضمّنة في كل اشتراك ولا تُباع بمفردها.</value></data>
+  <data name="ModuleInUse" xml:space="preserve"><value>تستخدم خطط أو قوائم أسعار هذه الوحدة. أزلها منها أولاً.</value></data>
+  <data name="PriceBookCountryTaken" xml:space="preserve"><value>لهذه الدولة قائمة أسعار بالفعل.</value></data>
+  <data name="PriceTargetRequired" xml:space="preserve"><value>حدد خطة أو وحدة، وليس كليهما.</value></data>
+  <data name="PlanNotFound" xml:space="preserve"><value>الخطة غير موجودة.</value></data>
+  <data name="ModuleNotFound" xml:space="preserve"><value>الوحدة غير موجودة.</value></data>
+  <data name="PriceExists" xml:space="preserve"><value>تحتوي قائمة الأسعار هذه بالفعل على سعر لتلك الخطة أو الوحدة ودورة الفوترة.</value></data>
+  <data name="PriceInvalid" xml:space="preserve"><value>السعر صفر أو أكثر، وبحد أقصى منزلتين عشريتين.</value></data>
 </root>

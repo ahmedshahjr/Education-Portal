@@ -15,3 +15,4 @@ An ADR captures a significant architectural decision: the context that led to it
 | [ADR-007](ADR-007-OpenTelemetry-Observability.md) | Open-Source Observability with OpenTelemetry | 2026-11-11 | Accepted |
 | [ADR-008](ADR-008-Guid-Public-Ids-And-Numeric-Enums.md) | Guid Public Ids and Numeric Enums | 2026-11-11 | Accepted |
 | [ADR-009](ADR-009-Sellable-Module-Catalogue.md) | Sellable Module Catalogue (Core and Paid Modules) | 2026-11-13 | Accepted |
+| [ADR-010](ADR-010-Plans-And-Regional-Price-Books.md) | Plans and Regional Price Books | 2026-11-13 | Accepted |
