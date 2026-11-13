@@ -676,14 +676,14 @@ flowchart TB
 
 ### Compliance guards flow
 
-`.githooks/pre-commit`, `.github/workflows/compliance-guards.yml` and `.github/workflows/compliance-sources-review.yml`.
+`.githooks/pre-commit`, `.github/workflows/compliance-guards.yml` and `.github/workflows/compliance-sources-review.yml`. The compliance guards run on every pull request, whatever branch it targets, and on pushes to `master`, `development` and `main`.
 
 ```mermaid
 flowchart TB
     commit(["git commit"]) --> hook[".githooks/pre-commit<br/>compliance-guard.py --staged"]
     hook -->|"rule broken"| stop["Commit refused with the rule id"]
     hook -->|"clean"| pushed["Push and pull request"]
-    pushed --> ci["Compliance guards workflow<br/>compliance-guard.py and<br/>sync-ai-wrappers.py --check"]
+    pushed --> ci["Compliance guards workflow, every PR<br/>compliance-guard.py and<br/>sync-ai-wrappers.py --check"]
     ci -->|"red"| fix["Fix before merge"]
     ci -->|"green"| review["Human review, merge into development"]
     cron(["1st and 16th of each month"]) --> sources["Compliance sources review workflow<br/>checks every official source"]

@@ -1,4 +1,5 @@
-# Compliance guards: blocks non-compliant changes from reaching development or main.
+# Compliance guards: blocks non-compliant changes from being merged. Runs on every pull request, whatever its
+# target branch, and on pushes to the long-lived branches.
 # Make these checks required in a branch ruleset (see docs/ai/secure-compliance/SKILL.md, "Automated guards").
 #
 # Uses no third-party actions: the repo is fetched with git and the GitHub token, .NET comes from
@@ -8,11 +9,11 @@ name: Compliance guards
 
 on:
   pull_request:
-    branches: [development, main]
+    # No branch filter: every pull request is checked, whatever branch it targets.
     # 'edited' re-runs the checks when the PR description (security checklist) changes.
     types: [opened, synchronize, reopened, edited]
   push:
-    branches: [development, main]
+    branches: [master, development, main]
   workflow_dispatch:
 
 permissions:
