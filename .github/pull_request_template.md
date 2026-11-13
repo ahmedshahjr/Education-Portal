@@ -35,6 +35,7 @@ Tick each item or explain why it does not apply.
 - [ ] AI instructions/skills changed: content is AI-agnostic and `python3 docs/ai/sync-ai-wrappers.py --check` passes (SEC-AI-10)
 - [ ] Payments touched: PCI scope impact stated, no card data reaches our systems (SEC-PCI-02, SEC-PCI-14) / not applicable
 - [ ] README.md updated in this PR for any change to technologies, flows (diagrams), features, setup or configuration (AGENTS.md section 7, rule 8; checked by `docs/ai/readme-guard.py`), or a `README: not needed - <reason>` line added below
+- [ ] Every README diagram that draws code changed here is updated with its walkthrough (Diagram index in README; checked by `docs/ai/architecture-diagram-guard.py`), or a `Diagrams: not needed - <reason>` line added below
 - [ ] Exceptions to any rule: none, or listed with maintainer approval (section 15)
 
 ### Engineering checklist ([rules](../docs/ai/engineering/SKILL.md))
