@@ -66,3 +66,21 @@ public class AddOnRequestConfiguration : IEntityTypeConfiguration<AddOnRequest>
         builder.HasIndex(r => r.ModuleId);
     }
 }
+
+public class RenewalReminderConfiguration : IEntityTypeConfiguration<RenewalReminder>
+{
+    public void Configure(EntityTypeBuilder<RenewalReminder> builder)
+    {
+        builder.HasOne<School>().WithMany().HasForeignKey(r => r.SchoolId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Subscription>().WithMany().HasForeignKey(r => r.SubscriptionId).OnDelete(DeleteBehavior.Cascade);
+
+        // A reminder is queued once per subscription, period and reminder day, even if the job runs twice.
+        builder.HasIndex(r => new { r.SubscriptionId, r.PeriodEnd, r.DaysBefore }).IsUnique();
+        builder.HasIndex(r => r.SchoolId);
+
+        // The queue a sender reads: reminders not sent yet.
+        builder.HasIndex(r => r.QueuedAt).HasFilter("\"SentAt\" IS NULL").HasDatabaseName("IX_RenewalReminders_Unsent");
+
+        builder.ToTable(t => t.HasCheckConstraint("CK_RenewalReminders_DaysBefore", $"\"DaysBefore\" BETWEEN 1 AND {RenewalReminder.MaxDaysBefore}"));
+    }
+}

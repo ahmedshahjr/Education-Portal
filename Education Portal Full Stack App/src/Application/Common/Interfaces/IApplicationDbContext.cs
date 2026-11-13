@@ -49,6 +49,9 @@ public interface IApplicationDbContext
 
     DbSet<AddOnRequest> AddOnRequests { get; }
 
+    /// <summary>Renewal reminders queued by the daily lifecycle job. Covered by the tenant query filter (SEC-AUTHZ-03).</summary>
+    DbSet<RenewalReminder> RenewalReminders { get; }
+
     DbSet<Invoice> Invoices { get; }
 
     DbSet<InvoiceLine> InvoiceLines { get; }

@@ -3,13 +3,16 @@ using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Infrastructure.Data;
+using EducationPortal.Application.Subscriptions.Lifecycle;
 using EducationPortal.Web.Infrastructure;
+using EducationPortal.Web.Jobs;
 using EducationPortal.Web.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
+using Quartz;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -25,6 +28,8 @@ public static class DependencyInjection
         builder.Services.AddScoped<ICurrentTenant>(provider => provider.GetRequiredService<CurrentTenant>());
 
         builder.Services.AddHttpContextAccessor();
+
+        builder.AddSubscriptionLifecycleJob();
 
         // Each request is answered in one of the languages of its school's country (TenantRequestLocalization).
         builder.Services.AddTenantRequestLocalization();
@@ -109,5 +114,33 @@ public static class DependencyInjection
             options.AddServerHeader = false;
             options.Limits.MaxRequestBodySize = 1024 * 1024;
         });
+    }
+
+    /// <summary>
+    /// Schedules the daily subscription lifecycle job with Quartz.NET (ADR-015). Quartz keeps its schedule in memory: each
+    /// API instance runs the job, which is safe because a second run changes nothing. With
+    /// <c>SubscriptionLifecycle:Enabled</c> false nothing is scheduled.
+    /// </summary>
+    private static void AddSubscriptionLifecycleJob(this IHostApplicationBuilder builder)
+    {
+        var options = builder.Configuration.GetSection(SubscriptionLifecycleOptions.SectionName).Get<SubscriptionLifecycleOptions>()
+            ?? new SubscriptionLifecycleOptions();
+
+        builder.Services.AddQuartz(quartz =>
+        {
+            if (!options.Enabled)
+            {
+                return;
+            }
+
+            quartz.AddJob<SubscriptionLifecycleJob>(job => job.WithIdentity(SubscriptionLifecycleJob.Key));
+            quartz.AddTrigger(trigger => trigger
+                .ForJob(SubscriptionLifecycleJob.Key)
+                .WithIdentity(SubscriptionLifecycleJob.DailyTrigger)
+                // UTC, so the run does not move with daylight saving.
+                .WithCronSchedule(options.Schedule, cron => cron.InTimeZone(TimeZoneInfo.Utc)));
+        });
+
+        builder.Services.AddQuartzHostedService(quartz => quartz.WaitForJobsToComplete = true);
     }
 }

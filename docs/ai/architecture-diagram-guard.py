@@ -56,6 +56,7 @@ LOCALIZATION = "Localization flow"
 ANGULAR = "Angular start-up flow"
 NSWAG = "NSwag API client generation flow"
 TESTS = "Test flow"
+LIFECYCLE = "Subscription lifecycle job flow"
 GUARDS = "Compliance guards flow"
 ANY_DIAGRAM = ("Architecture overview", "Technology flows")
 
@@ -105,6 +106,8 @@ RULES: tuple[Rule, ...] = (
     Rule(rf"{S}.+\.csproj", (LAYERS, OVERVIEW), "project added or removed", added_or_removed=True),
     Rule(rf"{S}src/.+\.csproj", (LAYERS,), "project references between layers", diff=r"<ProjectReference"),
     Rule(rf"{S}tests/TestAppHost/.+", (TESTS,), "test host resources"),
+    Rule(rf"{S}src/(Web/Jobs|Application/Subscriptions/Lifecycle)/.+", (LIFECYCLE,),
+         "scheduled jobs and the subscription lifecycle rules"),
     Rule(r"\.github/workflows/[^/]+\.ya?ml|\.githooks/[^/]+|docs/ai/[^/]+-guard\.py", (GUARDS,),
          "CI workflow, git hook or guard added or removed", added_or_removed=True),
     Rule(rf"{S}docs/decisions/ADR-(?!000)[^/]+\.md", ANY_DIAGRAM,

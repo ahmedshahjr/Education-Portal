@@ -53,6 +53,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<AddOnRequest> AddOnRequests => Set<AddOnRequest>();
 
+    public DbSet<RenewalReminder> RenewalReminders => Set<RenewalReminder>();
+
     public DbSet<Invoice> Invoices => Set<Invoice>();
 
     public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
@@ -90,6 +92,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
         builder.Entity<TenantModule>()
             .HasQueryFilter(m => IsMasterTenant || m.SchoolId == CurrentSchoolId);
+
+        builder.Entity<RenewalReminder>()
+            .HasQueryFilter(r => IsMasterTenant || r.SchoolId == CurrentSchoolId);
 
         builder.Entity<AddOnRequest>()
             .HasQueryFilter(r => IsMasterTenant || r.SchoolId == CurrentSchoolId);

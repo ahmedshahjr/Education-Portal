@@ -23,6 +23,7 @@ public partial class ValidationLocalizationTests
     [
         "EducationPortal.Application.Common.Localization.ValidationMessages",
         "EducationPortal.Application.Common.Localization.PropertyNames",
+        "EducationPortal.Application.Common.Localization.NotificationMessages",
     ];
 
     private static IEnumerable<string> TranslatedLanguages => Language.All.Where(l => l != Language.English).Select(l => l.Code);

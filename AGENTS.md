@@ -91,7 +91,9 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 
    **Subscription management and add-on requests** (phase 6, [ADR-014](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-014-Subscription-Management-And-Add-On-Requests.md)): the master suspends, reactivates, extends (1 to 366 days, no payment), changes the plan and adds or removes add-on modules under `/api/Schools/{id}/subscription/...` (`suspend`, `reactivate`, `extend`, `plan`, `modules`); all go through `SubscriptionChanges` and `Subscription.Reconfigure`, take effect at once with no proration, expire (never delete) modules that leave, and are audited as `SubscriptionChanged`. A school administrator reads `GET /api/Subscriptions/mine` and asks for a paid module with `POST /api/AddOnRequests` (`AddOnRequest`, one pending per module); the master lists, approves (adds the module) or rejects them under `/api/AddOnRequests`.
 
-Master-only areas (not tenant modules): Schools, module switches per school, countries and their languages, and the cross-school overview.
+   **Lifecycle job** (phase 7, [ADR-015](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-015-Subscription-Lifecycle-Job.md)): Quartz.NET runs `SubscriptionLifecycleJob` in the API daily (`SubscriptionLifecycle:Schedule`, cron in UTC, default 01:00) as the **master tenant** in its own scope. In one save it ends trials past `TrialEndDate` (PastDue), marks open invoices past `DueDate` overdue (`OverdueSince`, status stays Open) and their Active subscription PastDue, marks Active subscriptions past `EndDate` PastDue, suspends PastDue ones after `GracePeriodDays` (default 14; modules suspended, no data deleted) and queues `RenewalReminder` rows for the nearest of `ReminderDays` (default 30, 7, 1). Every rule is idempotent (safe to run twice a day or on several instances). A renewal invoice for a subscription whose end has passed starts on the issue date. Tests set `SubscriptionLifecycle:Enabled` false and call `SubscriptionLifecycleJob.RunAsMasterAsync` with a chosen time. A new scheduled job follows the same pattern: own scope, master tenant set on it, idempotent rules, UTC.
+
+   Master-only areas (not tenant modules): Schools, module switches per school, countries and their languages, and the cross-school overview.
 2. **Roles per school (owner controls):** each school owner creates roles with **View / Create / Edit / Delete** rights per module.
 3. **Branches per user:** each staff user is assigned to one or more branches and can only act on data in those branches.
 4. **Fixed rules:** teachers grade only their own courses; parents see only their own children; students and parents have read-only access.
@@ -121,6 +123,7 @@ Master-only areas (not tenant modules): Schools, module switches per school, cou
 | Orchestration | .NET Aspire 13.6; `src/AppHost` is the startup project |
 | API | ASP.NET Core 10 minimal APIs, OpenAPI + Scalar UI |
 | Application | MediatR 14 (CQRS), FluentValidation 12, AutoMapper 16, Ardalis.GuardClauses |
+| Scheduling | Quartz.NET 4 (`Quartz`), in-memory schedule in the API, cron in UTC (ADR-015) |
 | Data | EF Core 10, PostgreSQL (Npgsql) |
 | Auth | ASP.NET Core Identity from the template (decided 2026-11-09); school, branch and role data are added as claims and must match the tenant resolved from the host |
 | Frontend | Angular 22 in `src/Web/ClientApp`, standalone and zoneless, Angular Material + CDK, `@lucide/angular` icons, styles and components from the theme in `Theme Angular/` (NSwag generates the TypeScript API client from `nswag.json`) |

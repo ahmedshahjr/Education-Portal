@@ -43,8 +43,8 @@ public class Invoice : BaseAuditableEntity
         SchoolId = subscription.SchoolId;
         SubscriptionId = subscription.Id;
         CurrencyCode = subscription.CurrencyCode;
-        PeriodStart = nextPeriod ? subscription.EndDate : subscription.StartDate;
-        PeriodEnd = nextPeriod ? Subscription.PeriodEnd(subscription.EndDate, subscription.BillingCycle) : subscription.EndDate;
+        PeriodStart = nextPeriod ? Subscription.RenewalStart(subscription.EndDate, issueDate) : subscription.StartDate;
+        PeriodEnd = nextPeriod ? Subscription.PeriodEnd(PeriodStart, subscription.BillingCycle) : subscription.EndDate;
         Subtotal = subscription.Amount;
         TaxRate = taxRate;
         TaxAmount = decimal.Round(Subtotal * taxRate / 100m, PriceBookItem.PriceScale, MidpointRounding.AwayFromZero);
@@ -97,6 +97,30 @@ public class Invoice : BaseAuditableEntity
     public DateTimeOffset PeriodEnd { get; private set; }
 
     public DateTimeOffset? PaidDate { get; private set; }
+
+    /// <summary>
+    /// When the daily lifecycle job found the invoice open after its due date. The invoice stays <see cref="InvoiceStatus.Open"/>
+    /// and can still be paid or voided; this only records that it is overdue.
+    /// </summary>
+    public DateTimeOffset? OverdueSince { get; private set; }
+
+    /// <summary>True while the invoice is open and has been marked overdue.</summary>
+    public bool IsOverdue => Status == InvoiceStatus.Open && OverdueSince is not null;
+
+    /// <summary>
+    /// Marks an open invoice overdue once its due date has passed. Returns false, and changes nothing, when it is not open,
+    /// not yet due or already marked, so running the job again the same day does nothing.
+    /// </summary>
+    public bool MarkOverdue(DateTimeOffset now)
+    {
+        if (Status != InvoiceStatus.Open || OverdueSince is not null || DueDate > now)
+        {
+            return false;
+        }
+
+        OverdueSince = now;
+        return true;
+    }
 
     public IReadOnlyCollection<InvoiceLine> Lines => _lines;
 

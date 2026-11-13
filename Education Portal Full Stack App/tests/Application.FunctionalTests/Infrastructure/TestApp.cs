@@ -165,10 +165,11 @@ public static class TestApp
 
     /// <summary>
     /// Gives a school a subscription that grants the paid modules, without going through plans and pricing (those have
-    /// their own tests). The subscription starts at <paramref name="start"/> (now by default) and runs one month; with a
-    /// branch, the modules are for that branch only. The school's cached entitlements are dropped, as after a real change.
+    /// their own tests). The subscription starts at <paramref name="start"/> (now by default) and runs one month, or is a
+    /// trial of <paramref name="trialDays"/> days, at <paramref name="amount"/> a month; with a branch, the modules are for that branch only. The school's cached
+    /// entitlements are dropped, as after a real change.
     /// </summary>
-    public static async Task<Subscription> SubscribeAsync(int schoolId, string[] moduleCodes, DateTimeOffset? start = null, int? branchId = null)
+    public static async Task<Subscription> SubscribeAsync(int schoolId, string[] moduleCodes, DateTimeOffset? start = null, int? branchId = null, int trialDays = 0, decimal amount = 0m)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
 
@@ -184,7 +185,7 @@ public static class TestApp
         }
 
         var branch = branchId is null ? null : await context.Branches.FirstAsync(b => b.Id == branchId);
-        var subscription = Subscription.Create(schoolId, null, book, BillingCycle.Monthly, 0m, start ?? DateTimeOffset.UtcNow, trialDays: 0);
+        var subscription = Subscription.Create(schoolId, null, book, BillingCycle.Monthly, amount, start ?? DateTimeOffset.UtcNow, trialDays);
         foreach (var module in await context.Modules.Where(m => moduleCodes.Contains(m.Code)).ToListAsync())
         {
             subscription.AddModule(module, branch);

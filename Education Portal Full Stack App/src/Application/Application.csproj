@@ -27,6 +27,12 @@
       <StronglyTypedNamespace>EducationPortal.Application.Common.Localization</StronglyTypedNamespace>
       <StronglyTypedClassName>ValidationMessages</StronglyTypedClassName>
     </EmbeddedResource>
+    <EmbeddedResource Update="Common\Localization\NotificationMessages.resx">
+      <StronglyTypedFileName>$(IntermediateOutputPath)NotificationMessages.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>EducationPortal.Application.Common.Localization</StronglyTypedNamespace>
+      <StronglyTypedClassName>NotificationMessages</StronglyTypedClassName>
+    </EmbeddedResource>
     <EmbeddedResource Update="Common\Localization\PropertyNames.resx">
       <StronglyTypedFileName>$(IntermediateOutputPath)PropertyNames.Designer.cs</StronglyTypedFileName>
       <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
