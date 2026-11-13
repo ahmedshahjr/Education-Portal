@@ -17,6 +17,7 @@ A multi-tenant education portal for schools, built as an MVP.
 - [Development process](#development-process), including the [security and compliance rules](#security-and-compliance-rules) and the [engineering rules](#engineering-rules)
 - [Configuration and ports](#configuration-and-ports)
 - [Troubleshooting](#troubleshooting)
+- [Data sources and licences](#data-sources-and-licences)
 
 ## Tech stack
 
@@ -298,6 +299,7 @@ flowchart TB
 - **The user must belong to that school.** The school in the user's sign-in must match the domain's school on every request; a mismatch is rejected and audited. Sign-in cookies are host-only, so a session from `school1.com` is never sent to `school2.com`.
 - **The branch is picked inside the app.** Branches never get their own domain. Staff, students and parents can belong to several branches and switch between them in the app, with the branch in the route (for example `/branches/12/students`). The server checks that branch against the user on every request.
 - **Languages come from the school's country.** The master tenant manages countries (languages offered, default language, time zone, currency) on the **Countries and languages** page and assigns each school to one on the **Schools** page. ASP.NET Core request localization, with a culture provider that knows the school, answers each request in one of that school's languages only: the visitor's choice, then the browser's, then the country's default. Server messages come from `.resx` files: error titles in `src/Web/Resources`, validation messages and the property names inside them in `src/Application/Common/Localization` (Arabic and Urdu next to English; FluentValidation's built-in messages ship in Arabic, and the portal adds Urdu) ([ADR-005](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-005-Localization-Per-Country.md)).
+- **Location data for address dropdowns.** Countries, states and cities for Saudi Arabia, the UAE, Qatar, Kuwait, Bahrain, Oman, the United States, Japan and Pakistan come from the [Countries States Cities Database](https://github.com/dr5hn/countries-states-cities-database) (see [Data sources and licences](#data-sources-and-licences)). A filtered copy is committed as `src/Infrastructure/Data/Locations/locations.json` and `LocationDataImporter` loads it on every start-up, in every environment. It is safe to run again: countries match on their ISO 3166-1 code, states on their ISO 3166-2 code (or name in the country), cities on their name in the state, and rows administrators add (`IsCustom`) are never changed. A country the master tenant already has keeps its own name, languages, time zone and currency; only `Iso3`, `PhoneCode` and `NativeName` come from the data. Two Pakistan names are overridden by ISO code: `PK-IS` is "Islamabad Capital Territory" and `PK-JK` is "Azad Jammu and Kashmir". The three US military postal regions are left out. Any signed-in user reads the cascading dropdowns: `GET /api/Locations/countries`, `GET /api/Locations/countries/{countryId}/states` and `GET /api/Locations/states/{stateId}/cities` (active rows only, by name; `State.Type` travels by name, e.g. `"Province"`). To update the data, run `dotnet run scripts/update-location-data.cs -- <commit-sha>` from `Education Portal Full Stack App` and open a PR with the diff. Responses are not cached yet.
 - **Permissions are checked on the server.** Effective access = modules the master switched on for the school ∩ the rights the user's role gives per module (View, Create, Edit, Delete) ∩ the user's branches. The check runs in the MediatR pipeline, so hiding a button in Angular is never the only protection.
 
 Every request to a school's domain passes these checks:
@@ -336,6 +338,7 @@ A record from another school or branch returns 404 rather than 403, so ids can't
 - Entities raise domain events instead of calling services. `DispatchDomainEventsInterceptor` publishes them through MediatR just before the changes are saved.
 - Aspire passes the connection string (`ConnectionStrings__EducationPortalDb`) to the API, so there is nothing to configure locally.
 - In Development the database is dropped and recreated on every start (`ApplicationDbContextInitialiser`: `EnsureDeleted`, then `EnsureCreated`) and then seeded. There are no EF Core migrations yet. They are required before any shared environment exists.
+- Location reference data (`Countries`, `States`, `Cities`, and the `StateTypes` lookup) has no `SchoolId`: it is shared by every school. `States` and `Cities` have `IsActive` and `IsCustom` flags; the ISO codes (`Countries.Code`, `Countries.Iso3`, `States.IsoCode`) are unique, and a city name is unique within its state.
 - Student data is treated with the most care: personal fields are labelled by data class, never logged, and only ever synthetic in development and tests ([student-data-privacy skill](docs/ai/secure-compliance/student-data-privacy/SKILL.md)).
 
 ### Secrets
@@ -903,6 +906,11 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | Acceptance tests fail with "Executable doesn't exist" | Install the Playwright browsers (see the [command cheat sheet](#command-cheat-sheet)). |
 | Data is gone after a restart | Expected in Development: the database is recreated on every start. |
 | `npm install` reports vulnerabilities | Run `npm audit --audit-level=high`. High and critical findings must be fixed before merging, or documented as an approved exception. Use `npm audit fix` without `--force`, which could move Angular to another major version. |
+
+## Data sources and licences
+
+- Countries, states and cities: Data by Countries States Cities Database, https://github.com/dr5hn/countries-states-cities-database, ODbL v1.0. The commit used is recorded in the `source` block of `Education Portal Full Stack App/src/Infrastructure/Data/Locations/locations.json`.
+- Common passwords list for the password policy: see `Education Portal Full Stack App/src/Infrastructure/Identity/CommonPasswords.LICENSE.txt`.
 
 ## More
 

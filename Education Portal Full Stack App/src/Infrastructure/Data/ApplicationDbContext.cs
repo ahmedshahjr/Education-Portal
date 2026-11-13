@@ -27,6 +27,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<Country> Countries => Set<Country>();
 
+    public DbSet<State> States => Set<State>();
+
+    public DbSet<City> Cities => Set<City>();
+
     public DbSet<SchoolRequest> SchoolRequests => Set<SchoolRequest>();
 
     public DbSet<PortalModule> Modules => Set<PortalModule>();

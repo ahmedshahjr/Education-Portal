@@ -1,3 +1,4 @@
+using System.Reflection;
 using EducationPortal.Infrastructure.Data;
 using EducationPortal.Web.Infrastructure;
 using Scalar.AspNetCore;
@@ -22,10 +23,18 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    // Resets the schema, imports the location data and seeds the demo tenants.
     await app.InitialiseDatabaseAsync();
 }
 else
 {
+    // Countries, states and cities for the address dropdowns, on every start-up (safe to run again). Not while the build
+    // runs this program to write the OpenAPI document (GetDocument.Insider), which has no database.
+    if (Assembly.GetEntryAssembly()?.GetName().Name != "GetDocument.Insider")
+    {
+        await app.ImportLocationDataAsync();
+    }
+
     // HSTS for one year, including subdomains (SEC-WEB-01). Development keeps plain HTTP for local tools.
     app.UseHsts();
 }
