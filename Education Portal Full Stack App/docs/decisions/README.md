@@ -19,3 +19,4 @@ An ADR captures a significant architectural decision: the context that led to it
 | [ADR-011](ADR-011-Subscriptions-And-Tenant-Modules.md) | Subscriptions and Tenant Modules | 2026-11-13 | Accepted |
 | [ADR-012](ADR-012-Module-Enforcement-And-School-Roles.md) | Module Enforcement and School Roles | 2026-11-13 | Accepted |
 | [ADR-013](ADR-013-Invoices-And-Manual-Payments.md) | Invoices and Manual Payments | 2026-11-13 | Accepted |
+| [ADR-014](ADR-014-Subscription-Management-And-Add-On-Requests.md) | Subscription Management and Add-On Requests | 2026-11-13 | Accepted |

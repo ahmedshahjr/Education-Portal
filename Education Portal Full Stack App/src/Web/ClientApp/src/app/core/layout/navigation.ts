@@ -1,7 +1,7 @@
 import { NavItem, NavSection } from '../../shared/models/navigation.models';
 
 /** Who sees a menu item. The server enforces the same rule on every request; the menu only hides what would be refused. */
-export type NavAccess = 'everyone' | 'administrator' | 'master-administrator';
+export type NavAccess = 'everyone' | 'administrator' | 'school-administrator' | 'master-administrator';
 
 export interface AppNavItem extends NavItem {
   readonly access: NavAccess;
@@ -22,7 +22,10 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
   {
     id: 'school',
     title: $localize`:@@nav.school:School`,
-    items: [{ id: 'branding', label: $localize`:@@nav.branding:Branding`, icon: 'sliders-horizontal', route: '/settings/branding', access: 'administrator' }],
+    items: [
+      { id: 'branding', label: $localize`:@@nav.branding:Branding`, icon: 'sliders-horizontal', route: '/settings/branding', access: 'administrator' },
+      { id: 'subscription', label: $localize`:@@nav.subscription:My subscription`, icon: 'layers', route: '/subscription', access: 'school-administrator' },
+    ],
   },
   {
     id: 'master',
@@ -30,6 +33,7 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
     items: [
       { id: 'schools', label: $localize`:@@nav.schools:Schools`, icon: 'layers', route: '/schools', access: 'master-administrator' },
       { id: 'countries', label: $localize`:@@nav.countries:Countries and languages`, icon: 'globe', route: '/countries', access: 'master-administrator' },
+      { id: 'add-on-requests', label: $localize`:@@nav.addOnRequests:Add-on requests`, icon: 'inbox', route: '/add-on-requests', access: 'master-administrator' },
       { id: 'modules', label: $localize`:@@nav.modules:Modules`, icon: 'blocks', route: '/modules', access: 'master-administrator' },
     ],
   },
@@ -49,6 +53,7 @@ export function visibleNavSections(
     (item.module === undefined || enabledModules.has(item.module)) &&
     (item.access === 'everyone' ||
       (item.access === 'administrator' && isAdministrator) ||
+      (item.access === 'school-administrator' && isAdministrator && !isMaster) ||
       (item.access === 'master-administrator' && isAdministrator && isMaster));
 
   return sections

@@ -1,0 +1,170 @@
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="The subscription could not be loaded"
+        i18n-title="@@subscription.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else if (subscription(); as sub) {
+      <dl class="mm-subscription__summary">
+        <div>
+          <dt i18n="@@subscription.plan">Plan</dt>
+          <dd>{{ sub.planCode ?? '-' }}</dd>
+        </div>
+        <div>
+          <dt i18n="@@subscription.status">Status</dt>
+          <dd><app-status-badge [tone]="tone(sub.status)">{{ sub.status }}</app-status-badge></dd>
+        </div>
+        <div>
+          <dt i18n="@@subscription.cycle">Billing cycle</dt>
+          <dd>{{ sub.billingCycle }}</dd>
+        </div>
+        <div>
+          <dt i18n="@@subscription.price">Price per cycle</dt>
+          <dd>{{ sub.amount | number: '1.2-2' }} {{ sub.currencyCode }}</dd>
+        </div>
+        <div>
+          <dt i18n="@@subscription.periodEnd">Period ends</dt>
+          <dd>{{ sub.endDate | localDate }}</dd>
+        </div>
+      </dl>
+
+      <h3 class="mm-subscription__heading" i18n="@@subscription.modulesHeading">Modules</h3>
+      <ul class="mm-subscription__list">
+        @for (module of sub.modules; track module.code) {
+          <li>
+            <span>
+              {{ module | moduleText }}
+              <app-status-badge [tone]="tone(module.status)">{{ module.status }}</app-status-badge>
+            </span>
+            @if (removableCodes().has(module.code)) {
+              <button mat-button type="button" [disabled]="busy()" (click)="removeModule(module.code)" i18n="@@subscription.removeModule">Remove</button>
+            }
+          </li>
+        }
+      </ul>
+
+      <h3 class="mm-subscription__heading" i18n="@@subscription.actionsHeading">Actions</h3>
+      <div class="mm-subscription__row">
+        @if (sub.status === statuses.Suspended || sub.status === statuses.PastDue) {
+          <button mat-flat-button type="button" [disabled]="busy()" (click)="reactivate()" i18n="@@subscription.reactivate">Reactivate</button>
+        }
+        @if (sub.status !== statuses.Suspended) {
+          <button mat-stroked-button type="button" [disabled]="busy()" (click)="suspend()" i18n="@@subscription.suspend">Suspend</button>
+        }
+      </div>
+
+      <form class="mm-subscription__row" [formGroup]="extendForm" (ngSubmit)="extend()" novalidate>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@subscription.extendDays">Extend by (days)</mat-label>
+          <input matInput type="number" formControlName="days" min="1" [max]="maxExtensionDays" dir="ltr" />
+        </mat-form-field>
+        <button mat-stroked-button type="submit" [disabled]="busy() || extendForm.invalid" i18n="@@subscription.extend">Extend</button>
+      </form>
+
+      <form class="mm-subscription__row" [formGroup]="planForm" (ngSubmit)="changePlan()" novalidate>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@subscription.newPlan">New plan</mat-label>
+          <mat-select formControlName="planCode">
+            @for (plan of plans(); track plan.code) {
+              <mat-option [value]="plan.code">{{ plan.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button mat-stroked-button type="submit" [disabled]="busy() || planForm.invalid" i18n="@@subscription.changePlan">Change plan</button>
+      </form>
+      <p class="mm-subscription__muted" i18n="@@subscription.noProration">Changes take effect at once. The current period is not credited or charged; the next invoice uses the new price.</p>
+
+      <form class="mm-subscription__row" [formGroup]="moduleForm" (ngSubmit)="addModule()" novalidate>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@subscription.addModule">Add a module</mat-label>
+          <mat-select formControlName="moduleCode">
+            @for (module of addableModules(); track module.code) {
+              <mat-option [value]="module.code">{{ module | moduleText }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button mat-stroked-button type="submit" [disabled]="busy() || moduleForm.invalid" i18n="@@subscription.addModuleButton">Add module</button>
+      </form>
+
+      <h3 class="mm-subscription__heading" i18n="@@subscription.invoicesHeading">Invoices</h3>
+      <div class="mm-subscription__row">
+        <button mat-stroked-button type="button" [disabled]="busy()" (click)="issueInvoice(false)" i18n="@@subscription.issueCurrent">Invoice current period</button>
+        <button mat-stroked-button type="button" [disabled]="busy()" (click)="issueInvoice(true)" i18n="@@subscription.issueNext">Invoice next period</button>
+      </div>
+      @if (invoices().length === 0) {
+        <p class="mm-subscription__muted" i18n="@@subscription.noInvoices">No invoices yet.</p>
+      } @else {
+        <ul class="mm-subscription__list">
+          @for (invoice of invoices(); track invoice.id) {
+            <li>
+              <span>
+                {{ invoice.number }} · {{ invoice.total | number: '1.2-2' }} {{ invoice.currencyCode }} ·
+                {{ invoice.periodStart | localDate }} - {{ invoice.periodEnd | localDate }}
+                <app-status-badge [tone]="tone(invoice.status)">{{ invoice.status }}</app-status-badge>
+              </span>
+              @if (invoice.status === invoiceStatuses.Open) {
+                <span>
+                  <button mat-button type="button" [disabled]="busy()" (click)="startPayment(invoice)" i18n="@@subscription.recordPayment">Record payment</button>
+                  <button mat-button type="button" [disabled]="busy()" (click)="voidInvoice(invoice)" i18n="@@subscription.voidInvoice">Void</button>
+                </span>
+              }
+            </li>
+          }
+        </ul>
+      }
+
+      @if (payingInvoice(); as invoice) {
+        <form class="mm-subscription__row" [formGroup]="paymentForm" (ngSubmit)="recordPayment()" novalidate>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label i18n="@@subscription.method">Payment method</mat-label>
+            <mat-select formControlName="method">
+              @for (method of methods; track method) {
+                <mat-option [value]="method">{{ method }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label i18n="@@subscription.reference">Reference</mat-label>
+            <input matInput formControlName="reference" maxlength="100" autocomplete="off" dir="ltr" />
+          </mat-form-field>
+          <button mat-flat-button type="submit" [disabled]="busy() || paymentForm.invalid" i18n="@@subscription.payTotal">Record payment of {{ invoice.total | number: '1.2-2' }} {{ invoice.currencyCode }}</button>
+          <button mat-button type="button" (click)="payingInvoice.set(null)" i18n="@@common.cancel">Cancel</button>
+        </form>
+      }
+    } @else if (hasNone()) {
+      <h2 class="mm-subscription__title" i18n="@@subscription.startTitle">Start a subscription</h2>
+      <p class="mm-subscription__muted" i18n="@@subscription.startHelp">The school needs a country; the price comes from that country's price book. Add-on modules can be added once it has started.</p>
+      <form class="mm-subscription__row" [formGroup]="startForm" (ngSubmit)="start()" novalidate>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@subscription.plan">Plan</mat-label>
+          <mat-select formControlName="planCode">
+            @for (plan of plans(); track plan.code) {
+              <mat-option [value]="plan.code">{{ plan.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@subscription.cycle">Billing cycle</mat-label>
+          <mat-select formControlName="billingCycle">
+            @for (cycle of cycles; track cycle) {
+              <mat-option [value]="cycle">{{ cycle }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@subscription.trialDays">Trial days</mat-label>
+          <input matInput type="number" formControlName="trialDays" min="0" [max]="maxTrialDays" dir="ltr" />
+        </mat-form-field>
+        <button mat-flat-button type="submit" [disabled]="busy() || startForm.invalid || !startForm.controls.planCode.value" i18n="@@subscription.start">Start subscription</button>
+      </form>
+    } @else {
+      <app-loading-state />
+    }
+  </mat-card-content>
+</mat-card>

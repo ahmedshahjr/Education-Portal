@@ -27,6 +27,7 @@ import { BrandingChanges, toFileParameter } from '../branding/branding-changes';
 import { BrandingEditorComponent } from '../branding/branding-editor.component';
 import { NewSchool, SchoolFormComponent } from './school-form.component';
 import { SchoolModulesComponent } from './school-modules.component';
+import { SchoolSubscriptionComponent } from './school-subscription.component';
 
 const PAGE_SIZE = 25;
 
@@ -49,6 +50,7 @@ export const SEARCH_DELAY_MS = 300;
     SearchInputComponent,
     BrandingEditorComponent,
     SchoolModulesComponent,
+    SchoolSubscriptionComponent,
     SchoolFormComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -201,6 +203,11 @@ export const SEARCH_DELAY_MS = 300;
     </mat-card>
 
     @if (modulesOf(); as school) {
+      <h2 class="mm-schools__heading" i18n="@@schools.subscriptionOf">Subscription of {{ school.name }}</h2>
+      <div class="mm-schools__section">
+        <app-school-subscription [school]="school" />
+      </div>
+
       <h2 class="mm-schools__heading" i18n="@@schools.modulesOf">Modules of {{ school.name }}</h2>
       <div class="mm-schools__section">
         <app-school-modules [school]="school" />

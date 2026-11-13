@@ -451,6 +451,8 @@ A record from another school or branch returns 404 rather than 403, so ids can't
 
 - **Invoices and manual payments** (decided 2026-11-13, [ADR-013](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-013-Invoices-And-Manual-Payments.md)). The master tenant issues an invoice for a school's subscription period (`Invoices`, `InvoiceLines`): the amount, currency and the tax rate (the school's own `Schools.TaxRateOverride` if set, else the country's `PriceBooks.TaxRate`, percent) are copied onto it, it is due in 30 days and numbered `INV-000123` from a database sequence. A subscription has one open invoice at a time and a period is invoiced once; the first paid period of a trial is invoiced with `nextPeriod`. The master records a manual payment (`Payments`: bank transfer, cash, cheque or wallet, with a reference) for the whole total through `IPaymentProvider` (only the manual provider exists; no card gateway, so no card data touches our servers). Paying marks the invoice Paid and activates or extends the school's subscription and its modules in one transaction. API, master tenant only and audited: `GET/POST /api/Invoices`, `GET /api/Invoices/{id}`, `POST /api/Invoices/{id}/payments`, `POST /api/Invoices/{id}/void`; the country's tax rate is set with `PUT /api/PriceBooks/{id}` and a school's own with `PUT /api/Schools/{id}/tax-rate`. Part payments, refunds and credit notes are not supported.
 
+- **Subscription management and add-on requests** (decided 2026-11-13, [ADR-014](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-014-Subscription-Management-And-Add-On-Requests.md)). The master tenant suspends, reactivates and extends a school's subscription, changes its plan and adds or removes add-on modules (`/api/Schools/{id}/subscription/suspend`, `reactivate`, `extend`, `plan`, `modules`). Plan, add and remove share one engine that re-quotes from the subscription's price book; changes take effect at once with no credit or charge for the current period, and modules that leave expire but keep their data. A school administrator sees its own subscription, the add-ons it could take with prices and its requests on **My subscription** (`GET /api/Subscriptions/mine`) and asks for a module with `POST /api/AddOnRequests`; the master approves (the module is added in the same save) or rejects on the **Add-on requests** page. The Schools page gets a Subscription panel for the master (start, actions, invoices, record payment, void).
+
 ### Data and database
 
 - `ApplicationDbContext` (in `Infrastructure`) is the EF Core context for both Identity and the app's own tables. Entity mappings are `IEntityTypeConfiguration<T>` classes in `src/Infrastructure/Data/Configurations/`, picked up automatically.
@@ -670,7 +672,7 @@ flowchart TB
     init["Development start-up:<br/>EnsureDeleted, EnsureCreated, seed"] --> pg
 ```
 
-The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Branch`, `Invoice`, `InvoiceLine`, `Payment`, `SchoolRole` and `RolePermission` today. Every new school-owned entity is added to them (AGENTS.md section 2).
+The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Branch`, `Invoice`, `InvoiceLine`, `Payment`, `AddOnRequest`, `SchoolRole` and `RolePermission` today. Every new school-owned entity is added to them (AGENTS.md section 2).
 
 ### Secrets flow
 
