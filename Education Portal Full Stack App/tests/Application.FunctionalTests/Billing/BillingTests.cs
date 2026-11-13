@@ -75,6 +75,59 @@ public class BillingTests : TestBase
     }
 
     [Test]
+    public async Task ShouldUseTheSchoolsOwnTaxRateInsteadOfTheCountrysUntilItIsCleared()
+    {
+        var masterUserId = await TestApp.RunAsAdministratorAsync();
+        using var master = await SignInAsMasterAsync();
+        var school = await SetUpSchoolAsync(master, SchoolDomain, trialDays: 0, taxRate: 15m);
+
+        using var set = await master.PutAsync($"/api/Schools/{school.PublicId}/tax-rate", new { taxRate = 5m });
+        set.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        var overridden = await ReadAsync(master, await CreateInvoiceAsync(master, school.PublicId, nextPeriod: false));
+        overridden.ShouldSatisfyAllConditions(i => i.TaxRate.ShouldBe(5m), i => i.Total.ShouldBe(26250m));
+        (await master.PostAsync($"/api/Invoices/{overridden.Id}/void")).Dispose();
+
+        // A zero override is a rate too: it does not fall back to the country's.
+        (await master.PutAsync($"/api/Schools/{school.PublicId}/tax-rate", new { taxRate = 0m })).Dispose();
+        (await ReadAsync(master, await CreateInvoiceAsync(master, school.PublicId, nextPeriod: false))).TaxRate.ShouldBe(0m);
+        var latest = (await ListAsync(master, school.PublicId)).First(i => i.Status == InvoiceStatus.Open);
+        (await master.PostAsync($"/api/Invoices/{latest.Id}/void")).Dispose();
+
+        (await master.PutAsync($"/api/Schools/{school.PublicId}/tax-rate", new { taxRate = (decimal?)null })).Dispose();
+        (await ReadAsync(master, await CreateInvoiceAsync(master, school.PublicId, nextPeriod: false))).TaxRate.ShouldBe(15m);
+
+        (await TestApp.FindAuditEventsAsync(masterUserId)).ShouldContain(e => e.EventType == SecurityAuditEventType.SchoolTaxRateChanged);
+        (await ReadAsync(master, overridden.Id)).TaxRate.ShouldBe(5m); // an issued invoice keeps its rate
+    }
+
+    [TestCase(-1)]
+    [TestCase(100.5)]
+    [TestCase(1.234)]
+    public async Task ShouldRefuseABadSchoolTaxRate(double rate)
+    {
+        await TestApp.RunAsAdministratorAsync();
+        using var master = await SignInAsMasterAsync();
+        var school = await SetUpSchoolAsync(master, SchoolDomain, trialDays: 0, taxRate: 15m);
+
+        using var response = await master.PutAsync($"/api/Schools/{school.PublicId}/tax-rate", new { taxRate = (decimal)rate });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task ShouldKeepSchoolsFromSettingTheirOwnTaxRate()
+    {
+        await TestApp.RunAsAdministratorAsync();
+        using var master = await SignInAsMasterAsync();
+        var school = await SetUpSchoolAsync(master, SchoolDomain, trialDays: 0, taxRate: 15m);
+        using var schoolSession = await SignInToSchoolAsync(school.Id, SchoolDomain, "admin@school1.local");
+
+        using var response = await schoolSession.PutAsync($"/api/Schools/{school.PublicId}/tax-rate", new { taxRate = 0m });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    [Test]
     public async Task ShouldGiveEachInvoiceItsOwnNumber()
     {
         await TestApp.RunAsAdministratorAsync();

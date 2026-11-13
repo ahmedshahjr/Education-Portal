@@ -9,7 +9,7 @@ namespace EducationPortal.Application.Invoices.Commands.CreateInvoice;
 /// <summary>
 /// Issues an invoice for a school's subscription and returns its id: for the current period, or for the next one
 /// (<see cref="NextPeriod"/>, which is the only choice while the subscription is on trial). The amount is the
-/// subscription's price and the tax rate comes from its country's price book; both are copied onto the invoice. A
+/// subscription's price and the tax rate is the school's own override or else its country's price-book rate; both are copied onto the invoice. A
 /// subscription has at most one open invoice, and a period is invoiced once. Master tenant administrators only
 /// (SEC-AUTHZ-07), so the school id may come from the body (SEC-AUTHZ-04). Audited (SEC-LOG-03).
 /// </summary>
@@ -85,7 +85,10 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
         var subscription = await _context.Subscriptions.FirstOrDefaultAsync(s => s.SchoolId == schoolId && s.Status != SubscriptionStatus.Cancelled, cancellationToken);
         Guard.Against.NotFound(request.SchoolId, subscription);
 
-        var taxRate = await _context.PriceBooks.Where(b => b.Id == subscription.PriceBookId).Select(b => (decimal?)b.TaxRate).FirstOrDefaultAsync(cancellationToken);
+        // The school's own rate wins over its country's.
+        var bookRate = await _context.PriceBooks.Where(b => b.Id == subscription.PriceBookId).Select(b => (decimal?)b.TaxRate).FirstOrDefaultAsync(cancellationToken);
+        var schoolRate = await _context.Schools.Where(s => s.Id == schoolId).Select(s => s.TaxRateOverride).FirstOrDefaultAsync(cancellationToken);
+        var taxRate = schoolRate ?? bookRate;
         Guard.Against.Null(taxRate);
 
         var planCode = await _context.Plans.Where(p => p.Id == subscription.PlanId).Select(p => p.Code).FirstOrDefaultAsync(cancellationToken);

@@ -293,3 +293,42 @@ public class PriceBookTaxRateTests
         }
     }
 }
+
+public class SchoolTaxRateOverrideTests
+{
+    [Test]
+    public void ShouldStartWithoutAnOverride() => School.Create("School", "school.example").TaxRateOverride.ShouldBeNull();
+
+    [TestCase(0, true)]
+    [TestCase(100, true)]
+    [TestCase(7.5, true)]
+    [TestCase(-0.01, false)]
+    [TestCase(100.01, false)]
+    [TestCase(1.234, false)]
+    public void ShouldAcceptAPercentageFromZeroToOneHundredWithTwoDecimals(double rate, bool valid)
+    {
+        var school = School.Create("School", "school.example");
+
+        if (valid)
+        {
+            school.SetTaxRateOverride((decimal)rate);
+            school.TaxRateOverride.ShouldBe((decimal)rate);
+        }
+        else
+        {
+            Should.Throw<ArgumentOutOfRangeException>(() => school.SetTaxRateOverride((decimal)rate));
+            school.TaxRateOverride.ShouldBeNull();
+        }
+    }
+
+    [Test]
+    public void ShouldClearTheOverride()
+    {
+        var school = School.Create("School", "school.example");
+        school.SetTaxRateOverride(5m);
+
+        school.SetTaxRateOverride(null);
+
+        school.TaxRateOverride.ShouldBeNull();
+    }
+}

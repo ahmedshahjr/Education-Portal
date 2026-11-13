@@ -9,6 +9,8 @@ public class SchoolConfiguration : IEntityTypeConfiguration<School>
 {
     public void Configure(EntityTypeBuilder<School> builder)
     {
+        builder.Property(s => s.TaxRateOverride).HasPrecision(5, 2);
+        builder.ToTable(t => t.HasCheckConstraint("CK_Schools_TaxRateOverrideRange", "\"TaxRateOverride\" IS NULL OR (\"TaxRateOverride\" >= 0 AND \"TaxRateOverride\" <= 100)"));
         builder.Property(s => s.Name).IsRequired().HasMaxLength(School.NameMaxLength);
         builder.Property(s => s.Domain).IsRequired().HasMaxLength(School.DomainMaxLength);
         builder.Property(s => s.AccentColor)

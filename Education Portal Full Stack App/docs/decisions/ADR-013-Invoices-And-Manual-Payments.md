@@ -19,14 +19,16 @@ master tenant confirms by hand. Card payments, when added, follow the PCI DSS sk
 
 - **`Invoice`** (table `Invoices`, tenant-owned: `SchoolId`, tenant query filter): one subscription period. It copies the
   currency, the subtotal (the subscription's price), the **tax rate** and the computed tax amount and total, so a later
-  price or tax change never alters it. Status Open, Paid or Void (lookup table). Issue date, due date (14 days),
+  price or tax change never alters it. Status Open, Paid or Void (lookup table). Issue date, due date (30 days),
   period start and end, paid date. The **number** (`INV-000123`) comes from the database sequence `InvoiceNumbers`: unique
   and readable, not gap-free and shared by all schools.
 - **`InvoiceLine`** (table `InvoiceLines`): description and amount before tax. Today an invoice has one line (plan code,
   billing cycle and period dates, no translatable sentence), because the subscription stores one total. More lines come
   when adjustments or itemised add-ons are needed.
 - **Tax rate** is a percentage (0 to 100, two decimals) on the country's **price book** (`PriceBooks.TaxRate`, default 0),
-  set with `PUT /api/PriceBooks/{id}` (`taxRate`, left out means unchanged). Tax is rounded to two decimals, away from zero.
+  set with `PUT /api/PriceBooks/{id}` (`taxRate`, left out means unchanged). A school can override it: `Schools.TaxRateOverride`
+  (nullable, the only other new column on `School`), set with `PUT /api/Schools/{id}/tax-rate` (null clears it, 0 is a real
+  rate), audited as `SchoolTaxRateChanged`. The invoice uses the school's rate if set, else the country's. Tax is rounded to two decimals, away from zero.
 - **Which period** (`nextPeriod`): false invoices the current period (not allowed on a trial), true the period after the
   current end (a renewal, or the first paid period after a trial). A subscription has at most one open invoice and a
   period is invoiced once unless the first invoice was voided (two partial unique indexes).
@@ -60,6 +62,6 @@ brings a subscription back when its invoice is paid.
 - A subscription whose period has already ended and is paid for the *current* period is set Active but its module dates
   are not moved forward (they are still expired). Restarting a lapsed period from the payment date is decided in phase 7.
 - A renewal invoice uses the subscription's stored price, not the price book's current price.
-- Invoice numbers have gaps and are global; some tax jurisdictions require gap-free numbers per seller, which would need a
-  different scheme.
+- Invoice numbers are always unique but can have gaps and are global (maintainer accepted this, 2026-11-13); a jurisdiction that
+  requires gap-free numbers per seller would need a different scheme.
 - No credit notes, part payments or refunds, and no tax-inclusive pricing.

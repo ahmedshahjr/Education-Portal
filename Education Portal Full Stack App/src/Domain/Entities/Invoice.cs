@@ -8,7 +8,7 @@ namespace EducationPortal.Domain.Entities;
 /// </summary>
 public class Invoice : BaseAuditableEntity
 {
-    public const int PaymentTermDays = 14;
+    public const int PaymentTermDays = 30;
     public const int NumberMaxLength = 20;
 
     private readonly List<InvoiceLine> _lines = [];

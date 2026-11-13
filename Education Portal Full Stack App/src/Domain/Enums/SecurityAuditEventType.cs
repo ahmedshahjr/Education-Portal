@@ -89,4 +89,7 @@ public enum SecurityAuditEventType
 
     /// <summary>The master tenant recorded a payment against an invoice.</summary>
     PaymentRecorded = 31,
+
+    /// <summary>The master tenant set or cleared a school's own tax rate.</summary>
+    SchoolTaxRateChanged = 32,
 }
