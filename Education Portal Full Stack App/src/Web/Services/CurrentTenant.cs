@@ -4,7 +4,8 @@ namespace EducationPortal.Web.Services;
 
 /// <summary>
 /// The tenant of the current request. <see cref="Infrastructure.TenantResolution"/> sets it once, from the host, before
-/// any endpoint runs (SEC-AUTHZ-04). Nothing else may set it.
+/// any endpoint runs (SEC-AUTHZ-04). The only other caller is a scheduled job, which has no request and sets the master
+/// tenant on its own scope (<see cref="Jobs.SubscriptionLifecycleJob"/>). Nothing else may set it.
 /// </summary>
 public sealed class CurrentTenant : ICurrentTenant
 {

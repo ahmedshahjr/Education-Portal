@@ -17,7 +17,9 @@ public class WebApiFactory(string connectionString) : WebApplicationFactory<Prog
     {
         builder
             .UseSetting("ConnectionStrings:EducationPortalDb", connectionString)
-            .UseSetting("RateLimiting:SignInPermitLimit", "1000");
+            .UseSetting("RateLimiting:SignInPermitLimit", "1000")
+            // Tests run the lifecycle by hand at a chosen time (SubscriptionLifecycleTests), never on the clock.
+            .UseSetting("SubscriptionLifecycle:Enabled", "false");
 
         builder.ConfigureTestServices(services =>
         {

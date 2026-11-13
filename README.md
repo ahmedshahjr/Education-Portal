@@ -33,6 +33,7 @@ Every technology the portal uses, what it does here, and where its flow diagram 
 | Validation | FluentValidation | 12 | One validator per request, run by `ValidationBehaviour`; failures become 400 | [How a request flows](#how-a-request-flows) |
 | Mapping | AutoMapper | 16 | Entity to DTO maps in the Application layer | [How a request flows](#how-a-request-flows) |
 | Guards | Ardalis.GuardClauses | 5 | Argument and lookup checks in handlers and start-up code; `Guard.Against.NotFound` becomes 404 | [How a request flows](#how-a-request-flows) |
+| Scheduling | Quartz.NET (`Quartz`) | 4.7 | Runs the daily subscription lifecycle job inside the API, on a UTC cron schedule kept in memory | [Subscription lifecycle job](#subscription-lifecycle-job-flow) |
 | Data access | EF Core with Npgsql | EF Core 10, Npgsql provider 10 | `ApplicationDbContext`, entity configurations, query filters for tenants and soft delete, save interceptors | [EF Core](#ef-core-and-postgresql-flow) |
 | Database | PostgreSQL | Aspire container (Azure Database for PostgreSQL on publish) | One shared database, `EducationPortalDb`, for every school | [EF Core](#ef-core-and-postgresql-flow) |
 | Sign-in | ASP.NET Core Identity with cookies | 10 | Accounts, password check, lockout, `SchoolId` claim, 15 minute sliding and 12 hour absolute session | [Sign-in](#sign-in-flow-aspnet-core-identity) |
@@ -231,6 +232,7 @@ Every diagram in this README, what it shows, and the code it is drawn from. When
 | [Localization flow](#localization-flow) | Request culture per school | culture providers in `src/Web/Infrastructure/TenantRequestLocalization.cs` |
 | [Angular start-up flow](#angular-start-up-flow) | Branding, language and user before first render | providers and start-up calls in `src/main.ts` and `src/app/app.config.ts` |
 | [NSwag API client generation flow](#nswag-api-client-generation-flow) | OpenAPI document to TypeScript client | `src/Web/ClientApp/nswag.json` |
+| [Subscription lifecycle job flow](#subscription-lifecycle-job-flow) | The daily Quartz job, its rules and their order | `src/Web/Jobs/`, `src/Application/Subscriptions/Lifecycle/` |
 | [Test flow](#test-flow) | Test projects and the test AppHost | `tests/TestAppHost/`, test projects added or removed |
 | [Compliance guards flow](#compliance-guards-flow) | Pre-commit hook, CI guards, sources review | workflows, git hooks or `docs/ai/*-guard.py` added or removed |
 | Any diagram section | | a new ADR in `docs/decisions/` |
@@ -450,6 +452,7 @@ A record from another school or branch returns 404 rather than 403, so ids can't
 - **Module enforcement and school roles** (decided 2026-11-13, [ADR-012](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-012-Module-Enforcement-And-School-Roles.md)). A school can use a paid module only while an Active `TenantModule` of its subscription covers the current time (core modules are always on); a grant limited to a branch counts for that branch only. Answers are cached per school for five minutes in memory and dropped when a subscription or the catalogue changes (other server instances catch up within the five minutes). The old per-school switch table `SchoolModules` and `PUT /api/Schools/{id}/modules/{code}` are removed. Each school administrator manages the school's roles with View/Create/Edit/Delete rights per module: `GET/POST /api/SchoolRoles`, `PUT/DELETE /api/SchoolRoles/{id}` (tables `SchoolRoles` and `RolePermissions`). Rights in a module the school does not have are not shown and cannot be set; they are kept and come back with the module. Assigning roles to users comes later.
 
 - **Invoices and manual payments** (decided 2026-11-13, [ADR-013](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-013-Invoices-And-Manual-Payments.md)). The master tenant issues an invoice for a school's subscription period (`Invoices`, `InvoiceLines`): the amount, currency and the tax rate (the school's own `Schools.TaxRateOverride` if set, else the country's `PriceBooks.TaxRate`, percent) are copied onto it, it is due in 30 days and numbered `INV-000123` from a database sequence. A subscription has one open invoice at a time and a period is invoiced once; the first paid period of a trial is invoiced with `nextPeriod`. The master records a manual payment (`Payments`: bank transfer, cash, cheque or wallet, with a reference) for the whole total through `IPaymentProvider` (only the manual provider exists; no card gateway, so no card data touches our servers). Paying marks the invoice Paid and activates or extends the school's subscription and its modules in one transaction. API, master tenant only and audited: `GET/POST /api/Invoices`, `GET /api/Invoices/{id}`, `POST /api/Invoices/{id}/payments`, `POST /api/Invoices/{id}/void`; the country's tax rate is set with `PUT /api/PriceBooks/{id}` and a school's own with `PUT /api/Schools/{id}/tax-rate`. Part payments, refunds and credit notes are not supported.
+- **Subscription lifecycle job** (decided 2026-11-13, [ADR-015](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-015-Subscription-Lifecycle-Job.md)). Every day at 01:00 UTC (Quartz.NET, `SubscriptionLifecycle:Schedule`) the API runs the lifecycle as the master tenant: trials past their end become past due, open invoices past their due date are marked overdue (`OverdueSince`, still payable) and their subscription past due, active subscriptions past their end become past due, past-due subscriptions are suspended after the grace period (`GracePeriodDays`, 14; modules off, no data deleted) and renewal reminders are queued (`RenewalReminders`, for the nearest of `ReminderDays` 30, 7 and 1; texts in `NotificationMessages` in English, Arabic and Urdu; nothing sends them yet). Running it twice on the same day changes nothing. Paying an invoice brings a suspended school back at once; a renewal of a subscription whose end has passed starts on the invoice date, so lapsed days are not billed. See the [flow](#subscription-lifecycle-job-flow).
 
 ### Data and database
 
@@ -670,7 +673,7 @@ flowchart TB
     init["Development start-up:<br/>EnsureDeleted, EnsureCreated, seed"] --> pg
 ```
 
-The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Branch`, `Invoice`, `InvoiceLine`, `Payment`, `SchoolRole` and `RolePermission` today. Every new school-owned entity is added to them (AGENTS.md section 2).
+The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Branch`, `Invoice`, `InvoiceLine`, `Payment`, `RenewalReminder`, `SchoolRole` and `RolePermission` today. Every new school-owned entity is added to them (AGENTS.md section 2).
 
 ### Secrets flow
 
@@ -784,6 +787,25 @@ flowchart LR
     gen --> client["src/app/web-api-client.ts<br/>one service per endpoint group,<br/>e.g. UsersClient, SchoolsClient"]
     client --> comp["Angular components and services"]
 ```
+
+### Subscription lifecycle job flow
+
+`src/Web/Jobs/SubscriptionLifecycleJob.cs` and `src/Application/Subscriptions/Lifecycle/SubscriptionLifecycle.cs` ([ADR-015](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-015-Subscription-Lifecycle-Job.md)).
+
+```mermaid
+flowchart TB
+    cron(["Quartz cron, UTC<br/>SubscriptionLifecycle:Schedule"]) --> scope["New DI scope<br/>master tenant set on it"]
+    scope --> trials["1. Trial past TrialEndDate → PastDue"]
+    trials --> invoices["2. Open invoice past DueDate → OverdueSince<br/>its Active subscription → PastDue"]
+    invoices --> ended["3. Active past EndDate → PastDue"]
+    ended --> suspend["4. PastDue + GracePeriodDays passed → Suspended<br/>modules suspended, data kept"]
+    suspend --> remind["5. Trial or Active ending soon →<br/>RenewalReminder for the nearest ReminderDays"]
+    remind --> save[("One SaveChanges<br/>nothing saved on error")]
+    save --> after["Drop cached entitlements of changed schools<br/>audit as system:subscription-lifecycle"]
+```
+
+- Each rule checks the state first, so a second run on the same day, or a run on another API instance, changes nothing.
+- Tests switch the schedule off (`SubscriptionLifecycle:Enabled` false) and call `SubscriptionLifecycleJob.RunAsMasterAsync` with a chosen time.
 
 ### Test flow
 
@@ -1019,6 +1041,7 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | Development seed accounts | `administrator@localhost` (master tenant, on `localhost`), `administrator@demo.localhost` (Demo School, Pakistan, on `demo.localhost`), `administrator@uae.localhost` (Demo School UAE, on `uae.localhost`) and `administrator@usa.localhost` (Demo School USA, on `usa.localhost`), password `Local-Dev-Only-2026!` (local database, Development only) |
 | Allowed hosts | `localhost` and `*.localhost` in Development (`AllowedHosts`); each school's domain is added when it is deployed |
 | Observability | `Observability:OtlpEndpoint` (set to the local Collector by Aspire), `TraceSampleRatio` (1.0 in Development, 0.1 elsewhere), `TenantIdAsMetricLabel` (off), `Enabled`. Grafana `http://localhost:13000`, Prometheus `http://localhost:9090`, Jaeger `http://localhost:16686`, Loki `http://localhost:3100`, Collector `localhost:4317`/`4318` ([docs/observability.md](Education%20Portal%20Full%20Stack%20App/docs/observability.md)) |
+| Subscription lifecycle | `SubscriptionLifecycle:Enabled` (true), `Schedule` (Quartz cron in UTC, `0 0 1 * * ?`), `GracePeriodDays` (14, 0 to 90), `ReminderDays` (`[30, 7, 1]`, each 1 to 365). Checked at start-up; bad values stop the app |
 | Fixed local ports | Every resource keeps the same port on every restart; all of them live in `src/AppHost/LocalPorts.cs` (no two share a port). `webfrontend` 14200, `webapi` 7052 (https) and 5132 (http), `dbserver` 15432, `vault` 8200, `otel-collector` 4317 (gRPC), 4318 (HTTP) and 13133 (health), `prometheus` 9090, `loki` 3100, `jaeger` 16686 (UI) and 14317 (OTLP), `grafana` 13000. Defaults that other tools often hold (3000, 4200, 5432) have 10000 added. |
 | Secrets | `Secrets:Provider` selects the store ([secrets](#secrets)). Locally Aspire runs HashiCorp Vault on `http://localhost:8200` and sets it up for you. Store credentials come from environment variables or user-secrets; never put secrets in `appsettings*.json` or any other file in the repository. |
 

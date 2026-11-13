@@ -102,6 +102,12 @@ public class Subscription : BaseAuditableEntity
 
     public DateTimeOffset? TrialEndDate { get; private set; }
 
+    /// <summary>
+    /// When the subscription lapsed (trial ended, period ended or an invoice fell due unpaid), while it is past due. The
+    /// grace period before the daily lifecycle job suspends it counts from here. Empty while it is in good standing.
+    /// </summary>
+    public DateTimeOffset? PastDueSince { get; private set; }
+
     public IReadOnlyCollection<TenantModule> Modules => _modules;
 
     /// <summary>
@@ -136,6 +142,7 @@ public class Subscription : BaseAuditableEntity
         }
 
         Status = SubscriptionStatus.Active;
+        PastDueSince = null;
 
         foreach (var module in _modules)
         {
@@ -172,10 +179,71 @@ public class Subscription : BaseAuditableEntity
         }
 
         Status = SubscriptionStatus.Active;
+        PastDueSince = null;
         foreach (var module in _modules.Where(m => m.Status == TenantModuleStatus.Suspended))
         {
             module.Reactivate();
         }
+    }
+
+    /// <summary>
+    /// Where the next paid period starts when a renewal is invoiced at <paramref name="issueDate"/>: at the current end, so
+    /// the billing date never moves, unless that end has already passed. A lapsed subscription restarts on the issue date
+    /// instead, so the school is not billed for days it was past due or suspended, and the new period is not over before
+    /// it is paid (ADR-015).
+    /// </summary>
+    public static DateTimeOffset RenewalStart(DateTimeOffset endDate, DateTimeOffset issueDate) =>
+        endDate >= issueDate ? endDate : issueDate;
+
+    /// <summary>
+    /// Ends a trial whose end date has passed: the school has not paid, so the subscription becomes past due from the
+    /// trial's end. Returns false, and changes nothing, when it is not on trial or the trial has not ended yet.
+    /// </summary>
+    public bool EndTrial(DateTimeOffset now)
+    {
+        if (Status != SubscriptionStatus.Trial || TrialEndDate is null || TrialEndDate > now)
+        {
+            return false;
+        }
+
+        Status = SubscriptionStatus.PastDue;
+        PastDueSince = TrialEndDate;
+        return true;
+    }
+
+    /// <summary>
+    /// Marks an active subscription past due from <paramref name="since"/> (an unpaid invoice's due date or the end of an
+    /// unpaid period). The modules keep working during the grace period. Returns false, and changes nothing, when the
+    /// subscription is not active.
+    /// </summary>
+    public bool MarkPastDue(DateTimeOffset since)
+    {
+        if (Status != SubscriptionStatus.Active)
+        {
+            return false;
+        }
+
+        Status = SubscriptionStatus.PastDue;
+        PastDueSince = since;
+        return true;
+    }
+
+    /// <summary>
+    /// Suspends a past-due subscription once <paramref name="graceDays"/> days have passed since it lapsed (see
+    /// <see cref="Suspend"/>: modules are switched off, no data is deleted). Returns false, and changes nothing, when it
+    /// is not past due or the grace period is still running.
+    /// </summary>
+    public bool SuspendAfterGrace(DateTimeOffset now, int graceDays)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(graceDays);
+
+        if (Status != SubscriptionStatus.PastDue || PastDueSince is null || PastDueSince.Value.AddDays(graceDays) > now)
+        {
+            return false;
+        }
+
+        Suspend();
+        return true;
     }
 
     public const int MaxExtensionDays = 366;

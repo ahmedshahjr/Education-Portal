@@ -110,4 +110,7 @@ public enum SecurityAuditEventType
 
     /// <summary>The master tenant approved or rejected an add-on request.</summary>
     AddOnRequestDecided = 38,
+
+    /// <summary>The daily lifecycle job found an invoice unpaid after its due date.</summary>
+    InvoiceMarkedOverdue = 39,
 }

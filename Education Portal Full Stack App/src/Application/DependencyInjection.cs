@@ -14,6 +14,15 @@ public static class DependencyInjection
         builder.Services.AddScoped<EducationPortal.Application.Common.Interfaces.IModuleAccess, EducationPortal.Application.Modules.Common.ModuleAccess>();
         builder.Services.AddSingleton<EducationPortal.Application.Common.Interfaces.IPaymentProvider, EducationPortal.Application.Invoices.Common.ManualPaymentProvider>();
 
+        // The daily subscription lifecycle (ADR-015). Bad settings stop the app at start-up rather than at 01:00.
+        builder.Services.AddOptions<EducationPortal.Application.Subscriptions.Lifecycle.SubscriptionLifecycleOptions>()
+            .Bind(builder.Configuration.GetSection(EducationPortal.Application.Subscriptions.Lifecycle.SubscriptionLifecycleOptions.SectionName))
+            .Validate(
+                o => System.ComponentModel.DataAnnotations.Validator.TryValidateObject(o, new System.ComponentModel.DataAnnotations.ValidationContext(o), null, validateAllProperties: true),
+                "The SubscriptionLifecycle settings are not valid: GracePeriodDays 0 to 90, ReminderDays distinct and 1 to 365, Schedule set.")
+            .ValidateOnStart();
+        builder.Services.AddScoped<EducationPortal.Application.Subscriptions.Lifecycle.SubscriptionLifecycle>();
+
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         EducationPortal.Application.Common.Localization.ValidationLocalization.Configure();
 

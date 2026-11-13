@@ -25,7 +25,7 @@ public record CreateInvoiceCommand : IRequest<Guid>
 
 public class CreateInvoiceCommandValidator : AbstractValidator<CreateInvoiceCommand>
 {
-    public CreateInvoiceCommandValidator(IApplicationDbContext context)
+    public CreateInvoiceCommandValidator(IApplicationDbContext context, TimeProvider timeProvider)
     {
         RuleFor(c => c.SchoolId).NotEmpty();
 
@@ -56,7 +56,7 @@ public class CreateInvoiceCommandValidator : AbstractValidator<CreateInvoiceComm
                     return;
                 }
 
-                var periodStart = command.NextPeriod ? subscription.EndDate : subscription.StartDate;
+                var periodStart = command.NextPeriod ? Subscription.RenewalStart(subscription.EndDate, timeProvider.GetUtcNow()) : subscription.StartDate;
                 if (await context.Invoices.AnyAsync(i => i.SubscriptionId == subscription.Id && i.PeriodStart == periodStart && i.Status != InvoiceStatus.Void, cancellationToken))
                 {
                     validation.AddFailure(nameof(CreateInvoiceCommand.NextPeriod), ValidationMessages.PeriodAlreadyInvoiced);
@@ -93,7 +93,8 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
 
         var planCode = await _context.Plans.Where(p => p.Id == subscription.PlanId).Select(p => p.Code).FirstOrDefaultAsync(cancellationToken);
 
-        var invoice = Invoice.Create(subscription, taxRate.Value, _timeProvider.GetUtcNow(), request.NextPeriod, Describe(planCode, subscription, request.NextPeriod));
+        var now = _timeProvider.GetUtcNow();
+        var invoice = Invoice.Create(subscription, taxRate.Value, now, request.NextPeriod, Describe(planCode, subscription, request.NextPeriod, now));
         _context.Invoices.Add(invoice);
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -107,10 +108,11 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
     }
 
     // Language-neutral on purpose: plan code, cycle and the dates, no sentence to translate.
-    private static string Describe(string? planCode, Subscription subscription, bool nextPeriod)
+    private static string Describe(string? planCode, Subscription subscription, bool nextPeriod, DateTimeOffset now)
     {
-        var start = nextPeriod ? subscription.EndDate : subscription.StartDate;
-        var end = nextPeriod ? Subscription.PeriodEnd(subscription.EndDate, subscription.BillingCycle) : subscription.EndDate;
+        // The same period as Invoice.Create: a lapsed subscription restarts on the issue date (ADR-015).
+        var start = nextPeriod ? Subscription.RenewalStart(subscription.EndDate, now) : subscription.StartDate;
+        var end = nextPeriod ? Subscription.PeriodEnd(start, subscription.BillingCycle) : subscription.EndDate;
         return string.Create(CultureInfo.InvariantCulture, $"{planCode ?? "ADD-ONS"} · {subscription.BillingCycle} · {start:yyyy-MM-dd} – {end:yyyy-MM-dd}");
     }
 }

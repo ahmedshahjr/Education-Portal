@@ -14,6 +14,7 @@ public class ProductionWebApiFactory(string connectionString) : WebApplicationFa
     {
         builder
             .UseEnvironment("Production")
-            .UseSetting("ConnectionStrings:EducationPortalDb", connectionString);
+            .UseSetting("ConnectionStrings:EducationPortalDb", connectionString)
+            .UseSetting("SubscriptionLifecycle:Enabled", "false");
     }
 }
