@@ -29,7 +29,7 @@ Enforcement must follow the subscription, answer fast, and fail closed.
   validity with the clock.
 - **`SchoolModules` is retired** (entity, table, endpoint `PUT /api/Schools/{id}/modules/{code}`). `GET
   /api/Schools/{id}/modules` is read only. The Angular page shows On or Off. Development seeds give the three demo
-  schools a yearly Full-plan subscription. Audit event number 21 (`SchoolModuleChanged`) stays in the enum; numbers are
+  schools a yearly Full-plan subscription. Audit event number 11 (`SchoolModuleChanged`) stays in the enum; numbers are
   never reused.
 - **Applied to** the school branding update (module SCHOOL). There are no branch endpoints yet, so none could be guarded.
 - **School roles**: `SchoolRole` (name unique per school) and `RolePermission` (View, Create, Edit, Delete per module;

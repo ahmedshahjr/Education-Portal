@@ -4,6 +4,7 @@ using EducationPortal.Application.Modules.Common;
 using EducationPortal.Application.Modules.Queries.GetSchoolModules;
 using EducationPortal.Application.Schools.Commands.CreateSchool;
 using EducationPortal.Application.Schools.Commands.SetDataRegion;
+using EducationPortal.Application.Schools.Commands.SetSchoolTaxRate;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolBranding;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolCountry;
 using EducationPortal.Application.Schools.Queries.GetSchoolBranding;
@@ -58,6 +59,10 @@ public class Schools : IEndpointGroup
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
+        groupBuilder.MapPut(SetSchoolTaxRate, "{schoolId:guid}/tax-rate")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
         groupBuilder.MapGet(GetSchoolSubscription, "{schoolId:guid}/subscription")
             .RequireAuthorization();
 
@@ -93,6 +98,16 @@ public class Schools : IEndpointGroup
     [EndpointSummary("Set a school's data region")]
     [EndpointDescription("Sets where the school's data is kept (SouthAsia, MiddleEast or NorthAmerica), or clears it with null. Master tenant only.")]
     public static async Task<NoContent> SetDataRegion(ISender sender, Guid schoolId, SetDataRegionCommand command)
+    {
+        // The route names the school; an id in the body is ignored.
+        await sender.Send(command with { SchoolId = schoolId });
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Set a school's own tax rate")]
+    [EndpointDescription("Sets the tax rate in percent (0 to 100, two decimals) that replaces the country's rate on this school's new invoices, or clears it with null so the country's rate applies. Issued invoices keep their rate. Master tenant only.")]
+    public static async Task<NoContent> SetSchoolTaxRate(ISender sender, Guid schoolId, SetSchoolTaxRateCommand command)
     {
         // The route names the school; an id in the body is ignored.
         await sender.Send(command with { SchoolId = schoolId });

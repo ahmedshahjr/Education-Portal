@@ -12,6 +12,7 @@ public static class DependencyInjection
             cfg.AddMaps(Assembly.GetExecutingAssembly()));
 
         builder.Services.AddScoped<EducationPortal.Application.Common.Interfaces.IModuleAccess, EducationPortal.Application.Modules.Common.ModuleAccess>();
+        builder.Services.AddSingleton<EducationPortal.Application.Common.Interfaces.IPaymentProvider, EducationPortal.Application.Invoices.Common.ManualPaymentProvider>();
 
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         EducationPortal.Application.Common.Localization.ValidationLocalization.Configure();

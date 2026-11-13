@@ -59,4 +59,13 @@ public class TenantModule : BaseAuditableEntity
 
     /// <summary>Switches a suspended module back on.</summary>
     public void Reactivate() => Status = TenantModuleStatus.Active;
+
+    /// <summary>Moves the end of the module's validity later (a paid renewal). It never shortens it.</summary>
+    public void ExtendTo(DateTimeOffset validTo)
+    {
+        if (validTo > ValidTo)
+        {
+            ValidTo = validTo;
+        }
+    }
 }

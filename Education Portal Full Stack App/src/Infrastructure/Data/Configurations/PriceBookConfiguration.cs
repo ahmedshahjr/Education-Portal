@@ -11,6 +11,9 @@ public class PriceBookConfiguration : IEntityTypeConfiguration<PriceBook>
         builder.Property(b => b.CountryCode).IsRequired().HasMaxLength(PriceBook.CountryCodeLength).IsFixedLength();
         builder.Property(b => b.CurrencyCode).IsRequired().HasMaxLength(PriceBook.CurrencyCodeLength).IsFixedLength();
 
+        builder.Property(b => b.TaxRate).HasPrecision(5, 2);
+        builder.ToTable(t => t.HasCheckConstraint("CK_PriceBooks_TaxRateRange", "\"TaxRate\" >= 0 AND \"TaxRate\" <= 100"));
+
         // One live price book per country, so a school's price book follows from its country.
         builder.HasIndex(b => b.CountryCode).IsUnique().HasFilter("\"IsDeleted\" = false");
     }

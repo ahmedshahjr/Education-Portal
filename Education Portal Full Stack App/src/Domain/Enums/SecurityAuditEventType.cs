@@ -81,12 +81,24 @@ public enum SecurityAuditEventType
     /// <summary>A school owner deleted a role.</summary>
     RoleDeleted = 28,
 
+    /// <summary>The master tenant issued an invoice for a school's subscription.</summary>
+    InvoiceCreated = 29,
+
+    /// <summary>The master tenant voided an open invoice.</summary>
+    InvoiceVoided = 30,
+
+    /// <summary>The master tenant recorded a payment against an invoice.</summary>
+    PaymentRecorded = 31,
+
+    /// <summary>The master tenant set or cleared a school's own tax rate.</summary>
+    SchoolTaxRateChanged = 32,
+
     /// <summary>The master tenant added a school (and its first administrator, audited as <see cref="UserCreated"/>).</summary>
-    SchoolCreated = 29,
+    SchoolCreated = 33,
 
     /// <summary>An account was created (for example a new school's first administrator).</summary>
-    UserCreated = 30,
+    UserCreated = 34,
 
     /// <summary>A user changed their password (including replacing a one-time password).</summary>
-    PasswordChanged = 31,
+    PasswordChanged = 35,
 }

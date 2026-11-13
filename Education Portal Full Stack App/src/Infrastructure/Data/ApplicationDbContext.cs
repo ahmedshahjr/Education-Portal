@@ -51,6 +51,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<TenantModule> TenantModules => Set<TenantModule>();
 
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+
+    public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
+
+    public DbSet<Payment> Payments => Set<Payment>();
+
     public DbSet<SchoolRole> SchoolRoles => Set<SchoolRole>();
 
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
@@ -64,6 +70,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        builder.HasSequence<int>(Configurations.InvoiceConfiguration.NumberSequence);
 
         // Enum columns hold numbers; a seeded lookup table per enum names them for reports (ENG-ENUM-04).
         EnumLookupTables.Configure(builder);
@@ -81,6 +88,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
         builder.Entity<TenantModule>()
             .HasQueryFilter(m => IsMasterTenant || m.SchoolId == CurrentSchoolId);
+
+        builder.Entity<Invoice>()
+            .HasQueryFilter(i => IsMasterTenant || i.SchoolId == CurrentSchoolId);
+
+        builder.Entity<InvoiceLine>()
+            .HasQueryFilter(l => IsMasterTenant || l.SchoolId == CurrentSchoolId);
+
+        builder.Entity<Payment>()
+            .HasQueryFilter(p => IsMasterTenant || p.SchoolId == CurrentSchoolId);
 
         builder.Entity<SchoolRole>()
             .HasQueryFilter(r => IsMasterTenant || r.SchoolId == CurrentSchoolId);

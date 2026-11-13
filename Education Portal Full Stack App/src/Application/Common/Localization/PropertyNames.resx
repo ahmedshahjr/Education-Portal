@@ -35,6 +35,12 @@
   <data name="TrialDays" xml:space="preserve"><value>Trial days</value></data>
   <data name="DataRegion" xml:space="preserve"><value>Data region</value></data>
   <data name="Permissions" xml:space="preserve"><value>Rights</value></data>
+  <data name="Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="Reference" xml:space="preserve"><value>Reference</value></data>
+  <data name="ReceivedDate" xml:space="preserve"><value>Received date</value></data>
+  <data name="Method" xml:space="preserve"><value>Payment method</value></data>
+  <data name="TaxRate" xml:space="preserve"><value>Tax rate</value></data>
+  <data name="NextPeriod" xml:space="preserve"><value>Next period</value></data>
   <data name="Domain" xml:space="preserve"><value>Domain</value></data>
   <data name="AdministratorEmail" xml:space="preserve"><value>Administrator email</value></data>
   <data name="AdministratorPassword" xml:space="preserve"><value>One-time password</value></data>
