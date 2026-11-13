@@ -13,16 +13,15 @@ public static class EnumLookupTables
     /// tests (Respawn) leaves them alone.
     /// </summary>
     public static IReadOnlyList<string> Tables { get; } =
-        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "ModuleTypes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes"];
+        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes"];
 
     internal static void Configure(ModelBuilder builder)
     {
         Map<SecurityAuditEvent, SecurityAuditEventType>(builder, Tables[0], e => e.EventType);
         Map<SecurityAuditEvent, SecurityAuditOutcome>(builder, Tables[1], e => e.Outcome);
-        Map<PortalModule, ModuleType>(builder, Tables[2], m => m.Type);
-        Map<BrandingImage, BrandingImageKind>(builder, Tables[3], i => i.Kind);
-        Map<SchoolRequest, SchoolRequestStatus>(builder, Tables[4], r => r.Status);
-        Map<State, StateType>(builder, Tables[5], s => s.Type);
+        Map<BrandingImage, BrandingImageKind>(builder, Tables[2], i => i.Kind);
+        Map<SchoolRequest, SchoolRequestStatus>(builder, Tables[3], r => r.Status);
+        Map<State, StateType>(builder, Tables[4], s => s.Type);
     }
 
     private static void Map<TEntity, TEnum>(ModelBuilder builder, string table, Expression<Func<TEntity, TEnum>> column)

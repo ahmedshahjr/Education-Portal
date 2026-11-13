@@ -6,8 +6,8 @@ using EducationPortal.Domain.Constants;
 namespace EducationPortal.Application.Modules.Queries.GetSchoolModules;
 
 /// <summary>
-/// Lists every module as it stands for one school: on or off, and whether that comes from the module's default or the
-/// master's choice. A master-tenant use case, so the school id may come from the route (SEC-AUTHZ-04, SEC-AUTHZ-07).
+/// Lists every module as it stands for one school: core modules are always on, paid modules are on when the master
+/// switched them on. A master-tenant use case, so the school id may come from the route (SEC-AUTHZ-04, SEC-AUTHZ-07).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
 public record GetSchoolModulesQuery(Guid SchoolId) : IRequest<IReadOnlyList<SchoolModuleDto>>;
@@ -35,13 +35,12 @@ public class GetSchoolModulesQueryHandler : IRequestHandler<GetSchoolModulesQuer
         // The master tenant is never limited by modules (AGENTS.md section 2: it oversees every school).
         return modules
             .Select(m => new SchoolModuleDto(
-                m.Key,
+                m.Code,
                 m.Name,
                 m.Description,
-                m.Type,
+                m.IsCore,
                 m.IsActive,
-                school.IsMaster || PortalModule.IsEnabled(m.IsActive, m.Type, m.SchoolChoice),
-                FollowsDefault: m.SchoolChoice is null))
+                school.IsMaster || PortalModule.IsEnabled(m.IsActive, m.IsCore, m.SchoolChoice)))
             .ToList();
     }
 }

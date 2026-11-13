@@ -7,12 +7,12 @@ import { moduleText, ModuleTextPipe } from '../../core/i18n/module-text.pipe';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
-import { ModuleType, SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchoolModuleCommand } from '../../web-api-client';
+import { SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchoolModuleCommand } from '../../web-api-client';
 
 /**
- * Master portal: switches modules on or off for one school. The school's users can use only the modules that are on.
- * A choice made here wins over the module's type from then on. A module the master made inactive is off for every
- * school, so its switch is locked here until it is active again.
+ * Master portal: gives paid modules to one school or takes them away. Core modules are always on, so their switch is
+ * locked. A module the master made inactive is off for every school, so its switch is locked here until it is active
+ * again. The school's users can use only the modules that are on.
  */
 @Component({
   selector: 'app-school-modules',
@@ -33,15 +33,15 @@ import { ModuleType, SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchool
           />
         } @else if (modules(); as modules) {
           <ul class="mm-school-modules">
-            @for (module of modules; track module.key) {
+            @for (module of modules; track module.code) {
               <li class="mm-school-modules__row">
                 <div class="mm-school-modules__text">
                   <div class="mm-school-modules__name">
                     {{ module | moduleText }}
-                    @if (module.type === types.Default) {
-                      <app-status-badge tone="success" i18n="@@modules.default">Default</app-status-badge>
+                    @if (module.isCore) {
+                      <app-status-badge tone="success" i18n="@@modules.core">Core</app-status-badge>
                     } @else {
-                      <app-status-badge tone="warning" i18n="@@modules.custom">Custom</app-status-badge>
+                      <app-status-badge tone="warning" i18n="@@modules.paid">Paid</app-status-badge>
                     }
                     @if (!module.isActive) {
                       <app-status-badge tone="error" i18n="@@modules.inactive">Inactive</app-status-badge>
@@ -51,7 +51,7 @@ import { ModuleType, SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchool
                 </div>
                 <mat-slide-toggle
                   [checked]="module.isEnabled"
-                  [disabled]="school().isMaster || !module.isActive || saving() === module.key"
+                  [disabled]="school().isMaster || module.isCore || !module.isActive || saving() === module.code"
                   (change)="setEnabled(module, $event)"
                   aria-label="{{ module | moduleText }} for {{ school().name }}"
                   i18n-aria-label="@@modules.enabledFor"
@@ -104,8 +104,6 @@ export class SchoolModulesComponent {
 
   readonly school = input.required<SchoolSummaryDto>();
 
-  protected readonly types = ModuleType;
-
   protected readonly modules = signal<readonly SchoolModuleDto[] | null>(null);
   protected readonly loadError = signal<string | null>(null);
   protected readonly saving = signal<string | null>(null);
@@ -128,13 +126,13 @@ export class SchoolModulesComponent {
 
   protected setEnabled(module: SchoolModuleDto, event: MatSlideToggleChange): void {
     const school = this.school();
-    this.saving.set(module.key);
-    this.client.setSchoolModule(school.id, module.key, new SetSchoolModuleCommand({ isEnabled: event.checked })).subscribe({
+    this.saving.set(module.code);
+    this.client.setSchoolModule(school.id, module.code, new SetSchoolModuleCommand({ isEnabled: event.checked })).subscribe({
       next: () => {
         this.saving.set(null);
         this.modules.update(
           (list) =>
-            list?.map((m) => (m.key === module.key ? new SchoolModuleDto({ ...m, isEnabled: event.checked, followsDefault: false }) : m)) ??
+            list?.map((m) => (m.code === module.code ? new SchoolModuleDto({ ...m, isEnabled: event.checked }) : m)) ??
             null
         );
         this.snackBar.open($localize`:@@modules.savedFor:${moduleText(module)}:MODULE: saved for ${school.name}:SCHOOL:`, undefined, {

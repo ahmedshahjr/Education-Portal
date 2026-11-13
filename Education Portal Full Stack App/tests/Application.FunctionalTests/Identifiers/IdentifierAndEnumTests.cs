@@ -8,6 +8,7 @@ using EducationPortal.Infrastructure.Data;
 using EducationPortal.Infrastructure.Data.Lookups;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Npgsql;
 
 namespace EducationPortal.Application.FunctionalTests.Identifiers;
@@ -55,18 +56,17 @@ public class IdentifierAndEnumTests : TestBase
     }
 
     [Test]
-    public async Task ShouldAcceptEnumsByNameOnly()
+    public void ShouldReadAndWriteEnumsByNameOnly()
     {
-        await TestApp.RunAsAdministratorAsync();
-        using var master = await SignInAsMasterAsync();
+        // No request body carries an enum until plans and price books arrive (billing cycle), so this checks the API's
+        // JSON options directly: names in and out, numbers and unknown names refused.
+        var options = FunctionalTestSetup.DevelopmentFactory.Services
+            .GetRequiredService<IOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>>().Value.SerializerOptions;
 
-        using var byName = await master.PutAsync($"/api/Modules/{ModuleKeys.Parents}", new { type = "Default", isActive = true });
-        using var byNumber = await master.PutAsync($"/api/Modules/{ModuleKeys.Parents}", new { type = 1, isActive = true });
-        using var undefined = await master.PutAsync($"/api/Modules/{ModuleKeys.Parents}", new { type = "Optional", isActive = true });
-
-        byName.StatusCode.ShouldBe(HttpStatusCode.NoContent);
-        byNumber.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        undefined.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        JsonSerializer.Serialize(SchoolRequestStatus.Approved, options).ShouldBe("\"Approved\"");
+        JsonSerializer.Deserialize<SchoolRequestStatus>("\"Approved\"", options).ShouldBe(SchoolRequestStatus.Approved);
+        Should.Throw<JsonException>(() => JsonSerializer.Deserialize<SchoolRequestStatus>("2", options));
+        Should.Throw<JsonException>(() => JsonSerializer.Deserialize<SchoolRequestStatus>("\"Optional\"", options));
     }
 
     [Test]
@@ -85,12 +85,12 @@ public class IdentifierAndEnumTests : TestBase
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        var column = context.Model.FindEntityType(typeof(PortalModule))!.FindProperty(nameof(PortalModule.Type))!;
+        var column = context.Model.FindEntityType(typeof(SchoolRequest))!.FindProperty(nameof(SchoolRequest.Status))!;
         column.GetColumnType().ShouldBe("integer");
         column.GetValueConverter().ShouldBeNull();
 
-        var lookup = await context.Set<EnumLookup<ModuleType>>().OrderBy(l => l.Id).ToListAsync();
-        lookup.Select(l => (l.Id, l.Name)).ShouldBe(Enum.GetValues<ModuleType>().Select(v => (v, v.ToString())));
+        var lookup = await context.Set<EnumLookup<SchoolRequestStatus>>().OrderBy(l => l.Id).ToListAsync();
+        lookup.Select(l => (l.Id, l.Name)).ShouldBe(Enum.GetValues<SchoolRequestStatus>().Select(v => (v, v.ToString())));
     }
 
     [Test]
@@ -98,11 +98,12 @@ public class IdentifierAndEnumTests : TestBase
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var module = await context.Modules.FirstAsync();
+        var request = SchoolRequest.Submit("School One", "Test Contact", "contact@school1.test");
+        await TestApp.AddAsync(request);
 
         // The lookup table's foreign key stops a value no member has, even from outside the application.
         await Should.ThrowAsync<PostgresException>(() =>
-            context.Database.ExecuteSqlAsync($"UPDATE \"Modules\" SET \"Type\" = {99} WHERE \"Id\" = {module.Id}"));
+            context.Database.ExecuteSqlAsync($"UPDATE \"SchoolRequests\" SET \"Status\" = {99} WHERE \"Id\" = {request.Id}"));
     }
 
     [Test]
@@ -111,7 +112,7 @@ public class IdentifierAndEnumTests : TestBase
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        foreach (var type in new[] { typeof(School), typeof(Country), typeof(PortalModule), typeof(SchoolModule), typeof(BrandingImage), typeof(SchoolRequest) })
+        foreach (var type in new[] { typeof(School), typeof(Country), typeof(PortalModule), typeof(ModuleDependency), typeof(SchoolModule), typeof(BrandingImage), typeof(SchoolRequest) })
         {
             var entity = context.Model.FindEntityType(type)!;
             entity.FindPrimaryKey()!.Properties.Single().ClrType.ShouldBe(typeof(int), type.Name);

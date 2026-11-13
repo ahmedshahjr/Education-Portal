@@ -4,8 +4,8 @@ using EducationPortal.Application.Common.Security;
 namespace EducationPortal.Application.Modules.Queries.GetEnabledModules;
 
 /// <summary>
-/// Returns the keys of the modules the current school may use, so the app can show only those. Any signed-in user of the
-/// school. The school comes from the request host, never from the client (SEC-AUTHZ-04). The server still checks the
+/// Returns the codes of the modules the current school may use, so the app can show only those. Any signed-in user of
+/// the school. The school comes from the request host, never from the client (SEC-AUTHZ-04). The server still checks the
 /// module on every request (SEC-AUTHZ-01); this list is only for the menu.
 /// </summary>
 [Authorize]
@@ -31,9 +31,14 @@ public class GetEnabledModulesQueryHandler : IRequestHandler<GetEnabledModulesQu
         if (_tenant.IsMaster)
         {
             // The master tenant oversees everything, so every module is on for it.
-            return await _context.Modules.AsNoTracking().OrderBy(m => m.Id).Select(m => m.Key).ToListAsync(cancellationToken);
+            return await _context.Modules
+                .AsNoTracking()
+                .OrderBy(m => m.SortOrder)
+                .ThenBy(m => m.Code)
+                .Select(m => m.Code)
+                .ToListAsync(cancellationToken);
         }
 
-        return await _moduleAccess.GetEnabledKeysAsync(schoolId, cancellationToken);
+        return await _moduleAccess.GetEnabledCodesAsync(schoolId, cancellationToken);
     }
 }

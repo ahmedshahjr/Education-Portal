@@ -21,4 +21,15 @@
   <data name="FaviconInvalid" xml:space="preserve"><value>يجب أن تكون أيقونة الموقع صورة ICO أو PNG بحجم {0} كيلوبايت على الأكثر.</value></data>
   <data name="LogoUploadAndRemove" xml:space="preserve"><value>ارفع شعارًا جديدًا أو احذفه، وليس كليهما.</value></data>
   <data name="FaviconUploadAndRemove" xml:space="preserve"><value>ارفع أيقونة موقع جديدة أو احذفها، وليس كليهما.</value></data>
+  <data name="ModuleCodeFormat" xml:space="preserve"><value>يجب أن يتكون الرمز من أحرف إنجليزية كبيرة وأرقام وشرطات سفلية، ويبدأ بحرف، مثل FEES.</value></data>
+  <data name="ModuleCodeTaken" xml:space="preserve"><value>توجد وحدة بهذا الرمز بالفعل.</value></data>
+  <data name="CoreModuleAlwaysOn" xml:space="preserve"><value>الوحدة الأساسية جزء من كل اشتراك وتكون مفعّلة دائمًا.</value></data>
+  <data name="InactiveModuleCannotBeCore" xml:space="preserve"><value>فعّل الوحدة قبل جعلها أساسية.</value></data>
+  <data name="ModuleCannotRequireItself" xml:space="preserve"><value>لا يمكن أن تتطلب الوحدة نفسها.</value></data>
+  <data name="ModuleDependencyExists" xml:space="preserve"><value>الوحدة تتطلب تلك الوحدة بالفعل.</value></data>
+  <data name="ModuleDependencyCycle" xml:space="preserve"><value>تلك الوحدة تتطلب هذه الوحدة بالفعل، مباشرة أو عبر وحدات أخرى، لذا سينشأ تكرار دائري.</value></data>
+  <data name="CoreModuleRequiresCoreOnly" xml:space="preserve"><value>يمكن للوحدة الأساسية أن تتطلب وحدات أساسية أخرى فقط.</value></data>
+  <data name="CoreModuleRequiresPaid" xml:space="preserve"><value>تتطلب هذه الوحدة وحدات غير أساسية. أزل هذه المتطلبات أولاً.</value></data>
+  <data name="ModuleRequiredByOthers" xml:space="preserve"><value>وحدات أخرى تتطلب هذه الوحدة. أزل هذه المتطلبات أولاً.</value></data>
+  <data name="RequiredModuleNotFound" xml:space="preserve"><value>الوحدة المطلوبة غير موجودة.</value></data>
 </root>

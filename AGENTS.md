@@ -54,26 +54,34 @@ Master tenant (the platform owner, i.e. us)
 
 Effective access for a school user = **modules enabled for their school** ∩ **rights their role gives per module** ∩ **branches assigned to them**.
 
-1. **Modules per school (master controls, decided 2026-11-11):** every module is one of two types, **default** or **custom** (there is no always-on type). From the master portal, the master tenant decides which modules are default and which are custom, and switches modules on or off for each school. A disabled module is unavailable to everyone in that school.
-   - **Default** modules are on for every school automatically, including new ones. The master can still switch one off for a single school.
-   - **Custom** modules stay off until the master switches them on for a school (for example when the school asks for it).
-   - The master's choice for a school wins over the default from then on. Without a choice, the module's default applies. The master tenant itself is never limited by modules.
-   - Each module also has an **Active** switch on the master's Modules page. An inactive module is off for every school, whatever its type or a school's choice, and comes back as it was once reactivated.
-   - Code: the type is the `ModuleType` enum (`Domain/Enums/ModuleType.cs`: `Default`, `Custom`) and Active is `PortalModule.IsActive` (`BaseSoftDeletableEntity`); keys in `Domain/Constants/ModuleKeys.cs`, starting list in `Domain/Entities/ModuleCatalog.cs` (seeded into the `Modules` table), per-school choices in `SchoolModules`. Master screens: Modules (type and Active) and Schools, Modules (per school).
+1. **Module catalogue and modules per school (master controls, decided 2026-11-13, [ADR-009](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-009-Sellable-Module-Catalogue.md); replaces the default/custom types of 2026-11-11):** the master tenant sells modules to schools. Every module has a stable upper-case **code** (`FEES`), a name, a description, a sort order, an **Active** switch, and is either **core** or **paid**.
+   - **Core** modules are part of every subscription and never sold on their own. They are always on: they cannot be made inactive, deleted or switched off for a school, and they may require only other core modules.
+   - **Paid** modules are on for a school only when it gets them: today through the master's per-school switch (`SchoolModules`), from phase 3 of the module-selling work through the school's subscription (`TenantModule`).
+   - A module can **require** others (`ModuleDependencies`, e.g. FEES requires STUDENTS). Loops and a module requiring itself are refused.
+   - An inactive module is off for every school and comes back as it was once reactivated. The master tenant itself is never limited by modules.
+   - Code: codes in `Domain/Constants/ModuleCodes.cs`, the starting catalogue and dependencies in `Domain/Entities/ModuleCatalog.cs` (seeded into `Modules` and `ModuleDependencies`), loop checks in `Domain/Entities/ModuleDependencyGraph.cs`. API: `/api/Modules` (catalogue CRUD and dependencies, master only), `/api/Schools/{id}/modules` (per-school switches, master only), `/api/Modules/enabled` (the current school's modules, any signed-in user).
 
-   MVP module list (2026-11-09; add new modules here, to `ModuleKeys` and to `ModuleCatalog` first). "Starts as" is the seeded split; the master can change it in the app:
+   Module list (2026-11-13; add new modules here, to `ModuleCodes` and to `ModuleCatalog` first). The master can change names, core/paid, order and dependencies in the app:
 
-   | Module | Covers | Starts as |
-   |---|---|---|
-   | Branches | Create and edit the school's branches | Default |
-   | Users & Roles | Staff accounts, roles with rights per module, branch assignment | Default |
-   | Students | Student records, branch membership, link to parents | Default |
-   | Teachers | Teacher records, branch membership | Default |
-   | Courses | Courses per branch, assigned teachers | Default |
-   | Enrolments | Enrolling students in courses | Default |
-   | Grades | Assessments and scores per enrolment | Default |
-   | Parents | Parent records, link to children | Custom |
-   | Dashboard | School/branch overview for owners and staff | Custom |
+   | Code | Module | Covers | Kind |
+   |---|---|---|---|
+   | SCHOOL | School | School profile, settings and the school overview dashboard | Core |
+   | BRANCH | Branches | Create and edit the school's branches | Core |
+   | ACADEMIC_SETUP | Academic setup | Academic years, classes, courses and enrolments | Core |
+   | USERS_ROLES | Users & Roles | Staff accounts, roles with rights per module, branch assignment | Core |
+   | STUDENTS | Students | Student records and branch membership | Core |
+   | STAFF | Staff | Teacher and staff records and branch membership | Core |
+   | ADMISSIONS | Admissions | Enquiries, applications and admission decisions | Paid |
+   | ATTENDANCE | Attendance | Daily and per-lesson attendance | Paid |
+   | FEES | Fees | Fee structures, student invoices and fee collection | Paid |
+   | PARENT_COMMUNICATION | Parent communication | Parent records, links to children, messages to parents | Paid |
+   | EXAMS | Exams | Assessments, scores and report cards (several scored assessments per enrolment) | Paid |
+   | TIMETABLE | Timetable | Class and teacher timetables | Paid |
+   | HR_PAYROLL | HR & Payroll | Staff contracts, leave and payroll | Paid |
+   | TRANSPORT | Transport | Routes, vehicles and student transport | Paid |
+   | LIBRARY | Library | Catalogue, loans and returns | Paid |
+   | LMS | LMS | Online lessons, assignments and course material | Paid |
+   | HOSTEL | Hostel | Rooms, allocations and boarders | Paid |
 
    Master-only areas (not tenant modules): Schools, module switches per school, countries and their languages, and the cross-school overview.
 2. **Roles per school (owner controls):** each school owner creates roles with **View / Create / Edit / Delete** rights per module.
@@ -90,7 +98,7 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 
 ### Rules for code
 
-- Check module switches and role rights **on the server**, in the Application layer. A module's use cases declare it with `[Authorize(Module = ModuleKeys.Students)]`; `AuthorizationBehaviour` refuses the request with 403 when the module is off for the host's school. In Angular, give a module's menu items `module: MODULE_KEYS.students` and its routes `moduleGuard(MODULE_KEYS.students)`. Hiding things in Angular is not enough: a direct API call to a disabled module or a branch the user doesn't have must be rejected.
+- Check module switches and role rights **on the server**, in the Application layer. A module's use cases declare it with `[Authorize(Module = ModuleCodes.Students)]`; `AuthorizationBehaviour` refuses the request with 403 when the module is off for the host's school. In Angular, give a module's menu items `module: MODULE_CODES.students` and its routes `moduleGuard(MODULE_CODES.students)`. Hiding things in Angular is not enough: a direct API call to a disabled module or a branch the user doesn't have must be rejected.
 - Every new tenant-owned entity gets `SchoolId` (and `BranchId` if branch-scoped) and is covered by the query filters.
 - Every new use case gets a test proving that another school, another branch, and a disabled module are denied.
 
@@ -317,7 +325,7 @@ Each step is one reviewable PR into `development`.
 - [x] Languages per country, managed by the master tenant; runtime-loaded Angular translations and per-school request localization (2026-11-10, ADR-005)
 - [ ] Native-speaker review of the Arabic and Urdu translations, and per-user saved language across devices (today the choice is a cookie per browser)
 - [ ] Production provisioning of the master tenant, schools and their domains (needs EF Core migrations first)
-- [x] Module list: see section 2 (2026-11-09)
+- [x] Module list: see section 2 (2026-11-09; sellable core/paid catalogue 2026-11-13, ADR-009)
 
 ## 10. References
 

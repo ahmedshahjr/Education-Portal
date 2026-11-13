@@ -22,8 +22,11 @@ public interface IApplicationDbContext
     /// <summary>Cities of each state, for address dropdowns. Platform reference data, not owned by a school.</summary>
     DbSet<City> Cities { get; }
 
-    /// <summary>The portal's modules and which are default. Platform reference data that only the master tenant changes.</summary>
+    /// <summary>The module catalogue: what the platform sells. Platform reference data that only the master tenant changes.</summary>
     DbSet<PortalModule> Modules { get; }
+
+    /// <summary>Which modules require which. Platform reference data that only the master tenant changes.</summary>
+    DbSet<ModuleDependency> ModuleDependencies { get; }
 
     /// <summary>The master tenant's per-school module switches. Covered by the tenant query filter (SEC-AUTHZ-03).</summary>
     DbSet<SchoolModule> SchoolModules { get; }

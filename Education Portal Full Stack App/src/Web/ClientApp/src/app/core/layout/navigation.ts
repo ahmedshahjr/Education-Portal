@@ -5,7 +5,7 @@ export type NavAccess = 'everyone' | 'administrator' | 'master-administrator';
 
 export interface AppNavItem extends NavItem {
   readonly access: NavAccess;
-  /** The module the item belongs to (a `MODULE_KEYS` value). It is shown only when the module is on for the school. */
+  /** The module the item belongs to (a `MODULE_CODES` value). It is shown only when the module is on for the school. */
   readonly module?: string;
 }
 

@@ -28,7 +28,7 @@ public class AuthorizeAttribute : Attribute
     public bool MasterTenant { get; set; }
 
     /// <summary>
-    /// The key of the module the request belongs to (a <c>ModuleKeys</c> constant). When set, the request is refused with
+    /// The code of the module the request belongs to (a <c>ModuleCodes</c> constant). When set, the request is refused with
     /// 403 unless the module is switched on for the school the request's host resolves to (SEC-AUTHZ-01). The master
     /// tenant is never limited by modules.
     /// </summary>

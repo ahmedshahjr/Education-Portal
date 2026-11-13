@@ -22,4 +22,7 @@
   <data name="AccentColor" xml:space="preserve"><value>نمایاں رنگ</value></data>
   <data name="SidebarColor" xml:space="preserve"><value>سائیڈبار کا رنگ</value></data>
   <data name="Key" xml:space="preserve"><value>کلید</value></data>
+  <data name="RequiresCode" xml:space="preserve"><value>مطلوبہ ماڈیول</value></data>
+  <data name="SortOrder" xml:space="preserve"><value>ترتیب</value></data>
+  <data name="Description" xml:space="preserve"><value>تفصیل</value></data>
 </root>

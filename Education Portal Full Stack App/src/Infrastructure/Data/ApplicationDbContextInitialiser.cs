@@ -108,13 +108,27 @@ public class ApplicationDbContextInitialiser
 
     public async Task TrySeedAsync()
     {
-        // Modules: add any the code knows and the database lacks. The master tenant decides afterwards which are default.
-        var knownModules = await _context.Modules.Select(m => m.Key).ToListAsync();
-        var missingModules = ModuleCatalog.CreateModules().Where(m => !knownModules.Contains(m.Key)).ToList();
+        // Modules and their dependencies: add any the code knows and the database lacks. The master tenant changes them
+        // afterwards. Seeding runs in Development only, where the database is recreated on every start.
+        var knownModules = await _context.Modules.Select(m => m.Code).ToListAsync();
+        var missingModules = ModuleCatalog.CreateModules().Where(m => !knownModules.Contains(m.Code)).ToList();
 
         if (missingModules.Count > 0)
         {
             _context.Modules.AddRange(missingModules);
+            await _context.SaveChangesAsync();
+
+            var modules = await _context.Modules.ToDictionaryAsync(m => m.Code);
+            var added = missingModules.Select(m => m.Code).ToHashSet();
+
+            foreach (var (moduleCode, requiresCode) in ModuleCatalog.Dependencies.Where(d => added.Contains(d.ModuleCode)))
+            {
+                if (modules.TryGetValue(moduleCode, out var module) && modules.TryGetValue(requiresCode, out var requires))
+                {
+                    _context.ModuleDependencies.Add(ModuleDependency.Create(module, requires));
+                }
+            }
+
             await _context.SaveChangesAsync();
         }
 

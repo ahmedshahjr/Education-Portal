@@ -10,7 +10,7 @@ using Shouldly;
 
 namespace EducationPortal.Application.UnitTests.Common.Behaviours;
 
-[Authorize(Module = ModuleKeys.Grades)]
+[Authorize(Module = ModuleCodes.Exams)]
 public sealed record GradesRequest : IRequest<int>;
 
 [Authorize]
@@ -41,7 +41,7 @@ public class ModuleAuthorizationTests
     [Test]
     public async Task ShouldRunWhenTheModuleIsOnForTheSchool()
     {
-        _modules.Setup(m => m.IsEnabledAsync(SchoolId, ModuleKeys.Grades, It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        _modules.Setup(m => m.IsEnabledAsync(SchoolId, ModuleCodes.Exams, It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         var result = await Behaviour<GradesRequest>().Handle(new GradesRequest(), _ => Task.FromResult(42), CancellationToken.None);
 
@@ -51,7 +51,7 @@ public class ModuleAuthorizationTests
     [Test]
     public async Task ShouldRefuseWhenTheModuleIsOffForTheSchool()
     {
-        _modules.Setup(m => m.IsEnabledAsync(SchoolId, ModuleKeys.Grades, It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        _modules.Setup(m => m.IsEnabledAsync(SchoolId, ModuleCodes.Exams, It.IsAny<CancellationToken>())).ReturnsAsync(false);
         var ran = false;
 
         await Should.ThrowAsync<ForbiddenAccessException>(() =>

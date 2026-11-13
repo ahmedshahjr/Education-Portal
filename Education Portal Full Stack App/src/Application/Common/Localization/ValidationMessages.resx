@@ -21,4 +21,15 @@
   <data name="FaviconInvalid" xml:space="preserve"><value>The favicon must be an ICO or PNG image of at most {0} KB.</value></data>
   <data name="LogoUploadAndRemove" xml:space="preserve"><value>Upload a new logo or remove it, not both.</value></data>
   <data name="FaviconUploadAndRemove" xml:space="preserve"><value>Upload a new favicon or remove it, not both.</value></data>
+  <data name="ModuleCodeFormat" xml:space="preserve"><value>The code must be upper-case letters, digits and underscores, starting with a letter, for example FEES.</value></data>
+  <data name="ModuleCodeTaken" xml:space="preserve"><value>A module with this code already exists.</value></data>
+  <data name="CoreModuleAlwaysOn" xml:space="preserve"><value>A core module is part of every subscription and is always on.</value></data>
+  <data name="InactiveModuleCannotBeCore" xml:space="preserve"><value>Activate the module before making it core.</value></data>
+  <data name="ModuleCannotRequireItself" xml:space="preserve"><value>A module cannot require itself.</value></data>
+  <data name="ModuleDependencyExists" xml:space="preserve"><value>The module already requires that module.</value></data>
+  <data name="ModuleDependencyCycle" xml:space="preserve"><value>That module already requires this one, directly or through others, so this would create a loop.</value></data>
+  <data name="CoreModuleRequiresCoreOnly" xml:space="preserve"><value>A core module can only require other core modules.</value></data>
+  <data name="CoreModuleRequiresPaid" xml:space="preserve"><value>This module requires modules that are not core. Remove those requirements first.</value></data>
+  <data name="ModuleRequiredByOthers" xml:space="preserve"><value>Other modules require this module. Remove those requirements first.</value></data>
+  <data name="RequiredModuleNotFound" xml:space="preserve"><value>The required module does not exist.</value></data>
 </root>

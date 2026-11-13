@@ -1,72 +1,100 @@
+using System.Text.RegularExpressions;
+
 namespace EducationPortal.Domain.Entities;
 
 /// <summary>
-/// A module of the portal, such as Students or Grades (AGENTS.md section 2). Modules are platform reference data that only
-/// the master tenant changes, so they have no <c>SchoolId</c>.
+/// A module of the portal that the master tenant sells, such as FEES or EXAMS (AGENTS.md section 2). Modules are
+/// platform reference data that only the master tenant changes, so they have no <c>SchoolId</c>.
 /// <list type="bullet">
-/// <item><see cref="Type"/> is <see cref="ModuleType.Default"/> (on for every school unless the master switched it off for
-/// one) or <see cref="ModuleType.Custom"/> (off until the master switches it on for a school).</item>
-/// <item><c>IsActive</c> is the master's on/off switch for the module itself: an inactive module is off for every
-/// school, whatever its type or a school's choice.</item>
+/// <item><see cref="IsCore"/> modules are part of every subscription and are never sold on their own. A core module is
+/// always on: it cannot be switched off, made inactive or deleted.</item>
+/// <item>Other modules are paid: a school gets one only through its subscription (until subscriptions exist, through
+/// the master's per-school switch, <see cref="SchoolModule"/>).</item>
+/// <item><c>IsActive</c> is the master's switch for the module itself: an inactive module is off for every school.</item>
 /// </list>
-/// A school's own choice is a <see cref="SchoolModule"/>; without one, the module's type decides.
+/// A module can require others (<see cref="ModuleDependency"/>), for example FEES requires STUDENTS.
 /// </summary>
-public class PortalModule : BaseSoftDeletableEntity
+public partial class PortalModule : BaseSoftDeletableEntity
 {
-    public const int KeyMaxLength = 50;
+    public const int CodeMaxLength = 50;
     public const int NameMaxLength = 100;
     public const int DescriptionMaxLength = 300;
 
     private PortalModule()
     {
         // For EF Core.
-        Key = string.Empty;
+        Code = string.Empty;
         Name = string.Empty;
         Description = string.Empty;
     }
 
-    private PortalModule(string key, string name, string description, ModuleType type) : this()
+    private PortalModule(string code) : this()
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(key);
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(key.Length, KeyMaxLength, nameof(key));
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(name.Trim().Length, NameMaxLength, nameof(name));
-        ArgumentNullException.ThrowIfNull(description);
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(description.Trim().Length, DescriptionMaxLength, nameof(description));
+        if (!IsValidCode(code))
+        {
+            throw new ArgumentException("A module code is upper-case letters, digits and underscores, starting with a letter, for example FEES.", nameof(code));
+        }
 
-        Key = key;
-        Name = name.Trim();
-        Description = description.Trim();
-        SetType(type);
+        Code = code;
     }
 
-    public static PortalModule Create(string key, string name, string description, ModuleType type) =>
-        new(key, name, description, type);
+    public static PortalModule Create(string code, string name, string description, bool isCore, int sortOrder)
+    {
+        var module = new PortalModule(code);
+        module.Update(name, description, isCore, sortOrder);
+        return module;
+    }
 
-    /// <summary>The stable key from <see cref="Constants.ModuleKeys"/>. Set once.</summary>
-    public string Key { get; private set; }
+    /// <summary>The stable code, for example <c>FEES</c> (see <see cref="Constants.ModuleCodes"/>). Set once.</summary>
+    public string Code { get; private set; }
 
     public string Name { get; private set; }
 
     public string Description { get; private set; }
 
-    /// <summary>Default (on for every school unless switched off for one) or custom (off unless switched on for a school).</summary>
-    public ModuleType Type { get; private set; }
+    /// <summary>True when the module is part of every subscription and never sold on its own.</summary>
+    public bool IsCore { get; private set; }
 
-    public void SetType(ModuleType type)
+    /// <summary>Where the module appears in lists and menus, lowest first.</summary>
+    public int SortOrder { get; private set; }
+
+    /// <summary>A core module is always on, so it can never be made inactive or deleted.</summary>
+    protected override bool CanBeDeactivated => !IsCore;
+
+    /// <summary>Changes the module. Making it core needs it active, because a core module is always on.</summary>
+    public void Update(string name, string description, bool isCore, int sortOrder)
     {
-        if (!Enum.IsDefined(type))
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(name.Trim().Length, NameMaxLength, nameof(name));
+        ArgumentNullException.ThrowIfNull(description);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(description.Trim().Length, DescriptionMaxLength, nameof(description));
+        ArgumentOutOfRangeException.ThrowIfNegative(sortOrder);
+
+        if (isCore && !IsActive)
         {
-            throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown module type.");
+            throw new InvalidOperationException("An inactive module cannot be core: core modules are always on.");
         }
 
-        Type = type;
+        Name = name.Trim();
+        Description = description.Trim();
+        IsCore = isCore;
+        SortOrder = sortOrder;
     }
 
-    /// <summary>Whether the module is on for a school, given that school's own choice (or <c>null</c> when it has none).</summary>
-    public bool IsEnabledFor(bool? schoolChoice) => IsEnabled(IsActive, Type, schoolChoice);
+    /// <summary>Whether the module is on for a school, given the master's switch for that school (or <c>null</c> when it has none).</summary>
+    public bool IsEnabledFor(bool? schoolChoice) => IsEnabled(IsActive, IsCore, schoolChoice);
 
-    /// <summary>The rule behind <see cref="IsEnabledFor"/>, for queries that project the fields instead of loading modules.</summary>
-    public static bool IsEnabled(bool isActive, ModuleType type, bool? schoolChoice) =>
-        isActive && (schoolChoice ?? type == ModuleType.Default);
+    /// <summary>
+    /// The rule behind <see cref="IsEnabledFor"/>, for queries that project the fields instead of loading modules: an
+    /// inactive module is off; a core module is on; a paid module is on only when the master switched it on.
+    /// </summary>
+    public static bool IsEnabled(bool isActive, bool isCore, bool? schoolChoice) =>
+        isActive && (isCore || schoolChoice == true);
+
+    /// <summary>True for a code of upper-case letters, digits and underscores that starts with a letter and fits the column.</summary>
+    public static bool IsValidCode(string? code) =>
+        code is not null && code.Length <= CodeMaxLength && CodePattern().IsMatch(code);
+
+    [GeneratedRegex("^[A-Z][A-Z0-9_]*$")]
+    private static partial Regex CodePattern();
 }

@@ -176,10 +176,16 @@ public static class TestApp
         var master = School.CreateMaster("Education Portal", MasterDomain);
         await AddAsync(master);
 
-        // The module catalog is seeded data, so it is added again too.
-        foreach (var module in ModuleCatalog.CreateModules())
+        // The module catalogue and its dependencies are seeded data, so they are added again too.
+        var modules = ModuleCatalog.CreateModules().ToDictionary(m => m.Code);
+        foreach (var module in modules.Values)
         {
             await AddAsync(module);
+        }
+
+        foreach (var (moduleCode, requiresCode) in ModuleCatalog.Dependencies)
+        {
+            await AddAsync(ModuleDependency.Create(modules[moduleCode], modules[requiresCode]));
         }
         MasterSchoolId = master.Id;
         MasterSchoolPublicId = master.PublicId;

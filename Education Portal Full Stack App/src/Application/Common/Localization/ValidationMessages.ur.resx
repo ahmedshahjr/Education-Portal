@@ -21,4 +21,15 @@
   <data name="FaviconInvalid" xml:space="preserve"><value>فیویکان ICO یا PNG تصویر ہونا چاہیے جس کا سائز زیادہ سے زیادہ {0} KB ہو۔</value></data>
   <data name="LogoUploadAndRemove" xml:space="preserve"><value>نیا لوگو اپ لوڈ کریں یا اسے ہٹائیں، دونوں نہیں۔</value></data>
   <data name="FaviconUploadAndRemove" xml:space="preserve"><value>نیا فیویکان اپ لوڈ کریں یا اسے ہٹائیں، دونوں نہیں۔</value></data>
+  <data name="ModuleCodeFormat" xml:space="preserve"><value>کوڈ بڑے انگریزی حروف، ہندسوں اور انڈر اسکور پر مشتمل ہونا چاہیے اور حرف سے شروع ہونا چاہیے، مثلاً FEES۔</value></data>
+  <data name="ModuleCodeTaken" xml:space="preserve"><value>اس کوڈ کا ماڈیول پہلے سے موجود ہے۔</value></data>
+  <data name="CoreModuleAlwaysOn" xml:space="preserve"><value>بنیادی ماڈیول ہر سبسکرپشن کا حصہ ہے اور ہمیشہ آن رہتا ہے۔</value></data>
+  <data name="InactiveModuleCannotBeCore" xml:space="preserve"><value>ماڈیول کو بنیادی بنانے سے پہلے فعال کریں۔</value></data>
+  <data name="ModuleCannotRequireItself" xml:space="preserve"><value>ماڈیول خود کو لازمی قرار نہیں دے سکتا۔</value></data>
+  <data name="ModuleDependencyExists" xml:space="preserve"><value>یہ ماڈیول پہلے ہی اُس ماڈیول کا تقاضا کرتا ہے۔</value></data>
+  <data name="ModuleDependencyCycle" xml:space="preserve"><value>وہ ماڈیول پہلے ہی اِس ماڈیول کا تقاضا کرتا ہے، براہِ راست یا دوسروں کے ذریعے، اس لیے یہ ایک دائرہ بنا دے گا۔</value></data>
+  <data name="CoreModuleRequiresCoreOnly" xml:space="preserve"><value>بنیادی ماڈیول صرف دوسرے بنیادی ماڈیولز کا تقاضا کر سکتا ہے۔</value></data>
+  <data name="CoreModuleRequiresPaid" xml:space="preserve"><value>یہ ماڈیول غیر بنیادی ماڈیولز کا تقاضا کرتا ہے۔ پہلے یہ تقاضے ہٹائیں۔</value></data>
+  <data name="ModuleRequiredByOthers" xml:space="preserve"><value>دوسرے ماڈیولز اس ماڈیول کا تقاضا کرتے ہیں۔ پہلے یہ تقاضے ہٹائیں۔</value></data>
+  <data name="RequiredModuleNotFound" xml:space="preserve"><value>مطلوبہ ماڈیول موجود نہیں ہے۔</value></data>
 </root>
