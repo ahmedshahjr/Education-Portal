@@ -11,7 +11,7 @@ internal static class PriceBookReader
             .AsNoTracking()
             .Where(b => id == null || b.PublicId == id)
             .OrderBy(b => b.CountryCode)
-            .Select(b => new { b.Id, b.PublicId, b.CountryCode, b.CurrencyCode, b.IsActive })
+            .Select(b => new { b.Id, b.PublicId, b.CountryCode, b.CurrencyCode, b.TaxRate, b.IsActive })
             .ToListAsync(cancellationToken);
 
         var bookIds = books.Select(b => b.Id).ToList();
@@ -32,6 +32,7 @@ internal static class PriceBookReader
                 b.PublicId,
                 b.CountryCode,
                 b.CurrencyCode,
+                b.TaxRate,
                 b.IsActive,
                 byBook[b.Id]
                     .OrderBy(i => i.PlanCode is null)

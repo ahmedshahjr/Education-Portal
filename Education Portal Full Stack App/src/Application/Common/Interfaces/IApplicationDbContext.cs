@@ -47,6 +47,12 @@ public interface IApplicationDbContext
 
     DbSet<TenantModule> TenantModules { get; }
 
+    DbSet<Invoice> Invoices { get; }
+
+    DbSet<InvoiceLine> InvoiceLines { get; }
+
+    DbSet<Payment> Payments { get; }
+
     DbSet<SchoolRole> SchoolRoles { get; }
 
     DbSet<RolePermission> RolePermissions { get; }

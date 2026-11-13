@@ -35,4 +35,10 @@
   <data name="TrialDays" xml:space="preserve"><value>آزمائشی دن</value></data>
   <data name="DataRegion" xml:space="preserve"><value>ڈیٹا کا خطہ</value></data>
   <data name="Permissions" xml:space="preserve"><value>حقوق</value></data>
+  <data name="Amount" xml:space="preserve"><value>رقم</value></data>
+  <data name="Reference" xml:space="preserve"><value>حوالہ</value></data>
+  <data name="ReceivedDate" xml:space="preserve"><value>وصولی کی تاریخ</value></data>
+  <data name="Method" xml:space="preserve"><value>ادائیگی کا طریقہ</value></data>
+  <data name="TaxRate" xml:space="preserve"><value>ٹیکس کی شرح</value></data>
+  <data name="NextPeriod" xml:space="preserve"><value>اگلی مدت</value></data>
 </root>

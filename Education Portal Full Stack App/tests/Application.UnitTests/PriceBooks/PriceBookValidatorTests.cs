@@ -20,6 +20,16 @@ public class PriceBookValidatorTests
     public void UpdateShouldCheckTheCurrency(string currency, bool valid) =>
         new UpdatePriceBookCommandValidator().Validate(new UpdatePriceBookCommand { Id = Guid.NewGuid(), CurrencyCode = currency }).IsValid.ShouldBe(valid);
 
+    [TestCase(null, true)]
+    [TestCase(0, true)]
+    [TestCase(15.5, true)]
+    [TestCase(100, true)]
+    [TestCase(-1, false)]
+    [TestCase(100.01, false)]
+    [TestCase(1.234, false)]
+    public void UpdateShouldCheckTheTaxRate(double? rate, bool valid) =>
+        new UpdatePriceBookCommandValidator().Validate(new UpdatePriceBookCommand { Id = Guid.NewGuid(), CurrencyCode = "PKR", TaxRate = rate is null ? null : (decimal)rate }).IsValid.ShouldBe(valid);
+
     [Test]
     public void RemoveShouldNeedAPlanOrAModuleButNotBoth()
     {

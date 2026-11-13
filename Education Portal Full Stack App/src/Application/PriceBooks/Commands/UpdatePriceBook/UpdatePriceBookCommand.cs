@@ -6,7 +6,7 @@ using EducationPortal.Domain.Constants;
 namespace EducationPortal.Application.PriceBooks.Commands.UpdatePriceBook;
 
 /// <summary>
-/// Changes a price book's currency and active switch. The prices are numbers in the book's currency, so changing the
+/// Changes a price book's currency, tax rate and active switch. The prices are numbers in the book's currency, so changing the
 /// currency does not convert them: the master tenant re-enters the prices. Master tenant administrators only
 /// (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
@@ -19,6 +19,9 @@ public record UpdatePriceBookCommand : IRequest
     public string CurrencyCode { get; init; } = string.Empty;
 
     public bool IsActive { get; init; }
+
+    /// <summary>The tax rate in percent that invoices add; leave it out to keep the current one.</summary>
+    public decimal? TaxRate { get; init; }
 }
 
 public class UpdatePriceBookCommandValidator : AbstractValidator<UpdatePriceBookCommand>
@@ -27,6 +30,7 @@ public class UpdatePriceBookCommandValidator : AbstractValidator<UpdatePriceBook
     {
         RuleFor(c => c.Id).NotEmpty();
         RuleFor(c => c.CurrencyCode).Must(PriceBook.IsValidCurrencyCode);
+        RuleFor(c => c.TaxRate).Must(rate => PriceBook.IsValidTaxRate(rate!.Value)).When(c => c.TaxRate is not null).WithMessage(_ => ValidationMessages.TaxRateRange);
     }
 }
 
@@ -47,6 +51,11 @@ public class UpdatePriceBookCommandHandler : IRequestHandler<UpdatePriceBookComm
         Guard.Against.NotFound(request.Id, book);
 
         book.SetCurrency(request.CurrencyCode);
+
+        if (request.TaxRate is { } taxRate)
+        {
+            book.SetTaxRate(taxRate);
+        }
 
         if (request.IsActive)
         {

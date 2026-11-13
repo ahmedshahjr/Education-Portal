@@ -42,6 +42,21 @@ public partial class PriceBook : BaseSoftDeletableEntity
     /// <summary>The ISO 4217 code every price in the book is in, for example <c>PKR</c>.</summary>
     public string CurrencyCode { get; private set; }
 
+    /// <summary>The tax (VAT/GST/sales tax) the country adds to an invoice, as a percentage from 0 to 100 with at most two decimals.</summary>
+    public decimal TaxRate { get; private set; }
+
+    public void SetTaxRate(decimal taxRate)
+    {
+        if (!IsValidTaxRate(taxRate))
+        {
+            throw new ArgumentOutOfRangeException(nameof(taxRate), taxRate, "A tax rate is a percentage from 0 to 100 with at most two decimal places.");
+        }
+
+        TaxRate = taxRate;
+    }
+
+    public static bool IsValidTaxRate(decimal taxRate) => taxRate is >= 0 and <= 100 && decimal.Round(taxRate, 2) == taxRate;
+
     /// <summary>
     /// Changes the currency. The prices are numbers in the book's currency, so changing it changes what every price
     /// means: the master tenant re-enters the prices with it.

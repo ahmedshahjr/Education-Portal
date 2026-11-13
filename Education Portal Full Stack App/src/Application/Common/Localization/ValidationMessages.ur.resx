@@ -53,4 +53,13 @@
   <data name="RightsNeedView" xml:space="preserve"><value>بنانے، ترمیم اور حذف کے لیے دیکھنے کا حق ضروری ہے۔</value></data>
   <data name="ModuleNotEnabledForSchool" xml:space="preserve"><value>اسکول کے پاس یہ ماڈیول نہیں ہے، اس لیے اس میں حقوق نہیں دیے جا سکتے۔</value></data>
   <data name="RoleNotFound" xml:space="preserve"><value>کردار موجود نہیں ہے۔</value></data>
+  <data name="SchoolHasNoSubscription" xml:space="preserve"><value>اسکول کی کوئی سبسکرپشن نہیں جس کا بل بنایا جا سکے۔</value></data>
+  <data name="TrialNeedsNextPeriod" xml:space="preserve"><value>سبسکرپشن آزمائشی مدت میں ہے اور ابھی کوئی ادا شدہ مدت نہیں: اگلی مدت کا بل بنائیں۔</value></data>
+  <data name="InvoiceOpenExists" xml:space="preserve"><value>سبسکرپشن کا ایک بل پہلے سے کھلا ہے۔ پہلے اسے ادا کریں یا منسوخ کریں۔</value></data>
+  <data name="PeriodAlreadyInvoiced" xml:space="preserve"><value>اس مدت کا بل پہلے ہی بن چکا ہے۔</value></data>
+  <data name="InvoiceNotOpen" xml:space="preserve"><value>صرف کھلا بل ہی ادا یا منسوخ کیا جا سکتا ہے۔</value></data>
+  <data name="PaymentMustCoverTotal" xml:space="preserve"><value>ادائیگی بل کی کل رقم کے برابر ہونی چاہیے۔</value></data>
+  <data name="PaymentRejected" xml:space="preserve"><value>ادائیگی قبول نہیں کی گئی۔</value></data>
+  <data name="PaymentDateInFuture" xml:space="preserve"><value>ادائیگی کی تاریخ مستقبل میں نہیں ہو سکتی۔</value></data>
+  <data name="TaxRateRange" xml:space="preserve"><value>ٹیکس کی شرح 0 سے 100 فیصد کے درمیان ہو اور زیادہ سے زیادہ دو اعشاریہ ہوں۔</value></data>
 </root>
