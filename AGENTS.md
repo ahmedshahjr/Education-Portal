@@ -83,6 +83,8 @@ Effective access for a school user = **modules enabled for their school** ∩ **
    | LMS | LMS | Online lessons, assignments and course material | Paid |
    | HOSTEL | Hostel | Rooms, allocations and boarders | Paid |
 
+   **Plans and price books** (decided 2026-11-13, [ADR-010](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-010-Plans-And-Regional-Price-Books.md)): the master sells **plans** (named bundles of paid modules: Starter, Standard, Full; core modules are in every plan) and single add-on modules. A **price book** per country holds the prices in one currency, per billing cycle (Monthly or Yearly), for plans and paid modules. Code: `Domain/Entities/Plan.cs`, `PlanModule.cs`, `PriceBook.cs`, `PriceBookItem.cs`, development seed in `PricingCatalog.cs` (placeholder prices). API, master only: `/api/Plans`, `/api/PriceBooks` and `/api/PriceBooks/{id}/prices`. Subscriptions use them from phase 3.
+
    Master-only areas (not tenant modules): Schools, module switches per school, countries and their languages, and the cross-school overview.
 2. **Roles per school (owner controls):** each school owner creates roles with **View / Create / Edit / Delete** rights per module.
 3. **Branches per user:** each staff user is assigned to one or more branches and can only act on data in those branches.

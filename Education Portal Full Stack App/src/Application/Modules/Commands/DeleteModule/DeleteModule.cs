@@ -7,7 +7,8 @@ namespace EducationPortal.Application.Modules.Commands.DeleteModule;
 /// <summary>
 /// Deletes a paid module from the catalogue. It is a soft delete: the row and the schools' rows that point to it stay
 /// for audit (they point to it by id), the module disappears from every list, and its code can be used again. What the module required is removed with
-/// it. A core module, or one that other modules require, cannot be deleted. Master tenant administrators only
+/// it. A core module, one that other modules require, and one that a plan includes or a price book prices cannot be
+/// deleted. Master tenant administrators only
 /// (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
@@ -29,7 +30,18 @@ public class DeleteModuleCommandValidator : AbstractValidator<DeleteModuleComman
                         join r in context.Modules on d.RequiresModuleId equals r.Id
                         where r.Code == code
                         select d.Id).AnyAsync(cancellationToken))
-            .WithMessage(_ => ValidationMessages.ModuleRequiredByOthers);
+            .WithMessage(_ => ValidationMessages.ModuleRequiredByOthers)
+            .MustAsync(async (code, cancellationToken) =>
+                !await (from pm in context.PlanModules
+                        join m in context.Modules on pm.ModuleId equals m.Id
+                        join p in context.Plans on pm.PlanId equals p.Id
+                        where m.Code == code
+                        select pm.Id).AnyAsync(cancellationToken)
+                && !await (from i in context.PriceBookItems
+                           join m in context.Modules on i.ModuleId equals m.Id
+                           where m.Code == code
+                           select i.Id).AnyAsync(cancellationToken))
+            .WithMessage(_ => ValidationMessages.ModuleInUse);
     }
 }
 

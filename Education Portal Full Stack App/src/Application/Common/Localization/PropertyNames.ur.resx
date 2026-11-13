@@ -25,4 +25,10 @@
   <data name="RequiresCode" xml:space="preserve"><value>مطلوبہ ماڈیول</value></data>
   <data name="SortOrder" xml:space="preserve"><value>ترتیب</value></data>
   <data name="Description" xml:space="preserve"><value>تفصیل</value></data>
+  <data name="Modules" xml:space="preserve"><value>ماڈیولز</value></data>
+  <data name="CountryCode" xml:space="preserve"><value>ملک</value></data>
+  <data name="Price" xml:space="preserve"><value>قیمت</value></data>
+  <data name="BillingCycle" xml:space="preserve"><value>بلنگ کی مدت</value></data>
+  <data name="PlanId" xml:space="preserve"><value>پلان</value></data>
+  <data name="ModuleCode" xml:space="preserve"><value>ماڈیول</value></data>
 </root>

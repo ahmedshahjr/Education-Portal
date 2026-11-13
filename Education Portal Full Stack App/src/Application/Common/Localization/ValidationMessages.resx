@@ -32,4 +32,16 @@
   <data name="CoreModuleRequiresPaid" xml:space="preserve"><value>This module requires modules that are not core. Remove those requirements first.</value></data>
   <data name="ModuleRequiredByOthers" xml:space="preserve"><value>Other modules require this module. Remove those requirements first.</value></data>
   <data name="RequiredModuleNotFound" xml:space="preserve"><value>The required module does not exist.</value></data>
+  <data name="PlanCodeFormat" xml:space="preserve"><value>The code must be upper-case letters, digits and underscores, starting with a letter, for example STARTER.</value></data>
+  <data name="PlanCodeTaken" xml:space="preserve"><value>A plan with this code already exists.</value></data>
+  <data name="UnknownModules" xml:space="preserve"><value>One or more modules do not exist.</value></data>
+  <data name="ModuleListedTwice" xml:space="preserve"><value>Each module can be listed once.</value></data>
+  <data name="CoreModuleNotSold" xml:space="preserve"><value>Core modules are in every subscription and are not sold on their own.</value></data>
+  <data name="ModuleInUse" xml:space="preserve"><value>Plans or price books use this module. Remove it from them first.</value></data>
+  <data name="PriceBookCountryTaken" xml:space="preserve"><value>This country already has a price book.</value></data>
+  <data name="PriceTargetRequired" xml:space="preserve"><value>Give either a plan or a module, not both.</value></data>
+  <data name="PlanNotFound" xml:space="preserve"><value>The plan does not exist.</value></data>
+  <data name="ModuleNotFound" xml:space="preserve"><value>The module does not exist.</value></data>
+  <data name="PriceExists" xml:space="preserve"><value>This price book already has a price for that plan or module and billing cycle.</value></data>
+  <data name="PriceInvalid" xml:space="preserve"><value>A price is zero or more, with at most two decimal places.</value></data>
 </root>

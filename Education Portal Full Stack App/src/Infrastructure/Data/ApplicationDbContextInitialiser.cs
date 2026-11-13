@@ -1,5 +1,6 @@
 ﻿using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.Enums;
 using EducationPortal.Infrastructure.Data.Locations;
 using EducationPortal.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -132,6 +133,9 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
+        // Plans and price books: placeholder prices for the master tenant to replace.
+        await SeedPricingAsync();
+
         // Countries come from the location data import, which runs before this seed (LocationDataImporter).
         var pakistan = await _context.Countries.SingleAsync(c => c.Code == "PK");
         var uae = await _context.Countries.SingleAsync(c => c.Code == "AE");
@@ -226,6 +230,50 @@ public class ApplicationDbContextInitialiser
             {
                 await _userManager.AddToRolesAsync(usaAdministrator, new [] { administratorRole.Name });
             }
+        }
+    }
+
+    /// <summary>Adds the starting plans, and the price books of the countries that exist. Safe to run again: it adds only what is missing.</summary>
+    public async Task SeedPricingAsync()
+    {
+        var modules = await _context.Modules.ToDictionaryAsync(m => m.Code);
+        var knownPlans = await _context.Plans.Select(p => p.Code).ToListAsync();
+
+        foreach (var (code, name, description, moduleCodes) in PricingCatalog.Plans.Where(p => !knownPlans.Contains(p.Code)))
+        {
+            var plan = Plan.Create(code, name, description);
+            _context.Plans.Add(plan);
+            await _context.SaveChangesAsync();
+
+            _context.PlanModules.AddRange(moduleCodes.Where(modules.ContainsKey).Select(m => PlanModule.Create(plan, modules[m])));
+            await _context.SaveChangesAsync();
+        }
+
+        var plans = await _context.Plans.ToDictionaryAsync(p => p.Code);
+        var knownBooks = await _context.PriceBooks.Select(b => b.CountryCode).ToListAsync();
+        var countries = await _context.Countries.Select(c => c.Code).ToListAsync();
+        var paidModules = modules.Values.Where(m => !m.IsCore).ToList();
+
+        foreach (var (countryCode, currencyCode, planPrices, modulePrice) in PricingCatalog.PriceBooks
+                     .Where(b => !knownBooks.Contains(b.CountryCode) && countries.Contains(b.CountryCode)))
+        {
+            var book = PriceBook.Create(countryCode, currencyCode);
+            _context.PriceBooks.Add(book);
+            await _context.SaveChangesAsync();
+
+            foreach (var (planCode, monthly) in planPrices.Where(p => plans.ContainsKey(p.Key)))
+            {
+                _context.PriceBookItems.Add(PriceBookItem.ForPlan(book, plans[planCode], BillingCycle.Monthly, monthly));
+                _context.PriceBookItems.Add(PriceBookItem.ForPlan(book, plans[planCode], BillingCycle.Yearly, monthly * PricingCatalog.MonthsChargedPerYear));
+            }
+
+            foreach (var module in paidModules)
+            {
+                _context.PriceBookItems.Add(PriceBookItem.ForModule(book, module, BillingCycle.Monthly, modulePrice));
+                _context.PriceBookItems.Add(PriceBookItem.ForModule(book, module, BillingCycle.Yearly, modulePrice * PricingCatalog.MonthsChargedPerYear));
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

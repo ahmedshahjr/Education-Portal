@@ -31,5 +31,17 @@ public interface IApplicationDbContext
     /// <summary>The master tenant's per-school module switches. Covered by the tenant query filter (SEC-AUTHZ-03).</summary>
     DbSet<SchoolModule> SchoolModules { get; }
 
+    /// <summary>The plans the master tenant sells. Platform reference data that only the master tenant changes.</summary>
+    DbSet<Plan> Plans { get; }
+
+    /// <summary>The paid modules in each plan.</summary>
+    DbSet<PlanModule> PlanModules { get; }
+
+    /// <summary>One price book per country, with its currency. Platform reference data that only the master tenant changes.</summary>
+    DbSet<PriceBook> PriceBooks { get; }
+
+    /// <summary>The prices of plans and add-on modules in each price book.</summary>
+    DbSet<PriceBookItem> PriceBookItems { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

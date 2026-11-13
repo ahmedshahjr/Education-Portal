@@ -25,4 +25,10 @@
   <data name="RequiresCode" xml:space="preserve"><value>الوحدة المطلوبة</value></data>
   <data name="SortOrder" xml:space="preserve"><value>ترتيب العرض</value></data>
   <data name="Description" xml:space="preserve"><value>الوصف</value></data>
+  <data name="Modules" xml:space="preserve"><value>الوحدات</value></data>
+  <data name="CountryCode" xml:space="preserve"><value>الدولة</value></data>
+  <data name="Price" xml:space="preserve"><value>السعر</value></data>
+  <data name="BillingCycle" xml:space="preserve"><value>دورة الفوترة</value></data>
+  <data name="PlanId" xml:space="preserve"><value>الخطة</value></data>
+  <data name="ModuleCode" xml:space="preserve"><value>الوحدة</value></data>
 </root>
