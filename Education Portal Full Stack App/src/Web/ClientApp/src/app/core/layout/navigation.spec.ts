@@ -9,12 +9,12 @@ describe('visibleNavSections', () => {
     expect(ids(false, true)).toEqual(['dashboard']);
   });
 
-  it('shows branding to a school administrator but not the master portal', () => {
-    expect(ids(true, false)).toEqual(['dashboard', 'branding']);
+  it('shows branding and the subscription to a school administrator but not the master portal', () => {
+    expect(ids(true, false)).toEqual(['dashboard', 'branding', 'subscription']);
   });
 
   it('shows the master portal to master tenant administrators', () => {
-    expect(ids(true, true)).toEqual(['dashboard', 'branding', 'schools', 'countries', 'modules']);
+    expect(ids(true, true)).toEqual(['dashboard', 'branding', 'schools', 'countries', 'add-on-requests', 'modules']);
   });
 
   it('shows an item of a module only when the module is on for the school', () => {

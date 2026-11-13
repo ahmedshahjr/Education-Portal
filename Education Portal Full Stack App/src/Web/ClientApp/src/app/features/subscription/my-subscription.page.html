@@ -1,0 +1,113 @@
+<app-page-header
+  title="My subscription"
+  i18n-title="@@mySubscription.title"
+  subtitle="What your school has, what it costs, and the add-on modules you can ask for."
+  i18n-subtitle="@@mySubscription.subtitle"
+/>
+
+@if (loadError(); as message) {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <app-empty-state
+        icon="alert-triangle"
+        title="Your subscription could not be loaded"
+        i18n-title="@@mySubscription.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    </mat-card-content>
+  </mat-card>
+} @else if (data(); as data) {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      @if (data.subscription; as sub) {
+        <dl class="mm-my-subscription__summary">
+          <div>
+            <dt i18n="@@subscription.plan">Plan</dt>
+            <dd>{{ sub.planCode ?? '-' }}</dd>
+          </div>
+          <div>
+            <dt i18n="@@subscription.status">Status</dt>
+            <dd><app-status-badge [tone]="tone(sub.status)">{{ sub.status }}</app-status-badge></dd>
+          </div>
+          <div>
+            <dt i18n="@@subscription.price">Price per cycle</dt>
+            <dd>{{ sub.amount | number: '1.2-2' }} {{ sub.currencyCode }}</dd>
+          </div>
+          <div>
+            <dt i18n="@@subscription.periodEnd">Period ends</dt>
+            <dd>{{ sub.endDate | localDate }}</dd>
+          </div>
+        </dl>
+
+        <h3 class="mm-my-subscription__heading" i18n="@@subscription.modulesHeading">Modules</h3>
+        <ul class="mm-my-subscription__list">
+          @for (module of sub.modules; track module.code) {
+            <li class="mm-my-subscription__row">
+              <span>{{ module | moduleText }}</span>
+              <app-status-badge [tone]="tone(module.status)">{{ module.status }}</app-status-badge>
+            </li>
+          }
+        </ul>
+      } @else {
+        <app-empty-state
+          icon="inbox"
+          title="Your school has no subscription yet"
+          i18n-title="@@mySubscription.none"
+          description="Contact the platform owner to start one."
+          i18n-description="@@mySubscription.noneHint"
+        />
+      }
+    </mat-card-content>
+  </mat-card>
+
+  @if (data.availableAddOns.length > 0) {
+    <mat-card class="mm-card mm-elevated">
+      <mat-card-content>
+        <h3 class="mm-my-subscription__heading" i18n="@@mySubscription.addOns">Add-on modules you can ask for</h3>
+        <ul class="mm-my-subscription__list">
+          @for (addOn of data.availableAddOns; track addOn.code) {
+            <li class="mm-my-subscription__row">
+              <div>
+                <div>{{ addOn.name }}</div>
+                <div class="mm-my-subscription__muted">{{ addOn.description }}</div>
+              </div>
+              <div>
+                @if (addOn.price !== undefined) {
+                  <span class="mm-my-subscription__muted">{{ addOn.price | number: '1.2-2' }} {{ data.subscription?.currencyCode }}</span>
+                }
+                @if (addOn.requested) {
+                  <app-status-badge tone="primary" i18n="@@mySubscription.requestedBadge">Requested</app-status-badge>
+                } @else if (addOn.price !== undefined) {
+                  <button mat-stroked-button type="button" [disabled]="busy()" (click)="request(addOn)" i18n="@@mySubscription.ask">Ask for this module</button>
+                } @else {
+                  <span class="mm-my-subscription__muted" i18n="@@mySubscription.noPrice">Not available in your country yet</span>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (data.requests.length > 0) {
+    <mat-card class="mm-card mm-elevated">
+      <mat-card-content>
+        <h3 class="mm-my-subscription__heading" i18n="@@mySubscription.requests">Your requests</h3>
+        <ul class="mm-my-subscription__list">
+          @for (request of data.requests; track request.id) {
+            <li class="mm-my-subscription__row">
+              <span>{{ request.moduleName }} · {{ request.created | localDate }}</span>
+              <app-status-badge [tone]="tone(request.status)">{{ request.status }}</app-status-badge>
+            </li>
+          }
+        </ul>
+      </mat-card-content>
+    </mat-card>
+  }
+} @else {
+  <app-loading-state />
+}
