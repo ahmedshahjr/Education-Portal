@@ -7,8 +7,9 @@ builder.AddAzureContainerAppEnvironment("aca-env");
 var databaseServer = builder
     .AddAzurePostgresFlexibleServer(Services.DatabaseServer)
     .WithPasswordAuthentication()
-    .RunAsContainer(container => 
-        container.WithLifetime(ContainerLifetime.Persistent))
+    .RunAsContainer(container => container
+        .WithLifetime(ContainerLifetime.Persistent)
+        .WithHostPort(LocalPorts.DatabaseServer))
     .AddDatabase(Services.Database);
 
 var web = builder.AddProject<Projects.Web>(Services.WebApi)
@@ -36,7 +37,7 @@ if (builder.ExecutionContext.IsRunMode)
 
     var vault = builder.AddContainer(Services.Vault, "hashicorp/vault", "2.2.1")
         .WithLifetime(ContainerLifetime.Persistent)
-        .WithHttpEndpoint(port: 8200, targetPort: 8200, name: "http")
+        .WithHttpEndpoint(port: LocalPorts.Vault, targetPort: 8200, name: "http")
         .WithEnvironment("VAULT_DEV_ROOT_TOKEN_ID", vaultToken)
         .WithEnvironment("VAULT_DEV_LISTEN_ADDRESS", "0.0.0.0:8200")
         .WithHttpHealthCheck("/v1/sys/health");
@@ -58,7 +59,7 @@ if (builder.ExecutionContext.IsRunMode)
         .WithRunScript("start")
         .WithReference(web)
         .WaitFor(web)
-        .WithHttpEndpoint(env: "PORT")
+        .WithHttpEndpoint(port: LocalPorts.WebFrontend, env: "PORT")
         .WithExternalHttpEndpoints();
 }
 
