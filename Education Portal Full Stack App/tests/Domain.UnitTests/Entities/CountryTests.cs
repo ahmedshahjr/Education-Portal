@@ -32,6 +32,18 @@ public class CountryTests
         country.Code.ShouldBe("AE");
     }
 
+    [Test]
+    public void ShouldCreateTheUnitedStatesWithEnglishOnly()
+    {
+        var country = Country.Create("us", "United States", ["en"], "en", "America/New_York", "USD");
+
+        country.Code.ShouldBe("US");
+        country.Languages.ShouldBe(["en"]);
+        country.TimeZoneId.ShouldBe("America/New_York");
+        country.CurrencyCode.ShouldBe("USD");
+        country.Offers("ur").ShouldBeFalse();
+    }
+
     [TestCase("PAK")]
     [TestCase("P1")]
     [TestCase("")]
@@ -59,6 +71,7 @@ public class CountryTests
     }
 
     [TestCase("Pakistan Standard Time")]
+    [TestCase("Eastern Standard Time")]
     [TestCase("Asia/Nowhere")]
     [TestCase("")]
     public void ShouldRefuseATimeZoneThatIsNotIana(string timeZoneId)

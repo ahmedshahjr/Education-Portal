@@ -84,6 +84,9 @@ public class ApplicationDbContextInitialiser
     /// <summary>A second demo school, in the United Arab Emirates, for trying the per-country languages (English and Arabic).</summary>
     public const string UaeDemoSchoolDomain = "uae.localhost";
 
+    /// <summary>A third demo school, in the United States, for the US market (English, en-US formats, US dollars).</summary>
+    public const string UsaDemoSchoolDomain = "usa.localhost";
+
     // Development-only seed accounts (SEC-SECRET-04). It meets the 15-character minimum of SEC-AUTHN-03.
     private const string DevelopmentPassword = "Local-Dev-Only-2026!";
 
@@ -99,20 +102,30 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        // Countries: the master tenant manages these; two examples so each demo school offers its own languages.
-        if (!await _context.Countries.AnyAsync())
-        {
-            _context.Countries.AddRange(
-                Country.Create("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR"),
-                Country.Create("AE", "United Arab Emirates", ["en", "ar"], "en", "Asia/Dubai", "AED"));
+        // Countries: the master tenant manages these; one per market so each demo school offers its own languages.
+        // Add any the seed knows and the database lacks, like the modules above. The United States has several time
+        // zones; the country's zone is only the fallback, because each user's own browser zone wins (X-Time-Zone).
+        Country[] seedCountries =
+        [
+            Country.Create("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR"),
+            Country.Create("AE", "United Arab Emirates", ["en", "ar"], "en", "Asia/Dubai", "AED"),
+            Country.Create("US", "United States", ["en"], "en", "America/New_York", "USD"),
+        ];
 
+        var knownCountries = await _context.Countries.Select(c => c.Code).ToListAsync();
+        var missingCountries = seedCountries.Where(c => !knownCountries.Contains(c.Code)).ToList();
+
+        if (missingCountries.Count > 0)
+        {
+            _context.Countries.AddRange(missingCountries);
             await _context.SaveChangesAsync();
         }
 
         var pakistan = await _context.Countries.SingleAsync(c => c.Code == "PK");
         var uae = await _context.Countries.SingleAsync(c => c.Code == "AE");
+        var usa = await _context.Countries.SingleAsync(c => c.Code == "US");
 
-        // Tenants: exactly one master tenant (the platform owner) and one demo school.
+        // Tenants: exactly one master tenant (the platform owner) and one demo school per market.
         var master = await _context.Schools.SingleOrDefaultAsync(s => s.IsMaster);
         if (master is null)
         {
@@ -134,10 +147,18 @@ public class ApplicationDbContextInitialiser
             _context.Schools.Add(uaeDemo);
         }
 
+        if (!await _context.Schools.AnyAsync(s => s.Domain == UsaDemoSchoolDomain))
+        {
+            var usaDemo = School.Create("Demo School USA", UsaDemoSchoolDomain);
+            usaDemo.AssignCountry(usa.Id);
+            _context.Schools.Add(usaDemo);
+        }
+
         await _context.SaveChangesAsync();
 
         var demoSchool = await _context.Schools.SingleAsync(s => s.Domain == DemoSchoolDomain);
         var uaeDemoSchool = await _context.Schools.SingleAsync(s => s.Domain == UaeDemoSchoolDomain);
+        var usaDemoSchool = await _context.Schools.SingleAsync(s => s.Domain == UsaDemoSchoolDomain);
 
         // Default roles
         var administratorRole = new IdentityRole(Roles.Administrator);
@@ -180,6 +201,18 @@ public class ApplicationDbContextInitialiser
             if (!string.IsNullOrWhiteSpace(administratorRole.Name))
             {
                 await _userManager.AddToRolesAsync(uaeAdministrator, new [] { administratorRole.Name });
+            }
+        }
+
+        // The USA demo school's administrator signs in on usa.localhost only.
+        var usaAdministrator = new ApplicationUser { UserName = "administrator@usa.localhost", Email = "administrator@usa.localhost", SchoolId = usaDemoSchool.Id };
+
+        if (_userManager.Users.All(u => u.UserName != usaAdministrator.UserName))
+        {
+            await _userManager.CreateAsync(usaAdministrator, DevelopmentPassword);
+            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
+            {
+                await _userManager.AddToRolesAsync(usaAdministrator, new [] { administratorRole.Name });
             }
         }
     }

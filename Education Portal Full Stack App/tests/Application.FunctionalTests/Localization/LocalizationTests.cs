@@ -9,12 +9,13 @@ namespace EducationPortal.Application.FunctionalTests.Localization;
 
 /// <summary>
 /// Each school answers in one of its country's languages, chosen by the visitor or their browser, and nothing else
-/// (TenantRequestLocalization). Pakistan offers English and Urdu, the UAE English and Arabic.
+/// (TenantRequestLocalization). Pakistan offers English and Urdu, the UAE English and Arabic, the United States English only.
 /// </summary>
 public class LocalizationTests : TestBase
 {
     private const string PakistanDomain = "pk.localhost";
     private const string UaeDomain = "ae.localhost";
+    private const string UsaDomain = "us.localhost";
     private const string NoCountryDomain = "plain.localhost";
 
     private const string TeacherEmail = "teacher@pk.local";
@@ -27,7 +28,9 @@ public class LocalizationTests : TestBase
         var pakistan = await TestApp.AddCountryAsync("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR");
         var uae = await TestApp.AddCountryAsync("AE", "United Arab Emirates", ["en", "ar"], "ar", "Asia/Dubai", "AED");
         _pakistanSchoolId = (await TestApp.AddSchoolAsync("Lahore School", PakistanDomain, pakistan.Id)).Id;
+        var usa = await TestApp.AddCountryAsync("US", "United States", ["en"], "en", "America/New_York", "USD");
         await TestApp.AddSchoolAsync("Dubai School", UaeDomain, uae.Id);
+        await TestApp.AddSchoolAsync("Boston School", UsaDomain, usa.Id);
         await TestApp.AddSchoolAsync("Plain School", NoCountryDomain);
     }
 
@@ -65,6 +68,22 @@ public class LocalizationTests : TestBase
         ae.Culture.ShouldBe("ar-AE");
         ae.IsRightToLeft.ShouldBeTrue();
         ae.CurrencyCode.ShouldBe("AED");
+    }
+
+    [Test]
+    public async Task ShouldUseUsFormatsAndDollarsForAUsSchool()
+    {
+        using var session = TestHttp.CreateDevelopmentSession(UsaDomain);
+        session.SetHeader("Accept-Language", "ar-AE,ar;q=0.9"); // not offered in the US, so ignored
+
+        var us = await ReadAsync(session);
+
+        us.Languages.Select(l => l.Code).ShouldBe(["en"]);
+        us.Language.ShouldBe("en");
+        us.Culture.ShouldBe("en-US");
+        us.IsRightToLeft.ShouldBeFalse();
+        us.TimeZone.ShouldBe("America/New_York");
+        us.CurrencyCode.ShouldBe("USD");
     }
 
     [Test]
@@ -261,6 +280,8 @@ public class LocalizationTests : TestBase
     [TestCase(PakistanDomain, null, "Asia/Karachi")] // else the school's country
     [TestCase(PakistanDomain, "Not/AZone", "Asia/Karachi")] // an unknown value is ignored
     [TestCase(PakistanDomain, "Pakistan Standard Time", "Asia/Karachi")] // only IANA ids are accepted
+    [TestCase(UsaDomain, "America/Los_Angeles", "America/Los_Angeles")] // a US country with several zones: the caller's wins
+    [TestCase(UsaDomain, null, "America/New_York")] // else the country's fallback zone
     [TestCase(NoCountryDomain, null, "UTC")] // no country: UTC
     public async Task ShouldUseTheCallersTimeZoneElseTheSchools(string domain, string? header, string expected)
     {
