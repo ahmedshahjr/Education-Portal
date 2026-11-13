@@ -3,17 +3,25 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { ModulesClient } from '../../web-api-client';
 
-/** Keys of the portal's modules, as the server names them (`ModuleKeys` in the Domain project). */
-export const MODULE_KEYS = {
-  branches: 'Branches',
-  usersAndRoles: 'UsersAndRoles',
-  students: 'Students',
-  parents: 'Parents',
-  teachers: 'Teachers',
-  courses: 'Courses',
-  enrolments: 'Enrolments',
-  grades: 'Grades',
-  dashboard: 'Dashboard',
+/** Codes of the portal's modules, as the server names them (`ModuleCodes` in the Domain project). */
+export const MODULE_CODES = {
+  school: 'SCHOOL',
+  branch: 'BRANCH',
+  academicSetup: 'ACADEMIC_SETUP',
+  usersRoles: 'USERS_ROLES',
+  students: 'STUDENTS',
+  staff: 'STAFF',
+  admissions: 'ADMISSIONS',
+  attendance: 'ATTENDANCE',
+  fees: 'FEES',
+  parentCommunication: 'PARENT_COMMUNICATION',
+  exams: 'EXAMS',
+  timetable: 'TIMETABLE',
+  hrPayroll: 'HR_PAYROLL',
+  transport: 'TRANSPORT',
+  library: 'LIBRARY',
+  lms: 'LMS',
+  hostel: 'HOSTEL',
 } as const;
 
 /**
@@ -28,8 +36,8 @@ export class ModulesService {
   readonly enabled = this.keys.asReadonly();
   readonly count = computed(() => this.keys().size);
 
-  isEnabled(key: string): boolean {
-    return this.keys().has(key);
+  isEnabled(code: string): boolean {
+    return this.keys().has(code);
   }
 
   /** Loads the list for the signed-in user. On an error nothing is shown, since the server would refuse anyway. */

@@ -35,6 +35,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<PortalModule> Modules => Set<PortalModule>();
 
+    public DbSet<ModuleDependency> ModuleDependencies => Set<ModuleDependency>();
+
     public DbSet<SchoolModule> SchoolModules => Set<SchoolModule>();
 
     // Read by the query filters on every query, so each request sees its own tenant (ENG-EF-10).

@@ -22,4 +22,7 @@
   <data name="AccentColor" xml:space="preserve"><value>لون التمييز</value></data>
   <data name="SidebarColor" xml:space="preserve"><value>لون الشريط الجانبي</value></data>
   <data name="Key" xml:space="preserve"><value>المفتاح</value></data>
+  <data name="RequiresCode" xml:space="preserve"><value>الوحدة المطلوبة</value></data>
+  <data name="SortOrder" xml:space="preserve"><value>ترتيب العرض</value></data>
+  <data name="Description" xml:space="preserve"><value>الوصف</value></data>
 </root>

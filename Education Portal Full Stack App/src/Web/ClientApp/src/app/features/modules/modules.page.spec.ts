@@ -13,8 +13,8 @@ async function render() {
   fixture.detectChanges();
   http.expectOne('/api/Modules').flush(
     json([
-      { key: 'Grades', name: 'Grades', description: '', type: 'Default', isActive: true },
-      { key: 'Parents', name: 'Parents', description: '', type: 'Custom', isActive: false },
+      { code: 'STUDENTS', name: 'Students', description: '', isCore: true, isActive: true, sortOrder: 50, requires: [] },
+      { code: 'FEES', name: 'Fees', description: 'Fee collection.', isCore: false, isActive: false, sortOrder: 120, requires: ['STUDENTS'] },
     ])
   );
   const element = fixture.nativeElement as HTMLElement;
@@ -29,23 +29,32 @@ async function render() {
 describe('ModulesPage', () => {
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
-  it('shows each module type and whether it is active', async () => {
+  it('shows core and paid modules, what they require, and locks core modules on', async () => {
     const { element } = await render();
 
     const switches = [...element.querySelectorAll<HTMLButtonElement>('button[role="switch"]')];
     expect(switches.map((s) => s.getAttribute('aria-checked'))).toEqual(['true', 'false']);
-    expect([...element.querySelectorAll('mat-select')].map((s) => s.textContent?.trim())).toEqual(['Default', 'Custom']);
-    expect(element.textContent).not.toContain('Always on');
+    expect(switches.map((s) => s.disabled)).toEqual([true, false]);
+    expect([...element.querySelectorAll('app-status-badge')].map((b) => b.textContent?.trim())).toEqual(['Core', 'Paid']);
+    const rows = [...element.querySelectorAll('tr.mat-mdc-row')];
+    expect(rows[0].textContent).toContain('Nothing');
+    expect(rows[1].textContent).toContain('Students');
   });
 
-  it('deactivates a module and keeps its type', async () => {
+  it('activates a paid module and keeps its other fields', async () => {
     const { element, http } = await render();
 
-    element.querySelectorAll<HTMLButtonElement>('button[role="switch"]')[0].click();
+    element.querySelectorAll<HTMLButtonElement>('button[role="switch"]')[1].click();
 
-    const request = http.expectOne('/api/Modules/Grades');
+    const request = http.expectOne('/api/Modules/FEES');
     expect(request.request.method).toBe('PUT');
-    expect(JSON.parse(request.request.body as string)).toEqual({ type: 'Default', isActive: false });
+    expect(JSON.parse(request.request.body as string)).toEqual({
+      name: 'Fees',
+      description: 'Fee collection.',
+      isCore: false,
+      sortOrder: 120,
+      isActive: true,
+    });
     request.flush(null, { status: 204, statusText: 'No Content' });
   });
 });

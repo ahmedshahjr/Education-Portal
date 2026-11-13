@@ -30,6 +30,18 @@ public enum SecurityAuditEventType
     /// <summary>The master tenant switched a module on or off for one school.</summary>
     SchoolModuleChanged = 11,
 
-    /// <summary>The master tenant changed a module's type (default or custom) or switched it on or off for every school.</summary>
+    /// <summary>The master tenant changed a module (name, description, core, sort order) or switched it on or off for every school.</summary>
     ModuleChanged = 12,
+
+    /// <summary>The master tenant added a module to the catalogue.</summary>
+    ModuleCreated = 13,
+
+    /// <summary>The master tenant deleted a module from the catalogue (soft delete).</summary>
+    ModuleDeleted = 14,
+
+    /// <summary>The master tenant made one module require another.</summary>
+    ModuleDependencyAdded = 15,
+
+    /// <summary>The master tenant removed a dependency between two modules.</summary>
+    ModuleDependencyRemoved = 16,
 }

@@ -46,24 +46,24 @@ public class Schools : IEndpointGroup
         groupBuilder.MapGet(GetSchoolModules, "{schoolId:guid}/modules")
             .RequireAuthorization();
 
-        groupBuilder.MapPut(SetSchoolModule, "{schoolId:guid}/modules/{key}")
+        groupBuilder.MapPut(SetSchoolModule, "{schoolId:guid}/modules/{code}")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
     }
 
     [EndpointSummary("List a school's modules")]
-    [EndpointDescription("Returns every module as it stands for the school: on or off, and whether that follows the module's default or the master's choice. Master tenant only.")]
+    [EndpointDescription("Returns every module as it stands for the school: core modules are always on, paid modules are on when the master switched them on. Master tenant only.")]
     public static async Task<Ok<IReadOnlyList<SchoolModuleDto>>> GetSchoolModules(ISender sender, Guid schoolId)
     {
         return TypedResults.Ok(await sender.Send(new GetSchoolModulesQuery(schoolId)));
     }
 
-    [EndpointSummary("Switch a module on or off for a school")]
-    [EndpointDescription("The choice wins over the module's default from then on. The master tenant cannot be changed. Master tenant only.")]
-    public static async Task<NoContent> SetSchoolModule(ISender sender, Guid schoolId, string key, SetSchoolModuleCommand command)
+    [EndpointSummary("Switch a paid module on or off for a school")]
+    [EndpointDescription("Core modules are always on and cannot be switched. The master tenant cannot be changed. Master tenant only.")]
+    public static async Task<NoContent> SetSchoolModule(ISender sender, Guid schoolId, string code, SetSchoolModuleCommand command)
     {
         // The route names the school and the module; values in the body are ignored.
-        await sender.Send(command with { SchoolId = schoolId, Key = key });
+        await sender.Send(command with { SchoolId = schoolId, Code = code });
 
         return TypedResults.NoContent();
     }

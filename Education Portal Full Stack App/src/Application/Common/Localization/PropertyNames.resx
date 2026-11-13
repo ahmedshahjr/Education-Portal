@@ -22,4 +22,7 @@
   <data name="AccentColor" xml:space="preserve"><value>Accent colour</value></data>
   <data name="SidebarColor" xml:space="preserve"><value>Sidebar colour</value></data>
   <data name="Key" xml:space="preserve"><value>Key</value></data>
+  <data name="RequiresCode" xml:space="preserve"><value>Required module</value></data>
+  <data name="SortOrder" xml:space="preserve"><value>Sort order</value></data>
+  <data name="Description" xml:space="preserve"><value>Description</value></data>
 </root>
