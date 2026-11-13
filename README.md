@@ -117,6 +117,7 @@ Then:
    - `http://localhost:<port>` is the **master tenant** (the platform owner). Account: `administrator@localhost`.
    - `http://demo.localhost:<port>` (same port) is the **Demo School**, in Pakistan (English and Urdu). Account: `administrator@demo.localhost`.
    - `http://uae.localhost:<port>` (same port) is the **Demo School UAE** (English and Arabic). Account: `administrator@uae.localhost`.
+   - `http://usa.localhost:<port>` (same port) is the **Demo School USA**, in the United States (English, US date and number formats, US dollars, `America/New_York` as the fallback time zone). Account: `administrator@usa.localhost`.
 
    All use the Development-only password `Local-Dev-Only-2026!`. They exist only in your local database, and only in Development. `*.localhost` names point to your own machine in every current browser, so no hosts-file change is needed. An account only works on its own school's address.
 4. API docs (Scalar) are at `/scalar` on the **webapi** URL.
@@ -884,7 +885,7 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | API reference and health (in Development) | Scalar at `/scalar`, the OpenAPI document at `/openapi/v1.json`, health at `/health` and `/alive` |
 | Angular app (`webfrontend`) | A port chosen by Aspire. Open it from the dashboard. |
 | Database connection | Passed in by Aspire as `ConnectionStrings__EducationPortalDb` |
-| Development seed accounts | `administrator@localhost` (master tenant, on `localhost`), `administrator@demo.localhost` (Demo School, Pakistan, on `demo.localhost`) and `administrator@uae.localhost` (Demo School UAE, on `uae.localhost`), password `Local-Dev-Only-2026!` (local database, Development only) |
+| Development seed accounts | `administrator@localhost` (master tenant, on `localhost`), `administrator@demo.localhost` (Demo School, Pakistan, on `demo.localhost`), `administrator@uae.localhost` (Demo School UAE, on `uae.localhost`) and `administrator@usa.localhost` (Demo School USA, on `usa.localhost`), password `Local-Dev-Only-2026!` (local database, Development only) |
 | Allowed hosts | `localhost` and `*.localhost` in Development (`AllowedHosts`); each school's domain is added when it is deployed |
 | Observability | `Observability:OtlpEndpoint` (set to the local Collector by Aspire), `TraceSampleRatio` (1.0 in Development, 0.1 elsewhere), `TenantIdAsMetricLabel` (off), `Enabled`. Grafana `http://localhost:3000`, Prometheus `http://localhost:9090`, Jaeger `http://localhost:16686`, Loki `http://localhost:3100`, Collector `localhost:4317`/`4318` ([docs/observability.md](Education%20Portal%20Full%20Stack%20App/docs/observability.md)) |
 | Secrets | `Secrets:Provider` selects the store ([secrets](#secrets)). Locally Aspire runs HashiCorp Vault on `http://localhost:8200` and sets it up for you. Store credentials come from environment variables or user-secrets; never put secrets in `appsettings*.json` or any other file in the repository. |
