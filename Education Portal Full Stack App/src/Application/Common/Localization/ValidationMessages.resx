@@ -53,4 +53,13 @@
   <data name="RightsNeedView" xml:space="preserve"><value>Creating, editing and deleting need the right to view.</value></data>
   <data name="ModuleNotEnabledForSchool" xml:space="preserve"><value>The school does not have this module, so it cannot get rights in it.</value></data>
   <data name="RoleNotFound" xml:space="preserve"><value>The role does not exist.</value></data>
+  <data name="SchoolHasNoSubscription" xml:space="preserve"><value>The school has no subscription to invoice.</value></data>
+  <data name="TrialNeedsNextPeriod" xml:space="preserve"><value>The subscription is on trial and has no paid period yet: invoice the next period.</value></data>
+  <data name="InvoiceOpenExists" xml:space="preserve"><value>The subscription already has an open invoice. Pay or void it first.</value></data>
+  <data name="PeriodAlreadyInvoiced" xml:space="preserve"><value>This period has already been invoiced.</value></data>
+  <data name="InvoiceNotOpen" xml:space="preserve"><value>Only an open invoice can be paid or voided.</value></data>
+  <data name="PaymentMustCoverTotal" xml:space="preserve"><value>The payment must equal the invoice total.</value></data>
+  <data name="PaymentRejected" xml:space="preserve"><value>The payment was not accepted.</value></data>
+  <data name="PaymentDateInFuture" xml:space="preserve"><value>The payment date cannot be in the future.</value></data>
+  <data name="TaxRateRange" xml:space="preserve"><value>The tax rate is a percentage from 0 to 100 with at most two decimals.</value></data>
 </root>

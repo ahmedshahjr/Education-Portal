@@ -53,4 +53,13 @@
   <data name="RightsNeedView" xml:space="preserve"><value>يتطلب الإنشاء والتعديل والحذف صلاحية العرض.</value></data>
   <data name="ModuleNotEnabledForSchool" xml:space="preserve"><value>لا تملك المدرسة هذه الوحدة، لذا لا يمكن منح صلاحيات فيها.</value></data>
   <data name="RoleNotFound" xml:space="preserve"><value>الدور غير موجود.</value></data>
+  <data name="SchoolHasNoSubscription" xml:space="preserve"><value>ليس لدى المدرسة اشتراك لإصدار فاتورة له.</value></data>
+  <data name="TrialNeedsNextPeriod" xml:space="preserve"><value>الاشتراك في فترة تجريبية وليست له فترة مدفوعة بعد: أصدر فاتورة للفترة التالية.</value></data>
+  <data name="InvoiceOpenExists" xml:space="preserve"><value>لدى الاشتراك فاتورة مفتوحة بالفعل. سدّدها أو ألغها أولاً.</value></data>
+  <data name="PeriodAlreadyInvoiced" xml:space="preserve"><value>سبق إصدار فاتورة لهذه الفترة.</value></data>
+  <data name="InvoiceNotOpen" xml:space="preserve"><value>لا يمكن سداد أو إلغاء إلا الفاتورة المفتوحة.</value></data>
+  <data name="PaymentMustCoverTotal" xml:space="preserve"><value>يجب أن تساوي الدفعة إجمالي الفاتورة.</value></data>
+  <data name="PaymentRejected" xml:space="preserve"><value>لم يتم قبول الدفعة.</value></data>
+  <data name="PaymentDateInFuture" xml:space="preserve"><value>لا يمكن أن يكون تاريخ الدفعة في المستقبل.</value></data>
+  <data name="TaxRateRange" xml:space="preserve"><value>نسبة الضريبة مئوية من 0 إلى 100 بحد أقصى منزلتين عشريتين.</value></data>
 </root>

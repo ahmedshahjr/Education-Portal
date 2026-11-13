@@ -108,6 +108,46 @@ public class Subscription : BaseAuditableEntity
     /// Gives the school a module for the subscription's current period: for the whole school, or for one of its branches
     /// when <paramref name="branch"/> is given. The same module can be given to several branches, but only once to each.
     /// </summary>
+    /// <summary>
+    /// Applies a paid invoice. An invoice for a period beyond the current end extends the subscription to that period's
+    /// end (a trial or a renewal becomes Active, and every module's validity is extended). An invoice for the current
+    /// period brings a past-due or suspended subscription back to Active and reactivates its suspended modules. A
+    /// cancelled subscription is never changed.
+    /// </summary>
+    public void ApplyPayment(Invoice invoice)
+    {
+        ArgumentNullException.ThrowIfNull(invoice);
+
+        if (invoice.SubscriptionId != Id || invoice.Status != InvoiceStatus.Paid)
+        {
+            throw new ArgumentException("Only a paid invoice of this subscription can be applied.", nameof(invoice));
+        }
+
+        if (Status == SubscriptionStatus.Cancelled)
+        {
+            return;
+        }
+
+        var lapsed = Status is SubscriptionStatus.PastDue or SubscriptionStatus.Suspended;
+
+        if (invoice.PeriodEnd > EndDate)
+        {
+            EndDate = invoice.PeriodEnd;
+        }
+
+        Status = SubscriptionStatus.Active;
+
+        foreach (var module in _modules)
+        {
+            module.ExtendTo(EndDate);
+
+            if (lapsed && module.Status == TenantModuleStatus.Suspended)
+            {
+                module.Reactivate();
+            }
+        }
+    }
+
     public TenantModule AddModule(PortalModule module, Branch? branch = null)
     {
         ArgumentNullException.ThrowIfNull(module);

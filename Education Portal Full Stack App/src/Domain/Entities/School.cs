@@ -85,6 +85,22 @@ public class School : BaseSoftDeletableEntity
         DataRegion = dataRegion;
     }
 
+    /// <summary>
+    /// A tax rate in percent for this school's invoices that replaces its country's price-book rate, or <c>null</c> to use
+    /// the country's. Only the master tenant sets it.
+    /// </summary>
+    public decimal? TaxRateOverride { get; private set; }
+
+    public void SetTaxRateOverride(decimal? taxRate)
+    {
+        if (taxRate is { } rate && !PriceBook.IsValidTaxRate(rate))
+        {
+            throw new ArgumentOutOfRangeException(nameof(taxRate), taxRate, "A tax rate is a percentage from 0 to 100 with at most two decimal places.");
+        }
+
+        TaxRateOverride = taxRate;
+    }
+
     public void UpdateBranding(HexColor accentColor, HexColor? sidebarColor)
     {
         ArgumentNullException.ThrowIfNull(accentColor);

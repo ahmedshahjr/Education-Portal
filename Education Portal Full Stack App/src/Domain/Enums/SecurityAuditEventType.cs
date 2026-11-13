@@ -80,4 +80,16 @@ public enum SecurityAuditEventType
 
     /// <summary>A school owner deleted a role.</summary>
     RoleDeleted = 28,
+
+    /// <summary>The master tenant issued an invoice for a school's subscription.</summary>
+    InvoiceCreated = 29,
+
+    /// <summary>The master tenant voided an open invoice.</summary>
+    InvoiceVoided = 30,
+
+    /// <summary>The master tenant recorded a payment against an invoice.</summary>
+    PaymentRecorded = 31,
+
+    /// <summary>The master tenant set or cleared a school's own tax rate.</summary>
+    SchoolTaxRateChanged = 32,
 }

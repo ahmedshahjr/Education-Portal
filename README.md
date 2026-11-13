@@ -449,6 +449,8 @@ A record from another school or branch returns 404 rather than 403, so ids can't
 
 - **Module enforcement and school roles** (decided 2026-11-13, [ADR-012](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-012-Module-Enforcement-And-School-Roles.md)). A school can use a paid module only while an Active `TenantModule` of its subscription covers the current time (core modules are always on); a grant limited to a branch counts for that branch only. Answers are cached per school for five minutes in memory and dropped when a subscription or the catalogue changes (other server instances catch up within the five minutes). The old per-school switch table `SchoolModules` and `PUT /api/Schools/{id}/modules/{code}` are removed. Each school administrator manages the school's roles with View/Create/Edit/Delete rights per module: `GET/POST /api/SchoolRoles`, `PUT/DELETE /api/SchoolRoles/{id}` (tables `SchoolRoles` and `RolePermissions`). Rights in a module the school does not have are not shown and cannot be set; they are kept and come back with the module. Assigning roles to users comes later.
 
+- **Invoices and manual payments** (decided 2026-11-13, [ADR-013](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-013-Invoices-And-Manual-Payments.md)). The master tenant issues an invoice for a school's subscription period (`Invoices`, `InvoiceLines`): the amount, currency and the tax rate (the school's own `Schools.TaxRateOverride` if set, else the country's `PriceBooks.TaxRate`, percent) are copied onto it, it is due in 30 days and numbered `INV-000123` from a database sequence. A subscription has one open invoice at a time and a period is invoiced once; the first paid period of a trial is invoiced with `nextPeriod`. The master records a manual payment (`Payments`: bank transfer, cash, cheque or wallet, with a reference) for the whole total through `IPaymentProvider` (only the manual provider exists; no card gateway, so no card data touches our servers). Paying marks the invoice Paid and activates or extends the school's subscription and its modules in one transaction. API, master tenant only and audited: `GET/POST /api/Invoices`, `GET /api/Invoices/{id}`, `POST /api/Invoices/{id}/payments`, `POST /api/Invoices/{id}/void`; the country's tax rate is set with `PUT /api/PriceBooks/{id}` and a school's own with `PUT /api/Schools/{id}/tax-rate`. Part payments, refunds and credit notes are not supported.
+
 ### Data and database
 
 - `ApplicationDbContext` (in `Infrastructure`) is the EF Core context for both Identity and the app's own tables. Entity mappings are `IEntityTypeConfiguration<T>` classes in `src/Infrastructure/Data/Configurations/`, picked up automatically.
@@ -662,7 +664,7 @@ flowchart TB
     init["Development start-up:<br/>EnsureDeleted, EnsureCreated, seed"] --> pg
 ```
 
-The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Branch`, `SchoolRole` and `RolePermission` today. Every new school-owned entity is added to them (AGENTS.md section 2).
+The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Branch`, `Invoice`, `InvoiceLine`, `Payment`, `SchoolRole` and `RolePermission` today. Every new school-owned entity is added to them (AGENTS.md section 2).
 
 ### Secrets flow
 
