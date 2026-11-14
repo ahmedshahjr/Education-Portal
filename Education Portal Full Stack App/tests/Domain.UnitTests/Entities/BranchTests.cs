@@ -8,65 +8,74 @@ namespace EducationPortal.Domain.UnitTests.Entities;
 public class BranchTests
 {
     [Test]
-    public void ShouldCreateEverySchoolWithExactlyOneMainBranch()
+    public void ShouldCreateEverySchoolWithExactlyOneMainCampusWithCodeZeroZeroZeroOne()
     {
         var school = School.Create("Demo School", "demo.example.com");
 
         var main = school.Branches.ShouldHaveSingleItem();
         main.Kind.ShouldBe(BranchKind.Main);
         main.Name.ShouldBe(Branch.MainName);
-        main.Code.ShouldBe(Branch.MainCode);
+        main.Code.ShouldBe("0001");
     }
 
     [Test]
-    public void ShouldGiveTheMasterTenantItsMainBranchToo()
+    public void ShouldGiveTheMasterTenantItsMainCampusToo()
     {
         var master = School.CreateMaster("Education Portal", "portal.example.com");
 
         master.Branches.ShouldHaveSingleItem().Kind.ShouldBe(BranchKind.Main);
     }
 
-    [Test]
-    public void ShouldTrimAndUpperCaseACode()
-    {
-        Branch.NormalizeCode("  north-1 ").ShouldBe("NORTH-1");
-    }
+    [TestCase(" 0042 ", "0042")]
+    [TestCase("9999", "9999")]
+    public void ShouldTrimAFourDigitCode(string code, string expected) =>
+        Branch.NormalizeCode(code).ShouldBe(expected);
 
-    [Test]
-    public void ShouldAcceptACodeOfExactlyTheMaximumLength()
-    {
-        var code = new string('A', Branch.CodeMaxLength);
-
-        Branch.NormalizeCode(code).ShouldBe(code);
-    }
-
-    [Test]
-    public void ShouldRejectAnEmptyCode()
-    {
-        Should.Throw<ArgumentException>(() => Branch.NormalizeCode(" "));
-    }
-
-    [Test]
-    public void ShouldRejectACodeLongerThanTheMaximum()
-    {
-        Should.Throw<ArgumentException>(() => Branch.NormalizeCode(new string('A', Branch.CodeMaxLength + 1)));
-    }
-
-    [TestCase("NORTH WING")]
-    [TestCase("NORTH_1")]
-    [TestCase("NORTH.1")]
-    [TestCase("NÖRD")]
-    public void ShouldRejectCharactersOtherThanLettersDigitsAndHyphens(string code)
-    {
+    [TestCase("")]
+    [TestCase("   ")]
+    [TestCase("123")]
+    [TestCase("12345")]
+    [TestCase("12A4")]
+    [TestCase("KHI1")]
+    [TestCase("12-4")]
+    public void ShouldRefuseACodeThatIsNotFourDigits(string code) =>
         Should.Throw<ArgumentException>(() => Branch.NormalizeCode(code));
+
+    [Test]
+    public void ShouldKeepTheCodeWhenACampusIsRenamed()
+    {
+        var campus = Branch.Create(3, "North", "0007");
+
+        campus.Rename("  North wing  ");
+
+        campus.Name.ShouldBe("North wing");
+        campus.Code.ShouldBe("0007");
     }
 
     [Test]
-    public void ShouldCreateANonMainBranchWithItsCode()
+    public void ShouldAcceptANameOfExactlyTheMaximumLengthAndRefuseOneOverIt()
     {
-        var branch = Branch.Create(3, "North", "north");
+        var campus = Branch.Create(3, "North", "0007");
 
-        branch.Kind.ShouldBe(BranchKind.Other);
-        branch.Code.ShouldBe("NORTH");
+        campus.Rename(new string('a', Branch.NameMaxLength));
+        campus.Name.Length.ShouldBe(Branch.NameMaxLength);
+        Should.Throw<ArgumentOutOfRangeException>(() => campus.Rename(new string('a', Branch.NameMaxLength + 1)));
+    }
+
+    [Test]
+    public void ShouldCreateANonMainCampusKeepingItsCode()
+    {
+        var campus = Branch.Create(3, "North", "0007");
+
+        campus.Kind.ShouldBe(BranchKind.Other);
+        campus.Code.ShouldBe("0007");
+    }
+
+    [Test]
+    public void ShouldNeverDeactivateTheMainCampus()
+    {
+        var main = School.Create("Demo School", "demo.example.com").Branches.Single();
+
+        Should.Throw<InvalidOperationException>(() => main.Deactivate());
     }
 }

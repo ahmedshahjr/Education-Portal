@@ -63,6 +63,8 @@ public sealed class SubscriptionLifecycle
         var subscriptions = await _context.Subscriptions
             .Include(s => s.Modules)
             .Where(s => s.Status == SubscriptionStatus.Trial || s.Status == SubscriptionStatus.Active || s.Status == SubscriptionStatus.PastDue)
+            // A deleted school is hidden by its soft-delete filter, so its subscription is left alone.
+            .Where(s => _context.Schools.Any(school => school.Id == s.SchoolId))
             .ToListAsync(cancellationToken);
         var byId = subscriptions.ToDictionary(s => s.Id);
 

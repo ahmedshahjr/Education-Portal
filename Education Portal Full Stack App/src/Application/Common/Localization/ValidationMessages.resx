@@ -65,6 +65,12 @@
   <data name="SchoolDomainFormat" xml:space="preserve"><value>The domain must be a host name such as school1.com, without http://, a port or a path.</value></data>
   <data name="SchoolDomainTaken" xml:space="preserve"><value>Another school already uses this domain.</value></data>
   <data name="SchoolMasterDomainLocked" xml:space="preserve"><value>The master tenant's domain cannot be changed.</value></data>
+  <data name="CampusPrefixRequired" xml:space="preserve"><value>When the campus code prefix is on, give the prefix.</value></data>
+  <data name="CampusPrefixFormat" xml:space="preserve"><value>A campus code prefix is up to 6 letters or digits.</value></data>
+  <data name="CampusCodesExhausted" xml:space="preserve"><value>This school has no free campus code left.</value></data>
+  <data name="BranchMainNotDeletable" xml:space="preserve"><value>The main branch cannot be deleted: every school keeps it.</value></data>
+  <data name="BranchHasModules" xml:space="preserve"><value>This branch still has module grants. Turn those modules off first.</value></data>
+  <data name="SchoolMasterNotDeletable" xml:space="preserve"><value>The master tenant cannot be deleted.</value></data>
   <data name="EmailTaken" xml:space="preserve"><value>Another account already uses this email.</value></data>
   <data name="NewPasswordSameAsCurrent" xml:space="preserve"><value>The new password must be different from the current one.</value></data>
   <data name="SubscriptionCannotBeSuspended" xml:space="preserve"><value>The subscription is already suspended.</value></data>

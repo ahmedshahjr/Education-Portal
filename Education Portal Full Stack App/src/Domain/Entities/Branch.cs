@@ -1,19 +1,23 @@
+using EducationPortal.Domain.Common;
 using EducationPortal.Domain.Enums;
 
 namespace EducationPortal.Domain.Entities;
 
 /// <summary>
-/// A branch of a school: where day-to-day data lives (AGENTS.md section 2). Owned by the school (<c>SchoolId</c>) and
-/// covered by the tenant query filter (SEC-AUTHZ-03). Every school has exactly one <see cref="BranchKind.Main"/> branch,
-/// its registration branch, created by <see cref="School.Create"/> in the same save as the school. A <see cref="Code"/>
-/// is unique within its school.
+/// A campus (the portal calls branches campuses; the class keeps its name): where day-to-day data lives (AGENTS.md section 2).
+/// Owned by the school (<c>SchoolId</c>) and covered by the tenant query filter (SEC-AUTHZ-03). Every school has exactly one
+/// <see cref="BranchKind.Main"/> campus, its registration campus, created by <see cref="School.Create"/> in the same save as
+/// the school. A campus has a <see cref="Code"/>: four digits, generated when it is added, unique within its school. The
+/// school may show it with a prefix (<see cref="School.CampusDisplayCode"/>).
 /// </summary>
-public class Branch : BaseAuditableEntity
+public class Branch : BaseSoftDeletableEntity
 {
     public const int NameMaxLength = 200;
-    public const int CodeMaxLength = 20;
-    public const string MainName = "Main branch";
-    public const string MainCode = "MAIN";
+    public const int CodeLength = 4;
+    public const string MainName = "Main campus";
+
+    /// <summary>The main campus is always the first code of a school.</summary>
+    public const string MainCode = "0001";
 
     private Branch()
     {
@@ -30,7 +34,7 @@ public class Branch : BaseAuditableEntity
         Kind = kind;
     }
 
-    /// <summary>Creates a branch that is not the main one. The main branch comes only with its school.</summary>
+    /// <summary>Creates a campus that is not the main one, with the code the use case generated. The main campus comes only with its school.</summary>
     public static Branch Create(int schoolId, string name, string code)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(schoolId);
@@ -41,24 +45,24 @@ public class Branch : BaseAuditableEntity
     }
 
     /// <summary>
-    /// The school's registration branch. Its <see cref="SchoolId"/> is 0 until the school is saved; EF Core sets it
-    /// through the school's branch collection, so the branch is saved with its school or not at all.
+    /// The school's registration campus. Its <see cref="SchoolId"/> is 0 until the school is saved; EF Core sets it
+    /// through the school's branch collection, so the campus is saved with its school or not at all.
     /// </summary>
     internal static Branch CreateMain() => new(0, MainName, MainCode, BranchKind.Main);
 
-    /// <summary>
-    /// Trims and upper-cases a branch code, then checks it: 1 to 20 letters, digits or hyphens. Throws otherwise, so a
-    /// code is never stored in another form.
-    /// </summary>
+    /// <summary>True when the code is exactly four digits.</summary>
+    public static bool IsValidCode(string code) =>
+        code.Length == CodeLength && code.All(ch => ch is >= '0' and <= '9');
+
+    /// <summary>Trims the code and checks it is exactly four digits. Throws otherwise, so a code is never stored in another form.</summary>
     public static string NormalizeCode(string code)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
 
-        var normalized = code.Trim().ToUpperInvariant();
-
-        if (normalized.Length > CodeMaxLength || !normalized.All(ch => ch is (>= 'A' and <= 'Z') or (>= '0' and <= '9') or '-'))
+        var normalized = code.Trim();
+        if (!IsValidCode(normalized))
         {
-            throw new ArgumentException("A branch code is up to 20 letters, digits or hyphens.", nameof(code));
+            throw new ArgumentException("A campus code is four digits.", nameof(code));
         }
 
         return normalized;
@@ -68,8 +72,20 @@ public class Branch : BaseAuditableEntity
 
     public string Name { get; private set; }
 
-    /// <summary>A short code for the branch, unique within its school, for example <c>MAIN</c> or <c>NORTH</c>.</summary>
+    /// <summary>The campus code: four digits, unique within its school, without any school prefix.</summary>
     public string Code { get; private set; }
 
     public BranchKind Kind { get; private set; }
+
+    /// <summary>The main campus is the school's registration campus: it cannot be deleted or deactivated.</summary>
+    protected override bool CanBeDeactivated => Kind != BranchKind.Main;
+
+    /// <summary>Changes the campus's name. The code is generated once and never changes.</summary>
+    public void Rename(string name)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(name.Trim().Length, NameMaxLength, nameof(name));
+
+        Name = name.Trim();
+    }
 }

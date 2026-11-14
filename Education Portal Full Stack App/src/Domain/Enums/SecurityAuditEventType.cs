@@ -116,4 +116,19 @@ public enum SecurityAuditEventType
 
     /// <summary>The master tenant changed a school's name or domain.</summary>
     SchoolProfileChanged = 40,
+
+    /// <summary>The master tenant added a branch to a school.</summary>
+    BranchCreated = 41,
+
+    /// <summary>The master tenant changed a branch's name or code.</summary>
+    BranchUpdated = 42,
+
+    /// <summary>The master tenant deleted a branch (it is kept in the table).</summary>
+    BranchDeleted = 43,
+
+    /// <summary>The master tenant deleted a school (it is kept in the table and hidden everywhere).</summary>
+    SchoolDeleted = 44,
+
+    /// <summary>The school administrator changed the campus code prefix settings.</summary>
+    CampusSettingsChanged = 45,
 }

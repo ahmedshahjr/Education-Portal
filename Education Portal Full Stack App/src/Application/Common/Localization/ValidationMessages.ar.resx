@@ -65,6 +65,12 @@
   <data name="SchoolDomainFormat" xml:space="preserve"><value>يجب أن يكون النطاق اسم مضيف مثل school1.com، بدون http:// أو منفذ أو مسار.</value></data>
   <data name="SchoolDomainTaken" xml:space="preserve"><value>تستخدم مدرسة أخرى هذا النطاق بالفعل.</value></data>
   <data name="SchoolMasterDomainLocked" xml:space="preserve"><value>لا يمكن تغيير نطاق المستأجر الرئيسي.</value></data>
+  <data name="CampusPrefixRequired" xml:space="preserve"><value>عند تفعيل بادئة رمز الفرع، أدخل البادئة.</value></data>
+  <data name="CampusPrefixFormat" xml:space="preserve"><value>بادئة رمز الفرع حتى 6 أحرف أو أرقام.</value></data>
+  <data name="CampusCodesExhausted" xml:space="preserve"><value>لم يبق لهذه المدرسة رمز فرع متاح.</value></data>
+  <data name="BranchMainNotDeletable" xml:space="preserve"><value>لا يمكن حذف الفرع الرئيسي: تحتفظ به كل مدرسة.</value></data>
+  <data name="BranchHasModules" xml:space="preserve"><value>ما زال لهذا الفرع وحدات مفعّلة. أوقفها أولًا.</value></data>
+  <data name="SchoolMasterNotDeletable" xml:space="preserve"><value>لا يمكن حذف المستأجر الرئيسي.</value></data>
   <data name="EmailTaken" xml:space="preserve"><value>يستخدم حساب آخر هذا البريد الإلكتروني بالفعل.</value></data>
   <data name="NewPasswordSameAsCurrent" xml:space="preserve"><value>يجب أن تختلف كلمة المرور الجديدة عن الحالية.</value></data>
   <data name="SubscriptionCannotBeSuspended" xml:space="preserve"><value>الاشتراك معلّق بالفعل.</value></data>

@@ -10,10 +10,11 @@ public class BranchConfiguration : IEntityTypeConfiguration<Branch>
     {
         builder.HasOne<School>().WithMany(s => s.Branches).HasForeignKey(b => b.SchoolId).OnDelete(DeleteBehavior.Cascade);
         builder.Property(b => b.Name).IsRequired().HasMaxLength(Branch.NameMaxLength);
-        builder.Property(b => b.Code).IsRequired().HasMaxLength(Branch.CodeMaxLength);
+        builder.Property(b => b.Code).IsRequired().HasMaxLength(Branch.CodeLength);
 
         // Codes are unique within a school. This index also serves the SchoolId foreign key (ENG-EF-09).
-        builder.HasIndex(b => new { b.SchoolId, b.Code }).IsUnique();
+        // Deleted branches keep their rows but free their code.
+        builder.HasIndex(b => new { b.SchoolId, b.Code }).IsUnique().HasFilter("\"IsDeleted\" = false");
 
         // Every school has exactly one main branch, its registration branch (the Kind value 1 is BranchKind.Main).
         builder.HasIndex(b => b.SchoolId)

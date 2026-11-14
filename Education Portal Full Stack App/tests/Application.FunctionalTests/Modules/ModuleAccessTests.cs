@@ -70,8 +70,8 @@ public class ModuleAccessTests : TestBase
     public async Task ShouldKeepABranchGrantForThatBranchOnly()
     {
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        var branch = Branch.Create(school.Id, "North", "NORTH");
-        var otherBranch = Branch.Create(school.Id, "South", "SOUTH");
+        var branch = Branch.Create(school.Id, "North", "0002");
+        var otherBranch = Branch.Create(school.Id, "South", "0003");
         await TestApp.AddAsync(branch);
         await TestApp.AddAsync(otherBranch);
 

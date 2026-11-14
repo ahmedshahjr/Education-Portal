@@ -4,9 +4,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { BrandingService } from '../../core/branding/branding.service';
 import { problemMessages } from '../../core/http/problem-details';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
@@ -23,10 +24,9 @@ import {
   SchoolSummaryDto,
   UpdateSchoolCountryCommand,
 } from '../../web-api-client';
-import { BrandingChanges, toFileParameter } from '../branding/branding-changes';
-import { BrandingEditorComponent } from '../branding/branding-editor.component';
 import { NewSchool, SchoolFormComponent } from './school-form.component';
 import { SchoolEditComponent } from './school-edit.component';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 const PAGE_SIZE = 25;
 
@@ -47,7 +47,6 @@ export const SEARCH_DELAY_MS = 300;
     LoadingStateComponent,
     EmptyStateComponent,
     SearchInputComponent,
-    BrandingEditorComponent,
     SchoolEditComponent,
     SchoolFormComponent,
   ],
@@ -178,6 +177,9 @@ export const SEARCH_DELAY_MS = 300;
                       <button mat-stroked-button type="button" (click)="showModules(school)" i18n="@@schools.edit">Edit plan &amp; modules</button>
                     }
                     <button mat-stroked-button type="button" (click)="edit(school)" i18n="@@schools.editBranding">Edit branding</button>
+                    @if (!school.isMaster) {
+                      <button mat-stroked-button type="button" (click)="confirmDeleteSchool(school)" i18n="@@schools.delete">Delete</button>
+                    }
                   </div>
                 </td>
               </ng-container>
@@ -200,27 +202,6 @@ export const SEARCH_DELAY_MS = 300;
       </mat-card-content>
     </mat-card>
 
-    @if (modulesOf(); as school) {
-      <h2 class="mm-schools__heading" i18n="@@schools.editOf">Edit {{ school.name }}</h2>
-      <div class="mm-schools__section">
-        <app-school-edit [school]="school" (saved)="onSaved($event)" />
-      </div>
-    }
-
-    @if (selected(); as school) {
-      <h2 class="mm-schools__heading" i18n="@@schools.brandingOf">Branding of {{ school.name }}</h2>
-      @if (selectedBranding(); as branding) {
-        <app-branding-editor
-          [branding]="branding"
-          [imagesBase]="'api/Schools/' + school.id + '/branding/images'"
-          [saving]="saving()"
-          [errors]="errors()"
-          (save)="save(school, $event)"
-        />
-      } @else {
-        <app-loading-state />
-      }
-    }
   `,
   styles: `
     .mm-schools {
@@ -282,17 +263,15 @@ export const SEARCH_DELAY_MS = 300;
 export class SchoolsPage {
   private readonly client = inject(SchoolsClient);
   private readonly countriesClient = inject(CountriesClient);
-  private readonly brandingService = inject(BrandingService);
+  private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   protected readonly columns = ['name', 'domain', 'country', 'actions'];
   protected readonly pageSize = PAGE_SIZE;
   protected readonly page = signal<PaginatedListOfSchoolSummaryDto | null>(null);
   protected readonly pageIndex = signal(0);
   protected readonly loadError = signal<string | null>(null);
-  protected readonly selected = signal<SchoolSummaryDto | null>(null);
-  protected readonly modulesOf = signal<SchoolSummaryDto | null>(null);
-  protected readonly selectedBranding = signal<BrandingDto | null>(null);
   protected readonly saving = signal(false);
   protected readonly errors = signal<readonly string[]>([]);
 
@@ -408,58 +387,39 @@ export class SchoolsPage {
     this.loadPage(event.pageIndex);
   }
 
-  /** A saved profile: the open edit view and branding editor show the new name, and the list is reloaded. */
-  protected onSaved(school: SchoolSummaryDto): void {
-    this.modulesOf.set(school);
-    if (this.selected()?.id === school.id) {
-      this.selected.set(school);
-    }
-    this.loadPage(this.pageIndex());
+  /** Asks first: a deleted school disappears everywhere, but its rows are kept. */
+  protected confirmDeleteSchool(school: SchoolSummaryDto): void {
+    const data: ConfirmDialogData = {
+      title: $localize`:@@schools.deleteTitle:Delete this school?`,
+      message: $localize`:@@schools.deleteMessage:The school disappears everywhere: its domain stops working and its subscription stops running. Its data is kept.`,
+      confirmLabel: $localize`:@@schools.delete:Delete`,
+    };
+    this.dialog
+      .open(ConfirmDialogComponent, { data, autoFocus: 'dialog' })
+      .afterClosed()
+      .subscribe((confirmed: boolean | undefined) => {
+        if (confirmed === true) {
+          this.deleteSchool(school);
+        }
+      });
   }
 
-  protected showModules(school: SchoolSummaryDto): void {
-    this.selected.set(null);
-    this.modulesOf.set(school);
-  }
-
-  protected edit(school: SchoolSummaryDto): void {
-    this.modulesOf.set(null);
-    this.selected.set(school);
-    this.selectedBranding.set(null);
-    this.errors.set([]);
-    this.client.getSchoolBranding(school.id).subscribe({
-      next: (branding) => this.selectedBranding.set(branding),
-      error: (error: unknown) => this.errors.set(problemMessages(error)),
+  private deleteSchool(school: SchoolSummaryDto): void {
+    this.client.deleteSchool(school.id).subscribe({
+      next: () => {
+        this.snackBar.open($localize`:@@schools.deleted:School deleted.`, undefined, { duration: 3000 });
+        this.loadPage(this.pageIndex());
+      },
+      error: (error: unknown) => this.snackBar.open(problemMessages(error)[0], undefined, { duration: 5000 }),
     });
   }
 
-  protected save(school: SchoolSummaryDto, changes: BrandingChanges): void {
-    this.saving.set(true);
-    this.errors.set([]);
-
-    this.client
-      .updateSchoolBranding(
-        school.id,
-        changes.accentColor,
-        changes.sidebarColor,
-        toFileParameter(changes.logo),
-        changes.removeLogo,
-        toFileParameter(changes.favicon),
-        changes.removeFavicon
-      )
-      .subscribe({
-        next: () => {
-          this.saving.set(false);
-          this.snackBar.open($localize`:@@schools.brandingSaved:Branding of ${school.name}:SCHOOL: saved`, undefined, { duration: 3000 });
-          this.edit(school);
-          if (school.isMaster) {
-            this.brandingService.load().subscribe();
-          }
-        },
-        error: (error: unknown) => {
-          this.saving.set(false);
-          this.errors.set(problemMessages(error));
-        },
-      });
+  protected showModules(school: SchoolSummaryDto): void {
+    this.router.navigate(['/schools', school.id]);
   }
+
+  protected edit(school: SchoolSummaryDto): void {
+    this.router.navigate(['/schools', school.id, 'branding']);
+  }
+
 }

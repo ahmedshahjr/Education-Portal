@@ -100,7 +100,7 @@ public class SubscriptionTests
     public void ShouldLimitAModuleGivenToAnotherBranchToThatBranch()
     {
         var subscription = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 1m, Start, 0);
-        var north = Branch.Create(9, "North", "NORTH");
+        var north = Branch.Create(9, "North", "0002");
         north.Id = 2;
 
         var tenantModule = subscription.AddModule(Module("FEES", 7), north);
@@ -112,7 +112,7 @@ public class SubscriptionTests
     public void ShouldRefuseABranchOfAnotherSchool()
     {
         var subscription = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 1m, Start, 0);
-        var other = Branch.Create(4, "Other", "OTHER");
+        var other = Branch.Create(4, "Other", "0003");
         other.Id = 3;
 
         Should.Throw<ArgumentException>(() => subscription.AddModule(Module("FEES", 7), other));
@@ -129,15 +129,15 @@ public class SubscriptionTests
     [Test]
     public void ShouldCreateABranchForASchool()
     {
-        var branch = Branch.Create(9, " Main campus ", "north");
+        var branch = Branch.Create(9, " North campus ", "0004");
 
         branch.SchoolId.ShouldBe(9);
-        branch.Name.ShouldBe("Main campus");
-        branch.Code.ShouldBe("NORTH");
-        Should.Throw<ArgumentOutOfRangeException>(() => Branch.Create(0, "x", "X"));
-        Should.Throw<ArgumentException>(() => Branch.Create(9, " ", "X"));
-        Should.Throw<ArgumentOutOfRangeException>(() => Branch.Create(9, new string('a', Branch.NameMaxLength + 1), "X"));
-        Branch.Create(9, new string('a', Branch.NameMaxLength), "X").Name.Length.ShouldBe(Branch.NameMaxLength);
+        branch.Name.ShouldBe("North campus");
+        branch.Code.ShouldBe("0004");
+        Should.Throw<ArgumentOutOfRangeException>(() => Branch.Create(0, "x", "0005"));
+        Should.Throw<ArgumentException>(() => Branch.Create(9, " ", "0005"));
+        Should.Throw<ArgumentOutOfRangeException>(() => Branch.Create(9, new string('a', Branch.NameMaxLength + 1), "0005"));
+        Branch.Create(9, new string('a', Branch.NameMaxLength), "0005").Name.Length.ShouldBe(Branch.NameMaxLength);
     }
 
     [Test]

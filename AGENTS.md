@@ -66,7 +66,7 @@ Effective access for a school user = **modules enabled for their school** ∩ **
    | Code | Module | Covers | Kind |
    |---|---|---|---|
    | SCHOOL | School | School profile, settings and the school overview dashboard | Core |
-   | BRANCH | Branches | Create and edit the school's branches | Core |
+   | BRANCH | Campuses | Create and edit the school's campuses, with four-digit codes and an optional prefix | Core |
    | ACADEMIC_SETUP | Academic setup | Academic years, classes, courses and enrolments | Core |
    | USERS_ROLES | Users & Roles | Staff accounts, roles with rights per module, branch assignment | Core |
    | STUDENTS | Students | Student records and branch membership | Core |
@@ -105,7 +105,7 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 - The master tenant manages **countries**: the languages a country's schools offer, the default language, an IANA time zone and an ISO 4217 currency. Each school is assigned to one country, or to none (English only, UTC). Example: Pakistan offers English and Urdu, the UAE English and Arabic.
 - The portal's languages are fixed in code (`Domain/Localization/Language.cs`: English, Arabic, Urdu): a language is usable only once its translations ship. Countries pick from that list.
 - Each request is answered in one of the **school's** languages, never another: the visitor's choice (cookie), then the browser's `Accept-Language`, then the country's default (`TenantRequestCultureProvider`). Dates and numbers use the language plus country culture, e.g. `ur-PK`.
-- **Location data** (decided 2026-11-13): countries, states and cities for address dropdowns come from the Countries States Cities Database (ODbL v1.0, attribution in README), filtered to SA, AE, QA, KW, BH, OM, US, JP and PK and committed as `src/Infrastructure/Data/Locations/locations.json` (rebuild with `scripts/update-location-data.cs`). `LocationDataImporter` loads it on every start-up and is safe to run again; it extends the master-managed `Country` (adds `Iso3`, `PhoneCode`, `NativeName`, never overwrites the master's settings) and never changes `IsCustom` states or cities. Location data has no `SchoolId`; any signed-in user reads it through `/api/Locations`. Name fixes go in `LocationDataImporter.StateNameOverrides`, never by editing the JSON by hand.
+- **Location data** (decided 2026-11-13): countries, states and cities for address dropdowns come from the Countries States Cities Database (ODbL v1.0, attribution in README), filtered to SA, AE, US, JP and PK and committed as `src/Infrastructure/Data/Locations/locations.json` (rebuild with `scripts/update-location-data.cs`). `LocationDataImporter` loads it on every start-up and is safe to run again; it extends the master-managed `Country` (adds `Iso3`, `PhoneCode`, `NativeName`, never overwrites the master's settings) and never changes `IsCustom` states or cities. Location data has no `SchoolId`; any signed-in user reads it through `/api/Locations`. Name fixes go in `LocationDataImporter.StateNameOverrides`, never by editing the JSON by hand.
 - Users switch language from the dropdown in the top bar (and on the sign-in page); the choice is a cookie per school domain, and the page reloads. Arabic and Urdu are laid out right to left.
 
 ### Rules for code

@@ -13,7 +13,7 @@ public static class ModuleCatalog
     [
         // Core: part of every subscription.
         PortalModule.Create(ModuleCodes.School, "School", "School profile, settings and the school overview dashboard.", isCore: true, sortOrder: 10),
-        PortalModule.Create(ModuleCodes.Branch, "Branches", "Create and edit the school's branches.", isCore: true, sortOrder: 20),
+        PortalModule.Create(ModuleCodes.Branch, "Campuses", "Create and edit the school's campuses.", isCore: true, sortOrder: 20),
         PortalModule.Create(ModuleCodes.AcademicSetup, "Academic setup", "Academic years, classes, courses and enrolments.", isCore: true, sortOrder: 30),
         PortalModule.Create(ModuleCodes.UsersRoles, "Users & Roles", "Staff accounts, roles with rights per module, branch assignment.", isCore: true, sortOrder: 40),
         PortalModule.Create(ModuleCodes.Students, "Students", "Student records and branch membership.", isCore: true, sortOrder: 50),

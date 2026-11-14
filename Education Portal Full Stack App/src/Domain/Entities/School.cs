@@ -131,6 +131,41 @@ public class School : BaseSoftDeletableEntity
         Domain = normalizedDomain;
     }
 
+    /// <summary>The longest prefix a school can show before its campus codes.</summary>
+    public const int CampusCodePrefixMaxLength = 6;
+
+    /// <summary>Whether campus codes are shown with <see cref="CampusCodePrefix"/> in front of them.</summary>
+    public bool CampusCodePrefixEnabled { get; private set; }
+
+    /// <summary>The prefix in upper case (letters and digits), kept even while it is switched off.</summary>
+    public string? CampusCodePrefix { get; private set; }
+
+    /// <summary>
+    /// Sets whether campus codes show a prefix, and the prefix. When the prefix is on it is required: 1 to 6 letters or digits.
+    /// When it is off the code is shown alone; a prefix given with it is kept.
+    /// </summary>
+    public void ConfigureCampusCodes(bool prefixEnabled, string? prefix)
+    {
+        var normalized = string.IsNullOrWhiteSpace(prefix) ? null : prefix.Trim().ToUpperInvariant();
+
+        if (normalized is not null && (normalized.Length > CampusCodePrefixMaxLength || !normalized.All(ch => ch is (>= 'A' and <= 'Z') or (>= '0' and <= '9'))))
+        {
+            throw new ArgumentException("A campus code prefix is up to 6 letters or digits.", nameof(prefix));
+        }
+
+        if (prefixEnabled && normalized is null)
+        {
+            throw new ArgumentException("A campus code prefix is needed when the prefix is on.", nameof(prefix));
+        }
+
+        CampusCodePrefixEnabled = prefixEnabled;
+        CampusCodePrefix = normalized;
+    }
+
+    /// <summary>What a campus code looks like for this school: the prefix and the code when the prefix is on, the code alone otherwise.</summary>
+    public string CampusDisplayCode(string code) =>
+        CampusCodePrefixEnabled && CampusCodePrefix is { } prefix ? prefix + code : code;
+
     public void UpdateBranding(HexColor accentColor, HexColor? sidebarColor)
     {
         ArgumentNullException.ThrowIfNull(accentColor);
