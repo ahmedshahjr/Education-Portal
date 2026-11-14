@@ -92,7 +92,7 @@ export class BranchesPage {
   }
 
   protected loadSettings(): void {
-    this.branchesClient.getBranchSettings().subscribe({
+    this.branchesClient.getCampusSettings().subscribe({
       next: (settings) => {
         this.settings.set(settings);
         this.settingsForm.reset({ prefixEnabled: settings.prefixEnabled, prefix: settings.prefix ?? '' });
@@ -121,7 +121,7 @@ export class BranchesPage {
     this.busy.set(true);
     this.settingsErrors.set([]);
     this.branchesClient
-      .updateBranchSettings(new UpdateCampusSettingsCommand({ prefixEnabled: value.prefixEnabled, prefix: value.prefix.trim().toUpperCase() || undefined }))
+      .updateCampusSettings(new UpdateCampusSettingsCommand({ prefixEnabled: value.prefixEnabled, prefix: value.prefix.trim().toUpperCase() || undefined }))
       .subscribe({
         next: () => {
           this.busy.set(false);
