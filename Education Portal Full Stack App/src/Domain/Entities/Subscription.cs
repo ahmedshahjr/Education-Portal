@@ -111,10 +111,6 @@ public class Subscription : BaseAuditableEntity
     public IReadOnlyCollection<TenantModule> Modules => _modules;
 
     /// <summary>
-    /// Gives the school a module for the subscription's current period: for the whole school, or for one of its branches
-    /// when <paramref name="branch"/> is given. The same module can be given to several branches, but only once to each.
-    /// </summary>
-    /// <summary>
     /// Applies a paid invoice. An invoice for a period beyond the current end extends the subscription to that period's
     /// end (a trial or a renewal becomes Active, and every module's validity is extended). An invoice for the current
     /// period brings a past-due or suspended subscription back to Active and reactivates its suspended modules. A
@@ -279,11 +275,18 @@ public class Subscription : BaseAuditableEntity
     /// and paid). Modules no longer in the list end now (their rows are kept); new ones start now and run to the end of the
     /// current period; modules that return are restored. The price book must have the subscription's currency. A
     /// cancelled subscription is refused. Changes take effect at once, with no credit or charge for the current period.
+    /// Modules that come with the whole school are granted on <paramref name="mainBranch"/>.
     /// </summary>
-    public void Reconfigure(Plan? plan, PriceBook priceBook, decimal amount, IReadOnlyCollection<PortalModule> modules, DateTimeOffset now)
+    public void Reconfigure(Plan? plan, PriceBook priceBook, decimal amount, IReadOnlyCollection<PortalModule> modules, DateTimeOffset now, Branch mainBranch)
     {
         ArgumentNullException.ThrowIfNull(priceBook);
         ArgumentNullException.ThrowIfNull(modules);
+        ArgumentNullException.ThrowIfNull(mainBranch);
+
+        if (mainBranch.Kind != BranchKind.Main || mainBranch.SchoolId != SchoolId)
+        {
+            throw new ArgumentException("Whole-school modules are granted on the school's main branch.", nameof(mainBranch));
+        }
 
         if (Status == SubscriptionStatus.Cancelled)
         {
@@ -305,7 +308,7 @@ public class Subscription : BaseAuditableEntity
         Amount = amount;
 
         var wanted = modules.Select(m => m.Id).ToHashSet();
-        foreach (var grant in _modules.Where(m => m.BranchId is null))
+        foreach (var grant in _modules.Where(m => m.IsSchoolWide))
         {
             if (!wanted.Contains(grant.ModuleId))
             {
@@ -320,22 +323,27 @@ public class Subscription : BaseAuditableEntity
             }
         }
 
-        foreach (var module in modules.Where(m => _modules.All(g => g.BranchId is not null || g.ModuleId != m.Id)))
+        foreach (var module in modules.Where(m => _modules.All(g => !g.IsSchoolWide || g.ModuleId != m.Id)))
         {
-            _modules.Add(new TenantModule(this, module, null, now < EndDate ? now : StartDate, EndDate));
+            _modules.Add(new TenantModule(this, module, mainBranch, now < EndDate ? now : StartDate, EndDate));
         }
     }
 
-    public TenantModule AddModule(PortalModule module, Branch? branch = null)
+    /// <summary>
+    /// Gives the school a module for the subscription's current period, on <paramref name="branch"/>: the school's main
+    /// branch for the whole school, or another branch for that branch only. A module can be given to each branch once.
+    /// </summary>
+    public TenantModule AddModule(PortalModule module, Branch branch)
     {
         ArgumentNullException.ThrowIfNull(module);
+        ArgumentNullException.ThrowIfNull(branch);
 
-        if (branch is not null && branch.SchoolId != SchoolId)
+        if (branch.SchoolId != SchoolId)
         {
             throw new ArgumentException("A branch belongs to the subscription's school.", nameof(branch));
         }
 
-        if (_modules.Any(m => m.ModuleId == module.Id && m.BranchId == branch?.Id))
+        if (_modules.Any(m => m.ModuleId == module.Id && m.BranchId == branch.Id))
         {
             throw new InvalidOperationException("The subscription already has this module.");
         }

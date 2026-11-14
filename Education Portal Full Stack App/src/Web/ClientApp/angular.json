@@ -29,7 +29,7 @@
                 "output": "/"
               },
               {
-                "glob": "messages.*.json",
+                "glob": "*/messages.json",
                 "input": "src/locale",
                 "output": "/i18n"
               }
@@ -93,7 +93,7 @@
           "options": {
             "buildTarget": "EducationPortal.Web:build",
             "format": "json",
-            "outputPath": "src/locale"
+            "outputPath": "src/locale/en"
           }
         },
         "test": {

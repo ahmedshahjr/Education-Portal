@@ -6,6 +6,9 @@ using EducationPortal.Application.Schools.Commands.CreateSchool;
 using EducationPortal.Application.Schools.Commands.SetDataRegion;
 using EducationPortal.Application.Schools.Commands.SetSchoolTaxRate;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolBranding;
+using EducationPortal.Application.Schools.Commands.DeleteSchool;
+using EducationPortal.Application.Schools.Queries.GetSchool;
+using EducationPortal.Application.Schools.Commands.UpdateSchool;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolCountry;
 using EducationPortal.Application.Schools.Queries.GetSchoolBranding;
 using EducationPortal.Application.Schools.Queries.GetSchoolBrandingImage;
@@ -55,6 +58,17 @@ public class Schools : IEndpointGroup
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
         groupBuilder.MapPut(UpdateSchoolCountry, "{schoolId:guid}/country")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapGet(GetSchool, "{schoolId:guid}")
+            .RequireAuthorization();
+
+        groupBuilder.MapPut(UpdateSchool, "{schoolId:guid}")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+                                        groupBuilder.MapDelete(DeleteSchool, "{schoolId:guid}")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
@@ -215,6 +229,32 @@ public class Schools : IEndpointGroup
     {
         // The route names the school; an id in the body is ignored.
         await sender.Send(command with { SchoolId = schoolId });
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Get a school")]
+    [EndpointDescription("Returns one school: its name, domain and country. Master tenant only.")]
+    public static async Task<Ok<SchoolSummaryDto>> GetSchool(ISender sender, Guid schoolId)
+    {
+        return TypedResults.Ok(await sender.Send(new GetSchoolQuery(schoolId)));
+    }
+
+    [EndpointSummary("Edit a school's name and domain")]
+    [EndpointDescription("Changes a school's name and the domain it is reached on. The domain must be unused by other schools; the master tenant's domain never changes. Master tenant only.")]
+    public static async Task<NoContent> UpdateSchool(ISender sender, Guid schoolId, UpdateSchoolCommand command)
+    {
+        // The route names the school; an id in the body is ignored.
+        await sender.Send(command with { SchoolId = schoolId });
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Delete a school")]
+    [EndpointDescription("Deletes a school (kept for audit, hidden everywhere: its host is refused and its subscription stops being run). The master tenant cannot be deleted. Master tenant only.")]
+    public static async Task<NoContent> DeleteSchool(ISender sender, Guid schoolId)
+    {
+        await sender.Send(new DeleteSchoolCommand(schoolId));
 
         return TypedResults.NoContent();
     }

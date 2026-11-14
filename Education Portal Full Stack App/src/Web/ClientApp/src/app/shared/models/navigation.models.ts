@@ -2,6 +2,7 @@ export type NavBadgeVariant = 'primary' | 'secondary' | 'success' | 'warning' | 
 
 export type AppIconName =
   | 'layout-grid'
+  | 'git-branch'
   | 'bar-chart-3'
   | 'monitor'
   | 'home'

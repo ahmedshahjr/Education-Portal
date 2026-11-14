@@ -15,6 +15,8 @@ public class School : BaseSoftDeletableEntity
     /// <summary>The accent colour a school starts with: the theme's default cyan.</summary>
     public static readonly HexColor DefaultAccentColor = HexColor.From("#00a1ff");
 
+    private readonly List<Branch> _branches = [];
+
     private School()
     {
         // For EF Core.
@@ -32,7 +34,16 @@ public class School : BaseSoftDeletableEntity
         Domain = NormalizeDomain(domain);
         IsMaster = isMaster;
         AccentColor = DefaultAccentColor;
+
+        // Every school has its registration branch from the start, saved with it in the same save.
+        _branches.Add(Branch.CreateMain());
     }
+
+    /// <summary>
+    /// The school's branches. It always holds exactly one main branch, created with the school; nothing removes it, and
+    /// the database allows only one per school.
+    /// </summary>
+    public IReadOnlyCollection<Branch> Branches => _branches;
 
     /// <summary>Creates the master tenant. Only seeding calls this; there is no use case for it.</summary>
     public static School CreateMaster(string name, string domain) => new(name, domain, isMaster: true);
@@ -100,6 +111,60 @@ public class School : BaseSoftDeletableEntity
 
         TaxRateOverride = taxRate;
     }
+
+    /// <summary>
+    /// Changes the school's name and the host name it is reached on. The master tenant's domain never changes: the platform
+    /// is reached on it. Domain uniqueness across schools is checked by the use case, which has the other schools.
+    /// </summary>
+    public void UpdateProfile(string name, string domain)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(name.Trim().Length, NameMaxLength, nameof(name));
+
+        var normalizedDomain = NormalizeDomain(domain);
+        if (IsMaster && normalizedDomain != Domain)
+        {
+            throw new InvalidOperationException("The master tenant's domain cannot be changed.");
+        }
+
+        Name = name.Trim();
+        Domain = normalizedDomain;
+    }
+
+    /// <summary>The longest prefix a school can show before its campus codes.</summary>
+    public const int CampusCodePrefixMaxLength = 6;
+
+    /// <summary>Whether campus codes are shown with <see cref="CampusCodePrefix"/> in front of them.</summary>
+    public bool CampusCodePrefixEnabled { get; private set; }
+
+    /// <summary>The prefix in upper case (letters and digits), kept even while it is switched off.</summary>
+    public string? CampusCodePrefix { get; private set; }
+
+    /// <summary>
+    /// Sets whether campus codes show a prefix, and the prefix. When the prefix is on it is required: 1 to 6 letters or digits.
+    /// When it is off the code is shown alone; a prefix given with it is kept.
+    /// </summary>
+    public void ConfigureCampusCodes(bool prefixEnabled, string? prefix)
+    {
+        var normalized = string.IsNullOrWhiteSpace(prefix) ? null : prefix.Trim().ToUpperInvariant();
+
+        if (normalized is not null && (normalized.Length > CampusCodePrefixMaxLength || !normalized.All(ch => ch is (>= 'A' and <= 'Z') or (>= '0' and <= '9'))))
+        {
+            throw new ArgumentException("A campus code prefix is up to 6 letters or digits.", nameof(prefix));
+        }
+
+        if (prefixEnabled && normalized is null)
+        {
+            throw new ArgumentException("A campus code prefix is needed when the prefix is on.", nameof(prefix));
+        }
+
+        CampusCodePrefixEnabled = prefixEnabled;
+        CampusCodePrefix = normalized;
+    }
+
+    /// <summary>What a campus code looks like for this school: the prefix and the code when the prefix is on, the code alone otherwise.</summary>
+    public string CampusDisplayCode(string code) =>
+        CampusCodePrefixEnabled && CampusCodePrefix is { } prefix ? prefix + code : code;
 
     public void UpdateBranding(HexColor accentColor, HexColor? sidebarColor)
     {

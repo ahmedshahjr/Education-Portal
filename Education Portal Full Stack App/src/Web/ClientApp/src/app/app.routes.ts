@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { administratorGuard, authGuard, masterAdministratorGuard, signedInGuard } from './core/auth/auth.guards';
+import { administratorGuard, authGuard, masterAdministratorGuard, moduleGuard, signedInGuard } from './core/auth/auth.guards';
+import { MODULE_CODES } from './core/modules/modules.service';
 
 export const routes: Routes = [
   {
@@ -35,6 +36,11 @@ export const routes: Routes = [
           import('./features/branding/branding-settings.page').then((m) => m.BrandingSettingsPage),
       },
       {
+        path: 'campuses',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.branch)],
+        loadComponent: () => import('./features/branches/branches.page').then((m) => m.BranchesPage),
+      },
+      {
         path: 'subscription',
         canActivate: [administratorGuard],
         loadComponent: () => import('./features/subscription/my-subscription.page').then((m) => m.MySubscriptionPage),
@@ -43,6 +49,16 @@ export const routes: Routes = [
         path: 'schools',
         canActivate: [masterAdministratorGuard],
         loadComponent: () => import('./features/schools/schools.page').then((m) => m.SchoolsPage),
+      },
+      {
+        path: 'schools/:schoolId',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () => import('./features/schools/school-edit.page').then((m) => m.SchoolEditPage),
+      },
+      {
+        path: 'schools/:schoolId/branding',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () => import('./features/schools/school-branding.page').then((m) => m.SchoolBrandingPage),
       },
       {
         path: 'add-on-requests',

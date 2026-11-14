@@ -18,3 +18,13 @@ node_modules/
 # OS files
 .DS_Store
 Thumbs.db
+# Ruflo local secrets and runtime data
+.env
+.env.local
+.env.*.local
+.claude-flow/data/
+.claude-flow/logs/
+.claude-flow/sessions/
+
+# Local launcher script for Claude Code (not part of the project)
+run-claude.bat

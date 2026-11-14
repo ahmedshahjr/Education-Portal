@@ -2,8 +2,11 @@ using EducationPortal.Application.Common.Interfaces;
 
 namespace EducationPortal.Application.Modules.Common;
 
-/// <summary>One module granted to a school by its subscription, for a period and, optionally, one branch.</summary>
-public sealed record ModuleGrant(string Code, int? BranchId, DateTimeOffset ValidFrom, DateTimeOffset? ValidTo);
+/// <summary>
+/// One module granted to a school by its subscription, for a period, on one branch. A grant on the school's main branch
+/// (<paramref name="IsSchoolWide"/>) covers the whole school.
+/// </summary>
+public sealed record ModuleGrant(string Code, int BranchId, bool IsSchoolWide, DateTimeOffset ValidFrom, DateTimeOffset? ValidTo);
 
 /// <summary>
 /// What one school may use: the active core modules and the grants of active paid modules. Time is checked when asked,
@@ -28,7 +31,10 @@ public sealed class ModuleEntitlements
     /// <summary>No module at all: what an unknown school has.</summary>
     public static ModuleEntitlements None { get; } = new([], [], []);
 
-    /// <summary>True when the module is on at <paramref name="now"/> for the school, or for the branch when one is given.</summary>
+    /// <summary>
+    /// True when the module is on at <paramref name="now"/> for the school, or for the branch when one is given. Without a
+    /// branch only a whole-school grant counts, so a module given to one branch only is not on (fail closed).
+    /// </summary>
     public bool Has(string moduleCode, int? branchId, DateTimeOffset now)
     {
         if (_coreCodes.Contains(moduleCode, StringComparer.Ordinal))
@@ -39,13 +45,13 @@ public sealed class ModuleEntitlements
         return _grants.Any(g =>
             g.Code == moduleCode
             && IsInPeriod(g, now)
-            && (g.BranchId is null || g.BranchId == branchId));
+            && (g.IsSchoolWide || g.BranchId == branchId));
     }
 
     /// <summary>The modules on at <paramref name="now"/> for the whole school, in catalogue order.</summary>
     public IReadOnlyList<string> EnabledCodes(DateTimeOffset now) =>
         _order.Where(code => _coreCodes.Contains(code, StringComparer.Ordinal)
-                             || _grants.Any(g => g.Code == code && g.BranchId is null && IsInPeriod(g, now)))
+                             || _grants.Any(g => g.Code == code && g.IsSchoolWide && IsInPeriod(g, now)))
             .ToList();
 
     private static bool IsInPeriod(ModuleGrant grant, DateTimeOffset now) =>
@@ -72,7 +78,7 @@ internal static class ModuleEntitlementLoader
                 from t in context.TenantModules.AsNoTracking()
                 join m in context.Modules on t.ModuleId equals m.Id
                 where t.SchoolId == schoolId && t.Status == TenantModuleStatus.Active && m.IsActive && !m.IsCore
-                select new ModuleGrant(m.Code, t.BranchId, t.ValidFrom, t.ValidTo))
+                select new ModuleGrant(m.Code, t.BranchId, t.IsSchoolWide, t.ValidFrom, t.ValidTo))
             .ToListAsync(cancellationToken);
 
         return new ModuleEntitlements(

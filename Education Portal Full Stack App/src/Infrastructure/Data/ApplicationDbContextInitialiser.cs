@@ -183,6 +183,16 @@ public class ApplicationDbContextInitialiser
         await SeedDemoSubscriptionAsync(uaeDemoSchool, uae);
         await SeedDemoSubscriptionAsync(usaDemoSchool, usa);
 
+        // The Pakistan and UAE demo schools have branches besides their main branch, so the branch screens have data.
+        await SeedDemoBranchesAsync(demoSchool, [("Karachi", "0002"), ("Lahore", "0003")]);
+        await SeedDemoBranchesAsync(uaeDemoSchool, [("Dubai", "0002"), ("Abu Dhabi", "0003")]);
+
+        // Each demo school has an open invoice for its first period and two school roles, so the billing and roles screens have data.
+        await SeedDemoInvoiceAsync(demoSchool);
+        await SeedDemoInvoiceAsync(uaeDemoSchool);
+        await SeedDemoRolesAsync(demoSchool);
+        await SeedDemoRolesAsync(uaeDemoSchool);
+
         // Default roles
         var administratorRole = new IdentityRole(Roles.Administrator);
 
@@ -240,6 +250,66 @@ public class ApplicationDbContextInitialiser
         }
     }
 
+    /// <summary>Issues an open invoice for a demo school's first period. Safe to run again: a subscription with an invoice is skipped.</summary>
+    private async Task SeedDemoInvoiceAsync(School school)
+    {
+        // The seed runs with no tenant, so the tenant filters would hide the rows: ignore them, scoped to this school.
+        var subscription = await _context.Subscriptions.IgnoreQueryFilters().SingleAsync(s => s.SchoolId == school.Id);
+        if (await _context.Invoices.IgnoreQueryFilters().AnyAsync(i => i.SubscriptionId == subscription.Id))
+        {
+            return;
+        }
+
+        var book = await _context.PriceBooks.SingleAsync(p => p.Id == subscription.PriceBookId);
+        _context.Invoices.Add(Invoice.Create(subscription, book.TaxRate, _timeProvider.GetUtcNow(), nextPeriod: false, "Full plan, first period (demo)"));
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>Adds two school roles with rights in the demo school's modules. Safe to run again: a role whose name exists is skipped.</summary>
+    private async Task SeedDemoRolesAsync(School school)
+    {
+        var modules = await _context.Modules.ToDictionaryAsync(m => m.Code);
+        var roles = new (string Name, (string Code, bool View, bool Create, bool Edit, bool Delete)[] Rights)[]
+        {
+            ("Registrar", [(ModuleCodes.Students, true, true, true, false), (ModuleCodes.AcademicSetup, true, false, false, false)]),
+            ("Accountant", [(ModuleCodes.Fees, true, true, true, false)]),
+        };
+
+        foreach (var (name, rights) in roles)
+        {
+            if (await _context.SchoolRoles.IgnoreQueryFilters().AnyAsync(r => r.SchoolId == school.Id && r.Name == name))
+            {
+                continue;
+            }
+
+            var role = SchoolRole.Create(school.Id, name);
+            _context.SchoolRoles.Add(role);
+            await _context.SaveChangesAsync();
+
+            foreach (var (code, view, create, edit, delete) in rights)
+            {
+                _context.RolePermissions.Add(RolePermission.Create(role, modules[code], view, create, edit, delete));
+            }
+
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    /// <summary>Adds the given branches to a demo school. Safe to run again: a branch whose code exists is skipped.</summary>
+    private async Task SeedDemoBranchesAsync(School school, (string Name, string Code)[] branches)
+    {
+        // The seed runs with no tenant, so the branch query filter would hide existing rows: ignore it, scoped to this school.
+        foreach (var (name, code) in branches)
+        {
+            if (!await _context.Branches.IgnoreQueryFilters().AnyAsync(b => b.SchoolId == school.Id && b.Code == code))
+            {
+                _context.Branches.Add(Branch.Create(school.Id, name, code));
+            }
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
     /// <summary>
     /// Gives a demo school a one-year subscription to the Full plan, priced from its country's price book. The database
     /// is recreated on every start in Development, so this runs once per school.
@@ -252,9 +322,12 @@ public class ApplicationDbContextInitialiser
         var planModuleIds = await _context.PlanModules.Where(m => m.PlanId == plan.Id).Select(m => m.ModuleId).ToListAsync();
 
         var subscription = Subscription.Create(school.Id, plan, book, BillingCycle.Yearly, price.Price, _timeProvider.GetUtcNow(), trialDays: 0);
+        // The seed runs with no tenant, so the branch query filter would hide the branch: ignore it, scoped to this school.
+        var mainBranch = await _context.Branches.IgnoreQueryFilters()
+            .SingleAsync(b => b.SchoolId == school.Id && b.Kind == BranchKind.Main);
         foreach (var module in await _context.Modules.Where(m => m.IsCore || planModuleIds.Contains(m.Id)).ToListAsync())
         {
-            subscription.AddModule(module);
+            subscription.AddModule(module, mainBranch);
         }
 
         _context.Subscriptions.Add(subscription);

@@ -57,9 +57,9 @@ const LOCALE_DATA: Readonly<Record<string, () => Promise<{ default: unknown }>>>
   ur: () => import('@angular/common/locales/ur'),
 };
 
-/** Where the translations of a language are served from (built from src/locale/messages.<code>.json). */
+/** Where the translations of a language are served from (built from src/locale/<code>/messages.json). */
 export function translationsUrl(language: string): string {
-  return `i18n/messages.${language}.json`;
+  return `i18n/${language}/messages.json`;
 }
 
 /**
