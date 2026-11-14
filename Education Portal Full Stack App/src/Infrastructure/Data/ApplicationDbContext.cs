@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Domain.Common;
 using EducationPortal.Domain.Entities;
@@ -50,6 +50,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<Branch> Branches => Set<Branch>();
 
+    public DbSet<CampusShift> CampusShifts => Set<CampusShift>();
+
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
     public DbSet<TenantModule> TenantModules => Set<TenantModule>();
@@ -89,6 +91,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
         builder.Entity<Branch>()
             .HasQueryFilter(b => IsMasterTenant || b.SchoolId == CurrentSchoolId);
+
+        builder.Entity<CampusShift>()
+            .HasQueryFilter(s => IsMasterTenant || s.SchoolId == CurrentSchoolId);
 
         builder.Entity<ChangeAuditEntry>()
             .HasQueryFilter(e => IsMasterTenant || e.SchoolId == CurrentSchoolId);

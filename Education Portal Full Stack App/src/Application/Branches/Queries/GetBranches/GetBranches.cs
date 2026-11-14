@@ -40,13 +40,55 @@ public class GetBranchesQueryHandler : IRequestHandler<GetBranchesQuery, IReadOn
             .Where(b => b.SchoolId == schoolId)
             .OrderBy(b => b.Kind)
             .ThenBy(b => b.Name)
-            .Select(b => new { b.PublicId, b.Name, b.Code, b.Kind })
+            .Select(b => new
+            {
+                b.PublicId,
+                b.Name,
+                b.Code,
+                b.Kind,
+                b.StateId,
+                b.CityId,
+                b.AddressLine,
+                b.Latitude,
+                b.Longitude,
+                b.GooglePlaceId,
+                b.GoogleMapsUrl,
+                Shifts = b.Shifts.OrderBy(s => s.StartTime).Select(s => new CampusShiftDto(s.Name, s.StartTime, s.EndTime)),
+            })
             .ToListAsync(cancellationToken);
+
+        // The campus keeps the province and city as internal ids; the API shows their public ids.
+        var stateIds = campuses.Where(c => c.StateId is not null).Select(c => c.StateId!.Value).Distinct().ToList();
+        var cityIds = campuses.Where(c => c.CityId is not null).Select(c => c.CityId!.Value).Distinct().ToList();
+
+        var statePublicIds = await _context.States
+            .AsNoTracking()
+            .Where(s => stateIds.Contains(s.Id))
+            .ToDictionaryAsync(s => s.Id, s => s.PublicId, cancellationToken);
+
+        var cityPublicIds = await _context.Cities
+            .AsNoTracking()
+            .Where(c => cityIds.Contains(c.Id))
+            .ToDictionaryAsync(c => c.Id, c => c.PublicId, cancellationToken);
 
         var prefix = school.CampusCodePrefixEnabled ? school.CampusCodePrefix ?? string.Empty : string.Empty;
 
         return campuses
-            .Select(c => new BranchDto(c.PublicId, c.Name, c.Code, prefix + c.Code, c.Kind))
+            .Select(c => new BranchDto(
+                c.PublicId,
+                c.Name,
+                c.Code,
+                prefix + c.Code,
+                c.Kind,
+                new CampusLocationDto(
+                    c.StateId is { } stateId ? statePublicIds[stateId] : null,
+                    c.CityId is { } cityId ? cityPublicIds[cityId] : null,
+                    c.AddressLine,
+                    c.Latitude,
+                    c.Longitude,
+                    c.GooglePlaceId,
+                    c.GoogleMapsUrl),
+                c.Shifts.ToList()))
             .ToList();
     }
 }

@@ -88,4 +88,131 @@ public class Branch : BaseSoftDeletableEntity
 
         Name = name.Trim();
     }
+
+    public const int AddressMaxLength = 300;
+    public const int GooglePlaceIdMaxLength = 256;
+    public const int GoogleMapsUrlMaxLength = 500;
+
+    /// <summary>A campus has at most this many shifts (Morning and Evening are the usual two).</summary>
+    public const int MaxShiftsPerCampus = 4;
+
+    private readonly List<CampusShift> _shifts = [];
+
+    /// <summary>The campus's active shifts. A replaced shift is soft-deleted and is not listed.</summary>
+    public IReadOnlyCollection<CampusShift> Shifts => _shifts.AsReadOnly();
+
+    /// <summary>The province (state) the campus is in, from the location data. Null when not set.</summary>
+    public int? StateId { get; private set; }
+
+    /// <summary>The city the campus is in, from the location data. Null when not set. Always in <see cref="StateId"/>.</summary>
+    public int? CityId { get; private set; }
+
+    public string? AddressLine { get; private set; }
+
+    /// <summary>Latitude in decimal degrees, from -90 to 90. Set together with <see cref="Longitude"/>.</summary>
+    public decimal? Latitude { get; private set; }
+
+    /// <summary>Longitude in decimal degrees, from -180 to 180. Set together with <see cref="Latitude"/>.</summary>
+    public decimal? Longitude { get; private set; }
+
+    /// <summary>The Google place id of the pinned location, when the pin came from a Google place.</summary>
+    public string? GooglePlaceId { get; private set; }
+
+    /// <summary>A https link to the pinned location on Google Maps.</summary>
+    public string? GoogleMapsUrl { get; private set; }
+
+    /// <summary>
+    /// Sets where the campus is. Every part is optional, but a city needs its province, the latitude and longitude come
+    /// together, and the Google Maps link must be an https address. Empty text is stored as null.
+    /// </summary>
+    public void SetLocation(
+        int? stateId,
+        int? cityId,
+        string? addressLine,
+        decimal? latitude,
+        decimal? longitude,
+        string? googlePlaceId,
+        string? googleMapsUrl)
+    {
+        if (cityId is not null && stateId is null)
+        {
+            throw new ArgumentException("A city needs its province.", nameof(cityId));
+        }
+
+        if ((latitude is null) != (longitude is null))
+        {
+            throw new ArgumentException("Latitude and longitude are given together.", nameof(latitude));
+        }
+
+        if (latitude is not null && longitude is not null)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(latitude.Value, -90m, nameof(latitude));
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(latitude.Value, 90m, nameof(latitude));
+            ArgumentOutOfRangeException.ThrowIfLessThan(longitude.Value, -180m, nameof(longitude));
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(longitude.Value, 180m, nameof(longitude));
+        }
+
+        var mapsUrl = Trimmed(googleMapsUrl, GoogleMapsUrlMaxLength, nameof(googleMapsUrl));
+        if (mapsUrl is not null && !(Uri.TryCreate(mapsUrl, UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps))
+        {
+            throw new ArgumentException("A Google Maps link is an https address.", nameof(googleMapsUrl));
+        }
+
+        StateId = stateId;
+        CityId = cityId;
+        AddressLine = Trimmed(addressLine, AddressMaxLength, nameof(addressLine));
+        Latitude = latitude;
+        Longitude = longitude;
+        GooglePlaceId = Trimmed(googlePlaceId, GooglePlaceIdMaxLength, nameof(googlePlaceId));
+        GoogleMapsUrl = mapsUrl;
+    }
+
+    /// <summary>
+    /// Replaces the campus's shifts with these, at most <see cref="MaxShiftsPerCampus"/>, with distinct names. The shifts it
+    /// had are soft-deleted at <paramref name="at"/> by <paramref name="by"/>, so the old rows stay for audit. The campus must
+    /// already be saved.
+    /// </summary>
+    public void ReplaceShifts(IReadOnlyList<(string Name, TimeOnly StartTime, TimeOnly EndTime)> shifts, DateTimeOffset at, string? by)
+    {
+        ArgumentNullException.ThrowIfNull(shifts);
+
+        if (Id <= 0)
+        {
+            throw new InvalidOperationException("A campus is saved before it has shifts.");
+        }
+
+        if (shifts.Count > MaxShiftsPerCampus)
+        {
+            throw new ArgumentException($"A campus has at most {MaxShiftsPerCampus} shifts.", nameof(shifts));
+        }
+
+        var names = shifts.Select(s => s.Name.Trim()).ToList();
+        if (names.Distinct(StringComparer.OrdinalIgnoreCase).Count() != names.Count)
+        {
+            throw new ArgumentException("Shift names are unique within a campus.", nameof(shifts));
+        }
+
+        // Create checks each shift (name, length, end after start) before anything changes.
+        var created = shifts.Select(s => CampusShift.Create(SchoolId, Id, s.Name, s.StartTime, s.EndTime)).ToList();
+
+        foreach (var current in _shifts)
+        {
+            current.Delete(at, by);
+        }
+
+        _shifts.AddRange(created);
+    }
+
+    private static string? Trimmed(string? value, int maxLength, string paramName)
+    {
+        var trimmed = value?.Trim();
+        if (string.IsNullOrEmpty(trimmed))
+        {
+            return null;
+        }
+
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(trimmed.Length, maxLength, paramName);
+
+        return trimmed;
+    }
 }

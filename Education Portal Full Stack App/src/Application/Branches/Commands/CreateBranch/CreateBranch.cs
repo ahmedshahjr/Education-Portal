@@ -55,7 +55,7 @@ public class CreateBranchCommandHandler : IRequestHandler<CreateBranchCommand, G
             .ToHashSet(StringComparer.Ordinal);
 
         var code = CampusCodes.NextFree(used, Random.Shared)
-            ?? throw new EducationPortal.Application.Common.Exceptions.ValidationException([new ValidationFailure(nameof(request.Name), ValidationMessages.CampusCodesExhausted)]);
+            ?? throw new Application.Common.Exceptions.ValidationException([new ValidationFailure(nameof(request.Name),ValidationMessages.CampusCodesExhausted)]);
 
         var branch = Branch.Create(schoolId, request.Name, code);
         _context.Branches.Add(branch);

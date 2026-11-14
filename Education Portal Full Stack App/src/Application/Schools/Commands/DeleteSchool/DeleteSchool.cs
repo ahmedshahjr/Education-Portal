@@ -38,7 +38,7 @@ public class DeleteSchoolCommandHandler : IRequestHandler<DeleteSchoolCommand>
 
         if (school.IsMaster)
         {
-            throw new EducationPortal.Application.Common.Exceptions.ValidationException([new ValidationFailure(nameof(request.SchoolId), ValidationMessages.SchoolMasterNotDeletable)]);
+            throw new Common.Exceptions.ValidationException([new ValidationFailure(nameof(request.SchoolId), ValidationMessages.SchoolMasterNotDeletable)]);
         }
 
         school.Delete(_timeProvider.GetUtcNow(), _user.Id);

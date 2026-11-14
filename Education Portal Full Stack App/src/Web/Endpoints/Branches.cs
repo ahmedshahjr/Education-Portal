@@ -1,7 +1,9 @@
-using EducationPortal.Application.Branches.Commands.CreateBranch;
+﻿using EducationPortal.Application.Branches.Commands.CreateBranch;
 using EducationPortal.Application.Branches.Commands.DeleteBranch;
 using EducationPortal.Application.Branches.Commands.UpdateBranch;
+using EducationPortal.Application.Branches.Commands.UpdateCampusLocation;
 using EducationPortal.Application.Branches.Commands.UpdateCampusSettings;
+using EducationPortal.Application.Branches.Commands.UpdateCampusShifts;
 using EducationPortal.Application.Branches.Common;
 using EducationPortal.Application.Branches.Queries.GetBranches;
 using EducationPortal.Application.Branches.Queries.GetCampusSettings;
@@ -39,6 +41,14 @@ public class Branches : IEndpointGroup
             .RequireAuthorization();
 
         groupBuilder.MapPut(UpdateCampusSettings, "settings")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapPut(UpdateCampusLocation, "{id:guid}/location")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapPut(UpdateCampusShifts, "{id:guid}/shifts")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
     }
@@ -88,6 +98,26 @@ public class Branches : IEndpointGroup
     public static async Task<NoContent> UpdateCampusSettings(ISender sender, UpdateCampusSettingsCommand command)
     {
         await sender.Send(command);
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Set a campus's location")]
+    [EndpointDescription("Sets a campus's province and city (from the location data), its address and its pin on the map (latitude, longitude, Google place id and Google Maps link). Every part is optional. Needs the Branches module.")]
+    public static async Task<NoContent> UpdateCampusLocation(ISender sender, Guid id, UpdateCampusLocationCommand command)
+    {
+        // The route names the campus; an id in the body is ignored.
+        await sender.Send(command with { BranchId = id });
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Set a campus's shifts")]
+    [EndpointDescription("Replaces a campus's shifts (at most four, such as Morning and Evening), each with a start and end time. Needs the Branches module.")]
+    public static async Task<NoContent> UpdateCampusShifts(ISender sender, Guid id, UpdateCampusShiftsCommand command)
+    {
+        // The route names the campus; an id in the body is ignored.
+        await sender.Send(command with { BranchId = id });
 
         return TypedResults.NoContent();
     }

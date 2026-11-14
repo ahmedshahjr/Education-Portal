@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Resources;
 using EducationPortal.Application.Common.Exceptions;
+using EducationPortal.Application.Common.Localization;
 using EducationPortal.Application.Subscriptions.Common;
 using EducationPortal.Domain.Common;
 using EducationPortal.Domain.Entities;

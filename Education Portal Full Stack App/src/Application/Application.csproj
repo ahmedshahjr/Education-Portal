@@ -19,25 +19,61 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Common\Localization\NotificationMessages\NotificationMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>NotificationMessages.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Common\Localization\PropertyMessages\PropertyNames.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PropertyNames.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Common\Localization\ValidationMessages\ValidationMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ValidationMessages.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Server text in every portal language (ADR-005). The classes are generated at build time from the neutral
          (English) files; Arabic and Urdu sit next to them as satellite resources. -->
-    <EmbeddedResource Update="Common\Localization\ValidationMessages.resx">
-      <StronglyTypedFileName>$(IntermediateOutputPath)ValidationMessages.Designer.cs</StronglyTypedFileName>
-      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
-      <StronglyTypedNamespace>EducationPortal.Application.Common.Localization</StronglyTypedNamespace>
-      <StronglyTypedClassName>ValidationMessages</StronglyTypedClassName>
+    <EmbeddedResource Update="Common\Localization\NotificationMessages\NotificationMessages.ar.resx">
+      <LogicalName>EducationPortal.Application.Common.Localization.NotificationMessages.ar.resources</LogicalName>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Update="Common\Localization\NotificationMessages.resx">
-      <StronglyTypedFileName>$(IntermediateOutputPath)NotificationMessages.Designer.cs</StronglyTypedFileName>
-      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
-      <StronglyTypedNamespace>EducationPortal.Application.Common.Localization</StronglyTypedNamespace>
-      <StronglyTypedClassName>NotificationMessages</StronglyTypedClassName>
+    <EmbeddedResource Update="Common\Localization\NotificationMessages\NotificationMessages.ur.resx">
+      <LogicalName>EducationPortal.Application.Common.Localization.NotificationMessages.ur.resources</LogicalName>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Update="Common\Localization\PropertyNames.resx">
-      <StronglyTypedFileName>$(IntermediateOutputPath)PropertyNames.Designer.cs</StronglyTypedFileName>
-      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
-      <StronglyTypedNamespace>EducationPortal.Application.Common.Localization</StronglyTypedNamespace>
-      <StronglyTypedClassName>PropertyNames</StronglyTypedClassName>
+    <EmbeddedResource Update="Common\Localization\PropertyMessages\PropertyNames.ar.resx">
+      <LogicalName>EducationPortal.Application.Common.Localization.PropertyNames.ar.resources</LogicalName>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Common\Localization\PropertyMessages\PropertyNames.ur.resx">
+      <LogicalName>EducationPortal.Application.Common.Localization.PropertyNames.ur.resources</LogicalName>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Common\Localization\ValidationMessages\ValidationMessages.ar.resx">
+      <LogicalName>EducationPortal.Application.Common.Localization.ValidationMessages.ar.resources</LogicalName>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Common\Localization\ValidationMessages\ValidationMessages.resx">
+      <LogicalName>EducationPortal.Application.Common.Localization.ValidationMessages.resources</LogicalName>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Common\Localization\NotificationMessages\NotificationMessages.resx">
+      <LogicalName>EducationPortal.Application.Common.Localization.NotificationMessages.resources</LogicalName>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Common\Localization\PropertyMessages\PropertyNames.resx">
+      <LogicalName>EducationPortal.Application.Common.Localization.PropertyNames.resources</LogicalName>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Common\Localization\ValidationMessages\ValidationMessages.ur.resx">
+      <LogicalName>EducationPortal.Application.Common.Localization.ValidationMessages.ur.resources</LogicalName>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 
