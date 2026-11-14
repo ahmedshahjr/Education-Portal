@@ -42,7 +42,7 @@ internal static class SubscriptionChanges
         }
 
         var heldIds = subscription.Modules
-            .Where(m => m.BranchId is null && m.Status != TenantModuleStatus.Expired)
+            .Where(m => m.IsSchoolWide && m.Status != TenantModuleStatus.Expired)
             .Select(m => m.ModuleId)
             .Where(id => !planModuleIds.Contains(id))
             .ToList();
@@ -78,7 +78,8 @@ internal static class SubscriptionChanges
                 [new ValidationFailure(nameof(planCode), ValidationMessages.SubscriptionCurrencyMismatch)]);
         }
 
-        subscription.Reconfigure(quote.Plan, quote.PriceBook, quote.Amount, quote.Modules, timeProvider.GetUtcNow());
+        var mainBranch = await SchoolBranches.MainAsync(context, subscription.SchoolId, cancellationToken);
+        subscription.Reconfigure(quote.Plan, quote.PriceBook, quote.Amount, quote.Modules, timeProvider.GetUtcNow(), mainBranch);
 
         return quote.Modules.Select(m => m.Code).ToList();
     }

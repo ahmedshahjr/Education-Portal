@@ -252,9 +252,12 @@ public class ApplicationDbContextInitialiser
         var planModuleIds = await _context.PlanModules.Where(m => m.PlanId == plan.Id).Select(m => m.ModuleId).ToListAsync();
 
         var subscription = Subscription.Create(school.Id, plan, book, BillingCycle.Yearly, price.Price, _timeProvider.GetUtcNow(), trialDays: 0);
+        // The seed runs with no tenant, so the branch query filter would hide the branch: ignore it, scoped to this school.
+        var mainBranch = await _context.Branches.IgnoreQueryFilters()
+            .SingleAsync(b => b.SchoolId == school.Id && b.Kind == BranchKind.Main);
         foreach (var module in await _context.Modules.Where(m => m.IsCore || planModuleIds.Contains(m.Id)).ToListAsync())
         {
-            subscription.AddModule(module);
+            subscription.AddModule(module, mainBranch);
         }
 
         _context.Subscriptions.Add(subscription);

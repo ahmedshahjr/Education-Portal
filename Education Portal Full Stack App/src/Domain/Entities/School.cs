@@ -15,6 +15,8 @@ public class School : BaseSoftDeletableEntity
     /// <summary>The accent colour a school starts with: the theme's default cyan.</summary>
     public static readonly HexColor DefaultAccentColor = HexColor.From("#00a1ff");
 
+    private readonly List<Branch> _branches = [];
+
     private School()
     {
         // For EF Core.
@@ -32,7 +34,16 @@ public class School : BaseSoftDeletableEntity
         Domain = NormalizeDomain(domain);
         IsMaster = isMaster;
         AccentColor = DefaultAccentColor;
+
+        // Every school has its registration branch from the start, saved with it in the same save.
+        _branches.Add(Branch.CreateMain());
     }
+
+    /// <summary>
+    /// The school's branches. It always holds exactly one main branch, created with the school; nothing removes it, and
+    /// the database allows only one per school.
+    /// </summary>
+    public IReadOnlyCollection<Branch> Branches => _branches;
 
     /// <summary>Creates the master tenant. Only seeding calls this; there is no use case for it.</summary>
     public static School CreateMaster(string name, string domain) => new(name, domain, isMaster: true);
@@ -99,6 +110,25 @@ public class School : BaseSoftDeletableEntity
         }
 
         TaxRateOverride = taxRate;
+    }
+
+    /// <summary>
+    /// Changes the school's name and the host name it is reached on. The master tenant's domain never changes: the platform
+    /// is reached on it. Domain uniqueness across schools is checked by the use case, which has the other schools.
+    /// </summary>
+    public void UpdateProfile(string name, string domain)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(name.Trim().Length, NameMaxLength, nameof(name));
+
+        var normalizedDomain = NormalizeDomain(domain);
+        if (IsMaster && normalizedDomain != Domain)
+        {
+            throw new InvalidOperationException("The master tenant's domain cannot be changed.");
+        }
+
+        Name = name.Trim();
+        Domain = normalizedDomain;
     }
 
     public void UpdateBranding(HexColor accentColor, HexColor? sidebarColor)

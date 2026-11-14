@@ -94,9 +94,10 @@ public class CreateSubscriptionCommandHandler : IRequestHandler<CreateSubscripti
 
         var subscription = Subscription.Create(
             school.Id, quote.Plan, quote.PriceBook, request.BillingCycle, quote.Amount, _timeProvider.GetUtcNow(), request.TrialDays);
+        var mainBranch = await SchoolBranches.MainAsync(_context, school.Id, cancellationToken);
         foreach (var module in quote.Modules)
         {
-            subscription.AddModule(module);
+            subscription.AddModule(module, mainBranch);
         }
 
         // One save: the subscription and its modules are written in one transaction.

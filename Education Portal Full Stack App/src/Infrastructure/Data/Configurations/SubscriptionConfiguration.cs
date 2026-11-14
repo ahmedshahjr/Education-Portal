@@ -8,9 +8,18 @@ public class BranchConfiguration : IEntityTypeConfiguration<Branch>
 {
     public void Configure(EntityTypeBuilder<Branch> builder)
     {
-        builder.HasOne<School>().WithMany().HasForeignKey(b => b.SchoolId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne<School>().WithMany(s => s.Branches).HasForeignKey(b => b.SchoolId).OnDelete(DeleteBehavior.Cascade);
         builder.Property(b => b.Name).IsRequired().HasMaxLength(Branch.NameMaxLength);
-        builder.HasIndex(b => b.SchoolId);
+        builder.Property(b => b.Code).IsRequired().HasMaxLength(Branch.CodeMaxLength);
+
+        // Codes are unique within a school. This index also serves the SchoolId foreign key (ENG-EF-09).
+        builder.HasIndex(b => new { b.SchoolId, b.Code }).IsUnique();
+
+        // Every school has exactly one main branch, its registration branch (the Kind value 1 is BranchKind.Main).
+        builder.HasIndex(b => b.SchoolId)
+            .IsUnique()
+            .HasFilter("\"Kind\" = 1")
+            .HasDatabaseName("IX_Branches_SingleMainPerSchool");
     }
 }
 
@@ -47,8 +56,8 @@ public class TenantModuleConfiguration : IEntityTypeConfiguration<TenantModule>
         builder.HasOne<PortalModule>().WithMany().HasForeignKey(m => m.ModuleId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Branch>().WithMany().HasForeignKey(m => m.BranchId).OnDelete(DeleteBehavior.Restrict);
 
-        // A subscription gives a module to the whole school once, or to a branch once.
-        builder.HasIndex(m => new { m.SubscriptionId, m.ModuleId, m.BranchId }).IsUnique().AreNullsDistinct(false);
+        // A subscription gives a module to each branch once. The main branch's grant is the whole school's.
+        builder.HasIndex(m => new { m.SubscriptionId, m.ModuleId, m.BranchId }).IsUnique();
         builder.HasIndex(m => new { m.SchoolId, m.ModuleId });
         builder.HasIndex(m => m.BranchId);
     }

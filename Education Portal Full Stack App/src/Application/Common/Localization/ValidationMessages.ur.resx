@@ -64,6 +64,7 @@
   <data name="TaxRateRange" xml:space="preserve"><value>ٹیکس کی شرح 0 سے 100 فیصد کے درمیان ہو اور زیادہ سے زیادہ دو اعشاریہ ہوں۔</value></data>
   <data name="SchoolDomainFormat" xml:space="preserve"><value>ڈومین school1.com جیسا ہوسٹ نام ہونا چاہیے، http://، پورٹ یا پاتھ کے بغیر۔</value></data>
   <data name="SchoolDomainTaken" xml:space="preserve"><value>یہ ڈومین پہلے ہی کوئی دوسرا اسکول استعمال کر رہا ہے۔</value></data>
+  <data name="SchoolMasterDomainLocked" xml:space="preserve"><value>ماسٹر ٹیننٹ کا ڈومین تبدیل نہیں ہو سکتا۔</value></data>
   <data name="EmailTaken" xml:space="preserve"><value>یہ ای میل پہلے ہی کوئی دوسرا اکاؤنٹ استعمال کر رہا ہے۔</value></data>
   <data name="NewPasswordSameAsCurrent" xml:space="preserve"><value>نیا پاس ورڈ موجودہ پاس ورڈ سے مختلف ہونا چاہیے۔</value></data>
   <data name="SubscriptionCannotBeSuspended" xml:space="preserve"><value>سبسکرپشن پہلے ہی معطل ہے۔</value></data>

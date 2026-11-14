@@ -26,8 +26,7 @@ import {
 import { BrandingChanges, toFileParameter } from '../branding/branding-changes';
 import { BrandingEditorComponent } from '../branding/branding-editor.component';
 import { NewSchool, SchoolFormComponent } from './school-form.component';
-import { SchoolModulesComponent } from './school-modules.component';
-import { SchoolSubscriptionComponent } from './school-subscription.component';
+import { SchoolEditComponent } from './school-edit.component';
 
 const PAGE_SIZE = 25;
 
@@ -49,8 +48,7 @@ export const SEARCH_DELAY_MS = 300;
     EmptyStateComponent,
     SearchInputComponent,
     BrandingEditorComponent,
-    SchoolModulesComponent,
-    SchoolSubscriptionComponent,
+    SchoolEditComponent,
     SchoolFormComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -177,7 +175,7 @@ export const SEARCH_DELAY_MS = 300;
                 <td mat-cell *matCellDef="let school">
                   <div class="mm-schools__actions">
                     @if (!school.isMaster) {
-                      <button mat-stroked-button type="button" (click)="showModules(school)" i18n="@@schools.modules">Modules</button>
+                      <button mat-stroked-button type="button" (click)="showModules(school)" i18n="@@schools.edit">Edit plan &amp; modules</button>
                     }
                     <button mat-stroked-button type="button" (click)="edit(school)" i18n="@@schools.editBranding">Edit branding</button>
                   </div>
@@ -203,14 +201,9 @@ export const SEARCH_DELAY_MS = 300;
     </mat-card>
 
     @if (modulesOf(); as school) {
-      <h2 class="mm-schools__heading" i18n="@@schools.subscriptionOf">Subscription of {{ school.name }}</h2>
+      <h2 class="mm-schools__heading" i18n="@@schools.editOf">Edit {{ school.name }}</h2>
       <div class="mm-schools__section">
-        <app-school-subscription [school]="school" />
-      </div>
-
-      <h2 class="mm-schools__heading" i18n="@@schools.modulesOf">Modules of {{ school.name }}</h2>
-      <div class="mm-schools__section">
-        <app-school-modules [school]="school" />
+        <app-school-edit [school]="school" (saved)="onSaved($event)" />
       </div>
     }
 
@@ -413,6 +406,15 @@ export class SchoolsPage {
 
   protected changePage(event: PageEvent): void {
     this.loadPage(event.pageIndex);
+  }
+
+  /** A saved profile: the open edit view and branding editor show the new name, and the list is reloaded. */
+  protected onSaved(school: SchoolSummaryDto): void {
+    this.modulesOf.set(school);
+    if (this.selected()?.id === school.id) {
+      this.selected.set(school);
+    }
+    this.loadPage(this.pageIndex());
   }
 
   protected showModules(school: SchoolSummaryDto): void {

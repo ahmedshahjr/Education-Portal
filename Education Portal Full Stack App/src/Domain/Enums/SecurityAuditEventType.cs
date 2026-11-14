@@ -113,4 +113,7 @@ public enum SecurityAuditEventType
 
     /// <summary>The daily lifecycle job found an invoice unpaid after its due date.</summary>
     InvoiceMarkedOverdue = 39,
+
+    /// <summary>The master tenant changed a school's name or domain.</summary>
+    SchoolProfileChanged = 40,
 }

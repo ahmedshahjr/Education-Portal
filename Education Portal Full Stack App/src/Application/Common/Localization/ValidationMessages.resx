@@ -64,6 +64,7 @@
   <data name="TaxRateRange" xml:space="preserve"><value>The tax rate is a percentage from 0 to 100 with at most two decimals.</value></data>
   <data name="SchoolDomainFormat" xml:space="preserve"><value>The domain must be a host name such as school1.com, without http://, a port or a path.</value></data>
   <data name="SchoolDomainTaken" xml:space="preserve"><value>Another school already uses this domain.</value></data>
+  <data name="SchoolMasterDomainLocked" xml:space="preserve"><value>The master tenant's domain cannot be changed.</value></data>
   <data name="EmailTaken" xml:space="preserve"><value>Another account already uses this email.</value></data>
   <data name="NewPasswordSameAsCurrent" xml:space="preserve"><value>The new password must be different from the current one.</value></data>
   <data name="SubscriptionCannotBeSuspended" xml:space="preserve"><value>The subscription is already suspended.</value></data>

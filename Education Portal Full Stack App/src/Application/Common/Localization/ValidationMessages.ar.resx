@@ -64,6 +64,7 @@
   <data name="TaxRateRange" xml:space="preserve"><value>نسبة الضريبة مئوية من 0 إلى 100 بحد أقصى منزلتين عشريتين.</value></data>
   <data name="SchoolDomainFormat" xml:space="preserve"><value>يجب أن يكون النطاق اسم مضيف مثل school1.com، بدون http:// أو منفذ أو مسار.</value></data>
   <data name="SchoolDomainTaken" xml:space="preserve"><value>تستخدم مدرسة أخرى هذا النطاق بالفعل.</value></data>
+  <data name="SchoolMasterDomainLocked" xml:space="preserve"><value>لا يمكن تغيير نطاق المستأجر الرئيسي.</value></data>
   <data name="EmailTaken" xml:space="preserve"><value>يستخدم حساب آخر هذا البريد الإلكتروني بالفعل.</value></data>
   <data name="NewPasswordSameAsCurrent" xml:space="preserve"><value>يجب أن تختلف كلمة المرور الجديدة عن الحالية.</value></data>
   <data name="SubscriptionCannotBeSuspended" xml:space="preserve"><value>الاشتراك معلّق بالفعل.</value></data>

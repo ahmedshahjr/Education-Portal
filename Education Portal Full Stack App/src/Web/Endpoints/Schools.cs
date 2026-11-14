@@ -6,6 +6,7 @@ using EducationPortal.Application.Schools.Commands.CreateSchool;
 using EducationPortal.Application.Schools.Commands.SetDataRegion;
 using EducationPortal.Application.Schools.Commands.SetSchoolTaxRate;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolBranding;
+using EducationPortal.Application.Schools.Commands.UpdateSchool;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolCountry;
 using EducationPortal.Application.Schools.Queries.GetSchoolBranding;
 using EducationPortal.Application.Schools.Queries.GetSchoolBrandingImage;
@@ -55,6 +56,10 @@ public class Schools : IEndpointGroup
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
         groupBuilder.MapPut(UpdateSchoolCountry, "{schoolId:guid}/country")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapPut(UpdateSchool, "{schoolId:guid}")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
@@ -212,6 +217,16 @@ public class Schools : IEndpointGroup
     [EndpointSummary("Change a school's country")]
     [EndpointDescription("Assigns a school to a country, which sets its languages, time zone and currency, or to none (English only, UTC). Master tenant only.")]
     public static async Task<NoContent> UpdateSchoolCountry(ISender sender, Guid schoolId, UpdateSchoolCountryCommand command)
+    {
+        // The route names the school; an id in the body is ignored.
+        await sender.Send(command with { SchoolId = schoolId });
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Edit a school's name and domain")]
+    [EndpointDescription("Changes a school's name and the domain it is reached on. The domain must be unused by other schools; the master tenant's domain never changes. Master tenant only.")]
+    public static async Task<NoContent> UpdateSchool(ISender sender, Guid schoolId, UpdateSchoolCommand command)
     {
         // The route names the school; an id in the body is ignored.
         await sender.Send(command with { SchoolId = schoolId });

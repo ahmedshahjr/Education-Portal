@@ -1,0 +1,23 @@
+<mat-tab-group animationDuration="0ms" [attr.aria-label]="'School ' + school().name" i18n-aria-label="@@schoolEdit.tabsLabel">
+  <mat-tab>
+    <ng-template mat-tab-label><span i18n="@@schoolEdit.profileTab">Profile</span></ng-template>
+    <div class="mm-school-edit__section">
+      <app-school-profile [school]="school()" (saved)="saved.emit($event)" />
+    </div>
+  </mat-tab>
+  <mat-tab>
+    <ng-template mat-tab-label><span i18n="@@schoolEdit.planTab">Plan &amp; modules</span></ng-template>
+    <div class="mm-school-edit__section">
+      <app-school-subscription [school]="school()" />
+    </div>
+    <div class="mm-school-edit__section">
+      <app-school-modules [school]="school()" />
+    </div>
+  </mat-tab>
+  <mat-tab>
+    <ng-template mat-tab-label><span i18n="@@schoolEdit.invoicesTab">Invoices</span></ng-template>
+    <div class="mm-school-edit__section">
+      <app-school-invoices [school]="school()" />
+    </div>
+  </mat-tab>
+</mat-tab-group>

@@ -21,4 +21,5 @@ public sealed record InvoiceDto(
     DateTimeOffset PeriodEnd,
     DateTimeOffset? PaidDate,
     IReadOnlyList<InvoiceLineDto> Lines,
-    IReadOnlyList<PaymentDto> Payments);
+    IReadOnlyList<PaymentDto> Payments,
+    DateTimeOffset? OverdueSince);
