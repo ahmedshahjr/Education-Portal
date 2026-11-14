@@ -21,6 +21,38 @@ public class BranchConfiguration : IEntityTypeConfiguration<Branch>
             .IsUnique()
             .HasFilter("\"Kind\" = 1")
             .HasDatabaseName("IX_Branches_SingleMainPerSchool");
+
+        // Where the campus is: the province and city come from the location data, and a deleted row is never a reference.
+        builder.HasOne<State>().WithMany().HasForeignKey(b => b.StateId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<City>().WithMany().HasForeignKey(b => b.CityId).OnDelete(DeleteBehavior.Restrict);
+        builder.Property(b => b.AddressLine).HasMaxLength(Branch.AddressMaxLength);
+        builder.Property(b => b.GooglePlaceId).HasMaxLength(Branch.GooglePlaceIdMaxLength);
+        builder.Property(b => b.GoogleMapsUrl).HasMaxLength(Branch.GoogleMapsUrlMaxLength);
+
+        // Coordinates in decimal degrees: 9 digits in total, 6 after the point (about 0.1 m).
+        builder.Property(b => b.Latitude).HasPrecision(9, 6);
+        builder.Property(b => b.Longitude).HasPrecision(9, 6);
+        builder.ToTable(t => t.HasCheckConstraint("CK_Branches_LatitudeAndLongitudeTogether", "(\"Latitude\" IS NULL) = (\"Longitude\" IS NULL)"));
+
+        // The shifts are kept in a field: the handlers change them through Branch.ReplaceShifts only.
+        builder.HasMany(b => b.Shifts).WithOne().HasForeignKey(s => s.BranchId).OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(b => b.Shifts).UsePropertyAccessMode(PropertyAccessMode.Field);
+    }
+}
+
+public class CampusShiftConfiguration : IEntityTypeConfiguration<CampusShift>
+{
+    public void Configure(EntityTypeBuilder<CampusShift> builder)
+    {
+        builder.HasOne<School>().WithMany().HasForeignKey(s => s.SchoolId).OnDelete(DeleteBehavior.Restrict);
+
+        builder.Property(s => s.Name).IsRequired().HasMaxLength(CampusShift.NameMaxLength);
+
+        // A campus has at most one active shift with a given name. Replaced shifts keep their rows and free their name.
+        builder.HasIndex(s => new { s.BranchId, s.Name }).IsUnique().HasFilter("\"IsDeleted\" = false");
+        builder.HasIndex(s => s.SchoolId);
+
+        builder.ToTable(t => t.HasCheckConstraint("CK_CampusShifts_EndAfterStart", "\"EndTime\" > \"StartTime\""));
     }
 }
 

@@ -354,4 +354,34 @@
   <data name="AddOnRequestNotPending" xml:space="preserve">
     <value>لا يمكن الموافقة أو الرفض إلا على الطلب المعلّق.</value>
   </data>
+  <data name="CampusCityNeedsState" xml:space="preserve">
+    <value>اختر المحافظة أو الإقليم قبل المدينة.</value>
+  </data>
+  <data name="CampusCoordinatesTogether" xml:space="preserve">
+    <value>أدخل خط العرض وخط الطول معاً.</value>
+  </data>
+  <data name="CampusCityNotInState" xml:space="preserve">
+    <value>المدينة ليست ضمن المحافظة أو الإقليم المختار.</value>
+  </data>
+  <data name="CampusGoogleMapsUrlFormat" xml:space="preserve">
+    <value>يجب أن يكون رابط خرائط Google عنوان https.</value>
+  </data>
+  <data name="CampusAddressTooLong" xml:space="preserve">
+    <value>العنوان 300 حرف كحد أقصى.</value>
+  </data>
+  <data name="CampusShiftLimit" xml:space="preserve">
+    <value>للفرع أربع فترات دراسية كحد أقصى.</value>
+  </data>
+  <data name="CampusShiftNameRequired" xml:space="preserve">
+    <value>أعطِ كل فترة اسماً.</value>
+  </data>
+  <data name="CampusShiftNameTooLong" xml:space="preserve">
+    <value>اسم الفترة 50 حرفاً كحد أقصى.</value>
+  </data>
+  <data name="CampusShiftNamesDistinct" xml:space="preserve">
+    <value>يجب أن يكون لكل فترة في الفرع اسم مختلف.</value>
+  </data>
+  <data name="CampusShiftEndAfterStart" xml:space="preserve">
+    <value>تنتهي الفترة بعد بدايتها في اليوم نفسه.</value>
+  </data>
 </root>

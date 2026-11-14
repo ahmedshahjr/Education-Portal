@@ -178,6 +178,9 @@ public class ApplicationDbContextInitialiser
         var uaeDemoSchool = await _context.Schools.SingleAsync(s => s.Domain == UaeDemoSchoolDomain);
         var usaDemoSchool = await _context.Schools.SingleAsync(s => s.Domain == UsaDemoSchoolDomain);
 
+        // The system account records the rows written with no signed-in user, so their audit fields are never null.
+        await SeedSystemUserAsync(master);
+
         // The demo schools run on the Full plan for a year, so every module works when developing.
         await SeedDemoSubscriptionAsync(demoSchool, pakistan);
         await SeedDemoSubscriptionAsync(uaeDemoSchool, uae);
@@ -186,6 +189,9 @@ public class ApplicationDbContextInitialiser
         // The Pakistan and UAE demo schools have branches besides their main branch, so the branch screens have data.
         await SeedDemoBranchesAsync(demoSchool, [("Karachi", "0002"), ("Lahore", "0003")]);
         await SeedDemoBranchesAsync(uaeDemoSchool, [("Dubai", "0002"), ("Abu Dhabi", "0003")]);
+
+        // Ten real Pakistani schools with their known campuses, for the school and campus screens (see RealSchoolCatalog).
+        await SeedRealSchoolsAsync(pakistan);
 
         // Each demo school has an open invoice for its first period and two school roles, so the billing and roles screens have data.
         await SeedDemoInvoiceAsync(demoSchool);
@@ -296,6 +302,61 @@ public class ApplicationDbContextInitialiser
     }
 
     /// <summary>Adds the given branches to a demo school. Safe to run again: a branch whose code exists is skipped.</summary>
+    /// <summary>
+    /// Adds the system account (<see cref="SystemUser"/>) with the master tenant. It has no password and is locked out
+    /// until the end of time, so it can never sign in. Skips it when it already exists.
+    /// </summary>
+    private async Task SeedSystemUserAsync(School master)
+    {
+        if (await _userManager.FindByIdAsync(SystemUser.Id) is not null)
+        {
+            return;
+        }
+
+        var system = new ApplicationUser
+        {
+            Id = SystemUser.Id,
+            UserName = SystemUser.UserName,
+            Email = SystemUser.UserName,
+            EmailConfirmed = true,
+            SchoolId = master.Id,
+            LockoutEnabled = true,
+            LockoutEnd = DateTimeOffset.MaxValue,
+        };
+
+        var result = await _userManager.CreateAsync(system);
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException("The system account could not be created: " + string.Join("; ", result.Errors.Select(e => e.Description)));
+        }
+    }
+
+    /// <summary>
+    /// Adds each sample school in <see cref="RealSchoolCatalog"/> with its campuses, codes 0002 upwards after the main
+    /// campus. Skips a school whose domain already exists, so it is safe to run again.
+    /// </summary>
+    private async Task SeedRealSchoolsAsync(Country pakistan)
+    {
+        foreach (var sample in RealSchoolCatalog.Schools)
+        {
+            var domain = $"{sample.Slug}.localhost";
+            if (await _context.Schools.AnyAsync(s => s.Domain == domain))
+            {
+                continue;
+            }
+
+            var school = School.Create(sample.Name, domain);
+            school.AssignCountry(pakistan.Id);
+            _context.Schools.Add(school);
+            await _context.SaveChangesAsync();
+
+            var campuses = sample.Campuses
+                .Select((name, index) => (Name: name, Code: (index + 2).ToString("D4", System.Globalization.CultureInfo.InvariantCulture)))
+                .ToArray();
+            await SeedDemoBranchesAsync(school, campuses);
+        }
+    }
+
     private async Task SeedDemoBranchesAsync(School school, (string Name, string Code)[] branches)
     {
         // The seed runs with no tenant, so the branch query filter would hide existing rows: ignore it, scoped to this school.

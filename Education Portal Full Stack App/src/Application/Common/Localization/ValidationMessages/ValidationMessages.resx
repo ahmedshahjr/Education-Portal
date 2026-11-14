@@ -354,4 +354,34 @@
   <data name="AddOnRequestNotPending" xml:space="preserve">
     <value>Only a pending request can be approved or rejected.</value>
   </data>
+  <data name="CampusCityNeedsState" xml:space="preserve">
+    <value>A city needs its province first.</value>
+  </data>
+  <data name="CampusCoordinatesTogether" xml:space="preserve">
+    <value>Give the latitude and the longitude together.</value>
+  </data>
+  <data name="CampusCityNotInState" xml:space="preserve">
+    <value>The city is not in the chosen province.</value>
+  </data>
+  <data name="CampusGoogleMapsUrlFormat" xml:space="preserve">
+    <value>The Google Maps link must be an https address.</value>
+  </data>
+  <data name="CampusAddressTooLong" xml:space="preserve">
+    <value>The address is at most 300 characters.</value>
+  </data>
+  <data name="CampusShiftLimit" xml:space="preserve">
+    <value>A campus has at most four shifts.</value>
+  </data>
+  <data name="CampusShiftNameRequired" xml:space="preserve">
+    <value>Give every shift a name.</value>
+  </data>
+  <data name="CampusShiftNameTooLong" xml:space="preserve">
+    <value>A shift name is at most 50 characters.</value>
+  </data>
+  <data name="CampusShiftNamesDistinct" xml:space="preserve">
+    <value>Each shift on a campus needs its own name.</value>
+  </data>
+  <data name="CampusShiftEndAfterStart" xml:space="preserve">
+    <value>A shift ends after it starts on the same day.</value>
+  </data>
 </root>

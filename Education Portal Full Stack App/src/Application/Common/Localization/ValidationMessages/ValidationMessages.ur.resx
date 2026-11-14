@@ -354,4 +354,34 @@
   <data name="AddOnRequestNotPending" xml:space="preserve">
     <value>صرف زیر التوا درخواست منظور یا مسترد کی جا سکتی ہے۔</value>
   </data>
+  <data name="CampusCityNeedsState" xml:space="preserve">
+    <value>پہلے صوبہ منتخب کریں، پھر شہر۔</value>
+  </data>
+  <data name="CampusCoordinatesTogether" xml:space="preserve">
+    <value>عرض بلد اور طول بلد ایک ساتھ دیں۔</value>
+  </data>
+  <data name="CampusCityNotInState" xml:space="preserve">
+    <value>یہ شہر منتخب صوبے میں نہیں ہے۔</value>
+  </data>
+  <data name="CampusGoogleMapsUrlFormat" xml:space="preserve">
+    <value>گوگل میپس کا لنک https پتہ ہونا چاہیے۔</value>
+  </data>
+  <data name="CampusAddressTooLong" xml:space="preserve">
+    <value>پتہ زیادہ سے زیادہ 300 حروف کا ہو سکتا ہے۔</value>
+  </data>
+  <data name="CampusShiftLimit" xml:space="preserve">
+    <value>کیمپس میں زیادہ سے زیادہ چار شفٹیں ہو سکتی ہیں۔</value>
+  </data>
+  <data name="CampusShiftNameRequired" xml:space="preserve">
+    <value>ہر شفٹ کا نام لکھیں۔</value>
+  </data>
+  <data name="CampusShiftNameTooLong" xml:space="preserve">
+    <value>شفٹ کا نام زیادہ سے زیادہ 50 حروف کا ہو سکتا ہے۔</value>
+  </data>
+  <data name="CampusShiftNamesDistinct" xml:space="preserve">
+    <value>کیمپس کی ہر شفٹ کا نام مختلف ہونا چاہیے۔</value>
+  </data>
+  <data name="CampusShiftEndAfterStart" xml:space="preserve">
+    <value>شفٹ اسی دن شروع ہو کر بعد میں ختم ہونی چاہیے۔</value>
+  </data>
 </root>

@@ -1,4 +1,4 @@
-using EducationPortal.Domain.Entities;
+﻿using EducationPortal.Domain.Entities;
 
 namespace EducationPortal.Application.Common.Interfaces;
 
@@ -42,6 +42,8 @@ public interface IApplicationDbContext
     DbSet<PriceBookItem> PriceBookItems { get; }
 
     DbSet<Branch> Branches { get; }
+
+    DbSet<CampusShift> CampusShifts { get; }
 
     DbSet<Subscription> Subscriptions { get; }
 
