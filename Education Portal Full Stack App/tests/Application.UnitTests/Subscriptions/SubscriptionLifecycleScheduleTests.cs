@@ -42,7 +42,7 @@ public class SubscriptionLifecycleScheduleTests
         options.ShouldSatisfyAllConditions(
             o => o.Enabled.ShouldBeTrue(),
             o => o.Schedule.ShouldBe("0 0 1 * * ?"),
-            o => o.GracePeriodDays.ShouldBe(14),
+            o => o.GracePeriodDays.ShouldBe(30),
             o => o.EffectiveReminderDays.ShouldBe([30, 7, 1]));
         IsValid(options).ShouldBeTrue();
     }

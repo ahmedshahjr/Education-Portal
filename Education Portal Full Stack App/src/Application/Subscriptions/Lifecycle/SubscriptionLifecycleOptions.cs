@@ -19,7 +19,7 @@ public sealed class SubscriptionLifecycleOptions : IValidatableObject
 
     /// <summary>Days a past-due subscription keeps its modules before it is suspended.</summary>
     [Range(0, 90)]
-    public int GracePeriodDays { get; set; } = 14;
+    public int GracePeriodDays { get; set; } = 30;
 
     /// <summary>The reminder days when the configuration lists none.</summary>
     public static IReadOnlyList<int> DefaultReminderDays { get; } = [30, 7, 1];

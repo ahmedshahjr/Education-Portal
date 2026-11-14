@@ -21,6 +21,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     /// <summary>The security audit log. The application only ever adds to it (SEC-LOG-05).</summary>
     public DbSet<SecurityAuditEvent> SecurityAuditEvents => Set<SecurityAuditEvent>();
 
+    /// <summary>Changes to commercial records with old and new values, written by <c>ChangeAuditInterceptor</c> (ADR-016). Append-only.</summary>
+    public DbSet<ChangeAuditEntry> ChangeAuditEntries => Set<ChangeAuditEntry>();
+
     public DbSet<School> Schools => Set<School>();
 
     public DbSet<BrandingImage> BrandingImages => Set<BrandingImage>();
@@ -86,6 +89,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
         builder.Entity<Branch>()
             .HasQueryFilter(b => IsMasterTenant || b.SchoolId == CurrentSchoolId);
+
+        builder.Entity<ChangeAuditEntry>()
+            .HasQueryFilter(e => IsMasterTenant || e.SchoolId == CurrentSchoolId);
 
         builder.Entity<Subscription>()
             .HasQueryFilter(s => IsMasterTenant || s.SchoolId == CurrentSchoolId);
