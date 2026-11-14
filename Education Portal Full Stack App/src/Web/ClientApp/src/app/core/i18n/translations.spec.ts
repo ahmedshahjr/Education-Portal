@@ -13,16 +13,18 @@ interface MessagesFile {
 const read = (file: string): MessagesFile => JSON.parse(readFileSync(join(LOCALE_DIR, file), 'utf-8')) as MessagesFile;
 const placeholders = (text: string) => (text.match(/\{\$[A-Z_]+\}/g) ?? []).sort();
 
-const source = read('messages.json');
-const targets = readdirSync(LOCALE_DIR).filter((file) => /^messages\.[a-z]{2}\.json$/.test(file));
+const source = read('en/messages.json');
+const targets = readdirSync(LOCALE_DIR, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && entry.name !== 'en')
+  .map((entry) => `${entry.name}/messages.json`);
 
 /**
- * Every translation file covers every message of `messages.json` (made by `ng extract-i18n`) with the same
+ * Every translation file (one folder per language code) covers every message of `en/messages.json` (made by `ng extract-i18n`) with the same
  * placeholders, so no screen falls back to English and no value goes missing from a translated sentence.
  */
 describe('translations', () => {
   it('exist for Arabic and Urdu', () => {
-    expect(targets).toEqual(expect.arrayContaining(['messages.ar.json', 'messages.ur.json']));
+    expect(targets).toEqual(expect.arrayContaining(['ar/messages.json', 'ur/messages.json']));
   });
 
   for (const file of targets) {

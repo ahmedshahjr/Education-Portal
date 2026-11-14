@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CountryCodeFormat" xml:space="preserve">
+    <value>کوڈ دو حروف پر مشتمل ہونا چاہیے (ISO 3166-1 alpha-2)، مثلاً PK۔</value>
+  </data>
+  <data name="CountryCodeTaken" xml:space="preserve">
+    <value>اس کوڈ کے ساتھ ایک ملک پہلے سے موجود ہے۔</value>
+  </data>
+  <data name="CountryTooManyLanguages" xml:space="preserve">
+    <value>ایک ملک ہر معاون زبان زیادہ سے زیادہ ایک بار پیش کر سکتا ہے۔</value>
+  </data>
+  <data name="LanguageNotSupported" xml:space="preserve">
+    <value>پورٹل میں '{PropertyValue}' کے ترجمے موجود نہیں ہیں۔</value>
+  </data>
+  <data name="LanguageListedTwice" xml:space="preserve">
+    <value>ہر زبان صرف ایک بار درج کی جا سکتی ہے۔</value>
+  </data>
+  <data name="DefaultLanguageNotOffered" xml:space="preserve">
+    <value>طے شدہ زبان ملک کی زبانوں میں سے ایک ہونی چاہیے۔</value>
+  </data>
+  <data name="TimeZoneInvalid" xml:space="preserve">
+    <value>ٹائم زون IANA ٹائم زون ہونا چاہیے، مثلاً Asia/Karachi۔</value>
+  </data>
+  <data name="CurrencyInvalid" xml:space="preserve">
+    <value>کرنسی ISO 4217 کوڈ ہونی چاہیے، مثلاً PKR۔</value>
+  </data>
+  <data name="MasterHasEveryModule" xml:space="preserve">
+    <value>ماسٹر ٹیننٹ کے پاس ہمیشہ تمام ماڈیولز ہوتے ہیں۔</value>
+  </data>
+  <data name="CountryNotFound" xml:space="preserve">
+    <value>یہ ملک موجود نہیں ہے۔</value>
+  </data>
+  <data name="LanguageNotOffered" xml:space="preserve">
+    <value>یہ اسکول یہ زبان پیش نہیں کرتا۔</value>
+  </data>
+  <data name="AccentColorFormat" xml:space="preserve">
+    <value>نمایاں رنگ #rrggbb کی شکل میں ہونا چاہیے۔</value>
+  </data>
+  <data name="AccentColorFormat1" xml:space="preserve">
+    <value>نمایاں رنگ #rrggbb کی شکل میں ہونا چاہیے۔</value>
+  </data>
+  <data name="SidebarColorFormat" xml:space="preserve">
+    <value>سائیڈبار کا رنگ #rrggbb کی شکل میں ہونا چاہیے۔</value>
+  </data>
+  <data name="LogoInvalid" xml:space="preserve">
+    <value>لوگو PNG، JPEG یا WebP تصویر ہونا چاہیے جس کا سائز زیادہ سے زیادہ {0} KB ہو۔</value>
+  </data>
+  <data name="FaviconInvalid" xml:space="preserve">
+    <value>فیویکان ICO یا PNG تصویر ہونا چاہیے جس کا سائز زیادہ سے زیادہ {0} KB ہو۔</value>
+  </data>
+  <data name="LogoUploadAndRemove" xml:space="preserve">
+    <value>نیا لوگو اپ لوڈ کریں یا اسے ہٹائیں، دونوں نہیں۔</value>
+  </data>
+  <data name="FaviconUploadAndRemove" xml:space="preserve">
+    <value>نیا فیویکان اپ لوڈ کریں یا اسے ہٹائیں، دونوں نہیں۔</value>
+  </data>
+  <data name="ModuleCodeFormat" xml:space="preserve">
+    <value>کوڈ بڑے انگریزی حروف، ہندسوں اور انڈر اسکور پر مشتمل ہونا چاہیے اور حرف سے شروع ہونا چاہیے، مثلاً FEES۔</value>
+  </data>
+  <data name="ModuleCodeTaken" xml:space="preserve">
+    <value>اس کوڈ کا ماڈیول پہلے سے موجود ہے۔</value>
+  </data>
+  <data name="CoreModuleAlwaysOn" xml:space="preserve">
+    <value>بنیادی ماڈیول ہر سبسکرپشن کا حصہ ہے اور ہمیشہ آن رہتا ہے۔</value>
+  </data>
+  <data name="InactiveModuleCannotBeCore" xml:space="preserve">
+    <value>ماڈیول کو بنیادی بنانے سے پہلے فعال کریں۔</value>
+  </data>
+  <data name="ModuleCannotRequireItself" xml:space="preserve">
+    <value>ماڈیول خود کو لازمی قرار نہیں دے سکتا۔</value>
+  </data>
+  <data name="ModuleDependencyExists" xml:space="preserve">
+    <value>یہ ماڈیول پہلے ہی اُس ماڈیول کا تقاضا کرتا ہے۔</value>
+  </data>
+  <data name="ModuleDependencyCycle" xml:space="preserve">
+    <value>وہ ماڈیول پہلے ہی اِس ماڈیول کا تقاضا کرتا ہے، براہِ راست یا دوسروں کے ذریعے، اس لیے یہ ایک دائرہ بنا دے گا۔</value>
+  </data>
+  <data name="CoreModuleRequiresCoreOnly" xml:space="preserve">
+    <value>بنیادی ماڈیول صرف دوسرے بنیادی ماڈیولز کا تقاضا کر سکتا ہے۔</value>
+  </data>
+  <data name="CoreModuleRequiresPaid" xml:space="preserve">
+    <value>یہ ماڈیول غیر بنیادی ماڈیولز کا تقاضا کرتا ہے۔ پہلے یہ تقاضے ہٹائیں۔</value>
+  </data>
+  <data name="ModuleRequiredByOthers" xml:space="preserve">
+    <value>دوسرے ماڈیولز اس ماڈیول کا تقاضا کرتے ہیں۔ پہلے یہ تقاضے ہٹائیں۔</value>
+  </data>
+  <data name="RequiredModuleNotFound" xml:space="preserve">
+    <value>مطلوبہ ماڈیول موجود نہیں ہے۔</value>
+  </data>
+  <data name="PlanCodeFormat" xml:space="preserve">
+    <value>کوڈ بڑے انگریزی حروف، ہندسوں اور انڈر اسکور پر مشتمل ہونا چاہیے اور حرف سے شروع ہونا چاہیے، مثلاً STARTER۔</value>
+  </data>
+  <data name="PlanCodeTaken" xml:space="preserve">
+    <value>اس کوڈ کا پلان پہلے سے موجود ہے۔</value>
+  </data>
+  <data name="UnknownModules" xml:space="preserve">
+    <value>ایک یا زیادہ ماڈیولز موجود نہیں ہیں۔</value>
+  </data>
+  <data name="ModuleListedTwice" xml:space="preserve">
+    <value>ہر ماڈیول ایک بار درج کیا جا سکتا ہے۔</value>
+  </data>
+  <data name="CoreModuleNotSold" xml:space="preserve">
+    <value>بنیادی ماڈیولز ہر سبسکرپشن میں شامل ہیں اور الگ سے فروخت نہیں ہوتے۔</value>
+  </data>
+  <data name="ModuleInUse" xml:space="preserve">
+    <value>پلان یا قیمتوں کی فہرستیں یہ ماڈیول استعمال کرتی ہیں۔ پہلے اسے ان سے ہٹائیں۔</value>
+  </data>
+  <data name="PriceBookCountryTaken" xml:space="preserve">
+    <value>اس ملک کی قیمتوں کی فہرست پہلے سے موجود ہے۔</value>
+  </data>
+  <data name="PriceTargetRequired" xml:space="preserve">
+    <value>یا تو پلان دیں یا ماڈیول، دونوں نہیں۔</value>
+  </data>
+  <data name="PlanNotFound" xml:space="preserve">
+    <value>پلان موجود نہیں ہے۔</value>
+  </data>
+  <data name="ModuleNotFound" xml:space="preserve">
+    <value>ماڈیول موجود نہیں ہے۔</value>
+  </data>
+  <data name="PriceExists" xml:space="preserve">
+    <value>اس فہرست میں اُس پلان یا ماڈیول اور بلنگ کی مدت کی قیمت پہلے سے موجود ہے۔</value>
+  </data>
+  <data name="PriceInvalid" xml:space="preserve">
+    <value>قیمت صفر یا اس سے زیادہ ہو، زیادہ سے زیادہ دو اعشاریہ مقامات کے ساتھ۔</value>
+  </data>
+  <data name="SubscriptionExists" xml:space="preserve">
+    <value>اسکول کی پہلے سے سبسکرپشن موجود ہے۔</value>
+  </data>
+  <data name="SchoolHasNoCountry" xml:space="preserve">
+    <value>پہلے اسکول کا ملک مقرر کریں: قیمتوں کی فہرست ملک سے طے ہوتی ہے۔</value>
+  </data>
+  <data name="PriceMissing" xml:space="preserve">
+    <value>ملک کی قیمتوں کی فہرست میں اس انتخاب کی قیمت موجود نہیں۔</value>
+  </data>
+  <data name="ModuleInactive" xml:space="preserve">
+    <value>اس سبسکرپشن کا ایک ماڈیول فعال نہیں ہے۔</value>
+  </data>
+  <data name="SubscriptionNeedsPlanOrModule" xml:space="preserve">
+    <value>کوئی پلان یا کم از کم ایک ماڈیول منتخب کریں۔</value>
+  </data>
+  <data name="RoleNameTaken" xml:space="preserve">
+    <value>اسکول میں اس نام کا کردار پہلے سے موجود ہے۔</value>
+  </data>
+  <data name="RightsNeedView" xml:space="preserve">
+    <value>بنانے، ترمیم اور حذف کے لیے دیکھنے کا حق ضروری ہے۔</value>
+  </data>
+  <data name="ModuleNotEnabledForSchool" xml:space="preserve">
+    <value>اسکول کے پاس یہ ماڈیول نہیں ہے، اس لیے اس میں حقوق نہیں دیے جا سکتے۔</value>
+  </data>
+  <data name="RoleNotFound" xml:space="preserve">
+    <value>کردار موجود نہیں ہے۔</value>
+  </data>
+  <data name="SchoolHasNoSubscription" xml:space="preserve">
+    <value>اسکول کی کوئی سبسکرپشن نہیں جس کا بل بنایا جا سکے۔</value>
+  </data>
+  <data name="TrialNeedsNextPeriod" xml:space="preserve">
+    <value>سبسکرپشن آزمائشی مدت میں ہے اور ابھی کوئی ادا شدہ مدت نہیں: اگلی مدت کا بل بنائیں۔</value>
+  </data>
+  <data name="InvoiceOpenExists" xml:space="preserve">
+    <value>سبسکرپشن کا ایک بل پہلے سے کھلا ہے۔ پہلے اسے ادا کریں یا منسوخ کریں۔</value>
+  </data>
+  <data name="PeriodAlreadyInvoiced" xml:space="preserve">
+    <value>اس مدت کا بل پہلے ہی بن چکا ہے۔</value>
+  </data>
+  <data name="InvoiceNotOpen" xml:space="preserve">
+    <value>صرف کھلا بل ہی ادا یا منسوخ کیا جا سکتا ہے۔</value>
+  </data>
+  <data name="PaymentMustCoverTotal" xml:space="preserve">
+    <value>ادائیگی بل کی کل رقم کے برابر ہونی چاہیے۔</value>
+  </data>
+  <data name="PaymentRejected" xml:space="preserve">
+    <value>ادائیگی قبول نہیں کی گئی۔</value>
+  </data>
+  <data name="PaymentDateInFuture" xml:space="preserve">
+    <value>ادائیگی کی تاریخ مستقبل میں نہیں ہو سکتی۔</value>
+  </data>
+  <data name="TaxRateRange" xml:space="preserve">
+    <value>ٹیکس کی شرح 0 سے 100 فیصد کے درمیان ہو اور زیادہ سے زیادہ دو اعشاریہ ہوں۔</value>
+  </data>
+  <data name="SchoolDomainFormat" xml:space="preserve">
+    <value>ڈومین school1.com جیسا ہوسٹ نام ہونا چاہیے، http://، پورٹ یا پاتھ کے بغیر۔</value>
+  </data>
+  <data name="SchoolDomainTaken" xml:space="preserve">
+    <value>یہ ڈومین پہلے ہی کوئی دوسرا اسکول استعمال کر رہا ہے۔</value>
+  </data>
+  <data name="SchoolMasterDomainLocked" xml:space="preserve">
+    <value>ماسٹر ٹیننٹ کا ڈومین تبدیل نہیں ہو سکتا۔</value>
+  </data>
+  <data name="CampusPrefixRequired" xml:space="preserve">
+    <value>جب کیمپس کوڈ کا سابقہ فعال ہو، تو سابقہ لکھیں۔</value>
+  </data>
+  <data name="CampusPrefixFormat" xml:space="preserve">
+    <value>کیمپس کوڈ کا سابقہ 6 حروف یا ہندسوں تک ہو سکتا ہے۔</value>
+  </data>
+  <data name="CampusCodesExhausted" xml:space="preserve">
+    <value>اس اسکول کا کوئی کیمپس کوڈ خالی نہیں بچا۔</value>
+  </data>
+  <data name="BranchMainNotDeletable" xml:space="preserve">
+    <value>مرکزی برانچ حذف نہیں ہو سکتی: ہر اسکول اسے رکھتا ہے۔</value>
+  </data>
+  <data name="BranchHasModules" xml:space="preserve">
+    <value>اس برانچ کے ماڈیولز ابھی تک فعال ہیں۔ پہلے انہیں بند کریں۔</value>
+  </data>
+  <data name="SchoolMasterNotDeletable" xml:space="preserve">
+    <value>ماسٹر ٹیننٹ حذف نہیں ہو سکتا۔</value>
+  </data>
+  <data name="EmailTaken" xml:space="preserve">
+    <value>یہ ای میل پہلے ہی کوئی دوسرا اکاؤنٹ استعمال کر رہا ہے۔</value>
+  </data>
+  <data name="NewPasswordSameAsCurrent" xml:space="preserve">
+    <value>نیا پاس ورڈ موجودہ پاس ورڈ سے مختلف ہونا چاہیے۔</value>
+  </data>
+  <data name="SubscriptionCannotBeSuspended" xml:space="preserve">
+    <value>سبسکرپشن پہلے ہی معطل ہے۔</value>
+  </data>
+  <data name="SubscriptionCannotBeReactivated" xml:space="preserve">
+    <value>صرف معطل یا واجب الادا سبسکرپشن دوبارہ فعال کی جا سکتی ہے۔</value>
+  </data>
+  <data name="ModuleAlreadyInSubscription" xml:space="preserve">
+    <value>سبسکرپشن میں یہ ماڈیول پہلے سے موجود ہے۔</value>
+  </data>
+  <data name="ModuleNotInSubscription" xml:space="preserve">
+    <value>یہ ماڈیول سبسکرپشن کا ایڈ آن نہیں ہے۔</value>
+  </data>
+  <data name="ModuleStillIncluded" xml:space="preserve">
+    <value>پلان یا سبسکرپشن کا کوئی اور ماڈیول اب بھی اسے شامل کرتا ہے، اس لیے اسے ہٹایا نہیں جا سکتا۔</value>
+  </data>
+  <data name="SubscriptionCurrencyMismatch" xml:space="preserve">
+    <value>پرائس بک کی کرنسی سبسکرپشن کی کرنسی سے مختلف ہے۔</value>
+  </data>
+  <data name="SubscriptionNeededForAddOn" xml:space="preserve">
+    <value>ایڈ آن مانگنے سے پہلے اسکول کو سبسکرپشن درکار ہے۔</value>
+  </data>
+  <data name="AddOnRequestPending" xml:space="preserve">
+    <value>اس ماڈیول کی درخواست پہلے سے فیصلے کی منتظر ہے۔</value>
+  </data>
+  <data name="AddOnRequestNotPending" xml:space="preserve">
+    <value>صرف زیر التوا درخواست منظور یا مسترد کی جا سکتی ہے۔</value>
+  </data>
+</root>
