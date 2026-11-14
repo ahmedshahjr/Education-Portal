@@ -1,0 +1,102 @@
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="The subscription could not be loaded"
+        i18n-title="@@subscription.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else if (subscription(); as sub) {
+      <div class="mm-subscription__plan-switch">
+        <div>
+          <div class="mm-subscription__title" i18n="@@subscription.planActive">Plan active</div>
+          <div class="mm-subscription__muted" i18n="@@subscription.planActiveHelp">Off suspends the plan: its modules are switched off and its data is kept.</div>
+        </div>
+        <mat-slide-toggle
+          #planToggle
+          [checked]="isOn(sub)"
+          [disabled]="busy()"
+          (change)="togglePlan(planToggle, $event.checked)"
+          aria-label="Plan active"
+          i18n-aria-label="@@subscription.planActive"
+        />
+      </div>
+
+      <dl class="mm-subscription__summary">
+        <div>
+          <dt i18n="@@subscription.plan">Plan</dt>
+          <dd>{{ sub.planCode ?? '-' }}</dd>
+        </div>
+        <div>
+          <dt i18n="@@subscription.status">Status</dt>
+          <dd><app-status-badge [tone]="tone(sub.status)">{{ sub.status }}</app-status-badge></dd>
+        </div>
+        <div>
+          <dt i18n="@@subscription.cycle">Billing cycle</dt>
+          <dd>{{ sub.billingCycle }}</dd>
+        </div>
+        <div>
+          <dt i18n="@@subscription.price">Price per cycle</dt>
+          <dd>{{ sub.amount | number: '1.2-2' }} {{ sub.currencyCode }}</dd>
+        </div>
+        <div>
+          <dt i18n="@@subscription.periodEnd">Period ends</dt>
+          <dd>{{ sub.endDate | localDate }}</dd>
+        </div>
+      </dl>
+
+      <form class="mm-subscription__row" [formGroup]="extendForm" (ngSubmit)="extend()" novalidate>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@subscription.extendDays">Extend by (days)</mat-label>
+          <input matInput type="number" formControlName="days" min="1" [max]="maxExtensionDays" dir="ltr" />
+        </mat-form-field>
+        <button mat-stroked-button type="submit" [disabled]="busy() || extendForm.invalid" i18n="@@subscription.extend">Extend</button>
+      </form>
+
+      <form class="mm-subscription__row" [formGroup]="planForm" (ngSubmit)="changePlan()" novalidate>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@subscription.newPlan">New plan</mat-label>
+          <mat-select formControlName="planCode">
+            @for (plan of plans(); track plan.code) {
+              <mat-option [value]="plan.code">{{ plan.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button mat-stroked-button type="submit" [disabled]="busy() || planForm.invalid" i18n="@@subscription.changePlan">Change plan</button>
+      </form>
+      <p class="mm-subscription__muted" i18n="@@subscription.noProration">Changes take effect at once. The current period is not credited or charged; the next invoice uses the new price.</p>
+    } @else if (hasNone()) {
+      <h2 class="mm-subscription__title" i18n="@@subscription.startTitle">Start a subscription</h2>
+      <p class="mm-subscription__muted" i18n="@@subscription.startHelp">The school needs a country; the price comes from that country's price book. Add-on modules can be added once it has started.</p>
+      <form class="mm-subscription__row" [formGroup]="startForm" (ngSubmit)="start()" novalidate>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@subscription.plan">Plan</mat-label>
+          <mat-select formControlName="planCode">
+            @for (plan of plans(); track plan.code) {
+              <mat-option [value]="plan.code">{{ plan.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@subscription.cycle">Billing cycle</mat-label>
+          <mat-select formControlName="billingCycle">
+            @for (cycle of cycles; track cycle) {
+              <mat-option [value]="cycle">{{ cycle }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@subscription.trialDays">Trial days</mat-label>
+          <input matInput type="number" formControlName="trialDays" min="0" [max]="maxTrialDays" dir="ltr" />
+        </mat-form-field>
+        <button mat-flat-button type="submit" [disabled]="busy() || startForm.invalid || !startForm.controls.planCode.value" i18n="@@subscription.start">Start subscription</button>
+      </form>
+    } @else {
+      <app-loading-state />
+    }
+  </mat-card-content>
+</mat-card>

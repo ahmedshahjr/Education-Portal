@@ -1,31 +1,39 @@
-﻿# For more info on HTTP files go to https://aka.ms/vs/httpfile
-@Web_HostAddress = https://localhost:7052
-@AuthCookieName = .AspNetCore.Identity.Application
-@AuthCookieValue = <AuthCookieValue>
+﻿@Web_HostAddress = https://localhost:7052
+@XsrfToken = <copy the __Host-XSRF-TOKEN cookie value from the first response here>
+@AuthCookieValue = <copy the __Host-EducationPortal cookie value from the login response here>
+
+# GET Users Me
+# Anonymous, so it returns 401 unless a session cookie is sent. Its response sets the __Host-XSRF-TOKEN cookie,
+# whose value goes into @XsrfToken for the unsafe requests below.
+GET {{Web_HostAddress}}/api/Users/me
+
+###
 
 # POST Users Login
-# Logs in as the seeded development administrator. Copy the value of the
-# .AspNetCore.Identity.Application cookie from the response into @AuthCookieValue.
-POST {{Web_HostAddress}}/api/Users/login?useCookies=true
+# Signs in as the Development-only seed administrator. Copy the __Host-EducationPortal cookie from the response into @AuthCookieValue.
+POST {{Web_HostAddress}}/api/Users/login
 Content-Type: application/json
+X-XSRF-TOKEN: {{XsrfToken}}
+Cookie: __Host-XSRF-TOKEN={{XsrfToken}}
 
 {
   "email": "administrator@localhost",
-  "password": "Administrator1!"
+  "password": "Local-Dev-Only-2026!"
 }
 
 ###
 
-# GET Users Manage Info
-GET {{Web_HostAddress}}/api/Users/manage/info
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
+# GET Users Me (signed in)
+GET {{Web_HostAddress}}/api/Users/me
+Cookie: __Host-EducationPortal={{AuthCookieValue}}
 
 ###
 
 # POST Users Logout
 POST {{Web_HostAddress}}/api/Users/logout
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
 Content-Type: application/json
+X-XSRF-TOKEN: {{XsrfToken}}
+Cookie: __Host-EducationPortal={{AuthCookieValue}}; __Host-XSRF-TOKEN={{XsrfToken}}
 
 {}
 

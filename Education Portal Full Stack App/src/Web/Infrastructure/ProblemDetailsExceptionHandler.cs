@@ -1,23 +1,48 @@
+using System.Globalization;
 using EducationPortal.Application.Common.Exceptions;
+using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Domain.Enums;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 
 namespace EducationPortal.Web.Infrastructure;
 
 /// <summary>
-/// Converts well-known application exceptions into RFC 9110-compliant <see cref="ProblemDetails"/> responses,
-/// mapping <see cref="ValidationException"/> → 400, <see cref="NotFoundException"/> → 404,
-/// <see cref="UnauthorizedAccessException"/> → 401, and <see cref="ForbiddenAccessException"/> → 403.
-/// Unrecognised exceptions are not handled and fall through to the default middleware.
+/// Converts well-known application exceptions into RFC 9457 <see cref="ProblemDetails"/> responses. Each response
+/// carries a trace id (SEC-WEB-06). <see cref="ValidationException"/> → 400, <see cref="NotFoundException"/> → 404,
+/// <see cref="UnauthorizedAccessException"/> → 401, <see cref="ForbiddenAccessException"/> → 403 and
+/// <see cref="BadHttpRequestException"/> → its own status code (usually 400). A 403 is also written
+/// to the security audit log (SEC-LOG-03). Unrecognised exceptions are not handled here and fall through to the default handler.
 /// </summary>
-public class ProblemDetailsExceptionHandler : IExceptionHandler
+/// <para>
+/// Titles are in the request's language (<see cref="TenantRequestLocalization"/>), from the resource files in
+/// <c>Resources/Infrastructure</c>; English is the key and the fallback.
+/// </para>
+public class ProblemDetailsExceptionHandler(
+    IProblemDetailsService problemDetailsService,
+    IStringLocalizer<ProblemDetailsExceptionHandler> localizer) : IExceptionHandler
 {
+    private const int MaxTargetLength = 128;
+
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
+        // This handler runs outside the localization middleware, which has already restored the thread's culture, so
+        // the request's culture is applied again here. The change is local to this async call.
+        if (httpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture is { } requestCulture)
+        {
+            CultureInfo.CurrentCulture = requestCulture.Culture;
+            CultureInfo.CurrentUICulture = requestCulture.UICulture;
+        }
+
         var (statusCode, problemDetails) = exception switch
         {
             ValidationException ve => (StatusCodes.Status400BadRequest, (ProblemDetails)new ValidationProblemDetails(ve.Errors)
             {
+                Title = localizer["One or more validation errors occurred."],
                 Status = StatusCodes.Status400BadRequest,
                 Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1"
             }),
@@ -25,19 +50,45 @@ public class ProblemDetailsExceptionHandler : IExceptionHandler
             {
                 Status = StatusCodes.Status404NotFound,
                 Type = "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-                Title = "The specified resource was not found.",
+                Title = localizer["The specified resource was not found."],
                 Detail = ne.Message
             }),
             UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, new ProblemDetails
             {
                 Status = StatusCodes.Status401Unauthorized,
-                Title = "Unauthorized",
+                Title = localizer["Unauthorized"],
                 Type = "https://tools.ietf.org/html/rfc9110#section-15.5.2"
+            }),
+            // A request the framework could not bind, for example a form without a valid antiforgery token or a missing
+            // parameter. The framework's message is not returned (SEC-WEB-06).
+            BadHttpRequestException bad => (bad.StatusCode, new ProblemDetails
+            {
+                Status = bad.StatusCode,
+                Title = localizer["The request is not valid."],
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1"
+            }),
+            ModuleNotEnabledException notEnabled => (StatusCodes.Status403Forbidden, new ProblemDetails
+            {
+                Status = StatusCodes.Status403Forbidden,
+                Title = localizer["Forbidden"],
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.4",
+                Extensions =
+                {
+                    ["code"] = ModuleNotEnabledException.ErrorCode,
+                    ["module"] = notEnabled.ModuleCode,
+                },
+            }),
+            PasswordChangeRequiredException => (StatusCodes.Status403Forbidden, new ProblemDetails
+            {
+                Status = StatusCodes.Status403Forbidden,
+                Title = localizer["Forbidden"],
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.4",
+                Extensions = { ["code"] = PasswordChangeRequiredException.ErrorCode },
             }),
             ForbiddenAccessException => (StatusCodes.Status403Forbidden, new ProblemDetails
             {
                 Status = StatusCodes.Status403Forbidden,
-                Title = "Forbidden",
+                Title = localizer["Forbidden"],
                 Type = "https://tools.ietf.org/html/rfc9110#section-15.5.4"
             }),
             _ => (-1, null)
@@ -45,8 +96,27 @@ public class ProblemDetailsExceptionHandler : IExceptionHandler
 
         if (problemDetails is null) return false;
 
+        if (exception is ForbiddenAccessException)
+        {
+            await httpContext.RequestServices.GetRequiredService<ISecurityAuditLog>().WriteAsync(
+                SecurityAuditEventType.AccessDenied,
+                SecurityAuditOutcome.Failure,
+                targetType: "Endpoint",
+                targetId: Truncate(httpContext.GetEndpoint()?.DisplayName));
+        }
+
         httpContext.Response.StatusCode = statusCode;
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
-        return true;
+
+        return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
+        {
+            HttpContext = httpContext,
+            ProblemDetails = problemDetails,
+            Exception = exception,
+        });
+    }
+
+    private static string? Truncate(string? value)
+    {
+        return value is null || value.Length <= MaxTargetLength ? value : value[..MaxTargetLength];
     }
 }

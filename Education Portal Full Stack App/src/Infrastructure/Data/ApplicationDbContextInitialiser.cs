@@ -1,8 +1,13 @@
 ﻿using EducationPortal.Domain.Constants;
+using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.Enums;
+using EducationPortal.Infrastructure.Data.Locations;
 using EducationPortal.Infrastructure.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace EducationPortal.Infrastructure.Data;
@@ -11,12 +16,33 @@ public static class InitialiserExtensions
 {
     public static async Task InitialiseDatabaseAsync(this WebApplication app)
     {
+        // EnsureDeleted drops the database, so this must never run outside Development (SEC-CFG-03).
+        if (!app.Environment.IsDevelopment())
+        {
+            throw new InvalidOperationException("The database is only reset and seeded in the Development environment.");
+        }
+
         using var scope = app.Services.CreateScope();
 
         var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
 
         await initialiser.InitialiseAsync();
+
+        // The location data comes before the demo seed, which assigns its schools to the imported countries.
+        await scope.ServiceProvider.GetRequiredService<LocationDataImporter>().ImportAsync();
+
         await initialiser.SeedAsync();
+    }
+
+    /// <summary>
+    /// Imports the built-in countries, states and cities (<see cref="LocationDataImporter"/>). Runs on every start-up outside
+    /// Development, where <see cref="InitialiseDatabaseAsync"/> does it; safe to run again. The schema must already exist.
+    /// </summary>
+    public static async Task ImportLocationDataAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+
+        await scope.ServiceProvider.GetRequiredService<LocationDataImporter>().ImportAsync();
     }
 }
 
@@ -26,9 +52,11 @@ public class ApplicationDbContextInitialiser
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly TimeProvider _timeProvider;
 
-    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, TimeProvider timeProvider)
     {
+        _timeProvider = timeProvider;
         _logger = logger;
         _context = context;
         _userManager = userManager;
@@ -63,8 +91,108 @@ public class ApplicationDbContextInitialiser
         }
     }
 
+    /// <summary>The master tenant's domain in Development. The admin sign-in works on http(s)://localhost.</summary>
+    public const string MasterDomain = "localhost";
+
+    /// <summary>
+    /// A demo school for trying per-school branding. Browsers resolve every *.localhost name to this machine, so it
+    /// opens on demo.localhost with the same port.
+    /// </summary>
+    public const string DemoSchoolDomain = "demo.localhost";
+
+    /// <summary>A second demo school, in the United Arab Emirates, for trying the per-country languages (English and Arabic).</summary>
+    public const string UaeDemoSchoolDomain = "uae.localhost";
+
+    /// <summary>A third demo school, in the United States, for the US market (English, en-US formats, US dollars).</summary>
+    public const string UsaDemoSchoolDomain = "usa.localhost";
+
+    // Development-only seed accounts (SEC-SECRET-04). It meets the 15-character minimum of SEC-AUTHN-03.
+    private const string DevelopmentPassword = "Local-Dev-Only-2026!";
+
     public async Task TrySeedAsync()
     {
+        // Modules and their dependencies: add any the code knows and the database lacks. The master tenant changes them
+        // afterwards. Seeding runs in Development only, where the database is recreated on every start.
+        var knownModules = await _context.Modules.Select(m => m.Code).ToListAsync();
+        var missingModules = ModuleCatalog.CreateModules().Where(m => !knownModules.Contains(m.Code)).ToList();
+
+        if (missingModules.Count > 0)
+        {
+            _context.Modules.AddRange(missingModules);
+            await _context.SaveChangesAsync();
+
+            var modules = await _context.Modules.ToDictionaryAsync(m => m.Code);
+            var added = missingModules.Select(m => m.Code).ToHashSet();
+
+            foreach (var (moduleCode, requiresCode) in ModuleCatalog.Dependencies.Where(d => added.Contains(d.ModuleCode)))
+            {
+                if (modules.TryGetValue(moduleCode, out var module) && modules.TryGetValue(requiresCode, out var requires))
+                {
+                    _context.ModuleDependencies.Add(ModuleDependency.Create(module, requires));
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        // Plans and price books: placeholder prices for the master tenant to replace.
+        await SeedPricingAsync();
+
+        // Countries come from the location data import, which runs before this seed (LocationDataImporter).
+        var pakistan = await _context.Countries.SingleAsync(c => c.Code == "PK");
+        var uae = await _context.Countries.SingleAsync(c => c.Code == "AE");
+        var usa = await _context.Countries.SingleAsync(c => c.Code == "US");
+
+        // Tenants: exactly one master tenant (the platform owner) and one demo school per market.
+        var master = await _context.Schools.SingleOrDefaultAsync(s => s.IsMaster);
+        if (master is null)
+        {
+            master = School.CreateMaster("Education Portal", MasterDomain);
+            _context.Schools.Add(master);
+        }
+
+        if (!await _context.Schools.AnyAsync(s => s.Domain == DemoSchoolDomain))
+        {
+            var demo = School.Create("Demo School", DemoSchoolDomain);
+            demo.AssignCountry(pakistan.Id);
+            _context.Schools.Add(demo);
+        }
+
+        if (!await _context.Schools.AnyAsync(s => s.Domain == UaeDemoSchoolDomain))
+        {
+            var uaeDemo = School.Create("Demo School UAE", UaeDemoSchoolDomain);
+            uaeDemo.AssignCountry(uae.Id);
+            _context.Schools.Add(uaeDemo);
+        }
+
+        if (!await _context.Schools.AnyAsync(s => s.Domain == UsaDemoSchoolDomain))
+        {
+            var usaDemo = School.Create("Demo School USA", UsaDemoSchoolDomain);
+            usaDemo.AssignCountry(usa.Id);
+            _context.Schools.Add(usaDemo);
+        }
+
+        await _context.SaveChangesAsync();
+
+        var demoSchool = await _context.Schools.SingleAsync(s => s.Domain == DemoSchoolDomain);
+        var uaeDemoSchool = await _context.Schools.SingleAsync(s => s.Domain == UaeDemoSchoolDomain);
+        var usaDemoSchool = await _context.Schools.SingleAsync(s => s.Domain == UsaDemoSchoolDomain);
+
+        // The demo schools run on the Full plan for a year, so every module works when developing.
+        await SeedDemoSubscriptionAsync(demoSchool, pakistan);
+        await SeedDemoSubscriptionAsync(uaeDemoSchool, uae);
+        await SeedDemoSubscriptionAsync(usaDemoSchool, usa);
+
+        // The Pakistan and UAE demo schools have branches besides their main branch, so the branch screens have data.
+        await SeedDemoBranchesAsync(demoSchool, [("Karachi", "0002"), ("Lahore", "0003")]);
+        await SeedDemoBranchesAsync(uaeDemoSchool, [("Dubai", "0002"), ("Abu Dhabi", "0003")]);
+
+        // Each demo school has an open invoice for its first period and two school roles, so the billing and roles screens have data.
+        await SeedDemoInvoiceAsync(demoSchool);
+        await SeedDemoInvoiceAsync(uaeDemoSchool);
+        await SeedDemoRolesAsync(demoSchool);
+        await SeedDemoRolesAsync(uaeDemoSchool);
+
         // Default roles
         var administratorRole = new IdentityRole(Roles.Administrator);
 
@@ -74,15 +202,179 @@ public class ApplicationDbContextInitialiser
         }
 
         // Default users
-        var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost" };
+        var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost", SchoolId = master.Id };
 
         if (_userManager.Users.All(u => u.UserName != administrator.UserName))
         {
-            await _userManager.CreateAsync(administrator, "Administrator1!");
+            await _userManager.CreateAsync(administrator, DevelopmentPassword);
             if (!string.IsNullOrWhiteSpace(administratorRole.Name))
             {
                 await _userManager.AddToRolesAsync(administrator, new [] { administratorRole.Name });
             }
+        }
+
+        // The demo school's administrator signs in on demo.localhost only.
+        var demoAdministrator = new ApplicationUser { UserName = "administrator@demo.localhost", Email = "administrator@demo.localhost", SchoolId = demoSchool.Id };
+
+        if (_userManager.Users.All(u => u.UserName != demoAdministrator.UserName))
+        {
+            await _userManager.CreateAsync(demoAdministrator, DevelopmentPassword);
+            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
+            {
+                await _userManager.AddToRolesAsync(demoAdministrator, new [] { administratorRole.Name });
+            }
+        }
+
+        // The UAE demo school's administrator signs in on uae.localhost only.
+        var uaeAdministrator = new ApplicationUser { UserName = "administrator@uae.localhost", Email = "administrator@uae.localhost", SchoolId = uaeDemoSchool.Id };
+
+        if (_userManager.Users.All(u => u.UserName != uaeAdministrator.UserName))
+        {
+            await _userManager.CreateAsync(uaeAdministrator, DevelopmentPassword);
+            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
+            {
+                await _userManager.AddToRolesAsync(uaeAdministrator, new [] { administratorRole.Name });
+            }
+        }
+
+        // The USA demo school's administrator signs in on usa.localhost only.
+        var usaAdministrator = new ApplicationUser { UserName = "administrator@usa.localhost", Email = "administrator@usa.localhost", SchoolId = usaDemoSchool.Id };
+
+        if (_userManager.Users.All(u => u.UserName != usaAdministrator.UserName))
+        {
+            await _userManager.CreateAsync(usaAdministrator, DevelopmentPassword);
+            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
+            {
+                await _userManager.AddToRolesAsync(usaAdministrator, new [] { administratorRole.Name });
+            }
+        }
+    }
+
+    /// <summary>Issues an open invoice for a demo school's first period. Safe to run again: a subscription with an invoice is skipped.</summary>
+    private async Task SeedDemoInvoiceAsync(School school)
+    {
+        // The seed runs with no tenant, so the tenant filters would hide the rows: ignore them, scoped to this school.
+        var subscription = await _context.Subscriptions.IgnoreQueryFilters().SingleAsync(s => s.SchoolId == school.Id);
+        if (await _context.Invoices.IgnoreQueryFilters().AnyAsync(i => i.SubscriptionId == subscription.Id))
+        {
+            return;
+        }
+
+        var book = await _context.PriceBooks.SingleAsync(p => p.Id == subscription.PriceBookId);
+        _context.Invoices.Add(Invoice.Create(subscription, book.TaxRate, _timeProvider.GetUtcNow(), nextPeriod: false, "Full plan, first period (demo)"));
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>Adds two school roles with rights in the demo school's modules. Safe to run again: a role whose name exists is skipped.</summary>
+    private async Task SeedDemoRolesAsync(School school)
+    {
+        var modules = await _context.Modules.ToDictionaryAsync(m => m.Code);
+        var roles = new (string Name, (string Code, bool View, bool Create, bool Edit, bool Delete)[] Rights)[]
+        {
+            ("Registrar", [(ModuleCodes.Students, true, true, true, false), (ModuleCodes.AcademicSetup, true, false, false, false)]),
+            ("Accountant", [(ModuleCodes.Fees, true, true, true, false)]),
+        };
+
+        foreach (var (name, rights) in roles)
+        {
+            if (await _context.SchoolRoles.IgnoreQueryFilters().AnyAsync(r => r.SchoolId == school.Id && r.Name == name))
+            {
+                continue;
+            }
+
+            var role = SchoolRole.Create(school.Id, name);
+            _context.SchoolRoles.Add(role);
+            await _context.SaveChangesAsync();
+
+            foreach (var (code, view, create, edit, delete) in rights)
+            {
+                _context.RolePermissions.Add(RolePermission.Create(role, modules[code], view, create, edit, delete));
+            }
+
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    /// <summary>Adds the given branches to a demo school. Safe to run again: a branch whose code exists is skipped.</summary>
+    private async Task SeedDemoBranchesAsync(School school, (string Name, string Code)[] branches)
+    {
+        // The seed runs with no tenant, so the branch query filter would hide existing rows: ignore it, scoped to this school.
+        foreach (var (name, code) in branches)
+        {
+            if (!await _context.Branches.IgnoreQueryFilters().AnyAsync(b => b.SchoolId == school.Id && b.Code == code))
+            {
+                _context.Branches.Add(Branch.Create(school.Id, name, code));
+            }
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Gives a demo school a one-year subscription to the Full plan, priced from its country's price book. The database
+    /// is recreated on every start in Development, so this runs once per school.
+    /// </summary>
+    private async Task SeedDemoSubscriptionAsync(School school, Country country)
+    {
+        var plan = await _context.Plans.SingleAsync(p => p.Code == PricingCatalog.Full);
+        var book = await _context.PriceBooks.SingleAsync(b => b.CountryCode == country.Code);
+        var price = await _context.PriceBookItems.SingleAsync(i => i.PriceBookId == book.Id && i.PlanId == plan.Id && i.BillingCycle == BillingCycle.Yearly);
+        var planModuleIds = await _context.PlanModules.Where(m => m.PlanId == plan.Id).Select(m => m.ModuleId).ToListAsync();
+
+        var subscription = Subscription.Create(school.Id, plan, book, BillingCycle.Yearly, price.Price, _timeProvider.GetUtcNow(), trialDays: 0);
+        // The seed runs with no tenant, so the branch query filter would hide the branch: ignore it, scoped to this school.
+        var mainBranch = await _context.Branches.IgnoreQueryFilters()
+            .SingleAsync(b => b.SchoolId == school.Id && b.Kind == BranchKind.Main);
+        foreach (var module in await _context.Modules.Where(m => m.IsCore || planModuleIds.Contains(m.Id)).ToListAsync())
+        {
+            subscription.AddModule(module, mainBranch);
+        }
+
+        _context.Subscriptions.Add(subscription);
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>Adds the starting plans, and the price books of the countries that exist. Safe to run again: it adds only what is missing.</summary>
+    public async Task SeedPricingAsync()
+    {
+        var modules = await _context.Modules.ToDictionaryAsync(m => m.Code);
+        var knownPlans = await _context.Plans.Select(p => p.Code).ToListAsync();
+
+        foreach (var (code, name, description, moduleCodes) in PricingCatalog.Plans.Where(p => !knownPlans.Contains(p.Code)))
+        {
+            var plan = Plan.Create(code, name, description);
+            _context.Plans.Add(plan);
+            await _context.SaveChangesAsync();
+
+            _context.PlanModules.AddRange(moduleCodes.Where(modules.ContainsKey).Select(m => PlanModule.Create(plan, modules[m])));
+            await _context.SaveChangesAsync();
+        }
+
+        var plans = await _context.Plans.ToDictionaryAsync(p => p.Code);
+        var knownBooks = await _context.PriceBooks.Select(b => b.CountryCode).ToListAsync();
+        var countries = await _context.Countries.Select(c => c.Code).ToListAsync();
+        var paidModules = modules.Values.Where(m => !m.IsCore).ToList();
+
+        foreach (var (countryCode, currencyCode, planPrices, modulePrice) in PricingCatalog.PriceBooks
+                     .Where(b => !knownBooks.Contains(b.CountryCode) && countries.Contains(b.CountryCode)))
+        {
+            var book = PriceBook.Create(countryCode, currencyCode);
+            _context.PriceBooks.Add(book);
+            await _context.SaveChangesAsync();
+
+            foreach (var (planCode, monthly) in planPrices.Where(p => plans.ContainsKey(p.Key)))
+            {
+                _context.PriceBookItems.Add(PriceBookItem.ForPlan(book, plans[planCode], BillingCycle.Monthly, monthly));
+                _context.PriceBookItems.Add(PriceBookItem.ForPlan(book, plans[planCode], BillingCycle.Yearly, monthly * PricingCatalog.MonthsChargedPerYear));
+            }
+
+            foreach (var module in paidModules)
+            {
+                _context.PriceBookItems.Add(PriceBookItem.ForModule(book, module, BillingCycle.Monthly, modulePrice));
+                _context.PriceBookItems.Add(PriceBookItem.ForModule(book, module, BillingCycle.Yearly, modulePrice * PricingCatalog.MonthsChargedPerYear));
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

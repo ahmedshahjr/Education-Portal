@@ -1,0 +1,36 @@
+<form class="mm-school-profile" [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-form-field appearance="outline">
+    <mat-label i18n="@@profile.name">School name</mat-label>
+    <input matInput formControlName="name" maxlength="200" autocomplete="off" />
+    @if (form.controls.name.hasError('required')) {
+      <mat-error i18n="@@profile.nameRequired">Enter the school's name.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label i18n="@@profile.domain">Domain</mat-label>
+    <input matInput formControlName="domain" maxlength="253" autocomplete="off" dir="ltr" />
+    <mat-hint i18n="@@profile.domainHint">The address the school is reached on, for example school1.com. No two schools share one.</mat-hint>
+    @if (form.controls.domain.hasError('required')) {
+      <mat-error i18n="@@profile.domainRequired">Enter the domain.</mat-error>
+    } @else if (form.controls.domain.hasError('pattern') || form.controls.domain.hasError('maxlength')) {
+      <mat-error i18n="@@profile.domainFormat">Enter a host name such as school1.com.</mat-error>
+    }
+  </mat-form-field>
+
+  @if (school().isMaster) {
+    <p class="mm-school-profile__muted" i18n="@@profile.masterDomainLocked">The master tenant's domain cannot be changed.</p>
+  }
+
+  @if (form.dirty) {
+    <div class="mm-school-profile__bar" role="region" aria-label="Unsaved changes" i18n-aria-label="@@profile.unsavedRegion">
+      <span i18n="@@profile.unsaved">You have unsaved changes.</span>
+      <button mat-button type="button" [disabled]="busy()" (click)="cancel()" i18n="@@common.cancel">Cancel</button>
+      <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@profile.save">Save</button>
+    </div>
+  }
+
+  @for (message of errors(); track message) {
+    <p class="mm-school-profile__error" role="alert">{{ message }}</p>
+  }
+</form>

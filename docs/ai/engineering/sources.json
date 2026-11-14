@@ -1,0 +1,261 @@
+{
+  "_comment": "Official guidance and maintained skill collections behind the engineering skills in docs/ai/engineering/. Same format as docs/ai/secure-compliance/sources.json: tracked_version is the version the skills are written against, skills lists the skills that depend on the source. docs/ai/sync-ai-wrappers.py --check fails if an engineering skill has no source here, and copies these fields into each skill and the README. The 'Compliance sources review' workflow (.github/workflows/compliance-sources-review.yml) checks every source on the 1st and 16th of each month and opens an issue. Upstream text is never copied in; after reviewing a change, update the affected skills, tracked_version, last_seen_sha and last_reviewed here in one PR.",
+  "last_full_review": "2026-11-10",
+  "sources": [
+    {
+      "id": "angular-ai-guidelines",
+      "name": "Angular team's AI rules for coding agents (guidelines.md, AGENTS.md, GEMINI.md)",
+      "portal": "https://angular.dev/ai/develop-with-ai",
+      "tracked_version": "Angular v22 guidelines (adev/src/context)",
+      "skills": ["angular-material-ui"],
+      "watch": {"type": "github-path", "repo": "angular/angular", "path": "adev/src/context"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "angular-skills",
+      "name": "Official Angular agent skills (angular-developer)",
+      "portal": "https://angular.dev/ai/agent-skills",
+      "tracked_version": "angular/skills, built 2026-11-10 from angular/angular 0dafb36",
+      "skills": ["angular-material-ui"],
+      "watch": {"type": "github-path", "repo": "angular/skills", "path": "angular-developer"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "angular-best-practices",
+      "name": "Angular style guide and best practices (incl. accessibility)",
+      "portal": "https://angular.dev/style-guide",
+      "tracked_version": "angular.dev best practices for Angular v22",
+      "skills": ["angular-material-ui"],
+      "watch": {"type": "github-path", "repo": "angular/angular", "path": "adev/src/content/best-practices"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "angular-material",
+      "name": "Angular Material and CDK guides (Material 3 theming)",
+      "portal": "https://material.angular.dev/guide/theming",
+      "tracked_version": "Angular Material 22 (Material 3 theming with mat.theme and system tokens)",
+      "skills": ["angular-material-ui"],
+      "watch": {"type": "github-path", "repo": "angular/components", "path": "guides"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "material-design-3",
+      "name": "Google Material Design 3 guidelines (layout, components, accessibility)",
+      "portal": "https://m3.material.io/",
+      "tracked_version": "Material Design 3",
+      "skills": ["angular-material-ui"],
+      "watch": null,
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "wcag",
+      "name": "W3C Web Content Accessibility Guidelines",
+      "portal": "https://www.w3.org/TR/WCAG22/",
+      "tracked_version": "WCAG 2.2 Level AA",
+      "skills": ["angular-material-ui"],
+      "watch": null,
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "ef-core-docs",
+      "name": "Microsoft EF Core documentation (performance, querying, modeling, saving, migrations, testing)",
+      "portal": "https://learn.microsoft.com/ef/core/",
+      "tracked_version": "EF Core 10",
+      "skills": ["efcore", "csharp-entities", "identifiers-enums"],
+      "watch": {"type": "github-path", "repo": "dotnet/EntityFramework.Docs", "path": "entity-framework/core"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "npgsql-efcore",
+      "name": "Npgsql EF Core provider documentation (PostgreSQL specifics, xmin concurrency)",
+      "portal": "https://www.npgsql.org/efcore/",
+      "tracked_version": "Npgsql.EntityFrameworkCore.PostgreSQL 10",
+      "skills": ["efcore"],
+      "watch": null,
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "dotnet-skills-ef-core",
+      "name": "Microsoft .NET agent skills: optimizing-ef-core-queries",
+      "portal": "https://github.com/dotnet/skills",
+      "tracked_version": "dotnet/skills plugins/dotnet-data (main)",
+      "skills": ["efcore"],
+      "watch": {"type": "github-path", "repo": "dotnet/skills", "path": "plugins/dotnet-data/skills/optimizing-ef-core-queries"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "dotnet-ddd-guidance",
+      "name": "Microsoft .NET architecture guide: DDD domain model, entities, value objects, domain events",
+      "portal": "https://learn.microsoft.com/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/",
+      "tracked_version": ".NET Microservices: Architecture for Containerized .NET Applications (current edition on Learn)",
+      "skills": ["csharp-entities"],
+      "watch": {"type": "github-path", "repo": "dotnet/docs", "path": "docs/architecture/microservices/microservice-ddd-cqrs-patterns"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "dotnet-design-guidelines",
+      "name": "Microsoft .NET Framework design guidelines (naming, type and member design)",
+      "portal": "https://learn.microsoft.com/dotnet/standard/design-guidelines/",
+      "tracked_version": ".NET design guidelines (current on Learn)",
+      "skills": ["csharp-entities", "design-principles", "identifiers-enums"],
+      "watch": {"type": "github-path", "repo": "dotnet/docs", "path": "docs/standard/design-guidelines"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "dotnet-architectural-principles",
+      "name": "Microsoft architectural principles (SOLID, DRY, separation of concerns, persistence ignorance)",
+      "portal": "https://learn.microsoft.com/dotnet/architecture/modern-web-apps-azure/architectural-principles",
+      "tracked_version": "Architect Modern Web Applications with ASP.NET Core and Azure (current edition on Learn)",
+      "skills": ["design-principles"],
+      "watch": {"type": "github-path", "repo": "dotnet/docs", "path": "docs/architecture/modern-web-apps-azure/architectural-principles.md"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "csharp-coding-conventions",
+      "name": "Microsoft C# coding conventions and identifier naming",
+      "portal": "https://learn.microsoft.com/dotnet/csharp/fundamentals/coding-style/coding-conventions",
+      "tracked_version": "C# 14 / .NET 10 coding conventions",
+      "skills": ["code-quality-process", "csharp-entities"],
+      "watch": {"type": "github-path", "repo": "dotnet/docs", "path": "docs/csharp/fundamentals/coding-style"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "dotnet-skills-testing",
+      "name": "Microsoft .NET agent skills: test-anti-patterns",
+      "portal": "https://github.com/dotnet/skills",
+      "tracked_version": "dotnet/skills plugins/dotnet-test (main)",
+      "skills": ["code-quality-process"],
+      "watch": {"type": "github-path", "repo": "dotnet/skills", "path": "plugins/dotnet-test/skills/test-anti-patterns"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "google-eng-practices",
+      "name": "Google engineering practices (code review, small changes)",
+      "portal": "https://google.github.io/eng-practices/",
+      "tracked_version": "google/eng-practices (main)",
+      "skills": ["code-quality-process"],
+      "watch": {"type": "github-path", "repo": "google/eng-practices", "path": "review"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "owasp-llm-top10",
+      "name": "OWASP Top 10 for LLM Applications",
+      "portal": "https://genai.owasp.org/llm-top-10/",
+      "tracked_version": "OWASP Top 10 for LLM Applications 2025",
+      "skills": ["ai-agents"],
+      "watch": {"type": "github-path", "repo": "OWASP/www-project-top-10-for-large-language-model-applications", "path": "2_0_vulns"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "nist-ai-rmf",
+      "name": "NIST AI Risk Management Framework and Generative AI Profile",
+      "portal": "https://www.nist.gov/itl/ai-risk-management-framework",
+      "tracked_version": "AI RMF 1.0 (NIST AI 100-1) and Generative AI Profile (NIST AI 600-1)",
+      "skills": ["ai-agents"],
+      "watch": null,
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "awesome-copilot-agent-safety",
+      "name": "github/awesome-copilot community instructions: agent safety",
+      "portal": "https://github.com/github/awesome-copilot",
+      "tracked_version": "github/awesome-copilot agent-safety instructions (main)",
+      "skills": ["ai-agents"],
+      "watch": {"type": "github-path", "repo": "github/awesome-copilot", "path": "instructions/agent-safety.instructions.md"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "aspnetcore-minimal-api-json",
+      "name": "ASP.NET Core minimal APIs: JSON options, parameter binding and OpenAPI metadata (enums as strings)",
+      "portal": "https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis/responses?view=aspnetcore-10.0#configure-json-serialization-options",
+      "tracked_version": "ASP.NET Core 10",
+      "skills": ["identifiers-enums"],
+      "watch": {"type": "github-path", "repo": "dotnet/AspNetCore.Docs", "path": "aspnetcore/fundamentals/minimal-apis"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-11"
+    },
+    {
+      "id": "azure-api-design",
+      "name": "Azure Architecture Center: best practices for RESTful web API design (do not expose internal implementation or mirror the database)",
+      "portal": "https://learn.microsoft.com/azure/architecture/best-practices/api-design",
+      "tracked_version": "Azure Architecture Center API design guidance (current on Learn)",
+      "skills": ["identifiers-enums"],
+      "watch": {"type": "github-path", "repo": "MicrosoftDocs/architecture-center", "path": "docs/best-practices/api-design.md"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-11"
+    },
+    {
+      "id": "ms-globalization",
+      "name": "Microsoft Globalization documentation: software internationalization and localization overview",
+      "portal": "https://learn.microsoft.com/globalization/",
+      "tracked_version": "Microsoft Learn Globalization docs (current on Learn)",
+      "skills": ["localization-i18n"],
+      "watch": {"type": "github-path", "repo": "MicrosoftDocs/globalization", "path": "globalization"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-12"
+    },
+    {
+      "id": "cse-playbook-i18n",
+      "name": "Microsoft Code With Engineering Playbook: internationalization and localization",
+      "portal": "https://microsoft.github.io/code-with-engineering-playbook/non-functional-requirements/internationalization/",
+      "tracked_version": "Engineering playbook (main)",
+      "skills": ["localization-i18n"],
+      "watch": {"type": "github-path", "repo": "microsoft/code-with-engineering-playbook", "path": "docs/non-functional-requirements/internationalization.md"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-12"
+    },
+    {
+      "id": "dotnet-globalization",
+      "name": ".NET globalization and localization (resources, culture-explicit formatting and comparison, time zones)",
+      "portal": "https://learn.microsoft.com/dotnet/core/extensions/globalization",
+      "tracked_version": ".NET 10",
+      "skills": ["localization-i18n"],
+      "watch": {"type": "github-path", "repo": "dotnet/docs", "path": "docs/core/extensions/globalization.md"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-12"
+    },
+    {
+      "id": "aspnetcore-localization",
+      "name": "Globalization and localization in ASP.NET Core (request localization, IStringLocalizer)",
+      "portal": "https://learn.microsoft.com/aspnet/core/fundamentals/localization",
+      "tracked_version": "ASP.NET Core 10",
+      "skills": ["localization-i18n"],
+      "watch": {"type": "github-path", "repo": "dotnet/AspNetCore.Docs", "path": "aspnetcore/fundamentals/localization"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-12"
+    },
+    {
+      "id": "angular-i18n",
+      "name": "Angular internationalization guide (i18n, $localize, ICU, custom ids, locale data)",
+      "portal": "https://angular.dev/guide/i18n",
+      "tracked_version": "Angular v22 guide (adev/src/content/guide/i18n)",
+      "skills": ["localization-i18n"],
+      "watch": {"type": "github-path", "repo": "angular/angular", "path": "adev/src/content/guide/i18n"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-12"
+    },
+    {
+      "id": "poeditor-angular-i18n",
+      "name": "POEditor: Angular internationalization and localization best practices",
+      "portal": "https://poeditor.com/blog/angular-internationalization-localization/",
+      "tracked_version": "Article as read on 2026-11-12",
+      "skills": ["localization-i18n"],
+      "watch": null,
+      "last_reviewed": "2026-11-12"
+    }
+  ]
+}

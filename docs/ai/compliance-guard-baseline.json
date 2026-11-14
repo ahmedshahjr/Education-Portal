@@ -1,0 +1,8 @@
+{
+  "_comment": "Known gaps inherited from the template (compliance overview section 8, engineering overview section 6). Each entry allows at most this many findings in that file. Never raise a count or add an entry without maintainer approval; lower or remove it in the PR that fixes the gap.",
+  "allowed": {
+    "sync-over-async": {
+      "Education Portal Full Stack App/src/Infrastructure/Data/Interceptors/DispatchDomainEventsInterceptor.cs": 1
+    }
+  }
+}

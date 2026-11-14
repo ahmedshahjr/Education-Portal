@@ -5,20 +5,12 @@
     <title>Education Portal</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@600;700&display=swap" rel="stylesheet" />
-    <script>
-      (function () {
-        var theme = localStorage.getItem('picoColorScheme');
-        if (theme && theme !== 'auto') {
-          document.documentElement.setAttribute('data-theme', theme);
-        }
-      })();
-    </script>
+    <!-- Replaced by the school's favicon once its branding loads (BrandingService). -->
+    <link rel="icon" href="favicon.png" />
+    <!-- Applies the saved light or dark mode before the first paint. It is a file, not an inline script, because the Content-Security-Policy forbids inline scripts (SEC-WEB-04). -->
+    <script src="assets/theme-init.js"></script>
   </head>
-  <body>
-    <app-root>Loading...</app-root>
+  <body class="mat-typography">
+    <app-root></app-root>
   </body>
 </html>

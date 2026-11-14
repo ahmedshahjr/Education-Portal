@@ -10,13 +10,19 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
 {
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
+    private readonly ICurrentTenant _tenant;
+    private readonly IModuleAccess _moduleAccess;
 
     public AuthorizationBehaviour(
         IUser user,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        ICurrentTenant tenant,
+        IModuleAccess moduleAccess)
     {
         _user = user;
         _identityService = identityService;
+        _tenant = tenant;
+        _moduleAccess = moduleAccess;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -29,6 +35,40 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
             if (_user.Id == null)
             {
                 throw new UnauthorizedAccessException();
+            }
+
+            // An account that still has its one-time password can only replace it, read itself and sign out.
+            if (_user.MustChangePassword && !authorizeAttributes.Any(a => a.AllowWhilePasswordChangeRequired))
+            {
+                throw new PasswordChangeRequiredException();
+            }
+
+            // Master-tenant use cases run only on the master tenant's domain (SEC-AUTHZ-07)
+            if (authorizeAttributes.Any(a => a.MasterTenant) && !_tenant.IsMaster)
+            {
+                throw new ForbiddenAccessException();
+            }
+
+            // Modules per school (SEC-AUTHZ-01): a module the school's subscription does not give it is refused for
+            // everyone in it, with the code MODULE_NOT_ENABLED. The master tenant oversees every school, so modules never limit it.
+            var modules = authorizeAttributes
+                .Select(a => a.Module)
+                .Where(m => !string.IsNullOrWhiteSpace(m))
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+
+            if (modules.Count > 0 && !_tenant.IsMaster)
+            {
+                var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+
+                foreach (var module in modules)
+                {
+                    // No branch is known here yet, so a module granted to one branch only does not count (fail closed).
+                    if (!await _moduleAccess.HasModuleAsync(schoolId, module, branchId: null, cancellationToken))
+                    {
+                        throw new ModuleNotEnabledException(module);
+                    }
+                }
             }
 
             // Role-based authorization

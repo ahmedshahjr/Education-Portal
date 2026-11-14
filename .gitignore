@@ -1,3 +1,23 @@
+# Repo-wide safety net. Each app folder also has its own .gitignore.
+
+# Node packages, anywhere in the repo
+node_modules/
+
+# Theme Angular: generated and local-only files
+/Theme Angular/.angular/
+/Theme Angular/dist/
+/Theme Angular/build/
+/Theme Angular/out-tsc/
+/Theme Angular/tmp/
+/Theme Angular/coverage/
+/Theme Angular/.sass-cache/
+/Theme Angular/*.log
+/Theme Angular/.env
+/Theme Angular/.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
 # Ruflo local secrets and runtime data
 .env
 .env.local

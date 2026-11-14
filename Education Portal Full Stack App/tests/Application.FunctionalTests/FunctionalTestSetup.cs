@@ -7,8 +7,10 @@ public class FunctionalTestSetup
 {
     internal static IServiceScopeFactory ScopeFactory { get; private set; } = null!;
     internal static DatabaseResetter? DbResetter { get; private set; }
+    internal static string ConnectionString { get; private set; } = string.Empty;
+    internal static WebApiFactory DevelopmentFactory { get; private set; } = null!;
+    internal static ProductionWebApiFactory ProductionFactory { get; private set; } = null!;
 
-    private static WebApiFactory? _factory;
     private static DistributedApplication? _app;
 
     [OneTimeSetUp]
@@ -38,11 +40,14 @@ public class FunctionalTestSetup
         await _app.ResourceNotifications.WaitForResourceHealthyAsync(
             Services.Database, cancellationToken);
 
-        var connectionString = (await _app.GetConnectionStringAsync(Services.Database))!;
+        ConnectionString = (await _app.GetConnectionStringAsync(Services.Database))!;
 
-        _factory = new WebApiFactory(connectionString);
-        ScopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
-        DbResetter = await DatabaseResetter.CreateAsync(connectionString);
+        // The Development host creates and seeds the schema first. The Production-mode host runs against that schema.
+        DevelopmentFactory = new WebApiFactory(ConnectionString);
+        ScopeFactory = DevelopmentFactory.Services.GetRequiredService<IServiceScopeFactory>();
+        DbResetter = await DatabaseResetter.CreateAsync(ConnectionString);
+
+        ProductionFactory = new ProductionWebApiFactory(ConnectionString);
     }
 
     [OneTimeTearDown]
@@ -50,6 +55,7 @@ public class FunctionalTestSetup
     {
         if (DbResetter is not null) await DbResetter.DisposeAsync();
         if (_app is not null) await _app.DisposeAsync();
-        if (_factory is not null) await _factory.DisposeAsync();
+        if (ProductionFactory is not null) await ProductionFactory.DisposeAsync();
+        if (DevelopmentFactory is not null) await DevelopmentFactory.DisposeAsync();
     }
 }

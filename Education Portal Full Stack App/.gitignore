@@ -39,7 +39,7 @@ bld/
 #wwwroot/
 
 # Auto-generated OpenAPI specification and TypeScript API clients
-src/Web/wwwroot/openapi/v1.json
+src/Web/openapi/v1.json
 src/Web/ClientApp/src/app/web-api-client.ts
 src/Web/ClientApp-React/src/web-api-client.ts
 

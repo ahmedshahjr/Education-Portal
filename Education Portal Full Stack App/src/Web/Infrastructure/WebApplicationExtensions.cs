@@ -21,6 +21,10 @@ public static class WebApplicationExtensions
             var routePrefix = type.GetProperty(nameof(IEndpointGroup.RoutePrefix))
                 ?.GetValue(null) as string ?? $"/api/{groupName}";
             var group = app.MapGroup(routePrefix).WithTags(groupName);
+
+            // Every unsafe request in every group needs a valid antiforgery token (SEC-WEB-03).
+            group.AddEndpointFilter<RequireAntiforgeryTokenFilter>();
+
             type.GetMethod(nameof(IEndpointGroup.Map))!.Invoke(null, [group]);
         }
 

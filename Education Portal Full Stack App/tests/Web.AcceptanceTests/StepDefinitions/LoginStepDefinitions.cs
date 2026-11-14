@@ -26,17 +26,18 @@ public sealed class LoginStepDefinitions(LoginPage loginPage)
     public async Task TheUserLogsInWithValidCredentials()
     {
         await loginPage.SetEmail("administrator@localhost");
-        await loginPage.SetPassword("Administrator1!");
+        // The Development seed account and its password (SEC-SECRET-04). It does not exist in other environments.
+        await loginPage.SetPassword("Local-Dev-Only-2026!");
         await loginPage.ClickLogin();
     }
 
     [Then("they log in successfully")]
     public async Task TheyLogInSuccessfully()
     {
-        var logoutButtonText = await loginPage.LogoutButtonText();
+        var signOutButtonText = await loginPage.SignOutButtonText();
 
-        logoutButtonText.ShouldNotBeNull();
-        logoutButtonText.ShouldBe("Log out");
+        signOutButtonText.ShouldNotBeNull();
+        signOutButtonText.ShouldBe("Sign out");
     }
 
     [When("the user logs in with invalid credentials")]

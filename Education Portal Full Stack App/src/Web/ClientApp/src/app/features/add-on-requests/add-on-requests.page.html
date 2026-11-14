@@ -1,0 +1,49 @@
+<app-page-header
+  title="Add-on requests"
+  i18n-title="@@addOnRequests.title"
+  subtitle="Master portal: modules that schools asked to add to their subscription. Approving adds the module at once; rejecting changes nothing."
+  i18n-subtitle="@@addOnRequests.subtitle"
+/>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="Requests could not be loaded"
+        i18n-title="@@addOnRequests.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else if (requests(); as requests) {
+      @if (requests.length === 0) {
+        <app-empty-state
+          icon="inbox"
+          title="No requests waiting"
+          i18n-title="@@addOnRequests.empty"
+          description="When a school asks for an add-on module, it shows up here."
+          i18n-description="@@addOnRequests.emptyHint"
+        />
+      } @else {
+        <ul class="mm-add-on-requests__list">
+          @for (request of requests; track request.id) {
+            <li class="mm-add-on-requests__row">
+              <div>
+                <div class="mm-add-on-requests__name">{{ request.moduleName }} <code>{{ request.moduleCode }}</code></div>
+                <div class="mm-add-on-requests__meta">{{ request.schoolName }} · {{ request.created | localDate }}</div>
+              </div>
+              <div>
+                <button mat-flat-button type="button" [disabled]="busy()" (click)="approve(request)" i18n="@@addOnRequests.approve">Approve</button>
+                <button mat-button type="button" [disabled]="busy()" (click)="reject(request)" i18n="@@addOnRequests.reject">Reject</button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    } @else {
+      <app-loading-state />
+    }
+  </mat-card-content>
+</mat-card>
