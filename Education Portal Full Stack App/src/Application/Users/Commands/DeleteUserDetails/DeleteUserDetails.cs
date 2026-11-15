@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Users.Commands.DeleteUserDetails;
 /// cannot be deleted until another principal is chosen there. The school is the one the request's host resolves to. Needs
 /// the Staff module. Audited (SEC-LOG-03) with the person's id only.
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.Staff)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.Staff)]
 public record DeleteUserDetailsCommand : IRequest
 {
     /// <summary>The person's public id.</summary>

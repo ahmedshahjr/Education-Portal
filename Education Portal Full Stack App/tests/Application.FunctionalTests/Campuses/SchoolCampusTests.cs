@@ -120,7 +120,7 @@ public class SchoolCampusTests : TestBase
         using var admin = await SignInToSchoolAsync(school.Id, SchoolDomain, "admin@school1.local");
         var campus = await AddCampusAsync(admin, "Karachi");
         var (schoolId, campusId) = await IdsAsync(school.PublicId, campus);
-        await TestApp.SubscribeAsync(schoolId, [ModuleCodes.Fees], campusId: campusId);
+        await TestApp.SubscribeAsync(schoolId, [ModuleCode.Fees], campusId: campusId);
 
         using var delete = await admin.DeleteAsync($"/api/Campuses/{campus}");
 
@@ -275,6 +275,8 @@ public class SchoolCampusTests : TestBase
     private static async Task<(int SchoolId, int CampusId)> IdsAsync(Guid schoolPublicId, Guid campusPublicId)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+        // Campuses are tenant-filtered: look them up as the master tenant, which sees every school's rows.
+        scope.ServiceProvider.GetRequiredService<EducationPortal.Web.Services.CurrentTenant>().Set(new EducationPortal.Application.Common.Interfaces.ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var schoolId = await context.Schools.Where(s => s.PublicId == schoolPublicId).Select(s => s.Id).SingleAsync();
         var campusId = await context.Campuses.Where(b => b.PublicId == campusPublicId).Select(b => b.Id).SingleAsync();

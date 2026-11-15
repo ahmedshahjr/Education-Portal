@@ -1,4 +1,4 @@
-using EducationPortal.Domain.Common;
+﻿using EducationPortal.Domain.Common;
 using EducationPortal.Domain.Enums;
 using EducationPortal.Domain.ValueObjects;
 
@@ -9,7 +9,7 @@ namespace EducationPortal.Domain.Entities;
 /// contact. Owned by the school (<see cref="SchoolId"/>) and covered by the tenant query filter (SEC-AUTHZ-03). The
 /// person is not yet linked to a sign-in account. A campus names its principal with one of these rows.
 /// </summary>
-public class UserDetails : BaseSoftDeletableEntity
+public class UserDetails : BaseSoftDeletableEntity, ITenantOwned
 {
     public const int NameMaxLength = 100;
 

@@ -10,7 +10,7 @@ namespace EducationPortal.Domain.Entities;
 /// by the school (<c>SchoolId</c>) and covered by the tenant query filter (SEC-AUTHZ-03). The module's data is kept when
 /// the row expires or is suspended.
 /// </summary>
-public class TenantModule : BaseAuditableEntity
+public class TenantModule : BaseAuditableEntity, ITenantOwned
 {
     private TenantModule()
     {

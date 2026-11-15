@@ -5,7 +5,7 @@ namespace EducationPortal.Domain.Entities;
 /// arrived, the bank or receipt reference and when it was received. Tenant-owned (SEC-AUTHZ-03). No card data is ever
 /// stored (PCI scope stays out; there is no gateway in this phase).
 /// </summary>
-public class Payment : BaseAuditableEntity
+public class Payment : BaseAuditableEntity, ITenantOwned
 {
     public const int ReferenceMaxLength = 100;
     public const int ProviderMaxLength = 50;

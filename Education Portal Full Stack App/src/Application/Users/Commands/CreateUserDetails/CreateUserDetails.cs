@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Users.Commands.CreateUserDetails;
 /// Adds a person (a principal, a teacher or other staff) to the current school. The school is the one the request's host
 /// resolves to (SEC-AUTHZ-04). Needs the Staff module. Audited (SEC-LOG-03) with the person's id only, not the name.
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.Staff)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.Staff)]
 public record CreateUserDetailsCommand : UserDetailsFields, IRequest<Guid>;
 
 public class CreateUserDetailsCommandValidator : UserDetailsFieldsValidator<CreateUserDetailsCommand>

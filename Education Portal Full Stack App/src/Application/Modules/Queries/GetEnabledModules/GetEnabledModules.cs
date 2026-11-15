@@ -9,9 +9,9 @@ namespace EducationPortal.Application.Modules.Queries.GetEnabledModules;
 /// module on every request (SEC-AUTHZ-01); this list is only for the menu.
 /// </summary>
 [Authorize]
-public record GetEnabledModulesQuery : IRequest<IReadOnlyList<string>>;
+public record GetEnabledModulesQuery : IRequest<IReadOnlyList<ModuleCode>>;
 
-public class GetEnabledModulesQueryHandler : IRequestHandler<GetEnabledModulesQuery, IReadOnlyList<string>>
+public class GetEnabledModulesQueryHandler : IRequestHandler<GetEnabledModulesQuery, IReadOnlyList<ModuleCode>>
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;
@@ -24,7 +24,7 @@ public class GetEnabledModulesQueryHandler : IRequestHandler<GetEnabledModulesQu
         _moduleAccess = moduleAccess;
     }
 
-    public async Task<IReadOnlyList<string>> Handle(GetEnabledModulesQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ModuleCode>> Handle(GetEnabledModulesQuery request, CancellationToken cancellationToken)
     {
         var schoolId = _tenant.SchoolId ?? throw new UnauthorizedAccessException();
 

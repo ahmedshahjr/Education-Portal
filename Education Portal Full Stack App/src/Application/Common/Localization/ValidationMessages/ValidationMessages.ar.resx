@@ -405,4 +405,16 @@
   <data name="CampusPhonesTooMany" xml:space="preserve">
     <value>يسرد الحرم خمسة أرقام هاتف كحد أقصى.</value>
   </data>
+  <data name="StudentAgeOutOfRange" xml:space="preserve">
+    <value>يجب أن يكون عمر الطالب من {0} إلى {1} سنة في تاريخ القبول.</value>
+  </data>
+  <data name="StudentBirthDateInFuture" xml:space="preserve">
+    <value>لا يمكن أن يكون تاريخ الميلاد في المستقبل.</value>
+  </data>
+  <data name="StudentAdmissionBeforeBirth" xml:space="preserve">
+    <value>لا يمكن أن يسبق تاريخ القبول تاريخ الميلاد.</value>
+  </data>
+  <data name="StudentAdmissionTooFarAhead" xml:space="preserve">
+    <value>لا يمكن أن يكون تاريخ القبول بعد أكثر من {0} يومًا من اليوم.</value>
+  </data>
 </root>

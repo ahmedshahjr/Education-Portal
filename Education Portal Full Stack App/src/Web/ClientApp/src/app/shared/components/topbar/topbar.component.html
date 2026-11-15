@@ -15,6 +15,22 @@
   </div>
 
   <div class="mm-topbar__right">
+    @if (campusScope.showSwitcher()) {
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-topbar__campus">
+        <mat-select
+          [value]="campusScope.selectedId()"
+          (selectionChange)="campusScope.select($event.value)"
+          aria-label="Campus to show"
+          i18n-aria-label="@@topbar.campusLabel"
+        >
+          <mat-option value="" i18n="@@topbar.allCampuses">All campuses</mat-option>
+          @for (campus of campusScope.campuses(); track campus.id) {
+            <mat-option [value]="campus.id">{{ campus.name }} <bdi dir="ltr">{{ campus.displayCode }}</bdi></mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
     <app-language-menu />
 
     <button

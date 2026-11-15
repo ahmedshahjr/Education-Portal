@@ -22,7 +22,7 @@ internal static class PriceBookReader
                 from p in plans.DefaultIfEmpty()
                 join m in context.Modules on i.ModuleId equals m.Id into modules
                 from m in modules.DefaultIfEmpty()
-                select new { i.PriceBookId, PlanCode = p.Code, ModuleCode = m.Code, i.BillingCycle, i.Price })
+                select new { i.PriceBookId, PlanCode = p.Code, ModuleCode = (ModuleCode?)m.Code, i.BillingCycle, i.Price })
             .ToListAsync(cancellationToken);
 
         var byBook = items.ToLookup(i => i.PriceBookId);
@@ -36,7 +36,7 @@ internal static class PriceBookReader
                 b.IsActive,
                 byBook[b.Id]
                     .OrderBy(i => i.PlanCode is null)
-                    .ThenBy(i => i.PlanCode ?? i.ModuleCode, StringComparer.Ordinal)
+                    .ThenBy(i => i.PlanCode ?? i.ModuleCode.ToString(), StringComparer.Ordinal)
                     .ThenBy(i => i.BillingCycle)
                     .Select(i => new PriceDto(i.PlanCode, i.ModuleCode, i.BillingCycle, i.Price))
                     .ToList()))

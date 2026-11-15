@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using EducationPortal.Domain.Entities;
 using NUnit.Framework;
 using Shouldly;
@@ -8,7 +9,7 @@ public class SchoolRoleTests
 {
     private static SchoolRole Role() { var r = SchoolRole.Create(4, "Registrar"); r.Id = 7; return r; }
 
-    private static PortalModule Module() { var m = PortalModule.Create("FEES", "Fees", "", isCore: false, sortOrder: 0); m.Id = 9; return m; }
+    private static PortalModule Module() { var m = PortalModule.Create(ModuleCode.Fees, "Fees", "", isCore: false, sortOrder: 0); m.Id = 9; return m; }
 
     [Test]
     public void ShouldCreateARoleForTheSchoolWithATrimmedName()
@@ -81,6 +82,6 @@ public class SchoolRoleTests
     public void ShouldRefuseAnUnsavedRoleOrModule()
     {
         Should.Throw<ArgumentOutOfRangeException>(() => RolePermission.Create(SchoolRole.Create(4, "A"), Module(), true, false, false, false));
-        Should.Throw<ArgumentOutOfRangeException>(() => RolePermission.Create(Role(), PortalModule.Create("FEES", "Fees", "", false, 0), true, false, false, false));
+        Should.Throw<ArgumentOutOfRangeException>(() => RolePermission.Create(Role(), PortalModule.Create(ModuleCode.Fees, "Fees", "", false, 0), true, false, false, false));
     }
 }

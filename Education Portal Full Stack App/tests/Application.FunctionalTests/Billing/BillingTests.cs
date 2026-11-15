@@ -401,7 +401,7 @@ public class BillingTests : TestBase
         _countryId = country.Id;
         var school = await TestApp.AddSchoolAsync("School One", domain, country.Id);
 
-        (await master.PostAsync("/api/Plans", new { code = "BASIC", name = "Basic", description = "", modules = new[] { ModuleCodes.Attendance } })).Dispose();
+        (await master.PostAsync("/api/Plans", new { code = "BASIC", name = "Basic", description = "", modules = new[] { nameof(ModuleCode.Attendance) } })).Dispose();
         using var created = await master.PostAsync("/api/PriceBooks", new { countryCode = "PK", currencyCode = "PKR" });
         _bookId = await created.Content.ReadFromJsonAsync<Guid>();
         using var price = await master.PutAsync($"/api/PriceBooks/{_bookId}/prices", new { planCode = "BASIC", billingCycle = "Monthly", price = 25000 });

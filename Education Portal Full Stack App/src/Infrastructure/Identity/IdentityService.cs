@@ -15,17 +15,20 @@ public class IdentityService : IIdentityService
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
+    private readonly ITenantResolver _tenantResolver;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
-        IAuthorizationService authorizationService)
+        IAuthorizationService authorizationService,
+        ITenantResolver tenantResolver)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
+        _tenantResolver = tenantResolver;
     }
 
     public async Task<string?> GetUserNameAsync(string userId)
@@ -167,11 +170,17 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<PasswordSignInResult> PasswordSignInAsync(int schoolId, string email, string password)
+    public async Task<PasswordSignInResult> PasswordSignInAsync(int schoolId, bool hostIsMaster, string email, string password)
     {
         var user = await _userManager.FindByEmailAsync(email);
 
-        if (user is null || user.SchoolId != schoolId)
+        // An account of a school without a domain may sign in on the master tenant's domain, and only there.
+        var hostedOnMaster = user is not null
+            && user.SchoolId != schoolId
+            && hostIsMaster
+            && await _tenantResolver.ResolveSchoolWithoutDomainAsync(user.SchoolId, CancellationToken.None) is not null;
+
+        if (user is null || (user.SchoolId != schoolId && !hostedOnMaster))
         {
             // Hash the password anyway, so the response time does not show whether the email has an account. An account
             // of another school is treated the same way, and its failed attempts do not count towards its lockout, so
@@ -183,8 +192,21 @@ public class IdentityService : IIdentityService
                 : new PasswordSignInResult(PasswordSignInStatus.WrongSchool, user.Id);
         }
 
-        // lockoutOnFailure counts failed attempts and locks the account after three of them (SEC-AUTHN-05).
-        var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: false, lockoutOnFailure: true);
+        // lockoutOnFailure counts failed attempts and locks the account after three of them (SEC-AUTHN-05). A school hosted on
+        // the master domain gets its session marked, so the request acts as that school there.
+        Microsoft.AspNetCore.Identity.SignInResult result;
+        if (hostedOnMaster)
+        {
+            result = await _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
+            if (result.Succeeded)
+            {
+                await _signInManager.SignInWithClaimsAsync(user, isPersistent: false, [new System.Security.Claims.Claim(EducationPortal.Application.Common.Security.TenantClaimTypes.HostedOnMaster, "true")]);
+            }
+        }
+        else
+        {
+            result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: false, lockoutOnFailure: true);
+        }
 
         var status = result switch
         {

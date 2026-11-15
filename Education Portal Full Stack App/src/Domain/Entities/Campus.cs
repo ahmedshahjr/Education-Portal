@@ -11,7 +11,7 @@ namespace EducationPortal.Domain.Entities;
 /// the school. A campus has a <see cref="Code"/>: four digits, generated when it is added, unique within its school. The
 /// school may show it with a prefix (<see cref="School.CampusDisplayCode"/>).
 /// </summary>
-public class Campus : BaseSoftDeletableEntity
+public class Campus : BaseSoftDeletableEntity, ITenantOwned
 {
     public const int NameMaxLength = 200;
     public const int CodeLength = 4;

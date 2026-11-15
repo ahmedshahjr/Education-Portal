@@ -49,7 +49,7 @@ public class SignInCommandHandler : IRequestHandler<SignInCommand, bool>
     {
         var schoolId = _tenant.SchoolId ?? throw new UnauthorizedAccessException();
 
-        var result = await _identityService.PasswordSignInAsync(schoolId, request.Email, request.Password);
+        var result = await _identityService.PasswordSignInAsync(schoolId, _tenant.IsMaster, request.Email, request.Password);
         var succeeded = result.Status == PasswordSignInStatus.Succeeded;
 
         var eventType = result.Status switch

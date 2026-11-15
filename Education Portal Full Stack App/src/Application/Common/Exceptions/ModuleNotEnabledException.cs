@@ -8,11 +8,11 @@ public class ModuleNotEnabledException : ForbiddenAccessException
 {
     public const string ErrorCode = "MODULE_NOT_ENABLED";
 
-    public ModuleNotEnabledException(string moduleCode)
+    public ModuleNotEnabledException(ModuleCode moduleCode)
     {
         ModuleCode = moduleCode;
     }
 
     /// <summary>The code of the module that is off, for example <c>FEES</c>.</summary>
-    public string ModuleCode { get; }
+    public ModuleCode ModuleCode { get; }
 }

@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+using EducationPortal.Domain.Enums;
 
 namespace EducationPortal.Domain.Entities;
 
@@ -14,39 +14,39 @@ namespace EducationPortal.Domain.Entities;
 /// </list>
 /// A module can require others (<see cref="ModuleDependency"/>), for example FEES requires STUDENTS.
 /// </summary>
-public partial class PortalModule : BaseSoftDeletableEntity
+public class PortalModule : BaseSoftDeletableEntity
 {
-    public const int CodeMaxLength = 50;
     public const int NameMaxLength = 100;
     public const int DescriptionMaxLength = 300;
 
     private PortalModule()
     {
         // For EF Core.
-        Code = string.Empty;
+        Code = ModuleCode.None;
         Name = string.Empty;
         Description = string.Empty;
     }
 
-    private PortalModule(string code) : this()
+    private PortalModule(ModuleCode code) : this()
     {
-        if (!IsValidCode(code))
+        // A closed set (ModuleCode): an unknown value cannot get here through the API, which binds the enum by name.
+        if (!Enum.IsDefined(code) || code == ModuleCode.None)
         {
-            throw new ArgumentException("A module code is upper-case letters, digits and underscores, starting with a letter, for example FEES.", nameof(code));
+            throw new ArgumentOutOfRangeException(nameof(code));
         }
 
         Code = code;
     }
 
-    public static PortalModule Create(string code, string name, string description, bool isCore, int sortOrder, bool isDefaultEnabled = false)
+    public static PortalModule Create(ModuleCode code, string name, string description, bool isCore, int sortOrder, bool isDefaultEnabled = false)
     {
         var module = new PortalModule(code);
         module.Update(name, description, isCore, sortOrder, isDefaultEnabled);
         return module;
     }
 
-    /// <summary>The stable code, for example <c>FEES</c> (see <see cref="Constants.ModuleCodes"/>). Set once.</summary>
-    public string Code { get; private set; }
+    /// <summary>The stable code, for example <c>ModuleCode.Fees</c>. Set once.</summary>
+    public ModuleCode Code { get; private set; }
 
     public string Name { get; private set; }
 
@@ -86,10 +86,4 @@ public partial class PortalModule : BaseSoftDeletableEntity
         IsDefaultEnabled = isDefaultEnabled;
     }
 
-    /// <summary>True for a code of upper-case letters, digits and underscores that starts with a letter and fits the column.</summary>
-    public static bool IsValidCode(string? code) =>
-        code is not null && code.Length <= CodeMaxLength && CodePattern().IsMatch(code);
-
-    [GeneratedRegex("^[A-Z][A-Z0-9_]*$")]
-    private static partial Regex CodePattern();
 }

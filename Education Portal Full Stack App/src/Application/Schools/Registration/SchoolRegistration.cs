@@ -13,7 +13,7 @@ namespace EducationPortal.Application.Schools.Registration;
 /// <summary>The fields a school is registered with (the master adding it, or the approval of a school request).</summary>
 public sealed record SchoolRegistrationRequest(
     string Name,
-    string Domain,
+    string? Domain,
     Guid CountryId,
     DataRegion? DataRegion,
     string AdministratorEmail,

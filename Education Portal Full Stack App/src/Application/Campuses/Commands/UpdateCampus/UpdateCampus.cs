@@ -13,7 +13,7 @@ namespace EducationPortal.Application.Campuses.Commands.UpdateCampus;
 /// Renames a campus of the current school. Its code is generated once and does not change. Needs the Campuses module.
 /// Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.Campus)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
 public record UpdateCampusCommand : IRequest
 {
     /// <summary>The campus's public id, taken from the route (ENG-ID-02).</summary>

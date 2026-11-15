@@ -6,7 +6,7 @@ namespace EducationPortal.Domain.Entities;
 /// (<c>SchoolId</c>, tenant query filter, SEC-AUTHZ-03); only the master tenant issues and settles invoices. The number
 /// (<c>INV-000123</c>) comes from a database sequence, so it is unique but not gap-free.
 /// </summary>
-public class Invoice : BaseAuditableEntity
+public class Invoice : BaseAuditableEntity, ITenantOwned
 {
     public const int PaymentTermDays = 30;
     public const int NumberMaxLength = 20;

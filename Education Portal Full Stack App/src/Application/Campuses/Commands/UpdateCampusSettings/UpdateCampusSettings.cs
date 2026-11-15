@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Campuses.Commands.UpdateCampusSettings;
 /// prefix is on). The school is the one the request's host resolves to (SEC-AUTHZ-04). Needs the Campuses module.
 /// Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.Campus)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
 public record UpdateCampusSettingsCommand : IRequest
 {
     public bool PrefixEnabled { get; init; }

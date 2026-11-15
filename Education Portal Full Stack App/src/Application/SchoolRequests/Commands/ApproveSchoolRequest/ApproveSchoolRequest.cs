@@ -24,7 +24,7 @@ public record ApproveSchoolRequestCommand : IRequest<Guid>
     /// <summary>The request's public id, taken from the route (ENG-ID-02).</summary>
     public Guid RequestId { get; init; }
 
-    /// <summary>The host name the school is reached on. The master sets it, because the request has none (AGENTS.md, section 2).</summary>
+    /// <summary>The host name the school is reached on. The master sets it, because the request has none (AGENTS.md, section 2). Blank: the school has none and signs in on the master tenant's domain.</summary>
     public string Domain { get; init; } = string.Empty;
 
     /// <summary>The school's country, which prices its trial and its plans. Required.</summary>
@@ -42,11 +42,24 @@ public record ApproveSchoolRequestCommand : IRequest<Guid>
 
 public class ApproveSchoolRequestCommandValidator : AbstractValidator<ApproveSchoolRequestCommand>
 {
-    public ApproveSchoolRequestCommandValidator()
+    public ApproveSchoolRequestCommandValidator(IApplicationDbContext context)
     {
         RuleFor(c => c.RequestId).NotEmpty();
         RuleFor(c => c.CountryId).NotEmpty();
+
+        RuleFor(c => c.Domain)
+            .Must(domain => School.IsValidDomain(Normalize(domain)))
+            .WithMessage(_ => ValidationMessages.SchoolDomainFormat)
+            .When(c => !string.IsNullOrWhiteSpace(c.Domain))
+            .DependentRules(() =>
+                RuleFor(c => c.Domain)
+                    .MustAsync(async (domain, cancellationToken) => !await context.Schools.AnyAsync(s => s.Domain == Normalize(domain), cancellationToken))
+                    .WithMessage(_ => ValidationMessages.SchoolDomainTaken)
+                    .When(c => !string.IsNullOrWhiteSpace(c.Domain)));
     }
+
+    /// <summary>The same normalisation the entity applies, so the checks compare like with like.</summary>
+    private static string Normalize(string? domain) => (domain ?? string.Empty).Trim().TrimEnd('.').ToLowerInvariant();
 }
 
 public class ApproveSchoolRequestCommandHandler : IRequestHandler<ApproveSchoolRequestCommand, Guid>

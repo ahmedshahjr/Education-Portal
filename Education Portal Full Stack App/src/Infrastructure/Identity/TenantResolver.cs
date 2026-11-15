@@ -25,4 +25,13 @@ internal sealed class TenantResolver(ApplicationDbContext context) : ITenantReso
             .Select(s => new ResolvedTenant(s.Id, s.IsMaster))
             .SingleOrDefaultAsync(cancellationToken);
     }
+
+    public async Task<ResolvedTenant?> ResolveSchoolWithoutDomainAsync(int schoolId, CancellationToken cancellationToken)
+    {
+        return await context.Schools
+            .AsNoTracking()
+            .Where(s => s.Id == schoolId && s.Domain == null && !s.IsMaster && s.IsActive)
+            .Select(s => new ResolvedTenant(s.Id, false))
+            .SingleOrDefaultAsync(cancellationToken);
+    }
 }

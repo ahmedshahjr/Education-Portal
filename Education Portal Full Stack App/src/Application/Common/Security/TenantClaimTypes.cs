@@ -12,4 +12,10 @@ public static class TenantClaimTypes
 
     /// <summary>Present (with the value <c>true</c>) while the account must replace its one-time password.</summary>
     public const string MustChangePassword = "education_portal/must_change_password";
+
+    /// <summary>
+    /// Present (with the value <c>true</c>) when a school without a domain of its own signed in on the master tenant's domain.
+    /// Only such a session may be used there, and it then acts as its own school, never as the master tenant.
+    /// </summary>
+    public const string HostedOnMaster = "education_portal/hosted_on_master";
 }

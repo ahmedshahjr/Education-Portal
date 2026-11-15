@@ -27,9 +27,9 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
     title: $localize`:@@nav.school:School`,
     items: [
       { id: 'subscription', label: $localize`:@@nav.subscription:My subscription`, icon: 'layers', route: '/subscription', access: 'school-administrator' },
-      { id: 'campuses', label: $localize`:@@nav.campuses:Campuses`, icon: 'git-branch', route: '/campuses', access: 'administrator', module: MODULE_CODES.campus },
-      { id: 'people', label: $localize`:@@nav.people:Users`, icon: 'users', route: '/people', access: 'administrator', module: MODULE_CODES.staff },
-      { id: 'roles', label: $localize`:@@nav.roles:Roles`, icon: 'key-round', route: '/roles', access: 'administrator', module: MODULE_CODES.usersRoles },
+      { id: 'campuses', label: $localize`:@@nav.campuses:Campuses`, icon: 'git-branch', route: '/campuses', access: 'school-administrator', module: MODULE_CODES.campus },
+      { id: 'people', label: $localize`:@@nav.people:Users`, icon: 'users', route: '/people', access: 'school-administrator', module: MODULE_CODES.staff },
+      { id: 'roles', label: $localize`:@@nav.roles:Roles`, icon: 'key-round', route: '/roles', access: 'school-administrator', module: MODULE_CODES.usersRoles },
     ],
   },
   {
@@ -43,7 +43,7 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
         access: 'administrator',
         children: [
           { id: 'branding', label: $localize`:@@nav.branding:Branding`, icon: 'sliders-horizontal', route: '/settings/branding', access: 'administrator' },
-          { id: 'campus-codes', label: $localize`:@@nav.campusCodes:Campus codes`, icon: 'git-branch', route: '/settings/campus-codes', access: 'administrator', module: MODULE_CODES.campus },
+          { id: 'campus-codes', label: $localize`:@@nav.campusCodes:Campus codes`, icon: 'git-branch', route: '/settings/campus-codes', access: 'school-administrator', module: MODULE_CODES.campus },
         ],
       },
     ],

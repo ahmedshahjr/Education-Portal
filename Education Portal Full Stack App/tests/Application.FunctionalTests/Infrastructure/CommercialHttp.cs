@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -23,12 +24,12 @@ internal static class CommercialHttp
     {
         var country = await TestApp.AddCountryAsync("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR");
 
-        await ExpectAsync(master.PostAsync("/api/Plans", new { code = PlanCode, name = "Basic", description = "", modules = new[] { ModuleCodes.Attendance } }), HttpStatusCode.OK);
+        await ExpectAsync(master.PostAsync("/api/Plans", new { code = PlanCode, name = "Basic", description = "", modules = new[] { nameof(ModuleCode.Attendance) } }), HttpStatusCode.OK);
         using var created = await master.PostAsync("/api/PriceBooks", new { countryCode = "PK", currencyCode = "PKR" });
         created.StatusCode.ShouldBe(HttpStatusCode.OK, await created.Content.ReadAsStringAsync());
         var bookId = await created.Content.ReadFromJsonAsync<Guid>();
         await ExpectAsync(master.PutAsync($"/api/PriceBooks/{bookId}/prices", new { planCode = PlanCode, billingCycle = "Monthly", price = PlanPrice }), HttpStatusCode.NoContent);
-        await ExpectAsync(master.PutAsync($"/api/PriceBooks/{bookId}/prices", new { moduleCode = ModuleCodes.Library, billingCycle = "Monthly", price = 500 }), HttpStatusCode.NoContent);
+        await ExpectAsync(master.PutAsync($"/api/PriceBooks/{bookId}/prices", new { moduleCode = nameof(ModuleCode.Library), billingCycle = "Monthly", price = 500 }), HttpStatusCode.NoContent);
 
         return country.Id;
     }

@@ -2,7 +2,6 @@ using EducationPortal.Application.Branding.Queries.GetBrandingImage;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Security;
 using EducationPortal.Domain.Constants;
-using EducationPortal.Domain.Enums;
 
 namespace EducationPortal.Application.Schools.Queries.GetSchoolBrandingImage;
 

@@ -22,7 +22,7 @@ public record CreateSchoolCommand : IRequest<Guid>
 {
     public string Name { get; init; } = string.Empty;
 
-    /// <summary>The host name the school is reached on, for example <c>school1.com</c>. Stored in lower case.</summary>
+    /// <summary>The host name the school is reached on, for example <c>school1.com</c>. Stored in lower case. Blank: the school has none and signs in on the master tenant's domain.</summary>
     public string Domain { get; init; } = string.Empty;
 
     /// <summary>The country's public id. Required: it sets the school's languages, time zone, currency and price book, and prices its trial.</summary>
@@ -48,10 +48,11 @@ public class CreateSchoolCommandValidator : AbstractValidator<CreateSchoolComman
             .NotEmpty()
             .MaximumLength(School.NameMaxLength);
 
+        // Optional: a school without a domain signs in on the master tenant's domain.
         RuleFor(c => c.Domain)
-            .NotEmpty()
             .Must(domain => School.IsValidDomain(Normalize(domain)))
             .WithMessage(_ => ValidationMessages.SchoolDomainFormat)
+            .When(c => !string.IsNullOrWhiteSpace(c.Domain))
             .DependentRules(() =>
                 RuleFor(c => c.Domain)
                     .MustAsync(async (domain, cancellationToken) =>
@@ -59,7 +60,8 @@ public class CreateSchoolCommandValidator : AbstractValidator<CreateSchoolComman
                         var normalized = Normalize(domain);
                         return !await context.Schools.AnyAsync(s => s.Domain == normalized, cancellationToken);
                     })
-                    .WithMessage(_ => ValidationMessages.SchoolDomainTaken));
+                    .WithMessage(_ => ValidationMessages.SchoolDomainTaken)
+                    .When(c => !string.IsNullOrWhiteSpace(c.Domain)));
 
         RuleFor(c => c.CountryId)
             .NotEmpty()

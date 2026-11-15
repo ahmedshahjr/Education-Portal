@@ -8,7 +8,7 @@ namespace EducationPortal.Domain.Entities;
 /// in the order the school gave them. Owned by the school (<see cref="SchoolId"/>, filled from the campus) and covered by the
 /// tenant query filter (SEC-AUTHZ-03).
 /// </summary>
-public class CampusPhone : BaseEntity
+public class CampusPhone : BaseEntity, ITenantOwned
 {
     private CampusPhone()
     {

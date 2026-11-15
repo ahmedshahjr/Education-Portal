@@ -194,7 +194,7 @@ public class Schools : IEndpointGroup
 
     [EndpointSummary("Remove a module from a school's subscription")]
     [EndpointDescription("Removes an add-on module: it ends now and its data is kept. A module the plan includes, or another module requires, cannot be removed. Master tenant only.")]
-    public static async Task<NoContent> RemoveSubscriptionModule(ISender sender, Guid schoolId, string moduleCode)
+    public static async Task<NoContent> RemoveSubscriptionModule(ISender sender, Guid schoolId, ModuleCode moduleCode)
     {
         await sender.Send(new RemoveSubscriptionModuleCommand { SchoolId = schoolId, ModuleCode = moduleCode });
 
@@ -230,7 +230,7 @@ public class Schools : IEndpointGroup
 
     [EndpointSummary("Turn a module on or off for a school")]
     [EndpointDescription("Turns a module on for the school (free, whole school, no end) or off (its active grants end now). Core and default modules can be switched too. A module switched off for every school cannot be turned on. Master tenant only.")]
-    public static async Task<NoContent> SetSchoolModule(ISender sender, Guid schoolId, string moduleCode, SetSchoolModuleCommand command)
+    public static async Task<NoContent> SetSchoolModule(ISender sender, Guid schoolId, ModuleCode moduleCode, SetSchoolModuleCommand command)
     {
         // The route names the school and the module; ids in the body are ignored.
         await sender.Send(command with { SchoolId = schoolId, ModuleCode = moduleCode });

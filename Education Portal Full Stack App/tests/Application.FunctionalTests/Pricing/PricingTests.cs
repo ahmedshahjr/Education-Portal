@@ -30,20 +30,20 @@ public class PricingTests : TestBase
         var masterUserId = await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
 
-        var id = await CreatePlanAsync(master, "BASIC", [ModuleCodes.Attendance, ModuleCodes.Exams]);
+        var id = await CreatePlanAsync(master, "BASIC", [ModuleCode.Attendance, ModuleCode.Exams]);
 
         var plan = await ReadPlanAsync(master, id);
         plan.ShouldSatisfyAllConditions(
             p => p.Code.ShouldBe("BASIC"),
             p => p.IsActive.ShouldBeTrue(),
-            p => p.Modules.ShouldBe([ModuleCodes.Attendance, ModuleCodes.Exams]));
+            p => p.Modules.ShouldBe([ModuleCode.Attendance, ModuleCode.Exams]));
 
-        using var changed = await master.PutAsync($"/api/Plans/{id}", new { name = "Basic plus", description = "More.", isActive = false, modules = new[] { ModuleCodes.Fees } });
+        using var changed = await master.PutAsync($"/api/Plans/{id}", new { name = "Basic plus", description = "More.", isActive = false, modules = new[] { nameof(ModuleCode.Fees) } });
         changed.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         (await ReadPlanAsync(master, id)).ShouldSatisfyAllConditions(
             p => p.Name.ShouldBe("Basic plus"),
             p => p.IsActive.ShouldBeFalse(),
-            p => p.Modules.ShouldBe([ModuleCodes.Fees]));
+            p => p.Modules.ShouldBe([ModuleCode.Fees]));
 
         using var deleted = await master.DeleteAsync($"/api/Plans/{id}");
         deleted.StatusCode.ShouldBe(HttpStatusCode.NoContent);
@@ -68,9 +68,9 @@ public class PricingTests : TestBase
 
         using var duplicate = await master.PostAsync("/api/Plans", new { code = "BASIC", name = "x", description = "", modules = Array.Empty<string>() });
         using var badCode = await master.PostAsync("/api/Plans", new { code = "basic plan", name = "x", description = "", modules = Array.Empty<string>() });
-        using var core = await master.PostAsync("/api/Plans", new { code = "A", name = "x", description = "", modules = new[] { ModuleCodes.Students } });
+        using var core = await master.PostAsync("/api/Plans", new { code = "A", name = "x", description = "", modules = new[] { nameof(ModuleCode.Students) } });
         using var unknown = await master.PostAsync("/api/Plans", new { code = "B", name = "x", description = "", modules = new[] { "NOPE" } });
-        using var twice = await master.PostAsync("/api/Plans", new { code = "C", name = "x", description = "", modules = new[] { ModuleCodes.Fees, ModuleCodes.Fees } });
+        using var twice = await master.PostAsync("/api/Plans", new { code = "C", name = "x", description = "", modules = new[] { ModuleCode.Fees, ModuleCode.Fees } });
         using var noName = await master.PostAsync("/api/Plans", new { code = "D", name = "", description = "", modules = Array.Empty<string>() });
 
         new[] { duplicate, badCode, core, unknown, twice, noName }
@@ -83,13 +83,13 @@ public class PricingTests : TestBase
     {
         var masterUserId = await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
-        await CreatePlanAsync(master, "BASIC", [ModuleCodes.Attendance]);
+        await CreatePlanAsync(master, "BASIC", [ModuleCode.Attendance]);
 
         var bookId = await CreatePriceBookAsync(master, "pk", "PKR");
 
         (await SetPriceAsync(master, bookId, new { planCode = "BASIC", billingCycle = "Monthly", price = 25000 })).ShouldBe(HttpStatusCode.NoContent);
         (await SetPriceAsync(master, bookId, new { planCode = "BASIC", billingCycle = "Yearly", price = 250000 })).ShouldBe(HttpStatusCode.NoContent);
-        (await SetPriceAsync(master, bookId, new { moduleCode = ModuleCodes.Fees, billingCycle = "Monthly", price = 8000.5 })).ShouldBe(HttpStatusCode.NoContent);
+        (await SetPriceAsync(master, bookId, new { moduleCode = nameof(ModuleCode.Fees), billingCycle = "Monthly", price = 8000.5 })).ShouldBe(HttpStatusCode.NoContent);
         (await SetPriceAsync(master, bookId, new { planCode = "BASIC", billingCycle = "Monthly", price = 26000 })).ShouldBe(HttpStatusCode.NoContent);
 
         var book = await ReadPriceBookAsync(master, bookId);
@@ -98,7 +98,7 @@ public class PricingTests : TestBase
         [
             new PriceDto("BASIC", null, BillingCycle.Monthly, 26000m),
             new PriceDto("BASIC", null, BillingCycle.Yearly, 250000m),
-            new PriceDto(null, ModuleCodes.Fees, BillingCycle.Monthly, 8000.5m),
+            new PriceDto(null, ModuleCode.Fees, BillingCycle.Monthly, 8000.5m),
         ]);
 
         using var removed = await master.DeleteAsync($"/api/PriceBooks/{bookId}/prices?planCode=BASIC&billingCycle=Yearly");
@@ -133,9 +133,9 @@ public class PricingTests : TestBase
         {
             await SetPriceAsync(master, bookId, new { planCode = "BASIC", billingCycle = "Monthly", price = -1 }),
             await SetPriceAsync(master, bookId, new { planCode = "BASIC", billingCycle = "Monthly", price = 1.234 }),
-            await SetPriceAsync(master, bookId, new { planCode = "BASIC", moduleCode = ModuleCodes.Fees, billingCycle = "Monthly", price = 1 }),
+            await SetPriceAsync(master, bookId, new { planCode = "BASIC", moduleCode = nameof(ModuleCode.Fees), billingCycle = "Monthly", price = 1 }),
             await SetPriceAsync(master, bookId, new { billingCycle = "Monthly", price = 1 }),
-            await SetPriceAsync(master, bookId, new { moduleCode = ModuleCodes.Students, billingCycle = "Monthly", price = 1 }),
+            await SetPriceAsync(master, bookId, new { moduleCode = nameof(ModuleCode.Students), billingCycle = "Monthly", price = 1 }),
             await SetPriceAsync(master, bookId, new { moduleCode = "NOPE", billingCycle = "Monthly", price = 1 }),
             await SetPriceAsync(master, bookId, new { planCode = "NOPE", billingCycle = "Monthly", price = 1 }),
             await SetPriceAsync(master, bookId, new { planCode = "BASIC", billingCycle = "Weekly", price = 1 }),
@@ -178,28 +178,6 @@ public class PricingTests : TestBase
         (await master.DeleteAsync($"/api/Plans/{planId}")).Dispose();
 
         (await ReadPriceBookAsync(master, bookId)).Prices.ShouldBeEmpty();
-    }
-
-    [Test]
-    public async Task ShouldNotDeleteAModuleThatAPlanOrAPriceUses()
-    {
-        await TestApp.RunAsAdministratorAsync();
-        using var master = await SignInAsMasterAsync();
-        (await master.PostAsync("/api/Modules", new { code = "CANTEEN", name = "Canteen", description = "", isCore = false, sortOrder = 300 })).Dispose();
-        (await master.PostAsync("/api/Modules", new { code = "KIOSK", name = "Kiosk", description = "", isCore = false, sortOrder = 301 })).Dispose();
-        await CreatePlanAsync(master, "BASIC", ["CANTEEN"]);
-        var bookId = await CreatePriceBookAsync(master, "PK", "PKR");
-        await SetPriceAsync(master, bookId, new { moduleCode = "KIOSK", billingCycle = "Monthly", price = 1 });
-
-        using var inPlan = await master.DeleteAsync("/api/Modules/CANTEEN");
-        using var priced = await master.DeleteAsync("/api/Modules/KIOSK");
-
-        inPlan.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        priced.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-
-        (await master.DeleteAsync($"/api/PriceBooks/{bookId}/prices?moduleCode=KIOSK&billingCycle=Monthly")).Dispose();
-        using var free = await master.DeleteAsync("/api/Modules/KIOSK");
-        free.StatusCode.ShouldBe(HttpStatusCode.NoContent);
     }
 
     [Test]
@@ -269,25 +247,25 @@ public class PricingTests : TestBase
         (await TestApp.CountAsync<PlanModule>()).ShouldBe(PricingCatalog.Plans.Sum(p => p.Modules.Count));
     }
 
-    private static async Task<Guid> CreatePlanAsync(HttpSession master, string code, string[] modules)
+    private static async Task<Guid> CreatePlanAsync(HttpSession master, string code, params ModuleCode[] modules)
     {
-        using var response = await master.PostAsync("/api/Plans", new { code, name = code, description = "", modules });
+        using var response = await master.PostAsync("/api/Plans", new { code, name = code, description = "", modules = modules.Select(m => m.ToString()).ToArray() });
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return await response.Content.ReadFromJsonAsync<Guid>();
+        return await response.Content.ReadFromJsonAsync<Guid>(Json);
     }
 
     private static async Task<PlanDto> ReadPlanAsync(HttpSession master, Guid id)
     {
         using var response = await master.GetAsync($"/api/Plans/{id}");
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return (await response.Content.ReadFromJsonAsync<PlanDto>())!;
+        return (await response.Content.ReadFromJsonAsync<PlanDto>(Json))!;
     }
 
     private static async Task<Guid> CreatePriceBookAsync(HttpSession master, string countryCode, string currencyCode)
     {
         using var response = await master.PostAsync("/api/PriceBooks", new { countryCode, currencyCode });
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return await response.Content.ReadFromJsonAsync<Guid>();
+        return await response.Content.ReadFromJsonAsync<Guid>(Json);
     }
 
     private static async Task<PriceBookDto> ReadPriceBookAsync(HttpSession master, Guid id)

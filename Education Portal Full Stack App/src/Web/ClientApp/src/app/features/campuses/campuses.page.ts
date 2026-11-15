@@ -11,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
 import { CampusDetailsDialogComponent } from './campus-details-dialog.component';
 import { CampusLocationPickerComponent } from './campus-location-picker.component';
+import { CampusScopeService } from '../../core/campus/campus-scope.service';
 import { problemMessages } from '../../core/http/problem-details';
 import { LatLng } from '../../core/maps/google-maps';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
@@ -81,6 +82,7 @@ export class CampusesPage {
   private readonly formBuilder = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
+  private readonly campusScope = inject(CampusScopeService);
 
   protected readonly campuses = signal<readonly CampusDto[] | null>(null);
   protected readonly loadError = signal<string | null>(null);
@@ -110,9 +112,12 @@ export class CampusesPage {
   readonly visibleCampuses = computed(() => {
     const state = this.stateFilter();
     const city = this.cityFilter();
+    // The campus chosen in the top bar narrows the list too.
     return (this.campuses() ?? []).filter(
       (campus) =>
-        (state === '' || campus.details.stateId === state) && (city === '' || campus.details.cityId === city)
+        this.campusScope.shows(campus.id) &&
+        (state === '' || campus.details.stateId === state) &&
+        (city === '' || campus.details.cityId === city)
     );
   });
 

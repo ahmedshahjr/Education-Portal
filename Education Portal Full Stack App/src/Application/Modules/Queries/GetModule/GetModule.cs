@@ -7,7 +7,7 @@ namespace EducationPortal.Application.Modules.Queries.GetModule;
 
 /// <summary>Returns one module of the catalogue by code, with what it requires. Master tenant administrators only (SEC-AUTHZ-07).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetModuleQuery(string Code) : IRequest<ModuleDto>;
+public record GetModuleQuery(ModuleCode Code) : IRequest<ModuleDto>;
 
 public class GetModuleQueryHandler : IRequestHandler<GetModuleQuery, ModuleDto>
 {

@@ -13,7 +13,7 @@ public static class EnumLookupTables
     /// tests (Respawn) leaves them alone.
     /// </summary>
     public static IReadOnlyList<string> Tables { get; } =
-        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes", "BillingCycles", "SubscriptionStatuses", "TenantModuleStatuses", "DataRegions", "InvoiceStatuses", "PaymentMethods", "AddOnRequestStatuses", "ChangeAuditActions", "CampusKinds", "UserTypes"];
+        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes", "BillingCycles", "SubscriptionStatuses", "TenantModuleStatuses", "DataRegions", "InvoiceStatuses", "PaymentMethods", "AddOnRequestStatuses", "ChangeAuditActions", "CampusKinds", "UserTypes", "Genders", "ModuleCodes", "SchoolGenderPolicies", "CurriculumKinds", "FacilityKinds", "ClassLevels", "AdmissionStatuses", "PhotoKinds", "EnquiryChannels", "EnquiryStatuses", "FollowUpKinds", "VisitStatuses", "ReviewStatuses", "ReviewerRelations"];
 
     internal static void Configure(ModelBuilder builder)
     {
@@ -32,9 +32,24 @@ public static class EnumLookupTables
         Map<ChangeAuditEntry, ChangeAuditAction>(builder, Tables[12], e => e.Action);
         Map<Campus, CampusKind>(builder, Tables[13], b => b.Kind);
         Map<UserDetails, UserType>(builder, Tables[14], u => u.UserType);
+        Map<StudentProfile, Gender>(builder, Tables[15], s => s.Gender);
+        Map<PortalModule, ModuleCode>(builder, Tables[16], m => m.Code);
+        Map<SchoolProfile, SchoolGenderPolicy>(builder, Tables[17], p => p.GenderPolicy);
+        Map<SchoolCurriculum, CurriculumKind>(builder, Tables[18], c => c.Kind);
+        Map<SchoolFacility, FacilityKind>(builder, Tables[19], f => f.Kind);
+        Map<ClassOffering, ClassLevel>(builder, Tables[20], o => o.Level);
+        Map<ClassOffering, AdmissionStatus>(builder, Tables[21], o => o.Status);
+        Map<SchoolPhoto, PhotoKind>(builder, Tables[22], p => p.Kind);
+        Map<AdmissionEnquiry, EnquiryChannel>(builder, Tables[23], e => e.Channel);
+        Map<AdmissionEnquiry, EnquiryStatus>(builder, Tables[24], e => e.Status);
+        Map<EnquiryFollowUp, FollowUpKind>(builder, Tables[25], f => f.Kind);
+        Map<CampusVisit, VisitStatus>(builder, Tables[26], v => v.Status);
+        Map<SchoolReview, ReviewStatus>(builder, Tables[27], r => r.Status);
+        Map<SchoolReview, ReviewerRelation>(builder, Tables[28], r => r.Relation);
 
         // More columns of an enum that already has its lookup table.
         Reference<Subscription, BillingCycle>(builder, s => s.BillingCycle);
+        Reference<AdmissionEnquiry, ClassLevel?>(builder, e => e.Level);
     }
 
     // A nullable enum column (TColumn is TEnum?) is allowed to be empty; its lookup table is the one of TEnum.

@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { LocalDatePipe } from '../../core/i18n/local-date.pipe';
 import { problemMessages } from '../../core/http/problem-details';
+import { DataTableCellContext, DataTableColumn, DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { InvoiceDto, InvoiceStatus, InvoicesClient, SchoolSummaryDto, SchoolsClient } from '../../web-api-client';
@@ -13,7 +13,7 @@ import { InvoiceDto, InvoiceStatus, InvoicesClient, SchoolSummaryDto, SchoolsCli
 /** Every invoice of the platform, or of one school, for the master tenant. */
 @Component({
   selector: 'app-invoices-page',
-  imports: [LocalDatePipe, MatCardModule, MatFormFieldModule, MatSelectModule, PageHeaderComponent, EmptyStateComponent, LoadingStateComponent, StatusBadgeComponent],
+  imports: [LocalDatePipe, MatCardModule, MatFormFieldModule, MatSelectModule, PageHeaderComponent, EmptyStateComponent, StatusBadgeComponent, DataTableComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './invoices.page.html',
   styleUrl: './invoices.page.css',
@@ -30,6 +30,18 @@ export class InvoicesPage {
   protected readonly schoolFilter = signal<string>('');
 
   protected readonly statuses = InvoiceStatus;
+
+  private readonly statusCell = viewChild.required<TemplateRef<DataTableCellContext<InvoiceDto>>>('statusCell');
+  private readonly periodCell = viewChild.required<TemplateRef<DataTableCellContext<InvoiceDto>>>('periodCell');
+  private readonly dueCell = viewChild.required<TemplateRef<DataTableCellContext<InvoiceDto>>>('dueCell');
+
+  protected readonly columns = computed<DataTableColumn<InvoiceDto>[]>(() => [
+    { key: 'number', header: $localize`:@@invoices.number:Number`, valueFn: (i) => i.number },
+    { key: 'status', header: $localize`:@@invoices.status:Status`, valueFn: (i) => i.status, cell: this.statusCell() },
+    { key: 'period', header: $localize`:@@invoices.period:Period`, valueFn: (i) => i.periodStart.toString(), cell: this.periodCell(), sortable: false },
+    { key: 'due', header: $localize`:@@invoices.due:Due`, valueFn: (i) => i.dueDate.toString(), cell: this.dueCell() },
+    { key: 'total', header: $localize`:@@invoices.total:Total`, valueFn: (i) => i.total, align: 'right' },
+  ]);
 
   constructor() {
     this.schoolsClient.getSchools(1, 100, undefined, undefined).subscribe({

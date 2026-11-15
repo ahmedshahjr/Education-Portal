@@ -16,13 +16,13 @@ public class ModuleAccess : IModuleAccess
         _timeProvider = timeProvider;
     }
 
-    public async Task<bool> HasModuleAsync(int schoolId, string moduleCode, int? campusId, CancellationToken cancellationToken)
+    public async Task<bool> HasModuleAsync(int schoolId, ModuleCode moduleCode, int? campusId, CancellationToken cancellationToken)
     {
         var entitlements = await GetAsync(schoolId, cancellationToken);
         return entitlements.Has(moduleCode, campusId, _timeProvider.GetUtcNow());
     }
 
-    public async Task<IReadOnlyList<string>> GetEnabledCodesAsync(int schoolId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ModuleCode>> GetEnabledCodesAsync(int schoolId, CancellationToken cancellationToken)
     {
         var entitlements = await GetAsync(schoolId, cancellationToken);
         return entitlements.EnabledCodes(_timeProvider.GetUtcNow());

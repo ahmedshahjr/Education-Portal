@@ -5,7 +5,7 @@ public sealed record AddOnRequestDto(
     Guid Id,
     Guid SchoolId,
     string SchoolName,
-    string ModuleCode,
+    ModuleCode ModuleCode,
     string ModuleName,
     AddOnRequestStatus Status,
     DateTimeOffset Created,

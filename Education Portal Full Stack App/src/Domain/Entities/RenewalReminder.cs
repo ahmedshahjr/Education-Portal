@@ -6,7 +6,7 @@ namespace EducationPortal.Domain.Entities;
 /// subscription, period end and reminder day, so the job can run again the same day without queueing it twice. Owned by
 /// the school (<c>SchoolId</c>) and covered by the tenant query filter (SEC-AUTHZ-03).
 /// </summary>
-public class RenewalReminder : BaseAuditableEntity
+public class RenewalReminder : BaseAuditableEntity, ITenantOwned
 {
     /// <summary>The longest reminder lead time the configuration may ask for.</summary>
     public const int MaxDaysBefore = 365;

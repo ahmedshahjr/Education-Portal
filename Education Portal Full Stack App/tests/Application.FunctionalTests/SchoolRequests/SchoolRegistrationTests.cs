@@ -148,7 +148,7 @@ public class SchoolRegistrationTests : TestBase
             signIn.StatusCode.ShouldBe(HttpStatusCode.OK);
         }
 
-        (await master.PostAsync("/api/Plans", new { code = PricingCatalog.Full, name = "Full", description = "", modules = new[] { ModuleCodes.Attendance, ModuleCodes.Exams } })).Dispose();
+        (await master.PostAsync("/api/Plans", new { code = PricingCatalog.Full, name = "Full", description = "", modules = new[] { ModuleCode.Attendance, ModuleCode.Exams } })).Dispose();
         using var book = await master.PostAsync("/api/PriceBooks", new { countryCode = "PK", currencyCode = "PKR" });
         var bookId = await book.Content.ReadFromJsonAsync<Guid>();
         using var price = await master.PutAsync($"/api/PriceBooks/{bookId}/prices", new { planCode = PricingCatalog.Full, billingCycle = "Monthly", price = 30000 });
