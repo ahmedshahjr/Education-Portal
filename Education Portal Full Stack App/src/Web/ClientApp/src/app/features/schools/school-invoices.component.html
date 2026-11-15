@@ -1,0 +1,156 @@
+<div class="mm-invoices__toolbar">
+  <button mat-stroked-button type="button" [disabled]="busy()" (click)="issue(false)" i18n="@@invoices.issueCurrent">Invoice current period</button>
+  <button mat-stroked-button type="button" [disabled]="busy()" (click)="issue(true)" i18n="@@invoices.issueNext">Invoice next period</button>
+</div>
+
+@if (loadError(); as message) {
+  <app-empty-state
+    icon="alert-triangle"
+    title="Invoices could not be loaded"
+    i18n-title="@@invoices.loadError"
+    [description]="message"
+    actionLabel="Try again"
+    i18n-actionLabel="@@common.tryAgain"
+    (action)="load()"
+  />
+} @else if (invoices(); as list) {
+  @if (list.length === 0) {
+    <p class="mm-invoices__muted" i18n="@@invoices.none">No invoices yet. Issue one for the current or next period.</p>
+  } @else {
+    <ul class="mm-invoices__list" aria-label="Invoices" i18n-aria-label="@@invoices.listLabel">
+      @for (invoice of list; track invoice.id) {
+        <li class="mm-invoices__item">
+          <div class="mm-invoices__summary">
+            <div>
+              <div class="mm-invoices__number">
+                <bdi dir="ltr">{{ invoice.number }}</bdi>
+                <app-status-badge [tone]="tone(invoice.status)">{{ invoice.status }}</app-status-badge>
+                @if (invoice.overdueSince) {
+                  <app-status-badge tone="error" i18n="@@invoices.overdue">Overdue</app-status-badge>
+                }
+              </div>
+              <div class="mm-invoices__muted">
+                <span i18n="@@invoices.period">Period</span>
+                {{ invoice.periodStart | localDate }} – {{ invoice.periodEnd | localDate }}
+              </div>
+            </div>
+            <dl class="mm-invoices__figures">
+              <div>
+                <dt i18n="@@invoices.total">Total</dt>
+                <dd>{{ invoice.total | number: '1.2-2' }} {{ invoice.currencyCode }}</dd>
+              </div>
+              <div>
+                <dt i18n="@@invoices.balanceDue">Balance due</dt>
+                <dd>{{ balanceDue(invoice) | number: '1.2-2' }} {{ invoice.currencyCode }}</dd>
+              </div>
+              <div>
+                <dt i18n="@@invoices.dueDate">Due</dt>
+                <dd>{{ invoice.dueDate | localDate }}</dd>
+              </div>
+            </dl>
+            <button
+              mat-button
+              type="button"
+              (click)="toggleDetails(invoice)"
+              [attr.aria-expanded]="expandedId() === invoice.id"
+              i18n="@@invoices.details"
+            >Details</button>
+          </div>
+
+          @if (expandedId() === invoice.id) {
+            <div class="mm-invoices__details">
+              <dl class="mm-invoices__figures">
+                <div>
+                  <dt i18n="@@invoices.subtotal">Subtotal</dt>
+                  <dd>{{ invoice.subtotal | number: '1.2-2' }} {{ invoice.currencyCode }}</dd>
+                </div>
+                <div>
+                  <dt i18n="@@invoices.taxRate">Tax rate</dt>
+                  <dd>{{ invoice.taxRate }}%</dd>
+                </div>
+                <div>
+                  <dt i18n="@@invoices.tax">Tax</dt>
+                  <dd>{{ invoice.taxAmount | number: '1.2-2' }} {{ invoice.currencyCode }}</dd>
+                </div>
+                <div>
+                  <dt i18n="@@invoices.issued">Issued</dt>
+                  <dd>{{ invoice.issueDate | localDate }}</dd>
+                </div>
+                @if (invoice.overdueSince) {
+                  <div>
+                    <dt i18n="@@invoices.overdueSince">Overdue since</dt>
+                    <dd>{{ invoice.overdueSince | localDate }}</dd>
+                  </div>
+                }
+                @if (invoice.paidDate) {
+                  <div>
+                    <dt i18n="@@invoices.paidOn">Paid on</dt>
+                    <dd>{{ invoice.paidDate | localDate }}</dd>
+                  </div>
+                }
+              </dl>
+
+              <h3 class="mm-invoices__heading" i18n="@@invoices.lines">Lines</h3>
+              @if (invoice.lines.length === 0) {
+                <p class="mm-invoices__muted" i18n="@@invoices.noLines">No lines.</p>
+              } @else {
+                <ul class="mm-invoices__rows">
+                  @for (line of invoice.lines; track $index) {
+                    <li>
+                      <span>{{ line.description }}</span>
+                      <span>{{ line.amount | number: '1.2-2' }} {{ invoice.currencyCode }}</span>
+                    </li>
+                  }
+                </ul>
+              }
+
+              <h3 class="mm-invoices__heading" i18n="@@invoices.payments">Payments</h3>
+              @if (invoice.payments.length === 0) {
+                <p class="mm-invoices__muted" i18n="@@invoices.noPayments">No payments recorded.</p>
+              } @else {
+                <ul class="mm-invoices__rows">
+                  @for (payment of invoice.payments; track payment.id) {
+                    <li>
+                      <span>{{ payment.receivedDate | localDate }} · {{ payment.method }} · <bdi dir="ltr">{{ payment.reference }}</bdi></span>
+                      <span>{{ payment.amount | number: '1.2-2' }} {{ payment.currencyCode }}</span>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+
+          @if (invoice.status === invoiceStatuses.Open) {
+            <div class="mm-invoices__actions">
+              <button mat-button type="button" [disabled]="busy()" (click)="startPayment(invoice)" i18n="@@invoices.recordPayment">Record payment</button>
+              <button mat-button type="button" [disabled]="busy()" (click)="voidInvoice(invoice)" i18n="@@invoices.void">Void</button>
+            </div>
+          }
+
+          @if (payingInvoice()?.id === invoice.id) {
+            <form class="mm-invoices__payment" [formGroup]="paymentForm" (ngSubmit)="recordPayment()" novalidate>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label i18n="@@invoices.method">Payment method</mat-label>
+                <mat-select formControlName="method">
+                  @for (method of methods; track method) {
+                    <mat-option [value]="method">{{ method }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label i18n="@@invoices.reference">Reference</mat-label>
+                <input matInput formControlName="reference" maxlength="100" autocomplete="off" dir="ltr" />
+              </mat-form-field>
+              <button mat-flat-button type="submit" [disabled]="busy() || paymentForm.invalid" i18n="@@invoices.payTotal">
+                Record payment of {{ invoice.total | number: '1.2-2' }} {{ invoice.currencyCode }}
+              </button>
+              <button mat-button type="button" (click)="cancelPayment()" i18n="@@common.cancel">Cancel</button>
+            </form>
+          }
+        </li>
+      }
+    </ul>
+  }
+} @else {
+  <app-loading-state />
+}

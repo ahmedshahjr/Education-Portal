@@ -1,0 +1,34 @@
+.mm-school-profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-space-3);
+  max-width: 640px;
+}
+
+.mm-school-profile__muted {
+  margin: 0;
+  color: var(--mm-text-muted);
+  font-size: var(--mm-text-sm);
+}
+
+.mm-school-profile__bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--mm-space-2);
+  padding: var(--mm-space-3);
+  border-radius: var(--mm-radius-md);
+  background: var(--mm-surface-container-high);
+}
+
+.mm-school-profile__bar > span {
+  margin-inline-end: auto;
+}
+
+.mm-school-profile__error {
+  margin: 0;
+  color: var(--mm-error);
+}

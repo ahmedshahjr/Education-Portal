@@ -168,7 +168,7 @@ public class SubscriptionPaymentTests
     private static Subscription Subscription(int trialDays)
     {
         var subscription = Saved(Domain.Entities.Subscription.Create(9, null, Saved(PriceBook.Create("PK", "PKR"), 3), BillingCycle.Monthly, 100m, Start, trialDays), 5);
-        subscription.AddModule(Saved(PortalModule.Create("FEES", "Fees", "", false, 0), 7));
+        subscription.AddModule(Saved(PortalModule.Create("FEES", "Fees", "", false, 0), 7), TestBranches.MainBranch());
         return subscription;
     }
 

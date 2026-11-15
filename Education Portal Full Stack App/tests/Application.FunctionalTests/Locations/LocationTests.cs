@@ -24,12 +24,12 @@ public class LocationTests : TestBase
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
 
     [Test]
-    public async Task ShouldImportTheNineCountriesAndPakistansProvinces()
+    public async Task ShouldImportTheFiveCountriesAndPakistansProvinces()
     {
         var results = await ImportAsync();
 
-        results.Select(r => r.CountryCode).ShouldBe(["SA", "AE", "QA", "KW", "BH", "OM", "US", "JP", "PK"]);
-        (await TestApp.CountAsync<Country>()).ShouldBe(9);
+        results.Select(r => r.CountryCode).ShouldBe(["SA", "AE", "US", "JP", "PK"]);
+        (await TestApp.CountAsync<Country>()).ShouldBe(5);
         (await TestApp.CountAsync<State>()).ShouldBe(results.Sum(r => r.StatesAdded));
         (await TestApp.CountAsync<City>()).ShouldBe(results.Sum(r => r.CitiesAdded));
 
@@ -67,7 +67,7 @@ public class LocationTests : TestBase
         var again = await ImportAsync();
 
         again.ShouldAllBe(r => r.StatesAdded == 0 && r.StatesUpdated == 0 && r.CitiesAdded == 0 && r.CitiesUpdated == 0);
-        (await TestApp.CountAsync<Country>()).ShouldBe(9);
+        (await TestApp.CountAsync<Country>()).ShouldBe(5);
         (await TestApp.CountAsync<State>()).ShouldBe(states);
         (await TestApp.CountAsync<City>()).ShouldBe(cities);
     }
@@ -125,7 +125,7 @@ public class LocationTests : TestBase
         pakistan.Name.ShouldBe("Pakistan (master's name)");
         pakistan.Languages.ShouldBe(["ur"]);
         pakistan.Iso3.ShouldBe("PAK");
-        (await TestApp.CountAsync<Country>()).ShouldBe(9);
+        (await TestApp.CountAsync<Country>()).ShouldBe(5);
     }
 
     [Test]
@@ -135,7 +135,7 @@ public class LocationTests : TestBase
         using var session = await SignInAsSchoolUserAsync();
 
         var countries = await ReadAsync<List<LocationCountryDto>>(session, "/api/Locations/countries");
-        countries.Count.ShouldBe(9);
+        countries.Count.ShouldBe(5);
         countries.Select(c => c.Name).ShouldBe(countries.Select(c => c.Name).OrderBy(n => n, StringComparer.Ordinal));
         var pakistan = countries.Single(c => c.Code == "PK");
         pakistan.Iso3.ShouldBe("PAK");
