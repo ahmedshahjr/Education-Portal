@@ -32,11 +32,13 @@ A school got paid modules only through its subscription.
    (`POST /api/SchoolRequests/{id}/approve`). Approval registers the school exactly as the master adding a school does
    (`CreateSchool`), then marks the request approved, in one request. Rejection (`POST .../reject`) creates nothing. The
    queue is `GET /api/SchoolRequests`, master only.
+6. **Per-school switch.** The master switches a module for one school with `PUT /api/Schools/{id}/modules/{moduleCode}` (`SetSchoolModuleCommand`, body `{enabled}`). It refuses the master tenant and a module that is off for every school. Enabling reopens the school's ended default grant or creates one; disabling expires every active grant of the module. Each change is audited as `SchoolModuleChanged`.
+7. **Campus details.** A campus holds its contact and registration details (`CampusDetails`): address, state and city (linked to the location data; the city must belong to the state), postal code, one to five phone numbers, school number and short name, plus optional website and principal. The principal is a `UserDetails` row of the same school whose type is Principal. Address and phone rules sit in the domain, not in endpoints.
 
 ## Consequences
 
 - `TenantModule.SubscriptionId` is nullable, and a unique index covers default grants (nulls are distinct in a unique index).
-- The database check constraint that kept core modules active is removed (migration `AllowSwitchingOffCoreModules`).
+- The database check constraint that kept core modules active is not created (the initial migration has no such constraint).
 - Existing schools keep their modules: their core modules come from their subscriptions. A migration sets core modules to
   default-on.
 - A country is required to register a school, and it must have a price book (the trial is priced from it). The master cannot register a school without one.
@@ -44,4 +46,4 @@ A school got paid modules only through its subscription.
 - Billing does not suspend default grants. A school that does not pay keeps the modules that are on by default. The master
   switches them off if that is not wanted.
 - Registration and approval are one transaction: the school, its grants, its trial, its administrator and the request's approval are saved together or not at all. Audit records are written after the commit, so they never describe a rolled-back change. Plan and role creation, which save twice, are one transaction too.
-- The approval screens and the trial banner are not built yet (Angular); the API is.
+- The approval screens and the trial banner are built in Angular (school requests, plans and prices, invoices, the trial banner).

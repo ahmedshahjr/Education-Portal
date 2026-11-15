@@ -1,4 +1,4 @@
-﻿# ADR-009: Sellable Module Catalogue (Core and Paid Modules)
+# ADR-009: Sellable Module Catalogue (Core and Paid Modules)
 
 ## Status
 
@@ -24,7 +24,7 @@ lifecycle job, audit). Later phases add `Plan`, `PriceBook`, `Subscription` and 
 - The existing `PortalModule` (table `Modules`) becomes the catalogue. Each module has a stable upper-case **code**
   (`FEES`, `HR_PAYROLL`; `Domain/Constants/ModuleCodes.cs`), a name, a description, **IsCore**, **SortOrder** and the
   existing **IsActive** switch and soft delete. A code is unique among live modules; a deleted module keeps its row and the rows that point to it by id, and its code can be used again. The `ModuleType` enum and its lookup table are removed.
-- **Core** modules (SCHOOL, BRANCH, ACADEMIC_SETUP, USERS_ROLES, STUDENTS, STAFF) are part of every subscription and
+- **Core** modules (SCHOOL, CAMPUS, ACADEMIC_SETUP, USERS_ROLES, STUDENTS, STAFF) are part of every subscription and
   never sold on their own. A core module is always on: it cannot be made inactive (also a database check constraint),
   deleted, or switched off for a school. (Superseded by ADR-017: every module, core ones included, can be switched off.)
 - **Paid** modules (ADMISSIONS, ATTENDANCE, FEES, PARENT_COMMUNICATION, EXAMS, TIMETABLE, HR_PAYROLL, TRANSPORT,
@@ -35,7 +35,7 @@ lifecycle job, audit). Later phases add `Plan`, `PriceBook`, `Subscription` and 
   that would close a loop is refused (`ModuleDependencyGraph.WouldCreateCycle`), and a core module may require only core
   modules, because everything a core module needs must be in every subscription.
 - The old module keys map to the new codes: Teachers to STAFF, Courses and Enrolments to ACADEMIC_SETUP, Grades to
-  EXAMS, Parents to PARENT_COMMUNICATION, Dashboard to SCHOOL (core), Branches to BRANCH, Users & Roles to USERS_ROLES.
+  EXAMS, Parents to PARENT_COMMUNICATION, Dashboard to SCHOOL (core), Campuses to CAMPUS, Users & Roles to USERS_ROLES.
 - Only the master tenant's administrators manage the catalogue (`/api/Modules`), and every change is audited.
 
 ## Rationale

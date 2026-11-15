@@ -1,4 +1,4 @@
-﻿using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Infrastructure.Data;
@@ -9,7 +9,7 @@ namespace EducationPortal.Application.FunctionalTests.Modules;
 
 /// <summary>
 /// Which modules a school may use, read from its subscription (ADR-012, SEC-AUTHZ-01, -06): core modules always, paid
-/// modules only while an active grant covers now, for the whole school or the asking branch, and only while the module
+/// modules only while an active grant covers now, for the whole school or the asking campus, and only while the module
 /// is active. The answer is cached per school until something that changes it invalidates it.
 /// </summary>
 public class ModuleAccessTests : TestBase
@@ -67,19 +67,19 @@ public class ModuleAccessTests : TestBase
     }
 
     [Test]
-    public async Task ShouldKeepABranchGrantForThatBranchOnly()
+    public async Task ShouldKeepACampusGrantForThatCampusOnly()
     {
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        var branch = Branch.Create(school.Id, "North", "0002");
-        var otherBranch = Branch.Create(school.Id, "South", "0003");
-        await TestApp.AddAsync(branch);
-        await TestApp.AddAsync(otherBranch);
+        var campus = Campus.Create(school.Id, "North", "0002");
+        var otherCampus = Campus.Create(school.Id, "South", "0003");
+        await TestApp.AddAsync(campus);
+        await TestApp.AddAsync(otherCampus);
 
-        await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], branchId: branch.Id);
+        await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], campusId: campus.Id);
 
-        (await HasAsync(school.Id, ModuleCodes.Fees, branch.Id)).ShouldBeTrue();
-        (await HasAsync(school.Id, ModuleCodes.Fees, otherBranch.Id)).ShouldBeFalse();
-        (await HasAsync(school.Id, ModuleCodes.Fees)).ShouldBeFalse(); // no branch asked: fail closed
+        (await HasAsync(school.Id, ModuleCodes.Fees, campus.Id)).ShouldBeTrue();
+        (await HasAsync(school.Id, ModuleCodes.Fees, otherCampus.Id)).ShouldBeFalse();
+        (await HasAsync(school.Id, ModuleCodes.Fees)).ShouldBeFalse(); // no campus asked: fail closed
         (await EnabledAsync(school.Id)).ShouldNotContain(ModuleCodes.Fees);
     }
 
@@ -121,10 +121,10 @@ public class ModuleAccessTests : TestBase
     private static IModuleEntitlementStore Store() =>
         FunctionalTestSetup.ScopeFactory.CreateScope().ServiceProvider.GetRequiredService<IModuleEntitlementStore>();
 
-    private static async Task<bool> HasAsync(int schoolId, string code, int? branchId = null)
+    private static async Task<bool> HasAsync(int schoolId, string code, int? campusId = null)
     {
         using var scope = SchoolScope(schoolId);
-        return await scope.ServiceProvider.GetRequiredService<IModuleAccess>().HasModuleAsync(schoolId, code, branchId, CancellationToken.None);
+        return await scope.ServiceProvider.GetRequiredService<IModuleAccess>().HasModuleAsync(schoolId, code, campusId, CancellationToken.None);
     }
 
     private static async Task<IReadOnlyList<string>> EnabledAsync(int schoolId)

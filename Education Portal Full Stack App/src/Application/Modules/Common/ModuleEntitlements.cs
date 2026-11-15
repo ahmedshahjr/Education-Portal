@@ -4,11 +4,11 @@ using EducationPortal.Domain.Enums;
 namespace EducationPortal.Application.Modules.Common;
 
 /// <summary>
-/// One grant of a module to a school, for a period, on one branch. A grant on the school's main branch
+/// One grant of a module to a school, for a period, on one campus. A grant on the school's main campus
 /// (<paramref name="IsSchoolWide"/>) covers the whole school. A grant comes from the school's subscription, or is the
 /// default grant of a module that is on by default (given when the school registers).
 /// </summary>
-public sealed record ModuleGrant(string Code, int BranchId, bool IsSchoolWide, DateTimeOffset ValidFrom, DateTimeOffset? ValidTo);
+public sealed record ModuleGrant(string Code, int CampusId, bool IsSchoolWide, DateTimeOffset ValidFrom, DateTimeOffset? ValidTo);
 
 /// <summary>
 /// What one school may use: the grants of the active modules. Every module, core or paid, is on only through a grant that
@@ -31,14 +31,14 @@ public sealed class ModuleEntitlements
     public static ModuleEntitlements None { get; } = new([], []);
 
     /// <summary>
-    /// True when the module is on at <paramref name="now"/> for the school, or for the branch when one is given. Without a
-    /// branch only a whole-school grant counts, so a module given to one branch only is not on (fail closed).
+    /// True when the module is on at <paramref name="now"/> for the school, or for the campus when one is given. Without a
+    /// campus only a whole-school grant counts, so a module given to one campus only is not on (fail closed).
     /// </summary>
-    public bool Has(string moduleCode, int? branchId, DateTimeOffset now) =>
+    public bool Has(string moduleCode, int? campusId, DateTimeOffset now) =>
         _grants.Any(g =>
             g.Code == moduleCode
             && IsInPeriod(g, now)
-            && (g.IsSchoolWide || g.BranchId == branchId));
+            && (g.IsSchoolWide || g.CampusId == campusId));
 
     /// <summary>The modules on at <paramref name="now"/> for the whole school, in catalogue order.</summary>
     public IReadOnlyList<string> EnabledCodes(DateTimeOffset now) =>
@@ -69,7 +69,7 @@ internal static class ModuleEntitlementLoader
                 from t in context.TenantModules.AsNoTracking()
                 join m in context.Modules on t.ModuleId equals m.Id
                 where t.SchoolId == schoolId && t.Status == TenantModuleStatus.Active && m.IsActive
-                select new ModuleGrant(m.Code, t.BranchId, t.IsSchoolWide, t.ValidFrom, t.ValidTo))
+                select new ModuleGrant(m.Code, t.CampusId, t.IsSchoolWide, t.ValidFrom, t.ValidTo))
             .ToListAsync(cancellationToken);
 
         return new ModuleEntitlements(order, grants);

@@ -1,5 +1,5 @@
 ---
-description: Security testing rules (tenant/branch/module denial tests, architecture tests, hardening tests, validator tests, DAST). Use when writing or reviewing tests for any change. Part of the mandatory Education Portal compliance rules.
+description: Security testing rules (tenant/campus/module denial tests, architecture tests, hardening tests, validator tests, DAST). Use when writing or reviewing tests for any change. Part of the mandatory Education Portal compliance rules.
 globs:
 alwaysApply: false
 ---

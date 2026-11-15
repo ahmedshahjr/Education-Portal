@@ -94,20 +94,20 @@ namespace EducationPortal.Application.Common.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This branch still has module grants. Turn those modules off first..
+        ///   Looks up a localized string similar to This campus still has module grants. Turn those modules off first..
         /// </summary>
-        internal static string BranchHasModules {
+        internal static string CampusHasModules {
             get {
-                return ResourceManager.GetString("BranchHasModules", resourceCulture);
+                return ResourceManager.GetString("CampusHasModules", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The main branch cannot be deleted: every school keeps it..
+        ///   Looks up a localized string similar to The main campus cannot be deleted: every school keeps it..
         /// </summary>
-        internal static string BranchMainNotDeletable {
+        internal static string CampusMainNotDeletable {
             get {
-                return ResourceManager.GetString("BranchMainNotDeletable", resourceCulture);
+                return ResourceManager.GetString("CampusMainNotDeletable", resourceCulture);
             }
         }
         
@@ -852,9 +852,36 @@ namespace EducationPortal.Application.Common.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Only a pending school request can be approved or rejected..
         /// </summary>
+        internal static string ModuleSwitchedOff {
+            get {
+                return ResourceManager.GetString("ModuleSwitchedOff", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Only a pending school request can be approved or rejected..
+        /// </summary>
         internal static string SchoolRequestNotPending {
             get {
                 return ResourceManager.GetString("SchoolRequestNotPending", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add at least one phone number for the campus..
+        /// </summary>
+        internal static string CampusPhonesRequired {
+            get {
+                return ResourceManager.GetString("CampusPhonesRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A campus lists at most five phone numbers..
+        /// </summary>
+        internal static string CampusPhonesTooMany {
+            get {
+                return ResourceManager.GetString("CampusPhonesTooMany", resourceCulture);
             }
         }
     }

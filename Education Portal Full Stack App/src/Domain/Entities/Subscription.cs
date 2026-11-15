@@ -275,17 +275,17 @@ public class Subscription : BaseAuditableEntity
     /// and paid). Modules no longer in the list end now (their rows are kept); new ones start now and run to the end of the
     /// current period; modules that return are restored. The price book must have the subscription's currency. A
     /// cancelled subscription is refused. Changes take effect at once, with no credit or charge for the current period.
-    /// Modules that come with the whole school are granted on <paramref name="mainBranch"/>.
+    /// Modules that come with the whole school are granted on <paramref name="mainCampus"/>.
     /// </summary>
-    public void Reconfigure(Plan? plan, PriceBook priceBook, decimal amount, IReadOnlyCollection<PortalModule> modules, DateTimeOffset now, Branch mainBranch)
+    public void Reconfigure(Plan? plan, PriceBook priceBook, decimal amount, IReadOnlyCollection<PortalModule> modules, DateTimeOffset now, Campus mainCampus)
     {
         ArgumentNullException.ThrowIfNull(priceBook);
         ArgumentNullException.ThrowIfNull(modules);
-        ArgumentNullException.ThrowIfNull(mainBranch);
+        ArgumentNullException.ThrowIfNull(mainCampus);
 
-        if (mainBranch.Kind != BranchKind.Main || mainBranch.SchoolId != SchoolId)
+        if (mainCampus.Kind != CampusKind.Main || mainCampus.SchoolId != SchoolId)
         {
-            throw new ArgumentException("Whole-school modules are granted on the school's main branch.", nameof(mainBranch));
+            throw new ArgumentException("Whole-school modules are granted on the school's main campus.", nameof(mainCampus));
         }
 
         if (Status == SubscriptionStatus.Cancelled)
@@ -325,30 +325,30 @@ public class Subscription : BaseAuditableEntity
 
         foreach (var module in modules.Where(m => _modules.All(g => !g.IsSchoolWide || g.ModuleId != m.Id)))
         {
-            _modules.Add(new TenantModule(this, module, mainBranch, now < EndDate ? now : StartDate, EndDate));
+            _modules.Add(new TenantModule(this, module, mainCampus, now < EndDate ? now : StartDate, EndDate));
         }
     }
 
     /// <summary>
-    /// Gives the school a module for the subscription's current period, on <paramref name="branch"/>: the school's main
-    /// branch for the whole school, or another branch for that branch only. A module can be given to each branch once.
+    /// Gives the school a module for the subscription's current period, on <paramref name="campus"/>: the school's main
+    /// campus for the whole school, or another campus for that campus only. A module can be given to each campus once.
     /// </summary>
-    public TenantModule AddModule(PortalModule module, Branch branch)
+    public TenantModule AddModule(PortalModule module, Campus campus)
     {
         ArgumentNullException.ThrowIfNull(module);
-        ArgumentNullException.ThrowIfNull(branch);
+        ArgumentNullException.ThrowIfNull(campus);
 
-        if (branch.SchoolId != SchoolId)
+        if (campus.SchoolId != SchoolId)
         {
-            throw new ArgumentException("A branch belongs to the subscription's school.", nameof(branch));
+            throw new ArgumentException("A campus belongs to the subscription's school.", nameof(campus));
         }
 
-        if (_modules.Any(m => m.ModuleId == module.Id && m.BranchId == branch.Id))
+        if (_modules.Any(m => m.ModuleId == module.Id && m.CampusId == campus.Id))
         {
             throw new InvalidOperationException("The subscription already has this module.");
         }
 
-        var tenantModule = new TenantModule(this, module, branch, StartDate, EndDate);
+        var tenantModule = new TenantModule(this, module, campus, StartDate, EndDate);
         _modules.Add(tenantModule);
         return tenantModule;
     }

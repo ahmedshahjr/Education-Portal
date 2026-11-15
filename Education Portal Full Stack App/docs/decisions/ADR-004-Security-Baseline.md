@@ -10,7 +10,7 @@ Accepted
 
 ## Context
 
-Step 2 of the MVP plan (AGENTS.md, section 8) adds schools, branches and staff accounts. Before any screen can sign a user in, the secure-compliance rules in `docs/ai/secure-compliance/SKILL.md` require the following:
+Step 2 of the MVP plan (AGENTS.md, section 8) adds schools, campuses and staff accounts. Before any screen can sign a user in, the secure-compliance rules in `docs/ai/secure-compliance/SKILL.md` require the following:
 
 - ASP.NET Core Identity with its password hasher (SEC-AUTHN-02), a password policy (SEC-AUTHN-03) and account lockout (SEC-AUTHN-05).
 - Session cookies that are `Secure`, `HttpOnly`, `SameSite` and host-only, with idle and absolute lifetimes (SEC-AUTHN-06, SEC-AUTHN-07).
@@ -51,7 +51,7 @@ The template ships a public register endpoint, the Identity API endpoints and a 
 - **MFA (SEC-AUTHN-04) is not implemented.** It must be in place before any master-tenant user, school owner or privileged role exists, which means step 2b, before any such account is created. This step creates no such account outside Development. Deferring it needs maintainer approval under section 15 of the rules.
 - **The lockout counter has no 15-minute window** (SEC-AUTHN-05 asks for one). The lockout is stricter, so this does not weaken it.
 - **Rate limiting is per client address only.** The per-account limit is the lockout (SEC-WEB-07 asks for both partitions).
-- **Tenant resolution from the request host** (SEC-AUTHN-09, SEC-WEB-08), the school and branch claims, and the `SchoolId` and `BranchId` values in audit events are step 2b work. The audit columns exist and stay empty until then.
+- **Tenant resolution from the request host** (SEC-AUTHN-09, SEC-WEB-08), the school and campus claims, and the `SchoolId` and `CampusId` values in audit events are step 2b work. The audit columns exist and stay empty until then.
 - **EF Core migrations are not in the repository yet.** Schema changes in shared environments must wait for them (SEC-CFG-03).
 - **Password reset, invite links and disabling users** (SEC-AUTHN-08, SEC-AUTHN-10) are not implemented.
 - **Fonts** fall back to system fonts until they are self-hosted, because external font hosts are blocked.

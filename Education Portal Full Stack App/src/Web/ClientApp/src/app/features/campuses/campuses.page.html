@@ -1,0 +1,218 @@
+<app-page-header
+  title="Campuses"
+  i18n-title="@@campuses.title"
+  subtitle="Your school's campuses. Each campus has a four-digit code and its contact and registration details."
+  i18n-subtitle="@@campuses.subtitle"
+></app-page-header>
+
+<mat-card class="mm-card mm-elevated mm-campuses__settings">
+  <mat-card-content>
+    <h2 class="mm-campuses__heading" i18n="@@campuses.codesHeading">Campus codes</h2>
+    @if (settings(); as current) {
+      <form class="mm-campuses__form" [formGroup]="settingsForm" (ngSubmit)="saveSettings()" novalidate>
+        <mat-slide-toggle formControlName="prefixEnabled" (change)="updatePrefixValidation()" i18n="@@campuses.prefixOn">Show a prefix in front of every campus code</mat-slide-toggle>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@campuses.prefix">Prefix</mat-label>
+          <input matInput formControlName="prefix" maxlength="6" autocomplete="off" dir="ltr" />
+          <mat-hint i18n="@@campuses.prefixHint">Letters or digits, up to 6. Shown as the prefix followed by the code, for example KHI0002.</mat-hint>
+        </mat-form-field>
+        <button mat-flat-button type="submit" [disabled]="busy() || settingsForm.invalid" i18n="@@campuses.saveCodes">Save codes</button>
+      </form>
+      @for (message of settingsErrors(); track message) {
+        <p class="mm-campuses__error" role="alert">{{ message }}</p>
+      }
+    } @else {
+      <app-loading-state />
+    }
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="Campuses could not be loaded"
+        i18n-title="@@campuses.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else if (campuses(); as list) {
+      <div class="mm-campuses__toolbar">
+        @if (!formOpen()) {
+          <button mat-flat-button type="button" (click)="startAdd()" i18n="@@campuses.add">Add campus</button>
+        }
+      </div>
+
+      <ul class="mm-campuses__list" aria-label="Campuses" i18n-aria-label="@@campuses.listLabel">
+        @for (campus of list; track campus.id) {
+          <li class="mm-campuses__row">
+            @if (editingId() === campus.id) {
+              <ng-container *ngTemplateOutlet="campusForm; context: { $implicit: campus }" />
+            } @else {
+              <div class="mm-campuses__summary">
+                <div class="mm-campuses__head">
+                  <span class="mm-campuses__name">
+                    {{ campus.name }}
+                    <span class="mm-campuses__code"><bdi dir="ltr">{{ campus.displayCode }}</bdi></span>
+                  </span>
+                  @if (campus.kind === kinds.Main) {
+                    <app-status-badge tone="success" i18n="@@campuses.main">Main campus</app-status-badge>
+                  } @else {
+                    <app-status-badge tone="primary" i18n="@@campuses.other">Campus</app-status-badge>
+                  }
+                </div>
+                <dl class="mm-campuses__details">
+                  <dt i18n="@@campuses.address">Address</dt>
+                  <dd>{{ campus.details.address || '—' }}</dd>
+                  <dt i18n="@@campuses.location">State and city</dt>
+                  <dd>{{ campus.details.stateName || '—' }}{{ campus.details.cityName ? ', ' + campus.details.cityName : '' }}</dd>
+                  <dt i18n="@@campuses.postalCode">Postal code</dt>
+                  <dd><bdi dir="ltr">{{ campus.details.postalCode || '—' }}</bdi></dd>
+                  <dt i18n="@@campuses.phones">Phone numbers</dt>
+                  <dd><bdi dir="ltr">{{ campus.details.phones.join(' · ') || '—' }}</bdi></dd>
+                  <dt i18n="@@campuses.website">Website</dt>
+                  <dd><bdi dir="ltr">{{ campus.details.website || '—' }}</bdi></dd>
+                  <dt i18n="@@campuses.schoolNumber">School number</dt>
+                  <dd>{{ campus.details.schoolNumber || '—' }}</dd>
+                  <dt i18n="@@campuses.shortName">Short name</dt>
+                  <dd>{{ campus.details.shortName || '—' }}</dd>
+                  <dt i18n="@@campuses.principal">Principal</dt>
+                  <dd>{{ campus.details.principalName || '—' }}</dd>
+                </dl>
+              </div>
+              <span class="mm-campuses__actions">
+                @if (campus.kind !== kinds.Main) {
+                  <button mat-button type="button" [disabled]="busy() || formOpen()" (click)="confirmDelete(campus)" i18n="@@campuses.delete">Delete</button>
+                }
+                <button mat-button type="button" [disabled]="busy() || formOpen()" (click)="startEdit(campus)" i18n="@@campuses.edit">Edit</button>
+              </span>
+            }
+          </li>
+        }
+      </ul>
+
+      @if (adding()) {
+        <ng-container *ngTemplateOutlet="campusForm" />
+      }
+
+      @for (message of errors(); track message) {
+        <p class="mm-campuses__error" role="alert">{{ message }}</p>
+      }
+    } @else {
+      <app-loading-state />
+    }
+  </mat-card-content>
+</mat-card>
+
+<ng-template #campusForm>
+  <form class="mm-campuses__form mm-campuses__form--details" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.name">Campus name</mat-label>
+      <input matInput formControlName="name" maxlength="200" autocomplete="off" />
+      @if (form.controls.name.hasError('required')) {
+        <mat-error i18n="@@campuses.required">This field is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.addressLabel">Address</mat-label>
+      <input matInput formControlName="address" maxlength="300" autocomplete="off" />
+      @if (form.controls.address.hasError('required')) {
+        <mat-error i18n="@@campuses.required">This field is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.state">State or province</mat-label>
+      <mat-select formControlName="stateId" (selectionChange)="onStateChange()">
+        @for (state of locations()?.states ?? []; track state.id) {
+          <mat-option [value]="state.id">{{ state.name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.stateId.hasError('required')) {
+        <mat-error i18n="@@campuses.required">This field is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.city">City</mat-label>
+      <mat-select formControlName="cityId">
+        @for (city of citiesOf(form.controls.stateId.value); track city.id) {
+          <mat-option [value]="city.id">{{ city.name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.cityId.hasError('required')) {
+        <mat-error i18n="@@campuses.required">This field is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.postalCodeLabel">Postal code</mat-label>
+      <input matInput formControlName="postalCode" maxlength="10" autocomplete="off" dir="ltr" />
+      @if (form.controls.postalCode.hasError('required')) {
+        <mat-error i18n="@@campuses.required">This field is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <fieldset class="mm-campuses__phones" formArrayName="phones">
+      <legend i18n="@@campuses.phonesLabel">Phone numbers (one to five)</legend>
+      @for (phone of phones.controls; track $index; let i = $index) {
+        <div class="mm-campuses__phone-row">
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@campuses.phoneNumber">Phone number</mat-label>
+            <input matInput [formControlName]="i" maxlength="30" autocomplete="off" dir="ltr" />
+          </mat-form-field>
+          <button mat-button type="button" [disabled]="phones.length <= 1" (click)="removePhone(i)" i18n="@@campuses.removePhone">Remove</button>
+        </div>
+      }
+      <button mat-button type="button" [disabled]="phones.length >= maxPhones" (click)="addPhone()" i18n="@@campuses.addPhone">Add a phone number</button>
+      @if (phones.hasError('required')) {
+        <p class="mm-campuses__error" role="alert" i18n="@@campuses.phonesRequired">Add at least one phone number.</p>
+      }
+      @if (phones.hasError('maxPhones')) {
+        <p class="mm-campuses__error" role="alert" i18n="@@campuses.phonesMax">A campus lists at most five phone numbers.</p>
+      }
+    </fieldset>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.website">Website</mat-label>
+      <input matInput formControlName="website" maxlength="2048" autocomplete="off" dir="ltr" />
+      <mat-hint i18n="@@campuses.optional">Optional.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.schoolNumberLabel">School number</mat-label>
+      <input matInput formControlName="schoolNumber" maxlength="50" autocomplete="off" />
+      @if (form.controls.schoolNumber.hasError('required')) {
+        <mat-error i18n="@@campuses.required">This field is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.shortNameLabel">Short name</mat-label>
+      <input matInput formControlName="shortName" maxlength="25" autocomplete="off" />
+      @if (form.controls.shortName.hasError('required')) {
+        <mat-error i18n="@@campuses.required">This field is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.principalLabel">Principal</mat-label>
+      <mat-select formControlName="principalId">
+        <mat-option value="" i18n="@@campuses.noPrincipal">No principal yet</mat-option>
+        @for (person of principals(); track person.id) {
+          <mat-option [value]="person.id">{{ person.firstName }}{{ person.middleName ? ' ' + person.middleName : '' }} {{ person.lastName }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint i18n="@@campuses.principalHint">Optional. Add principals under People.</mat-hint>
+    </mat-form-field>
+
+    <div class="mm-campuses__form-actions">
+      <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@campuses.save">Save</button>
+      <button mat-button type="button" [disabled]="busy()" (click)="cancel()" i18n="@@common.cancel">Cancel</button>
+    </div>
+  </form>
+</ng-template>

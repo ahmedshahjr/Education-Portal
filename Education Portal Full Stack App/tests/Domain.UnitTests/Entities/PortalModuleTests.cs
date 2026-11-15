@@ -1,4 +1,4 @@
-﻿using EducationPortal.Domain.Constants;
+using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using NUnit.Framework;
 using Shouldly;
@@ -131,7 +131,7 @@ public class PortalModuleTests
         modules.Select(m => m.Code).ShouldBe(codes, ignoreOrder: true);
         modules.ShouldAllBe(m => m.IsActive);
         modules.Where(m => m.IsCore).Select(m => m.Code).ShouldBe(
-            [ModuleCodes.School, ModuleCodes.Branch, ModuleCodes.AcademicSetup, ModuleCodes.UsersRoles, ModuleCodes.Students, ModuleCodes.Staff],
+            [ModuleCodes.School, ModuleCodes.Campus, ModuleCodes.AcademicSetup, ModuleCodes.UsersRoles, ModuleCodes.Students, ModuleCodes.Staff],
             ignoreOrder: true);
         modules.Select(m => m.SortOrder).ShouldBeUnique();
     }

@@ -185,10 +185,10 @@ public static class TestApp
     /// <summary>
     /// Gives a school a subscription that grants the paid modules, without going through plans and pricing (those have
     /// their own tests). The subscription starts at <paramref name="start"/> (now by default) and runs one month, or is a
-    /// trial of <paramref name="trialDays"/> days, at <paramref name="amount"/> a month; with a branch, the modules are for that branch only. The school's cached
+    /// trial of <paramref name="trialDays"/> days, at <paramref name="amount"/> a month; with a campus, the modules are for that campus only. The school's cached
     /// entitlements are dropped, as after a real change.
     /// </summary>
-    public static async Task<Subscription> SubscribeAsync(int schoolId, string[] moduleCodes, DateTimeOffset? start = null, int? branchId = null, int trialDays = 0, decimal amount = 0m)
+    public static async Task<Subscription> SubscribeAsync(int schoolId, string[] moduleCodes, DateTimeOffset? start = null, int? campusId = null, int trialDays = 0, decimal amount = 0m)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
 
@@ -203,14 +203,14 @@ public static class TestApp
             await context.SaveChangesAsync();
         }
 
-        // Without a branch the modules are for the whole school: they go on its main branch.
-        var branch = branchId is null
-            ? await context.Branches.SingleAsync(b => b.SchoolId == schoolId && b.Kind == EducationPortal.Domain.Enums.BranchKind.Main)
-            : await context.Branches.FirstAsync(b => b.Id == branchId);
+        // Without a campus the modules are for the whole school: they go on its main campus.
+        var campus = campusId is null
+            ? await context.Campuses.SingleAsync(b => b.SchoolId == schoolId && b.Kind == EducationPortal.Domain.Enums.CampusKind.Main)
+            : await context.Campuses.FirstAsync(b => b.Id == campusId);
         var subscription = Subscription.Create(schoolId, null, book, BillingCycle.Monthly, amount, start ?? DateTimeOffset.UtcNow, trialDays);
         foreach (var module in await context.Modules.Where(m => moduleCodes.Contains(m.Code)).ToListAsync())
         {
-            subscription.AddModule(module, branch);
+            subscription.AddModule(module, campus);
         }
 
         context.Subscriptions.Add(subscription);

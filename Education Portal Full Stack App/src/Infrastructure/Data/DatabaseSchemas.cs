@@ -29,7 +29,8 @@ public static class DatabaseSchemas
         [typeof(RolePermission)] = Access,
 
         [typeof(School)] = Schools,
-        [typeof(Branch)] = Schools,
+        [typeof(Campus)] = Schools,
+        [typeof(CampusPhone)] = Schools,
         [typeof(UserDetails)] = Schools,
         [typeof(BrandingImage)] = Schools,
         [typeof(SchoolRequest)] = Schools,

@@ -344,8 +344,8 @@ Features: Issue identification, root cause analysis, fix suggestions
 /commit [--message <msg>] [--amend]
   Commit with verification
 
-/branch [create|switch|delete|list] [<name>]
-  Branch operations
+/campus [create|switch|delete|list] [<name>]
+  Campus operations
 
 /stash [save|pop|list|apply] [<message>]
   Stash operations
@@ -514,7 +514,7 @@ Create `.claude-flow/pair-config.json`:
       "commitTemplate": "feat: {message}",
       "signCommits": false,
       "pushOnEnd": false,
-      "branchProtection": true
+      "campusProtection": true
     },
 
     "session": {

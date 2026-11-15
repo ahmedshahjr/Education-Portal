@@ -6,7 +6,7 @@ import { ModulesClient } from '../../web-api-client';
 /** Codes of the portal's modules, as the server names them (`ModuleCodes` in the Domain project). */
 export const MODULE_CODES = {
   school: 'SCHOOL',
-  branch: 'BRANCH',
+  campus: 'CAMPUS',
   academicSetup: 'ACADEMIC_SETUP',
   usersRoles: 'USERS_ROLES',
   students: 'STUDENTS',

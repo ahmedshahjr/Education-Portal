@@ -52,10 +52,10 @@ Detailed Supabase MCP tools guide:
 4. Development Branches:
    • create_branch - Creates a development branch (requires project_id, confirm_cost_id parameters)
    • list_branches - Lists all development branches (requires project_id parameter)
-   • delete_branch - Deletes a branch (requires branch_id parameter)
-   • merge_branch - Merges branch to production (requires branch_id parameter)
-   • reset_branch - Resets branch migrations (requires branch_id, optional migration_version parameters)
-   • rebase_branch - Rebases branch on production (requires branch_id parameter)
+   • delete_campus - Deletes a campus (requires campus_id parameter)
+   • merge_campus - Merges campus to production (requires campus_id parameter)
+   • reset_campus - Resets campus migrations (requires campus_id, optional migration_version parameters)
+   • rebase_campus - Rebases campus on production (requires campus_id parameter)
 
 5. Monitoring & Utilities:
    • get_logs - Gets service logs (requires project_id, service parameters)
@@ -99,9 +99,9 @@ The Supabase MCP (Management Control Panel) provides a set of tools for managing
    - Verify database changes after applying migrations
    - Use development branches for testing changes before production
 
-4. **Working with Branches**:
+4. **Working with Campuses**:
    - Create branches for development work
-   - Test changes thoroughly on branches
+   - Test changes thoroughly on campuses
    - Merge only when changes are verified
    - Rebase branches when production has newer migrations
 
@@ -130,14 +130,14 @@ Gets details for a Supabase project.
 - `id`* - The project ID
 
 #### `get_cost`
-Gets the cost of creating a new project or branch. Never assume organization as costs can be different for each.
+Gets the cost of creating a new project or campus. Never assume organization as costs can be different for each.
 
 **Parameters:**
 - `type`* - No description
 - `organization_id`* - The organization ID. Always ask the user.
 
 #### `confirm_cost`
-Ask the user to confirm their understanding of the cost of creating a new project or branch. Call `get_cost` first. Returns a unique ID for this confirmation which should be passed to `create_project` or `create_branch`.
+Ask the user to confirm their understanding of the cost of creating a new project or campus. Call `get_cost` first. Returns a unique ID for this confirmation which should be passed to `create_project` or `create_campus`.
 
 **Parameters:**
 - `type`* - No description
@@ -239,44 +239,44 @@ Generates TypeScript types for a project.
 
 ### Development Branches
 
-#### `create_branch`
+#### `create_campus`
 Creates a development branch on a Supabase project. This will apply all migrations from the main project to a fresh branch database. Note that production data will not carry over. The branch will get its own project_id via the resulting project_ref. Use this ID to execute queries and migrations on the branch.
 
 **Parameters:**
 - `project_id`* - No description
-- `name` - Name of the branch to create
+- `name` - Name of the campus to create
 - `confirm_cost_id`* - The cost confirmation ID. Call `confirm_cost` first.
 
-#### `list_branches`
+#### `list_campuses`
 Lists all development branches of a Supabase project. This will return branch details including status which you can use to check when operations like merge/rebase/reset complete.
 
 **Parameters:**
 - `project_id`* - No description
 
-#### `delete_branch`
+#### `delete_campus`
 Deletes a development branch.
 
 **Parameters:**
-- `branch_id`* - No description
+- `campus_id`* - No description
 
-#### `merge_branch`
+#### `merge_campus`
 Merges migrations and edge functions from a development branch to production.
 
 **Parameters:**
-- `branch_id`* - No description
+- `campus_id`* - No description
 
-#### `reset_branch`
+#### `reset_campus`
 Resets migrations of a development branch. Any untracked data or schema changes will be lost.
 
 **Parameters:**
-- `branch_id`* - No description
+- `campus_id`* - No description
 - `migration_version` - Reset your development branch to a specific migration version.
 
-#### `rebase_branch`
+#### `rebase_campus`
 Rebases a development branch on production. This will effectively run any newer migrations from production onto this branch to help handle migration drift.
 
 **Parameters:**
-- `branch_id`* - No description
+- `campus_id`* - No description
 
 ## Available Tools
 - **read**: File reading and viewing

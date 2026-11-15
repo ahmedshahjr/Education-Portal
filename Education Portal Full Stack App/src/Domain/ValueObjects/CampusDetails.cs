@@ -1,9 +1,12 @@
+using EducationPortal.Domain.Entities;
+
 namespace EducationPortal.Domain.ValueObjects;
 
 /// <summary>
-/// The registration and contact details of a campus. Every field is optional. Build it with <see cref="Create"/>, which
-/// trims the text, turns blanks into <c>null</c> and rejects anything that breaks a rule, so a campus never stores a value
-/// in another form. The ids are internal keys: the use case resolves the public ids to them first.
+/// The registration and contact details of a campus. Required: the address, the state, the city, the postal code, at least
+/// one phone number, the school number and the short name. Optional: the website and the principal. Build it with
+/// <see cref="Create"/>, which trims the text and rejects anything that breaks a rule, so a campus never stores a value in
+/// another form. The ids are internal keys: the use case resolves the public ids to them first.
 /// </summary>
 public sealed record CampusDetails
 {
@@ -13,24 +16,31 @@ public sealed record CampusDetails
 
     private CampusDetails()
     {
+        Address = string.Empty;
+        PostalCode = string.Empty;
+        Phones = [];
+        SchoolNumber = string.Empty;
+        ShortName = string.Empty;
     }
 
-    public string? Address { get; private init; }
+    public string Address { get; private init; }
 
-    public int? StateId { get; private init; }
+    public int StateId { get; private init; }
 
-    public int? CityId { get; private init; }
+    public int CityId { get; private init; }
 
-    public string? PostalCode { get; private init; }
+    public string PostalCode { get; private init; }
 
-    public string? Phone { get; private init; }
+    /// <summary>One to <see cref="Campus.MaxPhones"/> numbers, in the order given.</summary>
+    public IReadOnlyList<string> Phones { get; private init; }
 
+    /// <summary>The website, or <c>null</c> when the campus has none.</summary>
     public string? Website { get; private init; }
 
     /// <summary>The school's registration number for the campus.</summary>
-    public string? SchoolNumber { get; private init; }
+    public string SchoolNumber { get; private init; }
 
-    public string? ShortName { get; private init; }
+    public string ShortName { get; private init; }
 
     /// <summary>The <see cref="UserDetails"/> row of the principal. It must belong to the same school and be a principal; the use case checks that.</summary>
     public int? PrincipalUserDetailsId { get; private init; }
@@ -38,34 +48,29 @@ public sealed record CampusDetails
     /// <summary>Validates and normalises the values. Throws <see cref="ArgumentException"/> for the first rule broken.</summary>
     public static CampusDetails Create(
         string? address,
-        int? stateId,
-        int? cityId,
+        int stateId,
+        int cityId,
         string? postalCode,
-        string? phone,
+        IEnumerable<string>? phones,
         string? website,
         string? schoolNumber,
         string? shortName,
         int? principalUserDetailsId)
     {
-        if (cityId is not null && stateId is null)
-        {
-            throw new ArgumentException("A city needs its state.", nameof(cityId));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(stateId, nameof(stateId));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cityId, nameof(cityId));
 
-        var normalizedAddress = Normalize(address, nameof(address), AddressMaxLength);
-        var normalizedPostalCode = Normalize(postalCode, nameof(postalCode), ContactRules.PostalCodeMaxLength);
-        if (normalizedPostalCode is not null && !ContactRules.IsValidPostalCode(normalizedPostalCode))
+        var normalizedAddress = RequiredText(address, nameof(address), AddressMaxLength);
+
+        var normalizedPostalCode = RequiredText(postalCode, nameof(postalCode), ContactRules.PostalCodeMaxLength);
+        if (!ContactRules.IsValidPostalCode(normalizedPostalCode))
         {
             throw new ArgumentException("A postal code has letters, digits, spaces and hyphens only.", nameof(postalCode));
         }
 
-        var normalizedPhone = Normalize(phone, nameof(phone), ContactRules.PhoneMaxLength);
-        if (normalizedPhone is not null && !ContactRules.IsValidPhone(normalizedPhone))
-        {
-            throw new ArgumentException("A phone number has 7 to 15 digits and an optional leading +.", nameof(phone));
-        }
+        var normalizedPhones = NormalizePhones(phones);
 
-        var normalizedWebsite = Normalize(website, nameof(website), ContactRules.WebsiteMaxLength);
+        var normalizedWebsite = OptionalText(website, nameof(website), ContactRules.WebsiteMaxLength);
         if (normalizedWebsite is not null && !ContactRules.IsValidWebsite(normalizedWebsite))
         {
             throw new ArgumentException("A website must be an absolute http or https address.", nameof(website));
@@ -77,16 +82,63 @@ public sealed record CampusDetails
             StateId = stateId,
             CityId = cityId,
             PostalCode = normalizedPostalCode,
-            Phone = normalizedPhone,
+            Phones = normalizedPhones,
             Website = normalizedWebsite,
-            SchoolNumber = Normalize(schoolNumber, nameof(schoolNumber), SchoolNumberMaxLength),
-            ShortName = Normalize(shortName, nameof(shortName), ShortNameMaxLength),
+            SchoolNumber = RequiredText(schoolNumber, nameof(schoolNumber), SchoolNumberMaxLength),
+            ShortName = RequiredText(shortName, nameof(shortName), ShortNameMaxLength),
             PrincipalUserDetailsId = principalUserDetailsId,
         };
     }
 
+    /// <summary>Between one and <see cref="Campus.MaxPhones"/> numbers: each trimmed, valid, and not repeated.</summary>
+    private static IReadOnlyList<string> NormalizePhones(IEnumerable<string>? phones)
+    {
+        var numbers = (phones ?? []).Select(p => p?.Trim() ?? string.Empty).Where(p => p.Length > 0).ToList();
+        if (numbers.Count == 0)
+        {
+            throw new ArgumentException("A campus needs at least one phone number.", nameof(phones));
+        }
+
+        if (numbers.Count > Campus.MaxPhones)
+        {
+            throw new ArgumentException($"A campus has at most {Campus.MaxPhones} phone numbers.", nameof(phones));
+        }
+
+        foreach (var number in numbers)
+        {
+            if (!CampusPhone.IsValid(number))
+            {
+                throw new ArgumentException("A phone number has 7 to 15 digits and an optional leading +.", nameof(phones));
+            }
+        }
+
+        if (numbers.Distinct(StringComparer.Ordinal).Count() != numbers.Count)
+        {
+            throw new ArgumentException("A phone number is listed only once.", nameof(phones));
+        }
+
+        return numbers;
+    }
+
+    /// <summary>Trims the text. Blank is refused, and so is text longer than the limit.</summary>
+    private static string RequiredText(string? value, string parameter, int maxLength)
+    {
+        var trimmed = value?.Trim();
+        if (string.IsNullOrEmpty(trimmed))
+        {
+            throw new ArgumentException("This field is required.", parameter);
+        }
+
+        if (trimmed.Length > maxLength)
+        {
+            throw new ArgumentOutOfRangeException(parameter, $"Must be at most {maxLength} characters.");
+        }
+
+        return trimmed;
+    }
+
     /// <summary>Trims the text. Blank becomes <c>null</c>. Throws when it is longer than the limit.</summary>
-    private static string? Normalize(string? value, string parameter, int maxLength)
+    private static string? OptionalText(string? value, string parameter, int maxLength)
     {
         var trimmed = value?.Trim();
         if (string.IsNullOrEmpty(trimmed))

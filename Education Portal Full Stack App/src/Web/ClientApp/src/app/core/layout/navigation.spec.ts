@@ -14,7 +14,17 @@ describe('visibleNavSections', () => {
   });
 
   it('shows the master portal to master tenant administrators', () => {
-    expect(ids(true, true)).toEqual(['dashboard', 'branding', 'schools', 'countries', 'add-on-requests', 'modules']);
+    expect(ids(true, true)).toEqual([
+      'dashboard',
+      'branding',
+      'schools',
+      'countries',
+      'add-on-requests',
+      'modules',
+      'school-requests',
+      'pricing',
+      'invoices',
+    ]);
   });
 
   it('shows an item of a module only when the module is on for the school', () => {

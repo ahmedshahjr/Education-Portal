@@ -312,10 +312,10 @@
   <data name="CampusCodesExhausted" xml:space="preserve">
     <value>لم يبق لهذه المدرسة رمز فرع متاح.</value>
   </data>
-  <data name="BranchMainNotDeletable" xml:space="preserve">
+  <data name="CampusMainNotDeletable" xml:space="preserve">
     <value>لا يمكن حذف الفرع الرئيسي: تحتفظ به كل مدرسة.</value>
   </data>
-  <data name="BranchHasModules" xml:space="preserve">
+  <data name="CampusHasModules" xml:space="preserve">
     <value>ما زال لهذا الفرع وحدات مفعّلة. أوقفها أولًا.</value>
   </data>
   <data name="SchoolMasterNotDeletable" xml:space="preserve">
@@ -383,5 +383,14 @@
   </data>
   <data name="SchoolRequestNotPending" xml:space="preserve">
     <value>لا يمكن الموافقة على طلب المدرسة أو رفضه إلا إذا كان معلّقًا.</value>
+  </data>
+  <data name="ModuleSwitchedOff" xml:space="preserve">
+    <value>هذه الوحدة موقوفة لكل المدارس، لذلك لا يمكن تفعيلها لهذه المدرسة.</value>
+  </data>
+  <data name="CampusPhonesRequired" xml:space="preserve">
+    <value>أضف رقم هاتف واحدًا على الأقل للحرم.</value>
+  </data>
+  <data name="CampusPhonesTooMany" xml:space="preserve">
+    <value>يسرد الحرم خمسة أرقام هاتف كحد أقصى.</value>
   </data>
 </root>

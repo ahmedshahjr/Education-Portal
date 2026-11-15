@@ -4,35 +4,69 @@ using Shouldly;
 
 namespace EducationPortal.Domain.UnitTests.ValueObjects;
 
+/// <summary>A campus's details: the required fields, one to five phone numbers, and an optional website and principal.</summary>
 public class CampusDetailsTests
 {
-    [Test]
-    public void ShouldTrimTheText_AndTurnBlanksIntoNull()
-    {
-        var details = Create(address: "  12 Main Road  ", postalCode: "   ", phone: " +92 300 1234567 ", website: "  https://school.example.com  ");
+    private const string Address = "12 Main Road";
+    private const string PostalCode = "75500";
+    private const string Phone = "+92 21 1234567";
+    private const string SchoolNumber = "SN-1";
+    private const string ShortName = "KHI";
 
-        details.Address.ShouldBe("12 Main Road");
-        details.PostalCode.ShouldBeNull();
-        details.Phone.ShouldBe("+92 300 1234567");
-        details.Website.ShouldBe("https://school.example.com");
+    [Test]
+    public void ShouldTrimTheText_AndKeepThePhonesInTheOrderGiven()
+    {
+        var details = CampusDetails.Create("  12 Main Road  ", 3, 5, " 75500 ", [" +92 21 1234567 ", "0300-1234567"], "  https://school.example.com  ", " SN-1 ", " KHI ", null);
+
+        details.ShouldSatisfyAllConditions(
+            d => d.Address.ShouldBe("12 Main Road"),
+            d => d.PostalCode.ShouldBe("75500"),
+            d => d.Phones.ShouldBe(["+92 21 1234567", "0300-1234567"]),
+            d => d.Website.ShouldBe("https://school.example.com"),
+            d => d.SchoolNumber.ShouldBe("SN-1"),
+            d => d.ShortName.ShouldBe("KHI"));
     }
 
     [Test]
-    public void ShouldAcceptEveryFieldEmpty()
+    public void ShouldAcceptAWebsiteAndAPrincipalAsOptional()
     {
-        var details = Create();
+        var details = CampusDetails.Create(Address, 3, 5, PostalCode, [Phone], null, SchoolNumber, ShortName, null);
 
-        details.Address.ShouldBeNull();
-        details.StateId.ShouldBeNull();
-        details.CityId.ShouldBeNull();
+        details.Website.ShouldBeNull();
         details.PrincipalUserDetailsId.ShouldBeNull();
     }
 
-    [TestCase(CampusDetails.AddressMaxLength, true)]
-    [TestCase(CampusDetails.AddressMaxLength + 1, false)]
-    public void ShouldLimitTheAddressLength(int length, bool accepted)
+    [TestCase("")]
+    [TestCase("   ")]
+    public void ShouldRefuseABlankRequiredText(string blank)
     {
-        Action create = () => Create(address: new string('a', length));
+        Should.Throw<ArgumentException>(() => CampusDetails.Create(blank, 3, 5, PostalCode, [Phone], null, SchoolNumber, ShortName, null));
+        Should.Throw<ArgumentException>(() => CampusDetails.Create(Address, 3, 5, blank, [Phone], null, SchoolNumber, ShortName, null));
+        Should.Throw<ArgumentException>(() => CampusDetails.Create(Address, 3, 5, PostalCode, [Phone], null, blank, ShortName, null));
+        Should.Throw<ArgumentException>(() => CampusDetails.Create(Address, 3, 5, PostalCode, [Phone], null, SchoolNumber, blank, null));
+    }
+
+    [TestCase(0, 5)]
+    [TestCase(3, 0)]
+    [TestCase(-1, 5)]
+    public void ShouldRefuseAStateOrCityThatIsNotSaved(int stateId, int cityId) =>
+        Should.Throw<ArgumentOutOfRangeException>(() => CampusDetails.Create(Address, stateId, cityId, PostalCode, [Phone], null, SchoolNumber, ShortName, null));
+
+    [Test]
+    public void ShouldRefuseACampusWithoutAPhoneNumber()
+    {
+        Should.Throw<ArgumentException>(() => CampusDetails.Create(Address, 3, 5, PostalCode, [], null, SchoolNumber, ShortName, null));
+        Should.Throw<ArgumentException>(() => CampusDetails.Create(Address, 3, 5, PostalCode, null, null, SchoolNumber, ShortName, null));
+        Should.Throw<ArgumentException>(() => CampusDetails.Create(Address, 3, 5, PostalCode, ["  "], null, SchoolNumber, ShortName, null));
+    }
+
+    [TestCase(1, true)]
+    [TestCase(5, true)]
+    [TestCase(6, false)]
+    public void ShouldAcceptUpToFivePhoneNumbers(int count, bool accepted)
+    {
+        var phones = Enumerable.Range(0, count).Select(i => $"+92 21 000000{i}").ToList();
+        Action create = () => CampusDetails.Create(Address, 3, 5, PostalCode, phones, null, SchoolNumber, ShortName, null);
 
         if (accepted)
         {
@@ -40,32 +74,23 @@ public class CampusDetailsTests
         }
         else
         {
-            Should.Throw<ArgumentOutOfRangeException>(create);
+            Should.Throw<ArgumentException>(create);
         }
+    }
+
+    [Test]
+    public void ShouldRefuseAPhoneNumberThatIsNotValidOrListedTwice()
+    {
+        Should.Throw<ArgumentException>(() => CampusDetails.Create(Address, 3, 5, PostalCode, ["123"], null, SchoolNumber, ShortName, null));
+        Should.Throw<ArgumentException>(() => CampusDetails.Create(Address, 3, 5, PostalCode, [Phone, Phone], null, SchoolNumber, ShortName, null));
     }
 
     [TestCase("ABCDE12345", true)]
     [TestCase("ABCDE123456", false)]
-    public void ShouldLimitThePostalCodeTo10Characters(string code, bool accepted)
+    [TestCase("12#45", false)]
+    public void ShouldLimitThePostalCodeTo10CharactersOfLettersDigitsSpacesAndHyphens(string code, bool accepted)
     {
-        Action create = () => Create(postalCode: code);
-
-        if (accepted)
-        {
-            create();
-        }
-        else
-        {
-            Should.Throw<ArgumentOutOfRangeException>(create);
-        }
-    }
-
-    [TestCase("12 34-5", true)]
-    [TestCase("12#345", false)]
-    [TestCase("-12345", false)]
-    public void ShouldAcceptOnlyLettersDigitsSpacesAndHyphensInThePostalCode(string code, bool accepted)
-    {
-        Action create = () => Create(postalCode: code);
+        Action create = () => CampusDetails.Create(Address, 3, 5, code, [Phone], null, SchoolNumber, ShortName, null);
 
         if (accepted)
         {
@@ -77,65 +102,11 @@ public class CampusDetailsTests
         }
     }
 
-    [TestCase("+92 300 1234567", true)]
-    [TestCase("+123456789012345", true)]
-    [TestCase("1234567", true)]
-    [TestCase("123456", false)]
-    [TestCase("+1234567890123456", false)]
-    [TestCase("0300-abc-1234", false)]
-    [TestCase("+(0)", false)]
-    public void ShouldAcceptAPhoneWithSevenToFifteenDigits(string phone, bool accepted)
+    [TestCase(CampusDetails.AddressMaxLength, true)]
+    [TestCase(CampusDetails.AddressMaxLength + 1, false)]
+    public void ShouldLimitTheAddress(int length, bool accepted)
     {
-        Action create = () => Create(phone: phone);
-
-        if (accepted)
-        {
-            create();
-        }
-        else
-        {
-            Should.Throw<ArgumentException>(create);
-        }
-    }
-
-    [TestCase("https://school.example.com", true)]
-    [TestCase("http://school.example.com/about", true)]
-    [TestCase("ftp://school.example.com", false)]
-    [TestCase("school.example.com", false)]
-    public void ShouldAcceptOnlyAnHttpOrHttpsWebsite(string website, bool accepted)
-    {
-        Action create = () => Create(website: website);
-
-        if (accepted)
-        {
-            create();
-        }
-        else
-        {
-            Should.Throw<ArgumentException>(create);
-        }
-    }
-
-    [Test]
-    public void ShouldRefuseACityWithoutAState()
-    {
-        Should.Throw<ArgumentException>(() => CampusDetails.Create(null, null, 5, null, null, null, null, null, null));
-    }
-
-    [Test]
-    public void ShouldAcceptACityWithItsState()
-    {
-        var details = CampusDetails.Create(null, 3, 5, null, null, null, null, null, null);
-
-        details.StateId.ShouldBe(3);
-        details.CityId.ShouldBe(5);
-    }
-
-    [TestCase(CampusDetails.ShortNameMaxLength, true)]
-    [TestCase(CampusDetails.ShortNameMaxLength + 1, false)]
-    public void ShouldLimitTheShortName(int length, bool accepted)
-    {
-        Action create = () => CampusDetails.Create(null, null, null, null, null, null, null, new string('s', length), null);
+        Action create = () => CampusDetails.Create(new string('a', length), 3, 5, PostalCode, [Phone], null, SchoolNumber, ShortName, null);
 
         if (accepted)
         {
@@ -151,7 +122,7 @@ public class CampusDetailsTests
     [TestCase(CampusDetails.SchoolNumberMaxLength + 1, false)]
     public void ShouldLimitTheSchoolNumber(int length, bool accepted)
     {
-        Action create = () => CampusDetails.Create(null, null, null, null, null, null, new string('n', length), null, null);
+        Action create = () => CampusDetails.Create(Address, 3, 5, PostalCode, [Phone], null, new string('n', length), ShortName, null);
 
         if (accepted)
         {
@@ -163,10 +134,24 @@ public class CampusDetailsTests
         }
     }
 
-    private static CampusDetails Create(
-        string? address = null,
-        string? postalCode = null,
-        string? phone = null,
-        string? website = null) =>
-        CampusDetails.Create(address, null, null, postalCode, phone, website, null, null, null);
+    [TestCase(CampusDetails.ShortNameMaxLength, true)]
+    [TestCase(CampusDetails.ShortNameMaxLength + 1, false)]
+    public void ShouldLimitTheShortName(int length, bool accepted)
+    {
+        Action create = () => CampusDetails.Create(Address, 3, 5, PostalCode, [Phone], null, SchoolNumber, new string('s', length), null);
+
+        if (accepted)
+        {
+            create();
+        }
+        else
+        {
+            Should.Throw<ArgumentOutOfRangeException>(create);
+        }
+    }
+
+    [TestCase("ftp://school.example.com")]
+    [TestCase("school.example.com")]
+    public void ShouldRefuseAWebsiteThatIsNotHttp(string website) =>
+        Should.Throw<ArgumentException>(() => CampusDetails.Create(Address, 3, 5, PostalCode, [Phone], website, SchoolNumber, ShortName, null));
 }

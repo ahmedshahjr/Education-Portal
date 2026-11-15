@@ -312,11 +312,11 @@
   <data name="CampusCodesExhausted" xml:space="preserve">
     <value>This school has no free campus code left.</value>
   </data>
-  <data name="BranchMainNotDeletable" xml:space="preserve">
-    <value>The main branch cannot be deleted: every school keeps it.</value>
+  <data name="CampusMainNotDeletable" xml:space="preserve">
+    <value>The main campus cannot be deleted: every school keeps it.</value>
   </data>
-  <data name="BranchHasModules" xml:space="preserve">
-    <value>This branch still has module grants. Turn those modules off first.</value>
+  <data name="CampusHasModules" xml:space="preserve">
+    <value>This campus still has module grants. Turn those modules off first.</value>
   </data>
   <data name="SchoolMasterNotDeletable" xml:space="preserve">
     <value>The master tenant cannot be deleted.</value>
@@ -383,5 +383,14 @@
   </data>
   <data name="SchoolRequestNotPending" xml:space="preserve">
     <value>Only a pending school request can be approved or rejected.</value>
+  </data>
+  <data name="ModuleSwitchedOff" xml:space="preserve">
+    <value>This module is switched off for every school, so it cannot be turned on for this school.</value>
+  </data>
+  <data name="CampusPhonesRequired" xml:space="preserve">
+    <value>Add at least one phone number for the campus.</value>
+  </data>
+  <data name="CampusPhonesTooMany" xml:space="preserve">
+    <value>A campus lists at most five phone numbers.</value>
   </data>
 </root>

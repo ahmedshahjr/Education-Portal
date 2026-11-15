@@ -20,12 +20,12 @@ public class TenantModuleDefaultTests
     [Test]
     public void ShouldGiveTheWholeSchoolFromNowWithNoEndAndNoSubscription()
     {
-        var grant = TenantModule.CreateDefault(TestBranches.SchoolId, Module("STUDENTS", 7), TestBranches.MainBranch(), Now);
+        var grant = TenantModule.CreateDefault(TestCampuses.SchoolId, Module("STUDENTS", 7), TestCampuses.MainCampus(), Now);
 
         grant.ShouldSatisfyAllConditions(
-            g => g.SchoolId.ShouldBe(TestBranches.SchoolId),
+            g => g.SchoolId.ShouldBe(TestCampuses.SchoolId),
             g => g.ModuleId.ShouldBe(7),
-            g => g.BranchId.ShouldBe(1),
+            g => g.CampusId.ShouldBe(1),
             g => g.IsSchoolWide.ShouldBeTrue(),
             g => g.Status.ShouldBe(TenantModuleStatus.Active),
             g => g.ValidFrom.ShouldBe(Now),
@@ -34,23 +34,23 @@ public class TenantModuleDefaultTests
     }
 
     [Test]
-    public void ShouldRefuseAGrantOnABranchThatIsNotTheMainOne()
+    public void ShouldRefuseAGrantOnACampusThatIsNotTheMainOne()
     {
-        var other = TestBranches.MainBranch();
-        typeof(Branch).GetProperty(nameof(Branch.Kind))!.SetValue(other, BranchKind.Other);
+        var other = TestCampuses.MainCampus();
+        typeof(Campus).GetProperty(nameof(Campus.Kind))!.SetValue(other, CampusKind.Other);
 
-        Should.Throw<ArgumentException>(() => TenantModule.CreateDefault(TestBranches.SchoolId, Module("STUDENTS", 7), other, Now));
+        Should.Throw<ArgumentException>(() => TenantModule.CreateDefault(TestCampuses.SchoolId, Module("STUDENTS", 7), other, Now));
     }
 
     [Test]
-    public void ShouldRefuseAGrantForAnotherSchoolsBranch()
+    public void ShouldRefuseAGrantForAnotherSchoolsCampus()
     {
-        Should.Throw<ArgumentException>(() => TenantModule.CreateDefault(TestBranches.SchoolId + 1, Module("STUDENTS", 7), TestBranches.MainBranch(), Now));
+        Should.Throw<ArgumentException>(() => TenantModule.CreateDefault(TestCampuses.SchoolId + 1, Module("STUDENTS", 7), TestCampuses.MainCampus(), Now));
     }
 
     [Test]
     public void ShouldRefuseAModuleThatIsNotSaved()
     {
-        Should.Throw<ArgumentOutOfRangeException>(() => TenantModule.CreateDefault(TestBranches.SchoolId, PortalModule.Create("FEES", "Fees", "", false, 0), TestBranches.MainBranch(), Now));
+        Should.Throw<ArgumentOutOfRangeException>(() => TenantModule.CreateDefault(TestCampuses.SchoolId, PortalModule.Create("FEES", "Fees", "", false, 0), TestCampuses.MainCampus(), Now));
     }
 }

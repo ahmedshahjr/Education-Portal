@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using EducationPortal.Application.Common.Exceptions;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Security;
@@ -63,8 +63,8 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
 
                 foreach (var module in modules)
                 {
-                    // No branch is known here yet, so a module granted to one branch only does not count (fail closed).
-                    if (!await _moduleAccess.HasModuleAsync(schoolId, module, branchId: null, cancellationToken))
+                    // No campus is known here yet, so a module granted to one campus only does not count (fail closed).
+                    if (!await _moduleAccess.HasModuleAsync(schoolId, module, campusId: null, cancellationToken))
                     {
                         throw new ModuleNotEnabledException(module);
                     }

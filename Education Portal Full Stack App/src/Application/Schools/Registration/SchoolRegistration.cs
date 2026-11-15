@@ -1,4 +1,4 @@
-﻿using EducationPortal.Application.Common.Exceptions;
+using EducationPortal.Application.Common.Exceptions;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Localization;
 using EducationPortal.Application.Common.Models;
@@ -93,10 +93,10 @@ public static class SchoolRegistration
         var subscription = Subscription.Create(
             school.Id, quote.Plan, quote.PriceBook, BillingCycle.Monthly, quote.Amount, now, TrialDays);
 
-        var mainBranch = await SchoolBranches.MainAsync(context, school.Id, cancellationToken);
+        var mainCampus = await SchoolCampuses.MainAsync(context, school.Id, cancellationToken);
         foreach (var module in quote.Modules)
         {
-            subscription.AddModule(module, mainBranch);
+            subscription.AddModule(module, mainCampus);
         }
 
         context.Subscriptions.Add(subscription);

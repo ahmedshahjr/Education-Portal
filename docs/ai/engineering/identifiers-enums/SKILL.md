@@ -13,10 +13,10 @@ Decided by the maintainer on 2026-11-11 for .NET 10 and EF Core 10 with PostgreS
 
 | ID | Rule |
 |---|---|
-| ENG-ID-01 | **Internal key.** Every entity has an `int Id` primary key (PostgreSQL `integer`, identity), from `BaseEntity`. Foreign keys (`SchoolId`, `BranchId`, `CountryId`, ...), joins, query filters, claims, secret paths and the security audit log use it. |
+| ENG-ID-01 | **Internal key.** Every entity has an `int Id` primary key (PostgreSQL `integer`, identity), from `BaseEntity`. Foreign keys (`SchoolId`, `CampusId`, `CountryId`, ...), joins, query filters, claims, secret paths and the security audit log use it. |
 | ENG-ID-02 | **Public id.** Every entity also has a `Guid PublicId` (version 7, set once when the object is created, `Guid.CreateVersion7()`), mapped as an **alternate key** (unique constraint) for every `BaseEntity` in `ApplicationDbContext`. It is the only identity the API exposes: DTOs, routes (`{id:guid}`), query strings, request bodies and `Created` locations carry the `Guid`, named for what it identifies (`Id`, `SchoolId`, `CountryId`). The `int` never appears in a request or response, the OpenAPI document or the Angular client. |
 | ENG-ID-03 | **Translate in the handler.** Endpoints take the `Guid` and pass it to the MediatR request unchanged. The handler (the service layer) resolves it to the `int` before any business logic, with `ResolveIdAsync` (`Application/Common/Models/PublicIdExtensions.cs`) or a query on `PublicId`. Resolution goes through the context's query filters, so a public id from another school is simply not found (404, SEC-AUTHZ-06). Validators check `NotEmpty()` on a `Guid`, never `GreaterThan(0)`. |
-| ENG-ID-04 | **A public id is not an access check.** An unguessable `Guid` makes enumeration harder; it does not replace authorization. Every handler still applies the tenant, branch, module and role checks (SEC-AUTHZ-01..06). |
+| ENG-ID-04 | **A public id is not an access check.** An unguessable `Guid` makes enumeration harder; it does not replace authorization. Every handler still applies the tenant, campus, module and role checks (SEC-AUTHZ-01..06). |
 | ENG-ID-05 | **Tests use both ids.** Functional tests set up tenants and users with the `int` (`EntityIds.Id`) and call the API with the `Guid` (`EntityIds.PublicId`). A use case with an id in its route gets a test that the internal `int` is refused. |
 
 ASP.NET Core Identity's own user key (`string`, a GUID) is left as the framework defines it; it is already not sequential.

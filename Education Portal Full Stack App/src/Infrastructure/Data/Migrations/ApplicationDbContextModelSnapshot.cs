@@ -74,117 +74,6 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.ToTable("AddOnRequests", "billing");
                 });
 
-            modelBuilder.Entity("EducationPortal.Domain.Entities.Branch", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)");
-
-                    b.Property<int?>("CityId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(4)
-                        .HasColumnType("character varying(4)");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("Kind")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<string>("PostalCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
-
-                    b.Property<int?>("PrincipalUserDetailsId")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("PublicId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("SchoolId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("SchoolNumber")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("ShortName")
-                        .HasMaxLength(25)
-                        .HasColumnType("character varying(25)");
-
-                    b.Property<int?>("StateId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Website")
-                        .HasMaxLength(2048)
-                        .HasColumnType("character varying(2048)");
-
-                    b.HasKey("Id");
-
-                    b.HasAlternateKey("PublicId");
-
-                    b.HasIndex("CityId");
-
-                    b.HasIndex("Kind");
-
-                    b.HasIndex("PrincipalUserDetailsId");
-
-                    b.HasIndex("SchoolId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Branches_SingleMainPerSchool")
-                        .HasFilter("\"Kind\" = 1");
-
-                    b.HasIndex("StateId");
-
-                    b.HasIndex("SchoolId", "Code")
-                        .IsUnique()
-                        .HasFilter("\"IsDeleted\" = false");
-
-                    b.ToTable("Branches", "schools", t =>
-                        {
-                            t.HasCheckConstraint("CK_Branches_CityNeedsState", "\"CityId\" IS NULL OR \"StateId\" IS NOT NULL");
-                        });
-                });
-
             modelBuilder.Entity("EducationPortal.Domain.Entities.BrandingImage", b =>
                 {
                     b.Property<int>("Id")
@@ -238,6 +127,150 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("BrandingImages", "schools");
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Campus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int?>("CityId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PostalCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<int?>("PrincipalUserDetailsId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SchoolNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ShortName")
+                        .HasMaxLength(25)
+                        .HasColumnType("character varying(25)");
+
+                    b.Property<int?>("StateId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("Kind");
+
+                    b.HasIndex("PrincipalUserDetailsId");
+
+                    b.HasIndex("SchoolId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Campuses_SingleMainPerSchool")
+                        .HasFilter("\"Kind\" = 1");
+
+                    b.HasIndex("StateId");
+
+                    b.HasIndex("SchoolId", "Code")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
+
+                    b.ToTable("Campuses", "schools", t =>
+                        {
+                            t.HasCheckConstraint("CK_Campuses_CityNeedsState", "\"CityId\" IS NULL OR \"StateId\" IS NOT NULL");
+                        });
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.CampusPhone", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CampusId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("SchoolId");
+
+                    b.HasIndex("CampusId", "Position")
+                        .IsUnique();
+
+                    b.ToTable("CampusPhones", "schools");
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.ChangeAuditEntry", b =>
@@ -1324,7 +1357,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<int?>("ActorBranchId")
+                    b.Property<int?>("ActorCampusId")
                         .HasColumnType("integer");
 
                     b.Property<int?>("ActorSchoolId")
@@ -1534,7 +1567,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BranchId")
+                    b.Property<int>("CampusId")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("Created")
@@ -1577,7 +1610,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     b.HasAlternateKey("PublicId");
 
-                    b.HasIndex("BranchId");
+                    b.HasIndex("CampusId");
 
                     b.HasIndex("ModuleId");
 
@@ -1585,12 +1618,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     b.HasIndex("SchoolId", "ModuleId");
 
-                    b.HasIndex("SchoolId", "ModuleId", "BranchId")
+                    b.HasIndex("SchoolId", "ModuleId", "CampusId")
                         .IsUnique()
                         .HasDatabaseName("IX_TenantModules_DefaultGrantOnce")
                         .HasFilter("\"SubscriptionId\" IS NULL");
 
-                    b.HasIndex("SubscriptionId", "ModuleId", "BranchId")
+                    b.HasIndex("SubscriptionId", "ModuleId", "CampusId")
                         .IsUnique();
 
                     b.ToTable("TenantModules", "modules");
@@ -1725,33 +1758,6 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.BranchKind>", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BranchKinds", "lookups");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Main"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Other"
-                        });
-                });
-
             modelBuilder.Entity("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.BrandingImageKind>", b =>
                 {
                     b.Property<int>("Id")
@@ -1776,6 +1782,33 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         {
                             Id = 2,
                             Name = "Favicon"
+                        });
+                });
+
+            modelBuilder.Entity("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.CampusKind>", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CampusKinds", "lookups");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Main"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Other"
                         });
                 });
 
@@ -2167,17 +2200,17 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 41,
-                            Name = "BranchCreated"
+                            Name = "CampusCreated"
                         },
                         new
                         {
                             Id = 42,
-                            Name = "BranchUpdated"
+                            Name = "CampusUpdated"
                         },
                         new
                         {
                             Id = 43,
-                            Name = "BranchDeleted"
+                            Name = "CampusDeleted"
                         },
                         new
                         {
@@ -2645,14 +2678,29 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("EducationPortal.Domain.Entities.Branch", b =>
+            modelBuilder.Entity("EducationPortal.Domain.Entities.BrandingImage", b =>
+                {
+                    b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.BrandingImageKind>", null)
+                        .WithMany()
+                        .HasForeignKey("Kind")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.School", null)
+                        .WithMany()
+                        .HasForeignKey("SchoolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Campus", b =>
                 {
                     b.HasOne("EducationPortal.Domain.Entities.City", "City")
                         .WithMany()
                         .HasForeignKey("CityId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.BranchKind>", null)
+                    b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.CampusKind>", null)
                         .WithMany()
                         .HasForeignKey("Kind")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2664,7 +2712,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("EducationPortal.Domain.Entities.School", null)
-                        .WithMany("Branches")
+                        .WithMany("Campuses")
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2681,19 +2729,21 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Navigation("State");
                 });
 
-            modelBuilder.Entity("EducationPortal.Domain.Entities.BrandingImage", b =>
+            modelBuilder.Entity("EducationPortal.Domain.Entities.CampusPhone", b =>
                 {
-                    b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.BrandingImageKind>", null)
-                        .WithMany()
-                        .HasForeignKey("Kind")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("EducationPortal.Domain.Entities.Campus", "Campus")
+                        .WithMany("Phones")
+                        .HasForeignKey("CampusId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("EducationPortal.Domain.Entities.School", null)
                         .WithMany()
                         .HasForeignKey("SchoolId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Campus");
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.ChangeAuditEntry", b =>
@@ -2961,9 +3011,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.TenantModule", b =>
                 {
-                    b.HasOne("EducationPortal.Domain.Entities.Branch", null)
+                    b.HasOne("EducationPortal.Domain.Entities.Campus", null)
                         .WithMany()
-                        .HasForeignKey("BranchId")
+                        .HasForeignKey("CampusId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -3068,6 +3118,11 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Campus", b =>
+                {
+                    b.Navigation("Phones");
+                });
+
             modelBuilder.Entity("EducationPortal.Domain.Entities.Invoice", b =>
                 {
                     b.Navigation("Lines");
@@ -3077,7 +3132,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.School", b =>
                 {
-                    b.Navigation("Branches");
+                    b.Navigation("Campuses");
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.Subscription", b =>

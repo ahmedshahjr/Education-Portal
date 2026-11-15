@@ -78,8 +78,8 @@ internal static class SubscriptionChanges
                 [new ValidationFailure(nameof(planCode), ValidationMessages.SubscriptionCurrencyMismatch)]);
         }
 
-        var mainBranch = await SchoolBranches.MainAsync(context, subscription.SchoolId, cancellationToken);
-        subscription.Reconfigure(quote.Plan, quote.PriceBook, quote.Amount, quote.Modules, timeProvider.GetUtcNow(), mainBranch);
+        var mainCampus = await SchoolCampuses.MainAsync(context, subscription.SchoolId, cancellationToken);
+        subscription.Reconfigure(quote.Plan, quote.PriceBook, quote.Amount, quote.Modules, timeProvider.GetUtcNow(), mainCampus);
 
         return quote.Modules.Select(m => m.Code).ToList();
     }

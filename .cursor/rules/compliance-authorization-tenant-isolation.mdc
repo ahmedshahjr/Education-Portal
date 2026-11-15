@@ -1,5 +1,5 @@
 ---
-description: Authorization and multi-tenant isolation rules (modules, role rights, branches, SchoolId/BranchId query filters, IDOR, SSRF). Use for any new use case, endpoint, entity, query, cache, export or background job. Part of the mandatory Education Portal compliance rules.
+description: Authorization and multi-tenant isolation rules (modules, role rights, campuses, SchoolId/CampusId query filters, IDOR, SSRF). Use for any new use case, endpoint, entity, query, cache, export or background job. Part of the mandatory Education Portal compliance rules.
 globs:
 alwaysApply: false
 ---

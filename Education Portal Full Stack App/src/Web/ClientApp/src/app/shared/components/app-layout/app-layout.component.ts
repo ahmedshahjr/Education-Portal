@@ -5,6 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterOutlet } from '@angular/router';
 import { LayoutService } from '../../../core/layout/layout.service';
 import { AppIconComponent } from '../app-icon/app-icon.component';
+import { TrialBannerComponent } from '../trial-banner/trial-banner.component';
 import { ThemeCustomizerComponent } from '../customizer-drawer/customizer-drawer.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { TopbarComponent } from '../topbar/topbar.component';
@@ -20,6 +21,7 @@ import { TopbarComponent } from '../topbar/topbar.component';
     TopbarComponent,
     ThemeCustomizerComponent,
     AppIconComponent,
+    TrialBannerComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -45,6 +47,7 @@ import { TopbarComponent } from '../topbar/topbar.component';
       </mat-sidenav>
 
       <mat-sidenav-content class="mm-shell__content">
+        <app-trial-banner />
         <app-topbar />
         <main class="mm-shell__main">
           <router-outlet />

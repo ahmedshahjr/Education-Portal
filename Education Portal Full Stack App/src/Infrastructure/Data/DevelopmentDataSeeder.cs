@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace EducationPortal.Infrastructure.Data;
 
 /// <summary>
-/// Development-only demo data: the master tenant, demo schools, their subscriptions, branches, invoices, roles and
+/// Development-only demo data: the master tenant, demo schools, their subscriptions, campuses, invoices, roles and
 /// sign-in accounts. It runs after the migrations and adds only what is missing, so it is safe to run on every start.
 /// </summary>
 public class DevelopmentDataSeeder
@@ -143,9 +143,9 @@ public class DevelopmentDataSeeder
         await SeedDemoSubscriptionAsync(uaeDemoSchool, uae);
         await SeedDemoSubscriptionAsync(usaDemoSchool, usa);
 
-        // The Pakistan and UAE demo schools have branches besides their main branch, so the branch screens have data.
-        await SeedDemoBranchesAsync(demoSchool, [("Karachi", "0002"), ("Lahore", "0003")]);
-        await SeedDemoBranchesAsync(uaeDemoSchool, [("Dubai", "0002"), ("Abu Dhabi", "0003")]);
+        // The Pakistan and UAE demo schools have campuses besides their main campus, so the campus screens have data.
+        await SeedDemoCampusesAsync(demoSchool, [("Karachi", "0002"), ("Lahore", "0003")]);
+        await SeedDemoCampusesAsync(uaeDemoSchool, [("Dubai", "0002"), ("Abu Dhabi", "0003")]);
 
         // Each demo school has an open invoice for its first period and two school roles, so the billing and roles screens have data.
         await SeedDemoInvoiceAsync(demoSchool);
@@ -231,15 +231,15 @@ public class DevelopmentDataSeeder
         }
     }
 
-    /// <summary>Adds the given branches to a demo school. Safe to run again: a branch whose code exists is skipped.</summary>
-    private async Task SeedDemoBranchesAsync(School school, (string Name, string Code)[] branches)
+    /// <summary>Adds the given campuses to a demo school. Safe to run again: a campus whose code exists is skipped.</summary>
+    private async Task SeedDemoCampusesAsync(School school, (string Name, string Code)[] campuses)
     {
-        // The seed runs with no tenant, so the branch query filter would hide existing rows: ignore it, scoped to this school.
-        foreach (var (name, code) in branches)
+        // The seed runs with no tenant, so the campus query filter would hide existing rows: ignore it, scoped to this school.
+        foreach (var (name, code) in campuses)
         {
-            if (!await _context.Branches.IgnoreQueryFilters().AnyAsync(b => b.SchoolId == school.Id && b.Code == code))
+            if (!await _context.Campuses.IgnoreQueryFilters().AnyAsync(b => b.SchoolId == school.Id && b.Code == code))
             {
-                _context.Branches.Add(Branch.Create(school.Id, name, code));
+                _context.Campuses.Add(Campus.Create(school.Id, name, code));
             }
         }
 
@@ -264,12 +264,12 @@ public class DevelopmentDataSeeder
         var planModuleIds = await _context.PlanModules.Where(m => m.PlanId == plan.Id).Select(m => m.ModuleId).ToListAsync();
 
         var subscription = Subscription.Create(school.Id, plan, book, BillingCycle.Yearly, price.Price, _timeProvider.GetUtcNow(), trialDays: 0);
-        // The seed runs with no tenant, so the branch query filter would hide the branch: ignore it, scoped to this school.
-        var mainBranch = await _context.Branches.IgnoreQueryFilters()
-            .SingleAsync(b => b.SchoolId == school.Id && b.Kind == BranchKind.Main);
+        // The seed runs with no tenant, so the campus query filter would hide the campus: ignore it, scoped to this school.
+        var mainCampus = await _context.Campuses.IgnoreQueryFilters()
+            .SingleAsync(b => b.SchoolId == school.Id && b.Kind == CampusKind.Main);
         foreach (var module in await _context.Modules.Where(m => m.IsCore || planModuleIds.Contains(m.Id)).ToListAsync())
         {
-            subscription.AddModule(module, mainBranch);
+            subscription.AddModule(module, mainCampus);
         }
 
         _context.Subscriptions.Add(subscription);

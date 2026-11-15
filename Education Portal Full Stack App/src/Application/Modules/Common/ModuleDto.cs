@@ -10,4 +10,4 @@ public sealed record ModuleDto(string Code, string Name, string Description, boo
 /// <summary>A module as it stands for one school.</summary>
 /// <param name="IsEnabled">Whether the school's users can use the module.</param>
 /// <param name="IsActive">False when the master switched the module off for every school; then it is off here too.</param>
-public sealed record SchoolModuleDto(string Code, string Name, string Description, bool IsCore, bool IsActive, bool IsEnabled);
+public sealed record SchoolModuleDto(string Code, string Name, string Description, bool IsCore, bool IsActive, bool IsDefaultEnabled, bool IsEnabled);

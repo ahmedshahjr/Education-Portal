@@ -1,0 +1,97 @@
+<app-page-header
+  title="School requests"
+  i18n-title="@@requests.title"
+  subtitle="Schools that asked to join. Approving one registers the school with a 30-day free trial."
+  i18n-subtitle="@@requests.subtitle"
+></app-page-header>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="Requests could not be loaded"
+        i18n-title="@@requests.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else if (requests(); as list) {
+      @if (list.length === 0) {
+        <app-empty-state icon="inbox" title="No requests yet" i18n-title="@@requests.empty" description="New requests appear here." i18n-description="@@requests.emptyDescription" />
+      } @else {
+        <ul class="mm-requests__list" aria-label="School requests" i18n-aria-label="@@requests.listLabel">
+          @for (request of list; track request.id) {
+            <li class="mm-requests__row">
+              <div class="mm-requests__summary">
+                <span class="mm-requests__name">{{ request.schoolName }}</span>
+                <span class="mm-requests__contact">
+                  {{ request.contactName }} · <bdi dir="ltr">{{ request.contactEmail }}</bdi>
+                </span>
+              </div>
+
+              @if (request.status === statuses.Pending) {
+                <span class="mm-requests__actions">
+                  <button mat-button type="button" [disabled]="busy() || approvingId() !== null" (click)="confirmReject(request)" i18n="@@requests.rejectButton">Reject</button>
+                  <button mat-flat-button type="button" [disabled]="busy() || approvingId() !== null" (click)="startApprove(request)" i18n="@@requests.approveButton">Approve</button>
+                </span>
+              } @else if (request.status === statuses.Approved) {
+                <app-status-badge tone="success" i18n="@@requests.approvedBadge">Approved</app-status-badge>
+              } @else {
+                <app-status-badge tone="error" i18n="@@requests.rejectedBadge">Rejected</app-status-badge>
+              }
+
+              @if (approvingId() === request.id) {
+                <form class="mm-requests__form" [formGroup]="form" (ngSubmit)="approve(request)" novalidate>
+                  <mat-form-field appearance="outline">
+                    <mat-label i18n="@@requests.domain">Domain</mat-label>
+                    <input matInput formControlName="domain" maxlength="253" autocomplete="off" dir="ltr" />
+                    <mat-hint i18n="@@requests.domainHint">For example school1.com. It is set by the master tenant.</mat-hint>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label i18n="@@requests.country">Country</mat-label>
+                    <mat-select formControlName="countryId">
+                      @for (country of countries(); track country.id) {
+                        <mat-option [value]="country.id">{{ country.name }}</mat-option>
+                      }
+                    </mat-select>
+                    <mat-hint i18n="@@requests.countryHint">Required. The country must have a price book.</mat-hint>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label i18n="@@requests.dataRegion">Data region</mat-label>
+                    <mat-select formControlName="dataRegion">
+                      <mat-option value="" i18n="@@requests.regionNotDecided">Not decided yet</mat-option>
+                      @for (region of regions; track region) {
+                        <mat-option [value]="region">{{ region }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label i18n="@@requests.adminEmail">Administrator email</mat-label>
+                    <input matInput type="email" formControlName="administratorEmail" maxlength="256" autocomplete="off" dir="ltr" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label i18n="@@requests.adminPassword">One-time password</mat-label>
+                    <input matInput type="password" formControlName="administratorPassword" maxlength="128" autocomplete="new-password" dir="ltr" />
+                    <mat-hint i18n="@@requests.passwordHint">The administrator replaces it on first sign-in. At least 15 characters.</mat-hint>
+                  </mat-form-field>
+                  <div class="mm-requests__form-actions">
+                    <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@requests.confirmApprove">Approve school</button>
+                    <button mat-button type="button" [disabled]="busy()" (click)="cancelApprove()" i18n="@@common.cancel">Cancel</button>
+                  </div>
+                </form>
+              }
+            </li>
+          }
+        </ul>
+      }
+
+      @for (message of errors(); track message) {
+        <p class="mm-requests__error" role="alert">{{ message }}</p>
+      }
+    } @else {
+      <app-loading-state />
+    }
+  </mat-card-content>
+</mat-card>

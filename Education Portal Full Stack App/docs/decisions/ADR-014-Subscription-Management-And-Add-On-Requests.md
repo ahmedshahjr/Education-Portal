@@ -54,4 +54,4 @@ portal, and a school administrator needs to see theirs and ask for more.
 
 **Easier:** phase 7 (lifecycle job) calls `Suspend`, `Reactivate` and `Extend`; phase 8 adds old and new values to the audit.
 **Harder:** a change is not prorated, so a mid-period upgrade is free until the next invoice. A rule for restarting a lapsed
-period whose end already passed is decided in phase 7. Branch-limited grants are not changed by these actions yet.
+period whose end already passed is decided in phase 7. Campus-limited grants are not changed by these actions yet.

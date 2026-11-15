@@ -82,7 +82,7 @@ In Prometheus, OTLP names get underscores and suffixes: `http.server.request.dur
 These rules apply to log messages, log scopes, span names and tags, metric labels and exception messages. They come from SEC-LOG-02, SEC-PII-02 and SEC-SECRET-01.
 
 - **Never:** passwords or password hashes, tokens, cookies, `Authorization` headers, API keys, MFA codes, connection strings, secret values, email bodies or subjects, full request or response bodies, uploaded files, query strings that carry personal data.
-- **No personal data of students, parents or staff:** no names, email addresses, phone numbers, addresses, dates of birth, grades or free text they wrote. Record **ids only** (user id, SchoolId, BranchId, entity ids).
+- **No personal data of students, parents or staff:** no names, email addresses, phone numbers, addresses, dates of birth, grades or free text they wrote. Record **ids only** (user id, SchoolId, CampusId, entity ids).
 - **No high-cardinality metric labels:** never a user id, email, request id or trace id as a label. `tenant.id` is a label only when `TenantIdAsMetricLabel` is turned on deliberately.
 - Use structured templates (`_logger.LogInformation("Course {CourseId} created", id)`), never string concatenation of input (SEC-LOG-07), and never destructure a request object (`{@Request}`).
 - Exceptions recorded on spans name the type only, as `InstrumentedSecretProvider` does, when the message could carry more than an id.

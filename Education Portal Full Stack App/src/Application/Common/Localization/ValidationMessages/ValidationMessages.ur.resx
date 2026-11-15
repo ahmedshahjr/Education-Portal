@@ -312,10 +312,10 @@
   <data name="CampusCodesExhausted" xml:space="preserve">
     <value>اس اسکول کا کوئی کیمپس کوڈ خالی نہیں بچا۔</value>
   </data>
-  <data name="BranchMainNotDeletable" xml:space="preserve">
+  <data name="CampusMainNotDeletable" xml:space="preserve">
     <value>مرکزی برانچ حذف نہیں ہو سکتی: ہر اسکول اسے رکھتا ہے۔</value>
   </data>
-  <data name="BranchHasModules" xml:space="preserve">
+  <data name="CampusHasModules" xml:space="preserve">
     <value>اس برانچ کے ماڈیولز ابھی تک فعال ہیں۔ پہلے انہیں بند کریں۔</value>
   </data>
   <data name="SchoolMasterNotDeletable" xml:space="preserve">
@@ -383,5 +383,14 @@
   </data>
   <data name="SchoolRequestNotPending" xml:space="preserve">
     <value>صرف زیر التوا اسکول درخواست منظور یا مسترد کی جا سکتی ہے۔</value>
+  </data>
+  <data name="ModuleSwitchedOff" xml:space="preserve">
+    <value>یہ ماڈیول تمام اسکولوں کے لیے بند ہے، اس لیے اس اسکول کے لیے آن نہیں ہو سکتا۔</value>
+  </data>
+  <data name="CampusPhonesRequired" xml:space="preserve">
+    <value>کیمپس کے لیے کم از کم ایک فون نمبر شامل کریں۔</value>
+  </data>
+  <data name="CampusPhonesTooMany" xml:space="preserve">
+    <value>کیمپس میں زیادہ سے زیادہ پانچ فون نمبر ہو سکتے ہیں۔</value>
   </data>
 </root>

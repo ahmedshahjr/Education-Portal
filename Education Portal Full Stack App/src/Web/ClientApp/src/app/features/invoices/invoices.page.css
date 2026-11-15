@@ -1,0 +1,30 @@
+:host {
+  display: block;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+h2,
+h3 {
+  margin-block: var(--mm-space-4) var(--mm-space-2);
+}
+
+.mm-error,
+[role='alert'] {
+  color: var(--mm-error);
+}
+.mm-invoices__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mm-invoices__table th,
+.mm-invoices__table td {
+  padding: var(--mm-space-2) var(--mm-space-3);
+  border-bottom: 1px solid var(--mm-border-color);
+  text-align: start;
+}

@@ -48,7 +48,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<PriceBookItem> PriceBookItems => Set<PriceBookItem>();
 
-    public DbSet<Branch> Branches => Set<Branch>();
+    public DbSet<Campus> Campuses => Set<Campus>();
+
+    public DbSet<CampusPhone> CampusPhones => Set<CampusPhone>();
 
     public DbSet<UserDetails> UserDetails => Set<UserDetails>();
 
@@ -92,8 +94,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         builder.Entity<BrandingImage>()
             .HasQueryFilter(i => IsMasterTenant || i.SchoolId == CurrentSchoolId);
 
-        builder.Entity<Branch>()
+        builder.Entity<Campus>()
             .HasQueryFilter(b => IsMasterTenant || b.SchoolId == CurrentSchoolId);
+
+        builder.Entity<CampusPhone>()
+            .HasQueryFilter(p => IsMasterTenant || p.SchoolId == CurrentSchoolId);
 
         builder.Entity<UserDetails>()
             .HasQueryFilter(u => IsMasterTenant || u.SchoolId == CurrentSchoolId);

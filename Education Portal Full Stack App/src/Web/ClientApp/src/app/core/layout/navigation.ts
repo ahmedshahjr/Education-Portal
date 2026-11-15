@@ -26,7 +26,9 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
     items: [
       { id: 'branding', label: $localize`:@@nav.branding:Branding`, icon: 'sliders-horizontal', route: '/settings/branding', access: 'administrator' },
       { id: 'subscription', label: $localize`:@@nav.subscription:My subscription`, icon: 'layers', route: '/subscription', access: 'school-administrator' },
-      { id: 'branches', label: $localize`:@@nav.branches:Campuses`, icon: 'git-branch', route: '/campuses', access: 'administrator', module: MODULE_CODES.branch },
+      { id: 'campuses', label: $localize`:@@nav.campuses:Campuses`, icon: 'git-branch', route: '/campuses', access: 'administrator', module: MODULE_CODES.campus },
+      { id: 'people', label: $localize`:@@nav.people:People`, icon: 'users', route: '/people', access: 'administrator', module: MODULE_CODES.staff },
+      { id: 'roles', label: $localize`:@@nav.roles:Roles`, icon: 'key-round', route: '/roles', access: 'administrator', module: MODULE_CODES.usersRoles },
     ],
   },
   {
@@ -37,6 +39,9 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
       { id: 'countries', label: $localize`:@@nav.countries:Countries and languages`, icon: 'globe', route: '/countries', access: 'master-administrator' },
       { id: 'add-on-requests', label: $localize`:@@nav.addOnRequests:Add-on requests`, icon: 'inbox', route: '/add-on-requests', access: 'master-administrator' },
       { id: 'modules', label: $localize`:@@nav.modules:Modules`, icon: 'blocks', route: '/modules', access: 'master-administrator' },
+      { id: 'school-requests', label: $localize`:@@nav.schoolRequests:School requests`, icon: 'inbox', route: '/school-requests', access: 'master-administrator' },
+      { id: 'pricing', label: $localize`:@@nav.pricing:Plans and prices`, icon: 'wallet', route: '/pricing', access: 'master-administrator' },
+      { id: 'invoices', label: $localize`:@@nav.invoices:Invoices`, icon: 'receipt', route: '/invoices', access: 'master-administrator' },
     ],
   },
 ];

@@ -20,7 +20,7 @@ describe('ModulesService', () => {
     let done = false;
     service.load().subscribe(() => (done = true));
     // The generated client reads every response as a Blob, as the browser would deliver it.
-    http.expectOne('/api/Modules/enabled').flush(new Blob([JSON.stringify(['Branches', 'Students'])], { type: 'application/json' }));
+    http.expectOne('/api/Modules/enabled').flush(new Blob([JSON.stringify(['Campuses', 'Students'])], { type: 'application/json' }));
 
     await vi.waitFor(() => expect(done).toBe(true));
     expect(service.isEnabled('Students')).toBe(true);

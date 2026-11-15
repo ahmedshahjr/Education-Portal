@@ -13,11 +13,11 @@ public static class ModuleCatalog
     [
         // Core: part of every subscription, and on by default for a new school (the master can switch any of them off).
         PortalModule.Create(ModuleCodes.School, "School", "School profile, settings and the school overview dashboard.", isCore: true, sortOrder: 10, isDefaultEnabled: true),
-        PortalModule.Create(ModuleCodes.Branch, "Campuses", "Create and edit the school's campuses.", isCore: true, sortOrder: 20, isDefaultEnabled: true),
+        PortalModule.Create(ModuleCodes.Campus, "Campuses", "Create and edit the school's campuses.", isCore: true, sortOrder: 20, isDefaultEnabled: true),
         PortalModule.Create(ModuleCodes.AcademicSetup, "Academic setup", "Academic years, classes, courses and enrolments.", isCore: true, sortOrder: 30, isDefaultEnabled: true),
-        PortalModule.Create(ModuleCodes.UsersRoles, "Users & Roles", "Staff accounts, roles with rights per module, branch assignment.", isCore: true, sortOrder: 40, isDefaultEnabled: true),
-        PortalModule.Create(ModuleCodes.Students, "Students", "Student records and branch membership.", isCore: true, sortOrder: 50, isDefaultEnabled: true),
-        PortalModule.Create(ModuleCodes.Staff, "Staff", "Teacher and staff records and branch membership.", isCore: true, sortOrder: 60, isDefaultEnabled: true),
+        PortalModule.Create(ModuleCodes.UsersRoles, "Users & Roles", "Staff accounts, roles with rights per module, campus assignment.", isCore: true, sortOrder: 40, isDefaultEnabled: true),
+        PortalModule.Create(ModuleCodes.Students, "Students", "Student records and campus membership.", isCore: true, sortOrder: 50, isDefaultEnabled: true),
+        PortalModule.Create(ModuleCodes.Staff, "Staff", "Teacher and staff records and campus membership.", isCore: true, sortOrder: 60, isDefaultEnabled: true),
 
         // Paid: sold one by one or in plans.
         PortalModule.Create(ModuleCodes.Admissions, "Admissions", "Enquiries, applications and admission decisions.", isCore: false, sortOrder: 100),

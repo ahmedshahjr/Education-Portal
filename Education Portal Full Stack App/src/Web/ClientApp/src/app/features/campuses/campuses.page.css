@@ -1,0 +1,115 @@
+.mm-campuses__list {
+  list-style: none;
+  margin: 0 0 var(--mm-space-4);
+  padding: 0;
+}
+
+.mm-campuses__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mm-space-3);
+  padding-block: var(--mm-space-2);
+  border-bottom: 1px solid var(--mm-border-color);
+}
+
+.mm-campuses__name {
+  font-weight: 600;
+}
+
+.mm-campuses__code {
+  margin-inline-start: var(--mm-space-2);
+  color: var(--mm-text-muted);
+  font-weight: 400;
+  font-size: var(--mm-text-sm);
+}
+
+.mm-campuses__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--mm-space-2);
+}
+
+.mm-campuses__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--mm-space-2);
+}
+
+.mm-campuses__error {
+  margin: var(--mm-space-2) 0 0;
+  color: var(--mm-error);
+}
+
+.mm-campuses__heading {
+  margin: 0 0 var(--mm-space-3);
+  font-size: var(--mm-text-base);
+  font-weight: 600;
+}
+
+.mm-campuses__settings {
+  margin-bottom: var(--mm-grid-gap);
+}
+
+.mm-campuses__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--mm-space-3);
+}
+
+.mm-campuses__summary {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.mm-campuses__head {
+  display: flex;
+  align-items: center;
+  gap: var(--mm-space-2);
+}
+
+.mm-campuses__details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--mm-space-1) var(--mm-space-4);
+  margin: var(--mm-space-2) 0 0;
+  font-size: var(--mm-text-sm);
+}
+
+.mm-campuses__details dt {
+  color: var(--mm-text-muted);
+}
+
+.mm-campuses__details dd {
+  margin: 0;
+}
+
+.mm-campuses__form--details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--mm-space-3);
+  width: 100%;
+}
+
+.mm-campuses__phones {
+  grid-column: 1 / -1;
+  border: 1px solid var(--mm-border-color);
+  border-radius: var(--mm-radius-md);
+  padding: var(--mm-space-2) var(--mm-space-3);
+}
+
+.mm-campuses__phone-row {
+  display: flex;
+  align-items: center;
+  gap: var(--mm-space-2);
+}
+
+.mm-campuses__form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--mm-space-2);
+}

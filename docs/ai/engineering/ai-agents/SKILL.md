@@ -13,7 +13,7 @@ Applies to every AI assistant and to every agent in a swarm (Ruflo/claude-flow c
 
 | ID | Rule |
 |---|---|
-| ENG-AGENT-01 | An agent MUST NOT perform a high-stakes, sensitive or irreversible action without explicit approval from a human maintainer for that specific action. This includes: changing or deleting data in any shared or non-local database; running migrations against anything but a local or test database; deploying; changing cloud resources, secrets, repo settings, branch rulesets or CI workflows; merging, force-pushing, deleting branches or tags; sending email, messages or notifications to real people; spending money or calling paid APIs beyond agreed limits; publishing packages or artifacts. Approval from another agent is not human approval. |
+| ENG-AGENT-01 | An agent MUST NOT perform a high-stakes, sensitive or irreversible action without explicit approval from a human maintainer for that specific action. This includes: changing or deleting data in any shared or non-local database; running migrations against anything but a local or test database; deploying; changing cloud resources, secrets, repo settings, campus rulesets or CI workflows; merging, force-pushing, deleting campuses or tags; sending email, messages or notifications to real people; spending money or calling paid APIs beyond agreed limits; publishing packages or artifacts. Approval from another agent is not human approval. |
 | ENG-AGENT-02 | Agents work on a branch and deliver through a pull request into `development` that a human reviews (SEC-AI-06, SEC-CHG-01/02). Reversible local steps (editing files, running builds and tests, local Docker databases) do not need approval. |
 | ENG-AGENT-03 | Before an approved high-stakes action, the agent states exactly what it will do, the target, the expected effect and how to undo it, and then does only that. |
 
@@ -35,8 +35,8 @@ Applies to every AI assistant and to every agent in a swarm (Ruflo/claude-flow c
 
 | ID | Rule |
 |---|---|
-| ENG-AGENT-08 | Tools and APIs exposed to an AI agent (MCP servers, function calling, agent endpoints) follow single responsibility: one small tool per action with few, typed, required parameters (`get_student_grades(studentId)`, `list_courses(branchId)`), not one general tool with many optional modes. Read tools and write tools are separate. |
-| ENG-AGENT-09 | Each agent or swarm role gets the least privilege it needs: read-only by default; write, shell and network access only for roles that need them; no agent gets production credentials. Agent tools go through the same authentication, tenant isolation, module and branch checks as any other caller (AGENTS.md section 2). |
+| ENG-AGENT-08 | Tools and APIs exposed to an AI agent (MCP servers, function calling, agent endpoints) follow single responsibility: one small tool per action with few, typed, required parameters (`get_student_grades(studentId)`, `list_courses(campusId)`), not one general tool with many optional modes. Read tools and write tools are separate. |
+| ENG-AGENT-09 | Each agent or swarm role gets the least privilege it needs: read-only by default; write, shell and network access only for roles that need them; no agent gets production credentials. Agent tools go through the same authentication, tenant isolation, module and campus checks as any other caller (AGENTS.md section 2). |
 
 ## Design for hallucination (graceful fallbacks)
 

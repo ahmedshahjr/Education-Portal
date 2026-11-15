@@ -17,9 +17,9 @@ public static class SchoolDefaultModules
     /// </summary>
     public static async Task GrantAsync(IApplicationDbContext context, int schoolId, DateTimeOffset now, CancellationToken cancellationToken)
     {
-        var mainBranch = await context.Branches
+        var mainCampus = await context.Campuses
             .IgnoreQueryFilters()
-            .SingleAsync(b => b.SchoolId == schoolId && b.Kind == BranchKind.Main, cancellationToken);
+            .SingleAsync(b => b.SchoolId == schoolId && b.Kind == CampusKind.Main, cancellationToken);
 
         var defaults = await context.Modules
             .Where(m => m.IsActive && m.IsDefaultEnabled)
@@ -27,13 +27,13 @@ public static class SchoolDefaultModules
 
         var alreadyGranted = await context.TenantModules
             .IgnoreQueryFilters()
-            .Where(t => t.SchoolId == schoolId && t.BranchId == mainBranch.Id)
+            .Where(t => t.SchoolId == schoolId && t.CampusId == mainCampus.Id)
             .Select(t => t.ModuleId)
             .ToHashSetAsync(cancellationToken);
 
         foreach (var module in defaults.Where(m => !alreadyGranted.Contains(m.Id)))
         {
-            context.TenantModules.Add(TenantModule.CreateDefault(schoolId, module, mainBranch, now));
+            context.TenantModules.Add(TenantModule.CreateDefault(schoolId, module, mainCampus, now));
         }
     }
 }

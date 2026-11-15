@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using EducationPortal.Application.Modules.Common;
 using EducationPortal.Domain.Constants;
@@ -69,20 +69,6 @@ public class ModuleTests : TestBase
         using var other = TestHttp.CreateDevelopmentSession(OtherSchoolDomain);
         (await other.SignInAsync("admin@school2.local", TestApp.AdministratorPassword)).Dispose();
         (await ReadEnabledAsync(other)).ShouldNotContain(ModuleCodes.Fees);
-    }
-
-    [Test]
-    public async Task ShouldNoLongerLetTheMasterSwitchModulesPerSchool()
-    {
-        var schoolId = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        await TestApp.RunAsAdministratorAsync();
-        using var master = await SignInAsMasterAsync();
-
-        using var response = await master.PutAsync($"/api/Schools/{schoolId.PublicId}/modules/{ModuleCodes.Fees}", new { isEnabled = true });
-
-        // Modules now come from the school's subscription only (ADR-012), so the route is gone.
-        new[] { HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed }.ShouldContain(response.StatusCode);
-        (await ReadSchoolModulesAsync(master, schoolId.PublicId)).Single(m => m.Code == ModuleCodes.Fees).IsEnabled.ShouldBeFalse();
     }
 
     [Test]

@@ -6,11 +6,11 @@ namespace EducationPortal.Application.UnitTests.Modules;
 
 /// <summary>
 /// The rule behind every module check (SEC-AUTHZ-01, -06): every module, core or paid, is on only inside an active grant's
-/// period. A grant on the school's main branch covers the whole school; a grant on another branch covers that branch only.
+/// period. A grant on the school's main campus covers the whole school; a grant on another campus covers that campus only.
 /// </summary>
 public class ModuleEntitlementsTests
 {
-    private const int MainBranch = 1;
+    private const int MainCampus = 1;
     private const int North = 5;
     private const int South = 6;
 
@@ -19,8 +19,8 @@ public class ModuleEntitlementsTests
     private static ModuleEntitlements With(params ModuleGrant[] grants) =>
         new(["STUDENTS", "ATTENDANCE", "FEES"], grants);
 
-    /// <summary>A grant on the main branch: the whole school.</summary>
-    private static ModuleGrant WholeSchool(string code, DateTimeOffset from, DateTimeOffset? to) => new(code, MainBranch, true, from, to);
+    /// <summary>A grant on the main campus: the whole school.</summary>
+    private static ModuleGrant WholeSchool(string code, DateTimeOffset from, DateTimeOffset? to) => new(code, MainCampus, true, from, to);
 
     [Test]
     public void ShouldNotHaveACoreModuleWithoutAGrant_SoTheMasterCanSwitchItOff()
@@ -53,17 +53,17 @@ public class ModuleEntitlementsTests
         With(WholeSchool("FEES", Now.AddDays(-1), null)).Has("FEES", null, Now.AddYears(50)).ShouldBeTrue();
 
     [Test]
-    public void ShouldLimitABranchGrantToThatBranch()
+    public void ShouldLimitACampusGrantToThatCampus()
     {
         var entitlements = With(new ModuleGrant("FEES", North, false, Now.AddDays(-1), null));
 
         entitlements.Has("FEES", North, Now).ShouldBeTrue();
         entitlements.Has("FEES", South, Now).ShouldBeFalse();
-        entitlements.Has("FEES", null, Now).ShouldBeFalse(); // no branch asked: a branch-only grant is not on (fail closed)
+        entitlements.Has("FEES", null, Now).ShouldBeFalse(); // no campus asked: a campus-only grant is not on (fail closed)
     }
 
     [Test]
-    public void ShouldGiveAWholeSchoolGrantToEveryBranch()
+    public void ShouldGiveAWholeSchoolGrantToEveryCampus()
     {
         var entitlements = With(WholeSchool("FEES", Now.AddDays(-1), null));
 
@@ -73,7 +73,7 @@ public class ModuleEntitlementsTests
     }
 
     [Test]
-    public void ShouldTurnOffAnExpiredBranchGrantButKeepTheOtherBranchsGrant()
+    public void ShouldTurnOffAnExpiredCampusGrantButKeepTheOtherCampussGrant()
     {
         var entitlements = With(
             new ModuleGrant("FEES", North, false, Now.AddDays(-30), Now.AddDays(-1)),
@@ -85,7 +85,7 @@ public class ModuleEntitlementsTests
     }
 
     [Test]
-    public void ShouldTurnOffAnExpiredWholeSchoolGrantForEveryBranch()
+    public void ShouldTurnOffAnExpiredWholeSchoolGrantForEveryCampus()
     {
         var entitlements = With(WholeSchool("FEES", Now.AddDays(-30), Now.AddDays(-1)));
 
@@ -104,7 +104,7 @@ public class ModuleEntitlementsTests
         var entitlements = With(
             WholeSchool("STUDENTS", Now.AddDays(-1), null),
             WholeSchool("FEES", Now.AddDays(-1), null),
-            new ModuleGrant("ATTENDANCE", North, false, Now.AddDays(-1), null),          // one branch only: not whole-school
+            new ModuleGrant("ATTENDANCE", North, false, Now.AddDays(-1), null),          // one campus only: not whole-school
             WholeSchool("ATTENDANCE", Now.AddDays(-9), Now.AddDays(-1)));              // ended
 
         entitlements.EnabledCodes(Now).ShouldBe(["STUDENTS", "FEES"]);
