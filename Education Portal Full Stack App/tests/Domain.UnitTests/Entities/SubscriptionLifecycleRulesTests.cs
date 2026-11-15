@@ -20,7 +20,7 @@ public class SubscriptionLifecycleRulesTests
     private static Subscription NewSubscription(int trialDays = 0)
     {
         var subscription = Saved(Subscription.Create(9, null, Saved(PriceBook.Create("PK", "PKR"), 3), BillingCycle.Monthly, 100m, Start, trialDays), 5);
-        subscription.AddModule(Saved(PortalModule.Create("STUDENTS", "Students", "", isCore: false, sortOrder: 0), 7));
+        subscription.AddModule(Saved(PortalModule.Create("STUDENTS", "Students", "", isCore: false, sortOrder: 0), 7), TestBranches.MainBranch());
         return subscription;
     }
 

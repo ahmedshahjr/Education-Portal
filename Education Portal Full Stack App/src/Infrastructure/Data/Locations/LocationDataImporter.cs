@@ -43,10 +43,6 @@ public sealed class LocationDataImporter
     {
         ["SA"] = new(["en", "ar"], "en", "Asia/Riyadh"),
         ["AE"] = new(["en", "ar"], "en", "Asia/Dubai"),
-        ["QA"] = new(["en", "ar"], "en", "Asia/Qatar"),
-        ["KW"] = new(["en", "ar"], "en", "Asia/Kuwait"),
-        ["BH"] = new(["en", "ar"], "en", "Asia/Bahrain"),
-        ["OM"] = new(["en", "ar"], "en", "Asia/Muscat"),
         // The United States has several time zones; the country's zone is only the fallback, each user's own zone wins.
         ["US"] = new(["en"], "en", "America/New_York"),
         ["JP"] = new(["en"], "en", "Asia/Tokyo"),

@@ -1,10 +1,13 @@
+using EducationPortal.Domain.Enums;
+
 namespace EducationPortal.Domain.Entities;
 
 /// <summary>
 /// A module a school has through its subscription: core modules, the plan's modules and add-ons. Rows are written with
-/// the subscription (<see cref="Subscription.AddModule"/>), never on their own. <see cref="BranchId"/> is empty when the
-/// module is for the whole school and set when it is limited to one branch. Owned by the school (<c>SchoolId</c>) and
-/// covered by the tenant query filter (SEC-AUTHZ-03). The module's data is kept when the row expires or is suspended.
+/// the subscription (<see cref="Subscription.AddModule"/>), never on their own. Every row names a branch:
+/// <see cref="BranchId"/> is the school's main branch for a module the whole school has (<see cref="IsSchoolWide"/>), or
+/// another branch for a module limited to that branch. Owned by the school (<c>SchoolId</c>) and covered by the tenant
+/// query filter (SEC-AUTHZ-03). The module's data is kept when the row expires or is suspended.
 /// </summary>
 public class TenantModule : BaseAuditableEntity
 {
@@ -13,14 +16,11 @@ public class TenantModule : BaseAuditableEntity
         // For EF Core.
     }
 
-    internal TenantModule(Subscription subscription, PortalModule module, Branch? branch, DateTimeOffset validFrom, DateTimeOffset? validTo)
+    internal TenantModule(Subscription subscription, PortalModule module, Branch branch, DateTimeOffset validFrom, DateTimeOffset? validTo)
     {
+        ArgumentNullException.ThrowIfNull(subscription);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(module.Id);
-
-        if (branch is not null)
-        {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(branch.Id);
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(branch.Id);
 
         if (validTo is not null && validTo <= validFrom)
         {
@@ -30,7 +30,8 @@ public class TenantModule : BaseAuditableEntity
         Subscription = subscription;
         SchoolId = subscription.SchoolId;
         ModuleId = module.Id;
-        BranchId = branch?.Id;
+        BranchId = branch.Id;
+        IsSchoolWide = branch.Kind == BranchKind.Main;
         Status = TenantModuleStatus.Active;
         ValidFrom = validFrom;
         ValidTo = validTo;
@@ -44,8 +45,14 @@ public class TenantModule : BaseAuditableEntity
 
     public Subscription? Subscription { get; private set; }
 
-    /// <summary>The branch the module is limited to, or <c>null</c> for the whole school.</summary>
-    public int? BranchId { get; private set; }
+    /// <summary>The branch the grant is for: the school's main branch when the module is for the whole school.</summary>
+    public int BranchId { get; private set; }
+
+    /// <summary>
+    /// True when the grant is for the whole school. It is the case exactly when <see cref="BranchId"/> is the school's
+    /// main branch, so one grant on the main branch covers every branch of the school.
+    /// </summary>
+    public bool IsSchoolWide { get; private set; }
 
     public TenantModuleStatus Status { get; private set; }
 

@@ -31,7 +31,7 @@ public class RequestAddOnCommandValidator : AbstractValidator<RequestAddOnComman
             .MustAsync(async (code, cancellationToken) => !await (
                     from t in context.TenantModules
                     join m in context.Modules on t.ModuleId equals m.Id
-                    where t.SchoolId == tenant.SchoolId && m.Code == code && t.BranchId == null && t.Status != TenantModuleStatus.Expired
+                    where t.SchoolId == tenant.SchoolId && m.Code == code && t.IsSchoolWide && t.Status != TenantModuleStatus.Expired
                     select t.Id).AnyAsync(cancellationToken))
             .WithMessage(_ => ValidationMessages.ModuleAlreadyInSubscription)
             .MustAsync(async (code, cancellationToken) => !await (

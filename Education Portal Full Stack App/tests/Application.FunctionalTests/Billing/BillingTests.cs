@@ -9,6 +9,7 @@ using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
 using EducationPortal.Infrastructure.Data;
+using EducationPortal.Web.Jobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -59,6 +60,24 @@ public class BillingTests : TestBase
         invoice.Lines.Single().Description.ShouldStartWith("BASIC");
 
         (await TestApp.FindAuditEventsAsync(masterUserId)).ShouldContain(e => e.EventType == SecurityAuditEventType.InvoiceCreated);
+    }
+
+    [Test]
+    public async Task ShouldShowWhenAnUnpaidInvoiceBecameOverdue()
+    {
+        await TestApp.RunAsAdministratorAsync();
+        using var master = await SignInAsMasterAsync();
+        var school = await SetUpSchoolAsync(master, SchoolDomain, trialDays: 0, taxRate: 15m);
+        var id = await CreateInvoiceAsync(master, school.PublicId, nextPeriod: false);
+        var invoice = await ReadAsync(master, id);
+        invoice.OverdueSince.ShouldBeNull();
+
+        TestApp.RunAsSystem();
+        await SubscriptionLifecycleJob.RunAsMasterAsync(FunctionalTestSetup.ScopeFactory, invoice.DueDate.AddDays(1), CancellationToken.None);
+
+        var overdue = await ReadAsync(master, id);
+        overdue.Status.ShouldBe(InvoiceStatus.Open);
+        overdue.OverdueSince.ShouldNotBeNull().ShouldBeGreaterThanOrEqualTo(invoice.DueDate);
     }
 
     [Test]
