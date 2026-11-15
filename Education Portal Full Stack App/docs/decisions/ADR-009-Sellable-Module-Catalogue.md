@@ -1,4 +1,4 @@
-# ADR-009: Sellable Module Catalogue (Core and Paid Modules)
+﻿# ADR-009: Sellable Module Catalogue (Core and Paid Modules)
 
 ## Status
 
@@ -26,7 +26,7 @@ lifecycle job, audit). Later phases add `Plan`, `PriceBook`, `Subscription` and 
   existing **IsActive** switch and soft delete. A code is unique among live modules; a deleted module keeps its row and the rows that point to it by id, and its code can be used again. The `ModuleType` enum and its lookup table are removed.
 - **Core** modules (SCHOOL, BRANCH, ACADEMIC_SETUP, USERS_ROLES, STUDENTS, STAFF) are part of every subscription and
   never sold on their own. A core module is always on: it cannot be made inactive (also a database check constraint),
-  deleted, or switched off for a school.
+  deleted, or switched off for a school. (Superseded by ADR-017: every module, core ones included, can be switched off.)
 - **Paid** modules (ADMISSIONS, ATTENDANCE, FEES, PARENT_COMMUNICATION, EXAMS, TIMETABLE, HR_PAYROLL, TRANSPORT,
   LIBRARY, LMS, HOSTEL) are on for a school only when it gets them. Until subscriptions exist (phase 3) the master's
   per-school switch (`SchoolModules`) is how a school gets one; phase 3 replaces it with `TenantModule` rows.

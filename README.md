@@ -390,7 +390,7 @@ Step 2 adds a permission check after authorization: the module is switched on fo
 
 ### Multi-tenancy and permissions (step 2, in progress)
 
-Built so far: schools with their own domains, exactly one master tenant, tenant resolution from the host, sign-in scoped to the school, per-school branding, the sellable module catalogue (core and paid modules with dependencies) with paid modules switched on per school, and campuses with contact and registration details, their principal chosen from the school's people (UserDetails, with a user type). Roles come next.
+Built so far: schools with their own domains, exactly one master tenant, tenant resolution from the host, sign-in scoped to the school, per-school branding, the sellable module catalogue (core and paid modules with dependencies) with paid modules switched on per school, and campuses with contact and registration details, their principal chosen from the school's people (UserDetails, with a user type). A school request is approved by the master tenant, which registers the school with a 30-day free trial of the Full plan and the modules that are on by default (ADR-017). Roles come next.
 
 The rules live in [AGENTS.md, section 2](AGENTS.md#2-multi-tenancy-and-permissions). This is how they fit together.
 

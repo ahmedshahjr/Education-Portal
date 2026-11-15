@@ -1,11 +1,13 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Localization.Queries.GetLocalization;
 using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
+using EducationPortal.Infrastructure.Data;
 using EducationPortal.Infrastructure.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EducationPortal.Application.FunctionalTests.Schools;
 
@@ -23,10 +25,33 @@ public class CreateSchoolTests : TestBase
     private const string OneTimePassword = "violet harbour lantern 47";
     private const string NewPassword = "quiet orchard ladder 93";
 
+    /// <summary>The priced country every registration uses (a registration needs a country with a price book).</summary>
+    private EntityIds _country;
+
+    [SetUp]
+    public async Task SetUpPricedCountry()
+    {
+        _country = await TestApp.AddCountryAsync("PK", "Pakistan", ["en", "ur"], "ur", "Asia/Karachi", "PKR");
+
+        // The Full plan's monthly price in the country's price book: the registration's trial is priced from it.
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var plan = Plan.Create(PricingCatalog.Full, "Full", "");
+        context.Plans.Add(plan);
+        await context.SaveChangesAsync();
+
+        var book = PriceBook.Create("PK", "PKR");
+        context.PriceBooks.Add(book);
+        await context.SaveChangesAsync();
+
+        context.PriceBookItems.Add(PriceBookItem.ForPlan(book, plan, BillingCycle.Monthly, 30000));
+        await context.SaveChangesAsync();
+    }
+
     [Test]
     public async Task ShouldLetTheMasterTenantAddASchoolOnItsOwnDomain()
     {
-        var countryId = await TestApp.AddCountryAsync("PK", "Pakistan", ["en", "ur"], "ur", "Asia/Karachi", "PKR");
+        var countryId = _country;
         var userId = await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
 
@@ -63,7 +88,7 @@ public class CreateSchoolTests : TestBase
     }
 
     [Test]
-    public async Task ShouldAddASchoolWithoutCountryOrDataRegion()
+    public async Task ShouldAddASchoolWithoutADataRegion()
     {
         await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
@@ -72,8 +97,71 @@ public class CreateSchoolTests : TestBase
 
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
         var school = (await TestApp.FindAsync<School>(await TestApp.FindIdAsync<School>(await response.Content.ReadFromJsonAsync<Guid>())))!;
-        school.CountryId.ShouldBeNull();
+        school.CountryId.ShouldNotBeNull();
         school.DataRegion.ShouldBeNull();
+    }
+
+    [Test]
+    public async Task ShouldRefuseASchoolWithoutACountry()
+    {
+        await TestApp.RunAsAdministratorAsync();
+        using var master = await SignInAsMasterAsync();
+        var schoolsBefore = await TestApp.CountAsync<School>();
+
+        using var response = await master.PostAsync("/api/Schools", new
+        {
+            name = "New School",
+            domain = NewDomain,
+            administratorEmail = NewAdminEmail,
+            administratorPassword = OneTimePassword,
+        });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await TestApp.CountAsync<School>()).ShouldBe(schoolsBefore);
+    }
+
+    [Test]
+    public async Task ShouldRefuseACountryWithoutAPriceBook()
+    {
+        await TestApp.RunAsAdministratorAsync();
+        using var master = await SignInAsMasterAsync();
+        var unpriced = await TestApp.AddCountryAsync("AE", "United Arab Emirates", ["en", "ar"], "en", "Asia/Dubai", "AED");
+
+        using var response = await master.PostAsync("/api/Schools", new
+        {
+            name = "New School",
+            domain = NewDomain,
+            countryId = unpriced.PublicId,
+            administratorEmail = NewAdminEmail,
+            administratorPassword = OneTimePassword,
+        });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task ShouldLeaveNothingBehindWhenTheAdministratorCannotBeCreated()
+    {
+        await TestApp.RunAsAdministratorAsync();
+        using var master = await SignInAsMasterAsync();
+        var schoolsBefore = await TestApp.CountAsync<School>();
+        var subscriptionsBefore = await TestApp.CountAsync<Subscription>();
+        var grantsBefore = await TestApp.CountAsync<TenantModule>();
+
+        // A password that passes the length rule but fails the password policy: it is only found after the school is saved.
+        using var response = await master.PostAsync("/api/Schools", new
+        {
+            name = "New School",
+            domain = NewDomain,
+            countryId = _country.PublicId,
+            administratorEmail = NewAdminEmail,
+            administratorPassword = "head head head head",
+        });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await TestApp.CountAsync<School>()).ShouldBe(schoolsBefore);
+        (await TestApp.CountAsync<Subscription>()).ShouldBe(subscriptionsBefore);
+        (await TestApp.CountAsync<TenantModule>()).ShouldBe(grantsBefore);
     }
 
     [TestCase("name", "")]
@@ -154,7 +242,7 @@ public class CreateSchoolTests : TestBase
         await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
 
-        using var response = await master.PostAsync("/api/Schools", new { name = "New School", domain = NewDomain, isMaster = true, administratorEmail = NewAdminEmail, administratorPassword = OneTimePassword });
+        using var response = await master.PostAsync("/api/Schools", new { name = "New School", domain = NewDomain, countryId = _country.PublicId, isMaster = true, administratorEmail = NewAdminEmail, administratorPassword = OneTimePassword });
 
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
         var school = (await TestApp.FindAsync<School>(await TestApp.FindIdAsync<School>(await response.Content.ReadFromJsonAsync<Guid>())))!;
@@ -211,6 +299,7 @@ public class CreateSchoolTests : TestBase
         {
             name = "New School",
             domain = NewDomain,
+            countryId = _country.PublicId,
             administratorEmail = SchoolAdminEmail.ToUpperInvariant(),
             administratorPassword = OneTimePassword,
         });
@@ -231,6 +320,7 @@ public class CreateSchoolTests : TestBase
         {
             name = "New School",
             domain = NewDomain,
+            countryId = _country.PublicId,
             administratorEmail = NewAdminEmail,
             administratorPassword = "head head head head",
         });
@@ -312,10 +402,11 @@ public class CreateSchoolTests : TestBase
         }
     }
 
-    private static object Body(string name, string domain) => new
+    private object Body(string name, string domain) => new
     {
         name,
         domain,
+        countryId = _country.PublicId,
         administratorEmail = NewAdminEmail,
         administratorPassword = OneTimePassword,
     };

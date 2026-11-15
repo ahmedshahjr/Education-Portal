@@ -378,4 +378,10 @@
   <data name="WebsiteInvalid" xml:space="preserve">
     <value>يجب أن يكون الموقع عنوانًا مطلقًا بصيغة http أو https.</value>
   </data>
+  <data name="CountryHasNoPriceBook" xml:space="preserve">
+    <value>ليس لهذه الدولة قائمة أسعار بعد. على المدير الرئيسي تحديد أسعارها قبل تسجيل مدرسة فيها.</value>
+  </data>
+  <data name="SchoolRequestNotPending" xml:space="preserve">
+    <value>لا يمكن الموافقة على طلب المدرسة أو رفضه إلا إذا كان معلّقًا.</value>
+  </data>
 </root>

@@ -158,21 +158,23 @@ public class ModuleTests : TestBase
     }
 
     [Test]
-    public async Task ShouldKeepCoreModulesOnAndUndeletable()
+    public async Task ShouldLetTheMasterSwitchACoreModuleOffForEverySchoolAndBackOn()
     {
         await TestApp.RunAsAdministratorAsync();
+        await TestApp.AddSchoolAsync("Module School", SchoolDomain);
         using var master = await SignInAsMasterAsync();
+        using var school = await SignInToSchoolAsync();
+        (await ReadEnabledAsync(school)).ShouldContain(ModuleCodes.Students);
 
+        // Every module can be switched off from the master settings, core ones included.
         using var deactivate = await master.PutAsync($"/api/Modules/{ModuleCodes.Students}", Update("Students", isActive: false, isCore: true, sortOrder: 50));
-        using var delete = await master.DeleteAsync($"/api/Modules/{ModuleCodes.Students}");
-        // A paid module made inactive cannot become core in the same change.
-        using var inactiveCore = await master.PutAsync($"/api/Modules/{ModuleCodes.Library}", Update("Library", isActive: false, isCore: true, sortOrder: 180));
+        deactivate.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        (await ReadModuleAsync(master, ModuleCodes.Students)).IsActive.ShouldBeFalse();
+        (await ReadEnabledAsync(school)).ShouldNotContain(ModuleCodes.Students);
 
-        deactivate.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        delete.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        inactiveCore.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        (await ReadModuleAsync(master, ModuleCodes.Students)).IsActive.ShouldBeTrue();
-        (await ReadModuleAsync(master, ModuleCodes.Library)).ShouldSatisfyAllConditions(m => m.IsActive.ShouldBeTrue(), m => m.IsCore.ShouldBeFalse());
+        using var reactivate = await master.PutAsync($"/api/Modules/{ModuleCodes.Students}", Update("Students", isActive: true, isCore: true, sortOrder: 50));
+        reactivate.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        (await ReadEnabledAsync(school)).ShouldContain(ModuleCodes.Students);
     }
 
     [Test]

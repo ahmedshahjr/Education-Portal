@@ -1,4 +1,4 @@
-# Architectural Decision Records
+﻿# Architectural Decision Records
 
 This directory contains Architecture Decision Records (ADRs) for the Clean Architecture Solution Template.
 
@@ -22,3 +22,4 @@ An ADR captures a significant architectural decision: the context that led to it
 | [ADR-014](ADR-014-Subscription-Management-And-Add-On-Requests.md) | Subscription Management and Add-On Requests | 2026-11-13 | Accepted |
 | [ADR-015](ADR-015-Subscription-Lifecycle-Job.md) | Daily Subscription Lifecycle Job | 2026-11-13 | Accepted |
 | [ADR-016](ADR-016-Change-Audit-For-Commercial-Records.md) | Change Audit for Commercial Records | 2026-11-13 | Accepted |
+| [ADR-017](ADR-017-Default-Module-Grants-Trial-And-School-Approval.md) | Default Module Grants, Free Trial and Approval of School Requests | 2026-11-15 | Accepted |

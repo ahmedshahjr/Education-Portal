@@ -1,4 +1,4 @@
-using EducationPortal.Application.Modules.Commands.AddModuleDependency;
+﻿using EducationPortal.Application.Modules.Commands.AddModuleDependency;
 using EducationPortal.Application.Modules.Commands.CreateModule;
 using EducationPortal.Application.Modules.Commands.DeleteModule;
 using EducationPortal.Application.Modules.Commands.RemoveModuleDependency;
@@ -83,7 +83,7 @@ public class Modules : IEndpointGroup
     }
 
     [EndpointSummary("Change a module")]
-    [EndpointDescription("Sets the module's name, description, whether it is core, its sort order and whether it is active. An inactive module is off for every school. A core module is always active and requires only core modules. The code cannot change. Master tenant only.")]
+    [EndpointDescription("Sets the module's name, description, whether it is core, its sort order, whether it is on by default for a registering school and whether it is active. An inactive module is off for every school. A core module requires only core modules. Every module can be switched off, core ones included. The code cannot change. Master tenant only.")]
     public static async Task<NoContent> UpdateModule(ISender sender, string code, UpdateModuleCommand command)
     {
         // The route names the module; a code in the body is ignored.

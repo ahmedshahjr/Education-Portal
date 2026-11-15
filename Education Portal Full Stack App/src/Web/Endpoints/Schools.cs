@@ -1,4 +1,4 @@
-using EducationPortal.Application.Branding.Common;
+﻿using EducationPortal.Application.Branding.Common;
 using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Modules.Common;
 using EducationPortal.Application.Modules.Queries.GetSchoolModules;
@@ -217,7 +217,7 @@ public class Schools : IEndpointGroup
     }
 
     [EndpointSummary("List a school's modules")]
-    [EndpointDescription("Returns every module as it stands for the school: core modules are always on, paid modules are on when the school's subscription gives them now. Read only; change them through the subscription. Master tenant only.")]
+    [EndpointDescription("Returns every module as it stands for the school: a module is on when the school has a grant for it: the default grant from its registration, or its subscription. Read only; change them through the subscription. Master tenant only.")]
     public static async Task<Ok<IReadOnlyList<SchoolModuleDto>>> GetSchoolModules(ISender sender, Guid schoolId)
     {
         return TypedResults.Ok(await sender.Send(new GetSchoolModulesQuery(schoolId)));

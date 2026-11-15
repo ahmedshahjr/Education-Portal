@@ -134,4 +134,10 @@ public enum SecurityAuditEventType
 
     /// <summary>The school administrator added a person (principal, teacher or staff) to the school.</summary>
     UserDetailsCreated = 46,
+
+    /// <summary>The master tenant approved a school request, which created the school.</summary>
+    SchoolRequestApproved = 47,
+
+    /// <summary>The master tenant rejected a school request.</summary>
+    SchoolRequestRejected = 48,
 }

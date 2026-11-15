@@ -378,4 +378,10 @@
   <data name="WebsiteInvalid" xml:space="preserve">
     <value>ویب سائٹ ایک مکمل http یا https پتہ ہونا چاہیے۔</value>
   </data>
+  <data name="CountryHasNoPriceBook" xml:space="preserve">
+    <value>اس ملک کی ابھی قیمتوں کی فہرست نہیں ہے۔ اسکول رجسٹر کرنے سے پہلے ماسٹر ٹیننٹ کو قیمتیں مقرر کرنی ہوں گی۔</value>
+  </data>
+  <data name="SchoolRequestNotPending" xml:space="preserve">
+    <value>صرف زیر التوا اسکول درخواست منظور یا مسترد کی جا سکتی ہے۔</value>
+  </data>
 </root>

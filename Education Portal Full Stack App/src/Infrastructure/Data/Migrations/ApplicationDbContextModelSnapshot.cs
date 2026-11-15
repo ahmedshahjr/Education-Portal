@@ -875,10 +875,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasFilter("\"IsDeleted\" = false");
 
-                    b.ToTable("Modules", "modules", t =>
-                        {
-                            t.HasCheckConstraint("CK_Modules_CoreIsActive", "NOT \"IsCore\" OR \"IsActive\"");
-                        });
+                    b.ToTable("Modules", "modules");
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.PriceBook", b =>
@@ -2196,6 +2193,16 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         {
                             Id = 46,
                             Name = "UserDetailsCreated"
+                        },
+                        new
+                        {
+                            Id = 47,
+                            Name = "SchoolRequestApproved"
+                        },
+                        new
+                        {
+                            Id = 48,
+                            Name = "SchoolRequestRejected"
                         });
                 });
 

@@ -839,5 +839,23 @@ namespace EducationPortal.Application.Common.Localization {
                 return ResourceManager.GetString("WebsiteInvalid", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The country has no price book yet..
+        /// </summary>
+        internal static string CountryHasNoPriceBook {
+            get {
+                return ResourceManager.GetString("CountryHasNoPriceBook", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Only a pending school request can be approved or rejected..
+        /// </summary>
+        internal static string SchoolRequestNotPending {
+            get {
+                return ResourceManager.GetString("SchoolRequestNotPending", resourceCulture);
+            }
+        }
     }
 }

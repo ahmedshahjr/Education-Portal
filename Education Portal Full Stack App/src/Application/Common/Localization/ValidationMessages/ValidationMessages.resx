@@ -378,4 +378,10 @@
   <data name="WebsiteInvalid" xml:space="preserve">
     <value>A website must be an absolute http or https address.</value>
   </data>
+  <data name="CountryHasNoPriceBook" xml:space="preserve">
+    <value>The country has no price book yet. The master tenant must set its prices before a school is registered there.</value>
+  </data>
+  <data name="SchoolRequestNotPending" xml:space="preserve">
+    <value>Only a pending school request can be approved or rejected.</value>
+  </data>
 </root>
