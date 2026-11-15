@@ -111,7 +111,7 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 ### Rules for code
 
 - Check module switches and role rights **on the server**, in the Application layer. A module's use cases declare it with `[Authorize(Module = ModuleCodes.Students)]`; `AuthorizationBehaviour` refuses the request with 403 when the module is off for the host's school. In Angular, give a module's menu items `module: MODULE_CODES.students` and its routes `moduleGuard(MODULE_CODES.students)`. Hiding things in Angular is not enough: a direct API call to a disabled module or a campus the user doesn't have must be rejected.
-- Every new tenant-owned entity gets `SchoolId` (and `CampusId` if campus-scoped) and is covered by the query filters.
+- Every new tenant-owned entity gets `SchoolId` (and `CampusId` if campus-scoped) and is covered by the query filters. **Strict (SEC-AUTHZ-09):** never call `HasQueryFilter` a second time on an entity; EF Core keeps only the last filter, so it silently removes the tenant filter (this happened to `Campus` and `UserDetails` through the soft-delete filter). Combine filters instead. A lookup by public id must go through the filtered query, so another school's row is a 404.
 - Every new use case gets a test proving that another school, another campus, and a disabled module are denied.
 
 ## 3. Tech stack (from the template files)

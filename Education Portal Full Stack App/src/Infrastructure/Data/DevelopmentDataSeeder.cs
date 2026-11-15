@@ -2,6 +2,7 @@ using EducationPortal.Application.Modules.Common;
 using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
+using EducationPortal.Domain.ValueObjects;
 using EducationPortal.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -144,8 +145,8 @@ public class DevelopmentDataSeeder
         await SeedDemoSubscriptionAsync(usaDemoSchool, usa);
 
         // The Pakistan and UAE demo schools have campuses besides their main campus, so the campus screens have data.
-        await SeedDemoCampusesAsync(demoSchool, [("Karachi", "0002"), ("Lahore", "0003")]);
-        await SeedDemoCampusesAsync(uaeDemoSchool, [("Dubai", "0002"), ("Abu Dhabi", "0003")]);
+        await SeedDemoCampusesAsync(demoSchool, KarachiHeadOffice, [KarachiCampus, LahoreCampus]);
+        await SeedDemoCampusesAsync(uaeDemoSchool, DubaiHeadOffice, [DubaiCampus, AbuDhabiCampus]);
 
         // Each demo school has an open invoice for its first period and two school roles, so the billing and roles screens have data.
         await SeedDemoInvoiceAsync(demoSchool);
@@ -231,17 +232,92 @@ public class DevelopmentDataSeeder
         }
     }
 
-    /// <summary>Adds the given campuses to a demo school. Safe to run again: a campus whose code exists is skipped.</summary>
-    private async Task SeedDemoCampusesAsync(School school, (string Name, string Code)[] campuses)
+    /// <summary>
+    /// A demo campus with its full details: the province and city come from the location data of the school's country, and
+    /// the place on the map is its coordinates. The main campus takes the same details as the school's head office.
+    /// </summary>
+    private sealed record DemoCampus(
+        string Name,
+        string Code,
+        string StateName,
+        string CityName,
+        string Address,
+        string PostalCode,
+        string[] Phones,
+        string SchoolNumber,
+        string ShortName,
+        decimal Latitude,
+        decimal Longitude);
+
+    private static readonly DemoCampus KarachiHeadOffice = new(
+        "Karachi", "0001", "Sindh", "Karachi", "Shahrah-e-Faisal, Karachi", "74200", ["+92 21 34567890"], "PK-KHI-001", "KHI", 24.8607m, 67.0011m);
+
+    private static readonly DemoCampus KarachiCampus = new(
+        "Karachi Clifton", "0002", "Sindh", "Karachi", "Clifton Block 4, Karachi", "75600", ["+92 21 35870001"], "PK-KHI-002", "KHI", 24.8138m, 67.0300m);
+
+    private static readonly DemoCampus LahoreCampus = new(
+        "Lahore", "0003", "Punjab", "Lahore", "Main Boulevard, Gulberg III, Lahore", "54660", ["+92 42 35761234", "+92 42 35761235"], "PK-LHR-001", "LHR", 31.5204m, 74.3587m);
+
+    private static readonly DemoCampus DubaiHeadOffice = new(
+        "Dubai", "0001", "Dubai", "Dubai", "Sheikh Zayed Road, Dubai", "00000", ["+971 4 3001234"], "AE-DXB-001", "DXB", 25.2048m, 55.2708m);
+
+    private static readonly DemoCampus DubaiCampus = new(
+        "Dubai Al Barsha", "0002", "Dubai", "Al Barsha", "Al Barsha 1, Dubai", "00000", ["+971 4 3005678"], "AE-DXB-002", "DXB2", 25.1131m, 55.2000m);
+
+    private static readonly DemoCampus AbuDhabiCampus = new(
+        "Abu Dhabi", "0003", "Abu Dhabi", "Abu Dhabi", "Khalifa Street, Abu Dhabi", "00000", ["+971 2 6001234"], "AE-AUH-001", "AUH", 24.4539m, 54.3773m);
+
+    /// <summary>
+    /// Gives a demo school its main campus (the head office, which keeps its name) and the extra campuses, with their full
+    /// details, so the campus screens show real data. Safe to run again: a campus whose code exists keeps its details, and one
+    /// with no details yet gets them.
+    /// </summary>
+    private async Task SeedDemoCampusesAsync(School school, DemoCampus headOffice, DemoCampus[] campuses)
     {
         // The seed runs with no tenant, so the campus query filter would hide existing rows: ignore it, scoped to this school.
-        foreach (var (name, code) in campuses)
+        var main = await _context.Campuses.IgnoreQueryFilters()
+            .SingleAsync(b => b.SchoolId == school.Id && b.Kind == CampusKind.Main);
+        await ApplyDemoDetailsAsync(school, main, headOffice);
+
+        foreach (var demo in campuses)
         {
-            if (!await _context.Campuses.IgnoreQueryFilters().AnyAsync(b => b.SchoolId == school.Id && b.Code == code))
+            var campus = await _context.Campuses.IgnoreQueryFilters()
+                .SingleOrDefaultAsync(b => b.SchoolId == school.Id && b.Code == demo.Code);
+            if (campus is null)
             {
-                _context.Campuses.Add(Campus.Create(school.Id, name, code));
+                campus = Campus.Create(school.Id, demo.Name, demo.Code);
+                _context.Campuses.Add(campus);
+                await _context.SaveChangesAsync();
             }
+
+            await ApplyDemoDetailsAsync(school, campus, demo);
         }
+    }
+
+    /// <summary>Fills a campus's details when it has none yet. A campus that already has details is left as it is.</summary>
+    private async Task ApplyDemoDetailsAsync(School school, Campus campus, DemoCampus demo)
+    {
+        if (campus.Address is not null || school.CountryId is not { } countryId)
+        {
+            return;
+        }
+
+        var state = await _context.States.SingleAsync(s => s.CountryId == countryId && s.Name == demo.StateName);
+        var city = await _context.Cities.SingleAsync(c => c.StateId == state.Id && c.Name == demo.CityName);
+
+        var details = CampusDetails.Create(
+            demo.Address,
+            state.Id,
+            city.Id,
+            demo.PostalCode,
+            demo.Phones,
+            website: null,
+            demo.SchoolNumber,
+            demo.ShortName,
+            principalUserDetailsId: null,
+            demo.Latitude,
+            demo.Longitude);
+        campus.UpdateDetails(details);
 
         await _context.SaveChangesAsync();
     }

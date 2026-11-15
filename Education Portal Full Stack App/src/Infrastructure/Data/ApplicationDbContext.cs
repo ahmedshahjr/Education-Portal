@@ -1,3 +1,4 @@
+﻿using System.Linq.Expressions;
 using System.Reflection;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Domain.Common;
@@ -6,6 +7,7 @@ using EducationPortal.Infrastructure.Data.Lookups;
 using EducationPortal.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EducationPortal.Infrastructure.Data;
 
@@ -144,12 +146,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         }
 
         // Soft delete: every soft-deletable entity hides its deleted rows from every query, the master
-        // tenant included. Rows stay in the table for audit.
+        // tenant included. Rows stay in the table for audit. Added to the tenant filter, not in place of it.
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             if (typeof(BaseSoftDeletableEntity).IsAssignableFrom(entityType.ClrType))
             {
-                ApplySoftDeleteFilter(builder, entityType.ClrType);
+                ApplySoftDeleteFilter(entityType);
             }
         }
     }
@@ -178,14 +180,29 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         }, cancellationToken);
     }
 
-    private static void ApplySoftDeleteFilter(ModelBuilder builder, Type entityClrType)
+    /// <summary>
+    /// Adds "not deleted" to the query filter the entity type already has. EF Core keeps one filter per entity type, so a
+    /// new filter would replace the tenant filter (SEC-AUTHZ-03) that the school's rows are scoped by.
+    /// </summary>
+    private static void ApplySoftDeleteFilter(IMutableEntityType entityType)
     {
-        var method = typeof(ApplicationDbContext)
-            .GetMethod(nameof(SoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)!
-            .MakeGenericMethod(entityClrType);
-        method.Invoke(null, new object[] { builder });
+        var entity = Expression.Parameter(entityType.ClrType, "e");
+        Expression notDeleted = Expression.Not(Expression.Property(entity, nameof(BaseSoftDeletableEntity.IsDeleted)));
+
+        // The tenant filter is the only declared filter of these entity types, so it is combined with "not deleted".
+        foreach (var filter in entityType.GetDeclaredQueryFilters())
+        {
+            var tenantFilter = filter.Expression ?? throw new InvalidOperationException($"The query filter of {entityType.ClrType.Name} has no expression.");
+            var existingBody = new ParameterReplacer(tenantFilter.Parameters[0], entity).Visit(tenantFilter.Body);
+            notDeleted = Expression.AndAlso(existingBody, notDeleted);
+        }
+
+        entityType.SetQueryFilter(Expression.Lambda(notDeleted, entity));
     }
 
-    private static void SoftDeleteFilter<TEntity>(ModelBuilder builder) where TEntity : BaseSoftDeletableEntity =>
-        builder.Entity<TEntity>().HasQueryFilter(e => !e.IsDeleted);
+    /// <summary>Points a filter's parameter at the parameter of the combined filter.</summary>
+    private sealed class ParameterReplacer(ParameterExpression from, ParameterExpression to) : ExpressionVisitor
+    {
+        protected override Expression VisitParameter(ParameterExpression node) => node == from ? to : base.VisitParameter(node);
+    }
 }
