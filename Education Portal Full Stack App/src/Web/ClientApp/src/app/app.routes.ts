@@ -36,6 +36,11 @@ export const routes: Routes = [
           import('./features/branding/branding-settings.page').then((m) => m.BrandingSettingsPage),
       },
       {
+        path: 'settings/campus-codes',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.campus)],
+        loadComponent: () => import('./features/settings/campus-codes.page').then((m) => m.CampusCodesPage),
+      },
+      {
         path: 'campuses',
         canActivate: [administratorGuard, moduleGuard(MODULE_CODES.campus)],
         loadComponent: () => import('./features/campuses/campuses.page').then((m) => m.CampusesPage),

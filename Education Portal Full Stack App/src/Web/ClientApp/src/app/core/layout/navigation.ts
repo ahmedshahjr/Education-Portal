@@ -8,6 +8,8 @@ export interface AppNavItem extends NavItem {
   readonly access: NavAccess;
   /** The module the item belongs to (a `MODULE_CODES` value). It is shown only when the module is on for the school. */
   readonly module?: string;
+  /** The items of a submenu. A submenu is shown when at least one of them is visible. */
+  readonly children?: readonly AppNavItem[];
 }
 
 export interface AppNavSection extends NavSection {
@@ -24,11 +26,26 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
     id: 'school',
     title: $localize`:@@nav.school:School`,
     items: [
-      { id: 'branding', label: $localize`:@@nav.branding:Branding`, icon: 'sliders-horizontal', route: '/settings/branding', access: 'administrator' },
       { id: 'subscription', label: $localize`:@@nav.subscription:My subscription`, icon: 'layers', route: '/subscription', access: 'school-administrator' },
       { id: 'campuses', label: $localize`:@@nav.campuses:Campuses`, icon: 'git-branch', route: '/campuses', access: 'administrator', module: MODULE_CODES.campus },
-      { id: 'people', label: $localize`:@@nav.people:People`, icon: 'users', route: '/people', access: 'administrator', module: MODULE_CODES.staff },
+      { id: 'people', label: $localize`:@@nav.people:Users`, icon: 'users', route: '/people', access: 'administrator', module: MODULE_CODES.staff },
       { id: 'roles', label: $localize`:@@nav.roles:Roles`, icon: 'key-round', route: '/roles', access: 'administrator', module: MODULE_CODES.usersRoles },
+    ],
+  },
+  {
+    id: 'customization',
+    title: $localize`:@@nav.customization:Customization`,
+    items: [
+      {
+        id: 'customization-menu',
+        label: $localize`:@@nav.customization:Customization`,
+        icon: 'sliders-horizontal',
+        access: 'administrator',
+        children: [
+          { id: 'branding', label: $localize`:@@nav.branding:Branding`, icon: 'sliders-horizontal', route: '/settings/branding', access: 'administrator' },
+          { id: 'campus-codes', label: $localize`:@@nav.campusCodes:Campus codes`, icon: 'git-branch', route: '/settings/campus-codes', access: 'administrator', module: MODULE_CODES.campus },
+        ],
+      },
     ],
   },
   {
@@ -63,7 +80,18 @@ export function visibleNavSections(
       (item.access === 'school-administrator' && isAdministrator && !isMaster) ||
       (item.access === 'master-administrator' && isAdministrator && isMaster));
 
+  const visibleItem = (item: AppNavItem): AppNavItem | null => {
+    if (!allowed(item)) {
+      return null;
+    }
+    if (item.children) {
+      const children = item.children.filter(allowed);
+      return children.length > 0 ? { ...item, children } : null;
+    }
+    return item;
+  };
+
   return sections
-    .map((section) => ({ ...section, items: section.items.filter(allowed) }))
+    .map((section) => ({ ...section, items: section.items.map(visibleItem).filter((item): item is AppNavItem => item !== null) }))
     .filter((section) => section.items.length > 0);
 }

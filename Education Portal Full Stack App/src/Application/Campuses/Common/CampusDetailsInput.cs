@@ -7,8 +7,8 @@ namespace EducationPortal.Application.Campuses.Common;
 /// <summary>
 /// A campus's contact and registration details as the client sends them. The state, city and principal are public ids;
 /// <see cref="CampusDetailsResolver"/> turns them into the internal keys before anything is saved.
-/// Required: the address, the state, the city, the postal code, one to five phone numbers, the school number and the short
-/// name. Optional: the website and the principal.
+/// Required: the address, the state, the city, the postal code, one to five phone numbers, the school number, the short
+/// name and the place on the map (latitude and longitude). Optional: the website and the principal.
 /// </summary>
 public sealed record CampusDetailsInput
 {
@@ -31,6 +31,12 @@ public sealed record CampusDetailsInput
 
     /// <summary>The principal: the public id of a person of the school whose user type is Principal.</summary>
     public Guid? PrincipalId { get; init; }
+
+    /// <summary>The latitude in degrees, from the map picker.</summary>
+    public decimal? Latitude { get; init; }
+
+    /// <summary>The longitude in degrees, from the map picker.</summary>
+    public decimal? Longitude { get; init; }
 }
 
 public class CampusDetailsInputValidator : AbstractValidator<CampusDetailsInput>
@@ -78,5 +84,17 @@ public class CampusDetailsInputValidator : AbstractValidator<CampusDetailsInput>
         RuleFor(d => d.ShortName)
             .NotEmpty()
             .MaximumLength(CampusDetails.ShortNameMaxLength);
+
+        RuleFor(d => d.Latitude)
+            .NotNull()
+            .WithMessage(_ => ValidationMessages.CampusLocationRequired)
+            .Must(latitude => latitude is null || Math.Abs(latitude.Value) <= CampusDetails.LatitudeLimit)
+            .WithMessage(_ => ValidationMessages.LatitudeInvalid);
+
+        RuleFor(d => d.Longitude)
+            .NotNull()
+            .WithMessage(_ => ValidationMessages.CampusLocationRequired)
+            .Must(longitude => longitude is null || Math.Abs(longitude.Value) <= CampusDetails.LongitudeLimit)
+            .WithMessage(_ => ValidationMessages.LongitudeInvalid);
     }
 }

@@ -823,6 +823,42 @@ namespace EducationPortal.Application.Common.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Place the campus on the map..
+        /// </summary>
+        internal static string CampusLocationRequired {
+            get {
+                return ResourceManager.GetString("CampusLocationRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Latitude must be between -90 and 90..
+        /// </summary>
+        internal static string LatitudeInvalid {
+            get {
+                return ResourceManager.GetString("LatitudeInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This person is the principal of a campus. Choose another principal there first..
+        /// </summary>
+        internal static string UserDetailsIsPrincipal {
+            get {
+                return ResourceManager.GetString("UserDetailsIsPrincipal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Longitude must be between -180 and 180..
+        /// </summary>
+        internal static string LongitudeInvalid {
+            get {
+                return ResourceManager.GetString("LongitudeInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to A phone number has 7 to 15 digits and may start with +..
         /// </summary>
         internal static string PhoneInvalid {

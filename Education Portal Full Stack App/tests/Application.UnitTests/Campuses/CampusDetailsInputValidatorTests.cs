@@ -19,6 +19,8 @@ public class CampusDetailsInputValidatorTests
         SchoolNumber = "SN-1",
         ShortName = "KHI",
         PrincipalId = Guid.NewGuid(),
+        Latitude = 24.8607m,
+        Longitude = 67.0011m,
     };
 
     [Test]
@@ -91,4 +93,25 @@ public class CampusDetailsInputValidatorTests
     [TestCase(51, false)]
     public void ShouldLimitTheSchoolNumber(int length, bool valid) =>
         _validator.Validate(Valid() with { SchoolNumber = new string('n', length) }).IsValid.ShouldBe(valid);
+
+    [Test]
+    public void ShouldRefuseACampusWithoutItsPlaceOnTheMap()
+    {
+        _validator.Validate(Valid() with { Latitude = null }).Errors.ShouldContain(e => e.PropertyName == nameof(CampusDetailsInput.Latitude));
+        _validator.Validate(Valid() with { Longitude = null }).Errors.ShouldContain(e => e.PropertyName == nameof(CampusDetailsInput.Longitude));
+    }
+
+    [TestCase(90, true)]
+    [TestCase(-90, true)]
+    [TestCase(90.000001, false)]
+    [TestCase(-91, false)]
+    public void ShouldCheckTheLatitudeLimits(double latitude, bool valid) =>
+        _validator.Validate(Valid() with { Latitude = (decimal)latitude }).IsValid.ShouldBe(valid);
+
+    [TestCase(180, true)]
+    [TestCase(-180, true)]
+    [TestCase(180.000001, false)]
+    [TestCase(-181, false)]
+    public void ShouldCheckTheLongitudeLimits(double longitude, bool valid) =>
+        _validator.Validate(Valid() with { Longitude = (decimal)longitude }).IsValid.ShouldBe(valid);
 }

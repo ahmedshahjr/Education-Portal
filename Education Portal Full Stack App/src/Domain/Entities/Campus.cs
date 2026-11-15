@@ -108,6 +108,11 @@ public class Campus : BaseSoftDeletableEntity
 
     public string? ShortName { get; private set; }
 
+    /// <summary>The campus's place on the map, in degrees. Set together with the details.</summary>
+    public decimal? Latitude { get; private set; }
+
+    public decimal? Longitude { get; private set; }
+
     /// <summary>The principal of the campus: a person of the same school whose user type is <see cref="UserType.Principal"/>.</summary>
     public int? PrincipalUserDetailsId { get; private set; }
 
@@ -133,6 +138,8 @@ public class Campus : BaseSoftDeletableEntity
         Website = details.Website;
         SchoolNumber = details.SchoolNumber;
         ShortName = details.ShortName;
+        Latitude = details.Latitude;
+        Longitude = details.Longitude;
         PrincipalUserDetailsId = details.PrincipalUserDetailsId;
     }
 

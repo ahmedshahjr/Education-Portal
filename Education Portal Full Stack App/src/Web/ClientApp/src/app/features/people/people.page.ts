@@ -96,7 +96,7 @@ export class PeoplePage {
         next: () => {
           this.busy.set(false);
           this.form.reset({ firstName: '', middleName: '', lastName: '', userType: UserType.Teacher, phone: '' });
-          this.snackBar.open($localize`:@@people.added:Person added.`, undefined, { duration: 3000 });
+          this.snackBar.open($localize`:@@people.added:User added.`, undefined, { duration: 3000 });
           this.load();
         },
         error: (error: unknown) => {

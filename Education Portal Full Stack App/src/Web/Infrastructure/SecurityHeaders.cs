@@ -5,17 +5,19 @@ namespace EducationPortal.Web.Infrastructure;
 
 /// <summary>
 /// Adds the security headers from SEC-WEB-04 to every response. The Content-Security-Policy allows scripts only from
-/// the application itself. Inline styles stay allowed, because Angular injects component styles at runtime.
+/// the application itself and from the Google Maps JavaScript API that the campus map picker loads (the only outside
+/// host the policy allows). Inline styles stay allowed, because Angular injects component styles at runtime.
 /// </summary>
 public static class SecurityHeaders
 {
     private const string ContentSecurityPolicy =
         "default-src 'self'; " +
-        "script-src 'self'; " +
+        "script-src 'self' https://maps.googleapis.com; " +
         "style-src 'self' 'unsafe-inline'; " +
-        "img-src 'self' data:; " +
-        "font-src 'self'; " +
-        "connect-src 'self'; " +
+        "img-src 'self' data: https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com; " +
+        "font-src 'self' https://fonts.gstatic.com; " +
+        "connect-src 'self' https://maps.googleapis.com; " +
+        "worker-src 'self' blob:; " +
         "object-src 'none'; " +
         "base-uri 'self'; " +
         "form-action 'self'; " +

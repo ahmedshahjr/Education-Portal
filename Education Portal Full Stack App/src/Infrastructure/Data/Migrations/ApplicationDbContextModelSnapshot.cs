@@ -176,6 +176,14 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
+                    b.Property<decimal?>("Latitude")
+                        .HasPrecision(9, 6)
+                        .HasColumnType("numeric(9,6)");
+
+                    b.Property<decimal?>("Longitude")
+                        .HasPrecision(9, 6)
+                        .HasColumnType("numeric(9,6)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -2236,6 +2244,16 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         {
                             Id = 48,
                             Name = "SchoolRequestRejected"
+                        },
+                        new
+                        {
+                            Id = 49,
+                            Name = "UserDetailsUpdated"
+                        },
+                        new
+                        {
+                            Id = 50,
+                            Name = "UserDetailsDeleted"
                         });
                 });
 

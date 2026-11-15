@@ -89,7 +89,9 @@ internal static class CampusDetailsResolver
             input.Website,
             input.SchoolNumber,
             input.ShortName,
-            principalId);
+            principalId,
+            input.Latitude,
+            input.Longitude);
     }
 
     private static EducationPortal.Application.Common.Exceptions.ValidationException Refuse(string property, string message) =>

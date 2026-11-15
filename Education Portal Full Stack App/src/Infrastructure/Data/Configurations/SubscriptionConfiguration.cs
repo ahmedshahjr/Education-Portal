@@ -34,6 +34,8 @@ public class CampusConfiguration : IEntityTypeConfiguration<Campus>
         builder.Navigation(b => b.Phones).UsePropertyAccessMode(PropertyAccessMode.Field).HasField("_phones");
         builder.Property(b => b.SchoolNumber).HasMaxLength(CampusDetails.SchoolNumberMaxLength);
         builder.Property(b => b.ShortName).HasMaxLength(CampusDetails.ShortNameMaxLength);
+        builder.Property(b => b.Latitude).HasPrecision(9, CampusDetails.CoordinateDecimals);
+        builder.Property(b => b.Longitude).HasPrecision(9, CampusDetails.CoordinateDecimals);
 
         // A city belongs to a state, so a city is never stored without one.
         builder.ToTable(t => t.HasCheckConstraint("CK_Campuses_CityNeedsState", "\"CityId\" IS NULL OR \"StateId\" IS NOT NULL"));

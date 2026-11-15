@@ -30,7 +30,7 @@
             <span class="mm-pricing__name">
               {{ plan.name }} <bdi dir="ltr" class="mm-pricing__code">{{ plan.code }}</bdi>
             </span>
-            <span class="mm-pricing__hint">{{ plan.modules.join(', ') || '—' }}</span>
+            <span class="mm-pricing__hint">{{ planModuleNames(plan) || '—' }}</span>
             <button mat-button type="button" [disabled]="busy()" (click)="deletePlan(plan)" i18n="@@pricing.deletePlan">Delete</button>
           </li>
         }
@@ -70,6 +70,10 @@
       </fieldset>
       <button mat-flat-button type="submit" [disabled]="busy() || planForm.invalid" i18n="@@pricing.addPlan">Add plan</button>
     </form>
+
+    @for (message of planErrors(); track message) {
+      <p class="mm-pricing__error" role="alert">{{ message }}</p>
+    }
   </mat-card-content>
 </mat-card>
 
@@ -89,7 +93,7 @@
           <ul class="mm-pricing__list">
             @for (price of book.prices; track $index) {
               <li class="mm-pricing__row">
-                <span>{{ price.planCode ? 'Plan ' + price.planCode : 'Module ' + price.moduleCode }}</span>
+                <span>{{ priceTargetName(price) }}</span>
                 <span>{{ price.billingCycle }}</span>
                 <bdi dir="ltr">{{ price.price }} {{ book.currencyCode }}</bdi>
               </li>
@@ -114,6 +118,10 @@
       </mat-form-field>
       <button mat-flat-button type="submit" [disabled]="busy() || bookForm.invalid" i18n="@@pricing.addBook">Add price book</button>
     </form>
+
+    @for (message of bookErrors(); track message) {
+      <p class="mm-pricing__error" role="alert">{{ message }}</p>
+    }
 
     <h3 class="mm-pricing__heading" i18n="@@pricing.setPriceHeading">Set a price</h3>
     <form class="mm-pricing__form" [formGroup]="priceForm" (ngSubmit)="setPrice()" novalidate>
@@ -166,7 +174,7 @@
       <button mat-flat-button type="submit" [disabled]="busy() || priceForm.invalid" i18n="@@pricing.savePrice">Save price</button>
     </form>
 
-    @for (message of errors(); track message) {
+    @for (message of priceErrors(); track message) {
       <p class="mm-pricing__error" role="alert">{{ message }}</p>
     }
   </mat-card-content>

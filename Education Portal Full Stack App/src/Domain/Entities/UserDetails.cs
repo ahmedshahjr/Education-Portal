@@ -37,6 +37,37 @@ public class UserDetails : BaseSoftDeletableEntity
     public static UserDetails Create(int schoolId, string firstName, string? middleName, string lastName, UserType userType, string? phone)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(schoolId);
+        var values = Validate(firstName, middleName, lastName, userType, phone);
+
+        return new UserDetails(schoolId, values.FirstName, values.MiddleName, values.LastName, values.UserType, values.Phone);
+    }
+
+    /// <summary>
+    /// Replaces the person's name, type and phone with the given ones, checked the same way as <see cref="Create"/>. A deleted
+    /// person cannot be changed.
+    /// </summary>
+    public void Update(string firstName, string? middleName, string lastName, UserType userType, string? phone)
+    {
+        if (IsDeleted)
+        {
+            throw new InvalidOperationException("A deleted person cannot be changed.");
+        }
+
+        var values = Validate(firstName, middleName, lastName, userType, phone);
+        FirstName = values.FirstName;
+        MiddleName = values.MiddleName;
+        LastName = values.LastName;
+        UserType = values.UserType;
+        Phone = values.Phone;
+    }
+
+    private static (string FirstName, string? MiddleName, string LastName, UserType UserType, string? Phone) Validate(
+        string firstName,
+        string? middleName,
+        string lastName,
+        UserType userType,
+        string? phone)
+    {
         ArgumentException.ThrowIfNullOrWhiteSpace(firstName);
         ArgumentException.ThrowIfNullOrWhiteSpace(lastName);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(firstName.Trim().Length, NameMaxLength, nameof(firstName));
@@ -59,8 +90,7 @@ public class UserDetails : BaseSoftDeletableEntity
             throw new ArgumentException("A phone number has 7 to 15 digits and an optional leading +.", nameof(phone));
         }
 
-        return new UserDetails(
-            schoolId,
+        return (
             firstName.Trim(),
             string.IsNullOrEmpty(trimmedMiddle) ? null : trimmedMiddle,
             lastName.Trim(),

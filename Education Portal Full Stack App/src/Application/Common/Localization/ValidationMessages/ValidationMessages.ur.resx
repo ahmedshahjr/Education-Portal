@@ -372,6 +372,18 @@
   <data name="PostalCodeInvalid" xml:space="preserve">
     <value>پوسٹل کوڈ میں صرف حروف، ہندسے، خالی جگہ اور ہائفن ہو سکتے ہیں، زیادہ سے زیادہ 10 حروف۔</value>
   </data>
+  <data name="CampusLocationRequired" xml:space="preserve">
+    <value>کیمپس کو نقشے پر رکھیں۔</value>
+  </data>
+  <data name="LatitudeInvalid" xml:space="preserve">
+    <value>عرض البلد -90 اور 90 کے درمیان ہونا چاہیے۔</value>
+  </data>
+  <data name="UserDetailsIsPrincipal" xml:space="preserve">
+    <value>یہ شخص ایک کیمپس کا پرنسپل ہے۔ پہلے اس کیمپس کے لیے دوسرا پرنسپل منتخب کریں۔</value>
+  </data>
+  <data name="LongitudeInvalid" xml:space="preserve">
+    <value>طول البلد -180 اور 180 کے درمیان ہونا چاہیے۔</value>
+  </data>
   <data name="PhoneInvalid" xml:space="preserve">
     <value>فون نمبر میں 7 سے 15 ہندسے ہوں اور آغاز میں + ہو سکتا ہے۔</value>
   </data>

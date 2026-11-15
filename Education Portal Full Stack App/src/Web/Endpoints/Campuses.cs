@@ -5,6 +5,7 @@ using EducationPortal.Application.Campuses.Commands.UpdateCampusSettings;
 using EducationPortal.Application.Campuses.Common;
 using EducationPortal.Application.Campuses.Queries.GetCampuses;
 using EducationPortal.Application.Campuses.Queries.GetCampusLocations;
+using EducationPortal.Application.Campuses.Queries.GetCampusMapSettings;
 using EducationPortal.Application.Campuses.Queries.GetCampusSettings;
 using EducationPortal.Web.Infrastructure;
 using MediatR;
@@ -25,6 +26,9 @@ public class Campuses : IEndpointGroup
             .RequireAuthorization();
 
         groupBuilder.MapGet(GetCampusLocations, "locations")
+            .RequireAuthorization();
+
+        groupBuilder.MapGet(GetCampusMapSettings, "map-settings")
             .RequireAuthorization();
 
         groupBuilder.MapPost(CreateCampus)
@@ -52,6 +56,13 @@ public class Campuses : IEndpointGroup
     public static async Task<Ok<IReadOnlyList<CampusDto>>> GetCampuses(ISender sender)
     {
         return TypedResults.Ok(await sender.Send(new GetCampusesQuery()));
+    }
+
+    [EndpointSummary("Get the campus map settings")]
+    [EndpointDescription("Returns the Google Maps key for the campus map picker, or no key when none is configured. Needs the Campuses module.")]
+    public static async Task<Ok<CampusMapSettingsDto>> GetCampusMapSettings(ISender sender)
+    {
+        return TypedResults.Ok(await sender.Send(new GetCampusMapSettingsQuery()));
     }
 
     [EndpointSummary("Add a campus")]

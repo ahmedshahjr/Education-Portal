@@ -1,111 +1,122 @@
 <app-page-header
   title="Campuses"
   i18n-title="@@campuses.title"
-  subtitle="Your school's campuses. Each campus has a four-digit code and its contact and registration details."
+  subtitle="Your school's campuses. Open a row for its details; the code prefix is under Customization, Campus codes."
   i18n-subtitle="@@campuses.subtitle"
 ></app-page-header>
 
-<mat-card class="mm-card mm-elevated mm-campuses__settings">
-  <mat-card-content>
-    <h2 class="mm-campuses__heading" i18n="@@campuses.codesHeading">Campus codes</h2>
-    @if (settings(); as current) {
-      <form class="mm-campuses__form" [formGroup]="settingsForm" (ngSubmit)="saveSettings()" novalidate>
-        <mat-slide-toggle formControlName="prefixEnabled" (change)="updatePrefixValidation()" i18n="@@campuses.prefixOn">Show a prefix in front of every campus code</mat-slide-toggle>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label i18n="@@campuses.prefix">Prefix</mat-label>
-          <input matInput formControlName="prefix" maxlength="6" autocomplete="off" dir="ltr" />
-          <mat-hint i18n="@@campuses.prefixHint">Letters or digits, up to 6. Shown as the prefix followed by the code, for example KHI0002.</mat-hint>
-        </mat-form-field>
-        <button mat-flat-button type="submit" [disabled]="busy() || settingsForm.invalid" i18n="@@campuses.saveCodes">Save codes</button>
-      </form>
-      @for (message of settingsErrors(); track message) {
-        <p class="mm-campuses__error" role="alert">{{ message }}</p>
-      }
-    } @else {
-      <app-loading-state />
-    }
-  </mat-card-content>
-</mat-card>
+@if (loadError(); as message) {
+  <app-empty-state
+    icon="alert-triangle"
+    title="Campuses could not be loaded"
+    i18n-title="@@campuses.loadError"
+    [description]="message"
+    actionLabel="Try again"
+    i18n-actionLabel="@@common.tryAgain"
+    (action)="load()"
+  />
+} @else {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <app-data-table
+        [data]="visibleCampuses()"
+        [columns]="columns()"
+        [loading]="campuses() === null"
+        searchPlaceholder="Search campuses..."
+        i18n-searchPlaceholder="@@campuses.search"
+        emptyTitle="No campuses"
+        i18n-emptyTitle="@@campuses.empty"
+        emptyDescription="Add the school's first campus with the button above."
+        i18n-emptyDescription="@@campuses.emptyDescription"
+        (rowClick)="openDetails($event)"
+      >
+        <div table-actions class="mm-campuses__toolbar">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label i18n="@@campuses.filterCountry">Country</mat-label>
+            <input matInput [value]="locations()?.countryName ?? '—'" readonly />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label i18n="@@campuses.filterState">State or province</mat-label>
+            <mat-select [value]="stateFilter()" (selectionChange)="setStateFilter($event.value)">
+              <mat-option value="" i18n="@@campuses.filterAll">All</mat-option>
+              @for (state of locations()?.states ?? []; track state.id) {
+                <mat-option [value]="state.id">{{ state.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label i18n="@@campuses.filterCity">City</mat-label>
+            <mat-select [value]="cityFilter()" (selectionChange)="cityFilter.set($event.value)">
+              <mat-option value="" i18n="@@campuses.filterAll">All</mat-option>
+              @for (city of cityFilterOptions(); track city.id) {
+                <mat-option [value]="city.id">{{ city.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          @if (stateFilter() !== '' || cityFilter() !== '') {
+            <button mat-button type="button" (click)="clearFilters()" i18n="@@campuses.clearFilters">Clear filters</button>
+          }
+          @if (!formOpen()) {
+            <button mat-flat-button type="button" (click)="startAdd()" i18n="@@campuses.add">Add campus</button>
+          }
+        </div>
+      </app-data-table>
+    </mat-card-content>
+  </mat-card>
 
-<mat-card class="mm-card mm-elevated">
-  <mat-card-content>
-    @if (loadError(); as message) {
-      <app-empty-state
-        icon="alert-triangle"
-        title="Campuses could not be loaded"
-        i18n-title="@@campuses.loadError"
-        [description]="message"
-        actionLabel="Try again"
-        i18n-actionLabel="@@common.tryAgain"
-        (action)="load()"
-      />
-    } @else if (campuses(); as list) {
-      <div class="mm-campuses__toolbar">
-        @if (!formOpen()) {
-          <button mat-flat-button type="button" (click)="startAdd()" i18n="@@campuses.add">Add campus</button>
-        }
-      </div>
-
-      <ul class="mm-campuses__list" aria-label="Campuses" i18n-aria-label="@@campuses.listLabel">
-        @for (campus of list; track campus.id) {
-          <li class="mm-campuses__row">
-            @if (editingId() === campus.id) {
-              <ng-container *ngTemplateOutlet="campusForm; context: { $implicit: campus }" />
-            } @else {
-              <div class="mm-campuses__summary">
-                <div class="mm-campuses__head">
-                  <span class="mm-campuses__name">
-                    {{ campus.name }}
-                    <span class="mm-campuses__code"><bdi dir="ltr">{{ campus.displayCode }}</bdi></span>
-                  </span>
-                  @if (campus.kind === kinds.Main) {
-                    <app-status-badge tone="success" i18n="@@campuses.main">Main campus</app-status-badge>
-                  } @else {
-                    <app-status-badge tone="primary" i18n="@@campuses.other">Campus</app-status-badge>
-                  }
-                </div>
-                <dl class="mm-campuses__details">
-                  <dt i18n="@@campuses.address">Address</dt>
-                  <dd>{{ campus.details.address || '—' }}</dd>
-                  <dt i18n="@@campuses.location">State and city</dt>
-                  <dd>{{ campus.details.stateName || '—' }}{{ campus.details.cityName ? ', ' + campus.details.cityName : '' }}</dd>
-                  <dt i18n="@@campuses.postalCode">Postal code</dt>
-                  <dd><bdi dir="ltr">{{ campus.details.postalCode || '—' }}</bdi></dd>
-                  <dt i18n="@@campuses.phones">Phone numbers</dt>
-                  <dd><bdi dir="ltr">{{ campus.details.phones.join(' · ') || '—' }}</bdi></dd>
-                  <dt i18n="@@campuses.website">Website</dt>
-                  <dd><bdi dir="ltr">{{ campus.details.website || '—' }}</bdi></dd>
-                  <dt i18n="@@campuses.schoolNumber">School number</dt>
-                  <dd>{{ campus.details.schoolNumber || '—' }}</dd>
-                  <dt i18n="@@campuses.shortName">Short name</dt>
-                  <dd>{{ campus.details.shortName || '—' }}</dd>
-                  <dt i18n="@@campuses.principal">Principal</dt>
-                  <dd>{{ campus.details.principalName || '—' }}</dd>
-                </dl>
-              </div>
-              <span class="mm-campuses__actions">
-                @if (campus.kind !== kinds.Main) {
-                  <button mat-button type="button" [disabled]="busy() || formOpen()" (click)="confirmDelete(campus)" i18n="@@campuses.delete">Delete</button>
-                }
-                <button mat-button type="button" [disabled]="busy() || formOpen()" (click)="startEdit(campus)" i18n="@@campuses.edit">Edit</button>
-              </span>
-            }
-          </li>
-        }
-      </ul>
-
-      @if (adding()) {
+  @if (formOpen()) {
+    <mat-card class="mm-card mm-elevated">
+      <mat-card-content>
+        <h2 class="mm-campuses__heading">
+          @if (editingId()) {
+            <ng-container i18n="@@campuses.editHeading">Edit campus</ng-container>
+          } @else {
+            <ng-container i18n="@@campuses.addHeading">Add a campus</ng-container>
+          }
+        </h2>
         <ng-container *ngTemplateOutlet="campusForm" />
-      }
 
-      @for (message of errors(); track message) {
-        <p class="mm-campuses__error" role="alert">{{ message }}</p>
-      }
-    } @else {
-      <app-loading-state />
+        @for (message of errors(); track message) {
+          <p class="mm-campuses__error" role="alert">{{ message }}</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+}
+
+<ng-template #nameCell let-campus>
+  <span class="mm-crud-name">
+    <span class="mm-crud-badge" aria-hidden="true">{{ campus.name.charAt(0) }}</span>
+    <span>
+      <span class="mm-crud-title">{{ campus.name }}</span>
+      <span class="mm-crud-sub"><bdi dir="ltr">{{ campus.displayCode }}</bdi></span>
+    </span>
+  </span>
+</ng-template>
+
+<ng-template #kindCell let-campus>
+  @if (campus.kind === kinds.Main) {
+    <app-status-badge tone="success" i18n="@@campuses.main">Main campus</app-status-badge>
+  } @else {
+    <app-status-badge tone="primary" i18n="@@campuses.other">Campus</app-status-badge>
+  }
+</ng-template>
+
+<ng-template #actionsCell let-campus>
+  <span class="mm-crud-actions">
+    <button mat-icon-button type="button" [attr.aria-label]="'View ' + campus.name" i18n-aria-label="@@campuses.viewCampus" (click)="$event.stopPropagation(); openDetails(campus)">
+      <app-icon name="eye" [size]="16" />
+    </button>
+    <button mat-icon-button type="button" [disabled]="busy() || formOpen()" [attr.aria-label]="'Edit ' + campus.name" i18n-aria-label="@@campuses.editCampus" (click)="$event.stopPropagation(); startEdit(campus)">
+      <app-icon name="edit-3" [size]="16" />
+    </button>
+    @if (campus.kind !== kinds.Main) {
+      <button mat-icon-button type="button" class="mm-delete-btn" [disabled]="busy() || formOpen()" [attr.aria-label]="'Delete ' + campus.name" i18n-aria-label="@@campuses.deleteCampus" (click)="$event.stopPropagation(); confirmDelete(campus)">
+        <app-icon name="trash-2" [size]="16" />
+      </button>
     }
-  </mat-card-content>
-</mat-card>
+  </span>
+</ng-template>
 
 <ng-template #campusForm>
   <form class="mm-campuses__form mm-campuses__form--details" [formGroup]="form" (ngSubmit)="save()" novalidate>
@@ -177,6 +188,18 @@
       }
     </fieldset>
 
+    <fieldset class="mm-campuses__location">
+      <legend i18n="@@campuses.locationLabel">Location on the map</legend>
+      <app-campus-location-picker
+        [latitude]="form.controls.latitude.value"
+        [longitude]="form.controls.longitude.value"
+        (located)="setLocation($event)"
+      />
+      @if (form.controls.latitude.hasError('required') && form.controls.latitude.touched) {
+        <p class="mm-campuses__error" role="alert" i18n="@@campuses.locationRequired">Place the campus on the map.</p>
+      }
+    </fieldset>
+
     <mat-form-field appearance="outline">
       <mat-label i18n="@@campuses.website">Website</mat-label>
       <input matInput formControlName="website" maxlength="2048" autocomplete="off" dir="ltr" />
@@ -207,7 +230,7 @@
           <mat-option [value]="person.id">{{ person.firstName }}{{ person.middleName ? ' ' + person.middleName : '' }} {{ person.lastName }}</mat-option>
         }
       </mat-select>
-      <mat-hint i18n="@@campuses.principalHint">Optional. Add principals under People.</mat-hint>
+      <mat-hint i18n="@@campuses.principalHint">Optional. Add principals under Users.</mat-hint>
     </mat-form-field>
 
     <div class="mm-campuses__form-actions">

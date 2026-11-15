@@ -55,6 +55,8 @@ public class GetCampusesQueryHandler : IRequestHandler<GetCampusesQuery, IReadOn
                 b.Website,
                 b.SchoolNumber,
                 b.ShortName,
+                b.Latitude,
+                b.Longitude,
                 PrincipalId = b.PrincipalUserDetails == null ? (Guid?)null : b.PrincipalUserDetails.PublicId,
                 PrincipalName = b.PrincipalUserDetails == null
                     ? null
@@ -98,7 +100,9 @@ public class GetCampusesQueryHandler : IRequestHandler<GetCampusesQuery, IReadOn
                     c.SchoolNumber,
                     c.ShortName,
                     c.PrincipalId,
-                    c.PrincipalName)))
+                    c.PrincipalName,
+                    c.Latitude,
+                    c.Longitude)))
             .ToList();
     }
 }

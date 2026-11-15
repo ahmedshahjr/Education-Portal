@@ -44,6 +44,8 @@ public class CampusDetailsTests : TestBase
                 schoolNumber = "SN-1",
                 shortName = "KHI",
                 principalId = principal,
+                latitude = 24.8607,
+                longitude = 67.0011,
             },
         });
         create.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -58,6 +60,8 @@ public class CampusDetailsTests : TestBase
             d => d.Website.ShouldBe("https://karachi.example.com"),
             d => d.SchoolNumber.ShouldBe("SN-1"),
             d => d.ShortName.ShouldBe("KHI"),
+            d => d.Latitude.ShouldBe(24.8607m),
+            d => d.Longitude.ShouldBe(67.0011m),
             d => d.PrincipalName.ShouldBe("Ayesha Noor Khan"));
     }
 
@@ -77,6 +81,8 @@ public class CampusDetailsTests : TestBase
     [TestCase("postalCode")]
     [TestCase("schoolNumber")]
     [TestCase("shortName")]
+    [TestCase("latitude")]
+    [TestCase("longitude")]
     public async Task ShouldRefuseACampusMissingARequiredField(string field)
     {
         var (session, country) = await SetUpSchoolAsync("Required School", SchoolDomain);
@@ -214,6 +220,37 @@ public class CampusDetailsTests : TestBase
     }
 
     /// <summary>A complete set of details with the given location and the required fields, as the API takes them.</summary>
+    [Test]
+    public async Task ShouldRefuseACampusOutsideTheMapLimits()
+    {
+        var (session, country) = await SetUpSchoolAsync("Map Limit School", SchoolDomain);
+        var state = await AddStateAsync(country.Id, "Sindh");
+        var city = await AddCityAsync(state.Id, "Karachi");
+        var details = Details(state.PublicId, city.PublicId);
+        details["latitude"] = 91;
+
+        using var response = await session.PostAsync("/api/Campuses", new { name = "Campus", details });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task ShouldListTheSchoolsCountryWithItsStatesAndCitiesForTheCampusFilters()
+    {
+        var (session, country) = await SetUpSchoolAsync("Locations School", SchoolDomain);
+        var state = await AddStateAsync(country.Id, "Punjab");
+        await AddCityAsync(state.Id, "Lahore");
+
+        using var response = await session.GetAsync("/api/Campuses/locations");
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        var locations = await response.Content.ReadFromJsonAsync<LocationsReadModel>(Json);
+        locations.ShouldNotBeNull();
+        locations.CountryName.ShouldBe("Pakistan");
+        locations.States.Single().Name.ShouldBe("Punjab");
+        locations.States.Single().Cities.Single().Name.ShouldBe("Lahore");
+    }
+
     private static Dictionary<string, object?> Details(Guid? stateId, Guid? cityId, string[]? phones = null, Guid? principalId = null) => new()
     {
         ["address"] = "12 Main Road",
@@ -224,6 +261,8 @@ public class CampusDetailsTests : TestBase
         ["schoolNumber"] = "SN-1",
         ["shortName"] = "KHI",
         ["principalId"] = principalId,
+        ["latitude"] = 24.8607,
+        ["longitude"] = 67.0011,
     };
 
     private static async Task<(HttpSession Session, EntityIds Country)> SetUpSchoolAsync(string name, string domain)
@@ -295,6 +334,12 @@ public class CampusDetailsTests : TestBase
 
     private sealed record CampusReadModel(Guid Id, string Name, CampusDetailsReadModel Details);
 
+    private sealed record LocationsReadModel(string? CountryName, List<StateReadModel> States);
+
+    private sealed record StateReadModel(Guid Id, string Name, List<CityReadModel> Cities);
+
+    private sealed record CityReadModel(Guid Id, string Name);
+
     private sealed record CampusDetailsReadModel(
         string? Address,
         Guid? StateId,
@@ -307,5 +352,7 @@ public class CampusDetailsTests : TestBase
         string? SchoolNumber,
         string? ShortName,
         Guid? PrincipalId,
-        string? PrincipalName);
+        string? PrincipalName,
+        decimal? Latitude,
+        decimal? Longitude);
 }

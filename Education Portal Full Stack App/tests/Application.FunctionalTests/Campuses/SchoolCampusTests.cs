@@ -254,6 +254,8 @@ public class SchoolCampusTests : TestBase
             phones = new[] { "+92 21 1234567" },
             schoolNumber = "SN-1",
             shortName = "KHI",
+            latitude = 24.8607,
+            longitude = 67.0011,
         };
     }
     private static async Task<Guid> AddCampusAsync(HttpSession session, string name)

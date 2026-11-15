@@ -140,4 +140,10 @@ public enum SecurityAuditEventType
 
     /// <summary>The master tenant rejected a school request.</summary>
     SchoolRequestRejected = 48,
+
+    /// <summary>The school administrator changed a person (principal, teacher or staff) of the school.</summary>
+    UserDetailsUpdated = 49,
+
+    /// <summary>The school administrator deleted a person of the school.</summary>
+    UserDetailsDeleted = 50,
 }

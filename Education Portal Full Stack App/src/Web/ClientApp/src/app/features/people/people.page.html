@@ -1,7 +1,7 @@
 <app-page-header
-  title="People"
+  title="Users"
   i18n-title="@@people.title"
-  subtitle="The school's principals, teachers and other staff. A campus names its principal from this list."
+  subtitle="The school's users: principals, teachers and other staff. A campus names its principal from this list."
   i18n-subtitle="@@people.subtitle"
 ></app-page-header>
 
@@ -17,7 +17,7 @@
     @if (loadError(); as message) {
       <app-empty-state
         icon="alert-triangle"
-        title="People could not be loaded"
+        title="Users could not be loaded"
         i18n-title="@@people.loadError"
         [description]="message"
         actionLabel="Try again"
@@ -26,9 +26,9 @@
       />
     } @else if (people(); as list) {
       @if (list.length === 0) {
-        <app-empty-state icon="users" title="No people yet" i18n-title="@@people.empty" description="Add the school's principals, teachers and staff below." i18n-description="@@people.emptyDescription" />
+        <app-empty-state icon="users" title="No users yet" i18n-title="@@people.empty" description="Add the school's principals, teachers and staff as users below." i18n-description="@@people.emptyDescription" />
       } @else {
-        <ul class="mm-people__list" aria-label="People" i18n-aria-label="@@people.listLabel">
+        <ul class="mm-people__list" aria-label="Users" i18n-aria-label="@@people.listLabel">
           @for (person of list; track person.id) {
             <li class="mm-people__row">
               <span class="mm-people__name">
@@ -44,7 +44,7 @@
       <app-loading-state />
     }
 
-    <h2 class="mm-people__heading" i18n="@@people.addHeading">Add a person</h2>
+    <h2 class="mm-people__heading" i18n="@@people.addHeading">Add a user</h2>
     <form class="mm-people__form" [formGroup]="form" (ngSubmit)="add()" novalidate>
       <mat-form-field appearance="outline">
         <mat-label i18n="@@people.firstName">First name</mat-label>
@@ -78,7 +78,7 @@
         <input matInput formControlName="phone" maxlength="30" autocomplete="off" dir="ltr" />
         <mat-hint i18n="@@people.optional">Optional.</mat-hint>
       </mat-form-field>
-      <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@people.add">Add person</button>
+      <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@people.add">Add user</button>
     </form>
 
     @for (message of errors(); track message) {

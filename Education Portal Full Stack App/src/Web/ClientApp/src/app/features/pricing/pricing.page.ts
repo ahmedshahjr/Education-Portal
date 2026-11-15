@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, WritableSignal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -13,7 +13,6 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/componen
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
-import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import {
   BillingCycle,
   CountriesClient,
@@ -25,6 +24,7 @@ import {
   PlanDto,
   PlansClient,
   PriceBookDto,
+  PriceDto,
   PriceBooksClient,
   SetPriceCommand,
 } from '../../web-api-client';
@@ -46,7 +46,6 @@ import {
     PageHeaderComponent,
     EmptyStateComponent,
     LoadingStateComponent,
-    StatusBadgeComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pricing.page.html',
@@ -67,7 +66,10 @@ export class PricingPage {
   protected readonly countries = signal<readonly CountryDto[]>([]);
   protected readonly loadError = signal<string | null>(null);
   protected readonly busy = signal(false);
-  protected readonly errors = signal<readonly string[]>([]);
+  /** Each section shows its own errors, next to its own form. */
+  protected readonly planErrors = signal<readonly string[]>([]);
+  protected readonly bookErrors = signal<readonly string[]>([]);
+  protected readonly priceErrors = signal<readonly string[]>([]);
 
   protected readonly cycles = [BillingCycle.Monthly, BillingCycle.Yearly];
 
@@ -124,6 +126,7 @@ export class PricingPage {
     this.run(
       this.plansClient.createPlan(new CreatePlanCommand({ code: value.code.trim(), name: value.name.trim(), description: value.description.trim(), modules: value.modules })),
       $localize`:@@pricing.planAdded:Plan added.`,
+      this.planErrors,
       () => this.planForm.reset({ code: '', name: '', description: '', modules: [] })
     );
   }
@@ -132,7 +135,7 @@ export class PricingPage {
     this.confirm(
       $localize`:@@pricing.deletePlanTitle:Delete this plan?`,
       $localize`:@@pricing.deletePlanMessage:Schools already on it keep their modules. The plan can no longer be chosen.`,
-      () => this.run(this.plansClient.deletePlan(plan.id), $localize`:@@pricing.planDeleted:Plan deleted.`)
+      () => this.run(this.plansClient.deletePlan(plan.id), $localize`:@@pricing.planDeleted:Plan deleted.`, this.planErrors)
     );
   }
 
@@ -145,6 +148,7 @@ export class PricingPage {
     this.run(
       this.bookClient.createPriceBook(new CreatePriceBookCommand({ countryCode: value.countryCode, currencyCode: value.currencyCode.trim().toUpperCase() })),
       $localize`:@@pricing.bookAdded:Price book added.`,
+      this.bookErrors,
       () => this.bookForm.reset({ countryCode: '', currencyCode: '' })
     );
   }
@@ -153,7 +157,7 @@ export class PricingPage {
     this.confirm(
       $localize`:@@pricing.deleteBookTitle:Delete this price book?`,
       $localize`:@@pricing.deleteBookMessage:Schools in this country cannot be registered until a price book exists again.`,
-      () => this.run(this.bookClient.deletePriceBook(book.id), $localize`:@@pricing.bookDeleted:Price book deleted.`)
+      () => this.run(this.bookClient.deletePriceBook(book.id), $localize`:@@pricing.bookDeleted:Price book deleted.`, this.bookErrors)
     );
   }
 
@@ -165,7 +169,7 @@ export class PricingPage {
     const value = this.priceForm.getRawValue();
     const isPlan = value.target === 'plan';
     if (isPlan ? !value.planCode : !value.moduleCode) {
-      this.errors.set([$localize`:@@pricing.chooseItem:Choose a plan or a module.`]);
+      this.priceErrors.set([$localize`:@@pricing.chooseItem:Choose a plan or a module.`]);
       return;
     }
     this.run(
@@ -180,6 +184,7 @@ export class PricingPage {
         })
       ),
       $localize`:@@pricing.priceSaved:Price saved.`,
+      this.priceErrors,
       () => this.priceForm.patchValue({ planCode: '', moduleCode: '', price: 0 })
     );
   }
@@ -205,9 +210,27 @@ export class PricingPage {
       });
   }
 
-  private run(request: Observable<unknown>, done: string, onSuccess?: () => void): void {
+  /** The names of a plan's paid modules, for display. */
+  protected planModuleNames(plan: PlanDto): string {
+    return plan.modules.map((code) => this.moduleName(code)).join(', ');
+  }
+
+  /** The name of a module by its code, for display. */
+  protected moduleName(code: string): string {
+    return this.modules().find((m) => m.code === code)?.name ?? code;
+  }
+
+  /** The name of a price's plan or module, for display. */
+  protected priceTargetName(price: PriceDto): string {
+    if (price.planCode) {
+      return this.plans()?.find((p) => p.code === price.planCode)?.name ?? price.planCode;
+    }
+    return this.moduleName(price.moduleCode ?? '');
+  }
+
+  private run(request: Observable<unknown>, done: string, errors: WritableSignal<readonly string[]>, onSuccess?: () => void): void {
     this.busy.set(true);
-    this.errors.set([]);
+    errors.set([]);
     request.subscribe({
       next: () => {
         this.busy.set(false);
@@ -217,7 +240,7 @@ export class PricingPage {
       },
       error: (error: unknown) => {
         this.busy.set(false);
-        this.errors.set(problemMessages(error));
+        errors.set(problemMessages(error));
       },
     });
   }

@@ -11,8 +11,8 @@ public sealed record CampusCityDto(Guid Id, string Name);
 /// <summary>A state or province a campus can be in, with its cities.</summary>
 public sealed record CampusStateDto(Guid Id, string Name, IReadOnlyList<CampusCityDto> Cities);
 
-/// <summary>The states and cities of the school's country, for a campus's address.</summary>
-public sealed record CampusLocationsDto(IReadOnlyList<CampusStateDto> States);
+/// <summary>The school's country (its name, for display) and the states and cities of that country, for a campus's address.</summary>
+public sealed record CampusLocationsDto(string? CountryName, IReadOnlyList<CampusStateDto> States);
 
 /// <summary>
 /// The states of the current school's country, each with its cities, for the address of a campus. The school comes from the
@@ -44,8 +44,14 @@ public class GetCampusLocationsQueryHandler : IRequestHandler<GetCampusLocations
 
         if (countryId is null)
         {
-            return new CampusLocationsDto([]);
+            return new CampusLocationsDto(null, []);
         }
+
+        var countryName = await _context.Countries
+            .AsNoTracking()
+            .Where(c => c.Id == countryId)
+            .Select(c => c.Name)
+            .SingleAsync(cancellationToken);
 
         var states = await _context.States
             .AsNoTracking()
@@ -64,7 +70,7 @@ public class GetCampusLocationsQueryHandler : IRequestHandler<GetCampusLocations
 
         var citiesByState = cities.ToLookup(c => c.StateId);
 
-        return new CampusLocationsDto(states
+        return new CampusLocationsDto(countryName, states
             .Select(s => new CampusStateDto(
                 s.PublicId,
                 s.Name,

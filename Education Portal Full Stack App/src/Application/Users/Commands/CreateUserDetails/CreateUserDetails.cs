@@ -1,14 +1,12 @@
 ﻿using System.Globalization;
 using EducationPortal.Application.Common.Exceptions;
 using EducationPortal.Application.Common.Interfaces;
-using EducationPortal.Application.Common.Localization;
 using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Common.Security;
+using EducationPortal.Application.Users.Common;
 using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
-using EducationPortal.Domain.ValueObjects;
-using FluentValidation.Results;
 
 namespace EducationPortal.Application.Users.Commands.CreateUserDetails;
 
@@ -17,42 +15,10 @@ namespace EducationPortal.Application.Users.Commands.CreateUserDetails;
 /// resolves to (SEC-AUTHZ-04). Needs the Staff module. Audited (SEC-LOG-03) with the person's id only, not the name.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCodes.Staff)]
-public record CreateUserDetailsCommand : IRequest<Guid>
+public record CreateUserDetailsCommand : UserDetailsFields, IRequest<Guid>;
+
+public class CreateUserDetailsCommandValidator : UserDetailsFieldsValidator<CreateUserDetailsCommand>
 {
-    public string FirstName { get; init; } = string.Empty;
-
-    /// <summary>Optional.</summary>
-    public string? MiddleName { get; init; }
-
-    public string LastName { get; init; } = string.Empty;
-
-    public UserType UserType { get; init; }
-
-    public string? Phone { get; init; }
-}
-
-public class CreateUserDetailsCommandValidator : AbstractValidator<CreateUserDetailsCommand>
-{
-    public CreateUserDetailsCommandValidator()
-    {
-        RuleFor(c => c.FirstName)
-            .NotEmpty()
-            .MaximumLength(UserDetails.NameMaxLength);
-
-        RuleFor(c => c.MiddleName)
-            .MaximumLength(UserDetails.NameMaxLength);
-
-        RuleFor(c => c.LastName)
-            .NotEmpty()
-            .MaximumLength(UserDetails.NameMaxLength);
-
-        RuleFor(c => c.UserType).IsInEnum();
-
-        RuleFor(c => c.Phone)
-            .MaximumLength(ContactRules.PhoneMaxLength)
-            .Must(value => string.IsNullOrWhiteSpace(value) || ContactRules.IsValidPhone(value.Trim()))
-            .WithMessage(_ => ValidationMessages.PhoneInvalid);
-    }
 }
 
 public class CreateUserDetailsCommandHandler : IRequestHandler<CreateUserDetailsCommand, Guid>

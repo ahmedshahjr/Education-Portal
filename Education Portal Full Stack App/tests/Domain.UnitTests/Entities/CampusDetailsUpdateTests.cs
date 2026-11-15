@@ -9,7 +9,7 @@ namespace EducationPortal.Domain.UnitTests.Entities;
 public class CampusDetailsUpdateTests
 {
     private static CampusDetails Details(params string[] phones) =>
-        CampusDetails.Create("12 Main Road", 3, 5, "75500", phones, "https://karachi.example.com", "SN-1", "KHI", 9);
+        CampusDetails.Create("12 Main Road", 3, 5, "75500", phones, "https://karachi.example.com", "SN-1", "KHI", 9, 24.8607m, 67.0011m);
 
     [Test]
     public void ShouldReplaceEveryDetailAndItsPhoneNumbersInOrder()

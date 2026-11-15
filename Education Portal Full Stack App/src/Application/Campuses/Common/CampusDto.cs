@@ -23,4 +23,6 @@ public sealed record CampusDetailsDto(
     string? SchoolNumber,
     string? ShortName,
     Guid? PrincipalId,
-    string? PrincipalName);
+    string? PrincipalName,
+    decimal? Latitude,
+    decimal? Longitude);

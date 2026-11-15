@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import {
+  LucideEye,
+  LucideMapPin,
   LucideArrowDownRight,
   LucideArrowUpRight,
   LucideBanknote,
@@ -126,6 +128,8 @@ const ICON_REGISTRY: Record<AppIconName, LucideIcon> = {
   'more-vertical': LucideEllipsisVertical,
   plus: LucidePlus,
   'trash-2': LucideTrash2,
+  eye: LucideEye,
+  'map-pin': LucideMapPin,
   'edit-3': LucideSquarePen,
   check: LucideCheck,
   x: LucideX,

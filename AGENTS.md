@@ -66,7 +66,7 @@ Effective access for a school user = **modules enabled for their school** ∩ **
    | Code | Module | Covers | Kind |
    |---|---|---|---|
    | SCHOOL | School | School profile, settings and the school overview dashboard | Core |
-   | CAMPUS | Campuses | Create and edit the school's campuses: four-digit codes, an optional prefix, and contact and registration details (address, state and city from the location data, ZIP, phone, website, school number, short name, principal) | Core |
+   | CAMPUS | Campuses | Create and edit the school's campuses: four-digit codes, an optional prefix, and contact and registration details (address, state (province) and city from the location data, ZIP, phone, website, school number, short name, principal, and the place on a Google Maps picker: latitude and longitude) | Core |
    | ACADEMIC_SETUP | Academic setup | Academic years, classes, courses and enrolments | Core |
    | USERS_ROLES | Users & Roles | Staff accounts, roles with rights per module, campus assignment | Core |
    | STUDENTS | Students | Student records and campus membership | Core |

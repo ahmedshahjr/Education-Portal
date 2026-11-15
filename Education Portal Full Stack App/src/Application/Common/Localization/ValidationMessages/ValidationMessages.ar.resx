@@ -372,6 +372,18 @@
   <data name="PostalCodeInvalid" xml:space="preserve">
     <value>يتكون الرمز البريدي من حروف وأرقام ومسافات وشرطات فقط، بحد أقصى 10 أحرف.</value>
   </data>
+  <data name="CampusLocationRequired" xml:space="preserve">
+    <value>ضع الحرم على الخريطة.</value>
+  </data>
+  <data name="LatitudeInvalid" xml:space="preserve">
+    <value>يجب أن يكون خط العرض بين -90 و90.</value>
+  </data>
+  <data name="UserDetailsIsPrincipal" xml:space="preserve">
+    <value>هذا الشخص مدير لحرم. اختر مديرًا آخر لذلك الحرم أولًا.</value>
+  </data>
+  <data name="LongitudeInvalid" xml:space="preserve">
+    <value>يجب أن يكون خط الطول بين -180 و180.</value>
+  </data>
   <data name="PhoneInvalid" xml:space="preserve">
     <value>يتكون رقم الهاتف من 7 إلى 15 رقمًا، ويجوز أن يبدأ بعلامة +.</value>
   </data>

@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormControl, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,13 +7,16 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
+import { CampusDetailsDialogComponent } from './campus-details-dialog.component';
+import { CampusLocationPickerComponent } from './campus-location-picker.component';
 import { problemMessages } from '../../core/http/problem-details';
+import { LatLng } from '../../core/maps/google-maps';
+import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DataTableCellContext, DataTableColumn, DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import {
@@ -22,11 +25,9 @@ import {
   CampusesClient,
   CampusKind,
   CampusLocationsDto,
-  CampusSettingsDto,
   CampusStateDto,
   CreateCampusCommand,
   UpdateCampusCommand,
-  UpdateCampusSettingsCommand,
   UserDetailsClient,
   UserDetailsDto,
   UserType,
@@ -46,10 +47,12 @@ function phonesValidator(control: AbstractControl): ValidationErrors | null {
 }
 
 /**
- * The school's campuses, for its administrators (the Campuses module). A campus has a four-digit code, unique in the school,
- * and contact and registration details: the address, the state, the city, the postal code, one to five phone numbers, the
- * school number and the short name are required; the website and the principal are optional. The state and city come from
- * the school's country. The main campus is the school's registration campus: it cannot be deleted.
+ * The school's campuses, for its administrators (the Campuses module), as a table. A row opens the campus's details in a
+ * dialog; the icons edit it or delete it. A campus has a four-digit code, unique in the school, and contact and registration
+ * details: the address, the state (province), the city, the postal code, one to five phone numbers, the school number, the
+ * short name and the place on the map are required; the website and the principal are optional. The state and city come from
+ * the school's country. The main campus is the school's registration campus: it cannot be deleted. The code prefix is set
+ * under Customization, Campus codes.
  */
 @Component({
   selector: 'app-campuses-page',
@@ -61,11 +64,12 @@ function phonesValidator(control: AbstractControl): ValidationErrors | null {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatSlideToggleModule,
     PageHeaderComponent,
     EmptyStateComponent,
-    LoadingStateComponent,
     StatusBadgeComponent,
+    AppIconComponent,
+    DataTableComponent,
+    CampusLocationPickerComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './campuses.page.html',
@@ -95,15 +99,52 @@ export class CampusesPage {
   /** The people who can be a campus's principal. */
   protected readonly principals = signal<readonly UserDetailsDto[]>([]);
 
-  /** The code settings as the server holds them, or null while they load. */
-  protected readonly settings = signal<CampusSettingsDto | null>(null);
-  protected readonly settingsErrors = signal<readonly string[]>([]);
-
   protected readonly kinds = CampusKind;
   protected readonly maxPhones = MAX_PHONES;
 
+  /** The list filters: a state (province) and a city, or '' for all. */
+  readonly stateFilter = signal('');
+  readonly cityFilter = signal('');
+
+  /** The campuses the filters let through. */
+  readonly visibleCampuses = computed(() => {
+    const state = this.stateFilter();
+    const city = this.cityFilter();
+    return (this.campuses() ?? []).filter(
+      (campus) =>
+        (state === '' || campus.details.stateId === state) && (city === '' || campus.details.cityId === city)
+    );
+  });
+
+  /** The cities for the city filter: those of the chosen state, or every city of the country when no state is chosen. */
+  readonly cityFilterOptions = computed(() => {
+    const state = this.stateFilter();
+    const states = this.locations()?.states ?? [];
+    return (state === '' ? states : states.filter((s) => s.id === state)).flatMap((s) => s.cities);
+  });
+
   /** The form is open for adding or for editing one campus. */
   protected readonly formOpen = computed(() => this.adding() || this.editingId() !== null);
+
+  /** The cell templates the table draws for the name, the type and the actions. */
+  private readonly nameCell = viewChild.required<TemplateRef<DataTableCellContext<CampusDto>>>('nameCell');
+  private readonly kindCell = viewChild.required<TemplateRef<DataTableCellContext<CampusDto>>>('kindCell');
+  private readonly actionsCell = viewChild.required<TemplateRef<DataTableCellContext<CampusDto>>>('actionsCell');
+
+  protected readonly columns = computed<DataTableColumn<CampusDto>[]>(() => [
+    {
+      key: 'name',
+      header: $localize`:@@campuses.colCampus:Campus`,
+      valueFn: (c) => `${c.name} ${c.displayCode}`,
+      cell: this.nameCell(),
+    },
+    { key: 'state', header: $localize`:@@campuses.state:State or province`, valueFn: (c) => c.details.stateName ?? '' },
+    { key: 'city', header: $localize`:@@campuses.city:City`, valueFn: (c) => c.details.cityName ?? '' },
+    { key: 'principal', header: $localize`:@@campuses.principal:Principal`, valueFn: (c) => c.details.principalName ?? '' },
+    { key: 'phone', header: $localize`:@@campuses.phones:Phone numbers`, valueFn: (c) => c.details.phones[0] ?? '' },
+    { key: 'kind', header: $localize`:@@campuses.colType:Type`, valueFn: (c) => c.kind, cell: this.kindCell() },
+    { key: 'actions', header: $localize`:@@common.actions:Actions`, sortable: false, align: 'right', cell: this.actionsCell() },
+  ]);
 
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(200)]],
@@ -119,16 +160,12 @@ export class CampusesPage {
     schoolNumber: ['', [Validators.required, Validators.maxLength(50)]],
     shortName: ['', [Validators.required, Validators.maxLength(25)]],
     principalId: [''],
-  });
-
-  protected readonly settingsForm = this.formBuilder.nonNullable.group({
-    prefixEnabled: [false],
-    prefix: ['', [Validators.maxLength(6), Validators.pattern(/^[a-z0-9]*$/i)]],
+    latitude: [null as number | null, [Validators.required, Validators.min(-90), Validators.max(90)]],
+    longitude: [null as number | null, [Validators.required, Validators.min(-180), Validators.max(180)]],
   });
 
   constructor() {
     this.load();
-    this.loadSettings();
     this.loadLocations();
     this.loadPrincipals();
   }
@@ -143,6 +180,19 @@ export class CampusesPage {
     return state?.cities ?? [];
   }
 
+  /** Choosing a state drops a city that is not in it. */
+  setStateFilter(stateId: string): void {
+    this.stateFilter.set(stateId);
+    if (this.cityFilter() !== '' && !this.cityFilterOptions().some((c) => c.id === this.cityFilter())) {
+      this.cityFilter.set('');
+    }
+  }
+
+  clearFilters(): void {
+    this.stateFilter.set('');
+    this.cityFilter.set('');
+  }
+
   protected load(): void {
     this.loadError.set(null);
     this.campuses.set(null);
@@ -155,7 +205,7 @@ export class CampusesPage {
   protected loadLocations(): void {
     this.campusesClient.getCampusLocations().subscribe({
       next: (locations) => this.locations.set(locations),
-      error: () => this.locations.set(new CampusLocationsDto({ states: [] })),
+      error: () => this.locations.set(new CampusLocationsDto({ countryName: undefined, states: [] })),
     });
   }
 
@@ -166,49 +216,9 @@ export class CampusesPage {
     });
   }
 
-  protected loadSettings(): void {
-    this.campusesClient.getCampusSettings().subscribe({
-      next: (settings) => {
-        this.settings.set(settings);
-        this.settingsForm.reset({ prefixEnabled: settings.prefixEnabled, prefix: settings.prefix ?? '' });
-        this.updatePrefixValidation();
-      },
-      error: (error: unknown) => this.settingsErrors.set(problemMessages(error)),
-    });
-  }
-
-  /** The prefix is required only while it is switched on. */
-  protected updatePrefixValidation(): void {
-    const prefix = this.settingsForm.controls.prefix;
-    if (this.settingsForm.controls.prefixEnabled.value) {
-      prefix.setValidators([Validators.required, Validators.maxLength(6), Validators.pattern(/^[a-z0-9]*$/i)]);
-    } else {
-      prefix.setValidators([Validators.maxLength(6), Validators.pattern(/^[a-z0-9]*$/i)]);
-    }
-    prefix.updateValueAndValidity();
-  }
-
-  protected saveSettings(): void {
-    if (this.settingsForm.invalid) {
-      return;
-    }
-    const value = this.settingsForm.getRawValue();
-    this.busy.set(true);
-    this.settingsErrors.set([]);
-    this.campusesClient
-      .updateCampusSettings(new UpdateCampusSettingsCommand({ prefixEnabled: value.prefixEnabled, prefix: value.prefix.trim().toUpperCase() || undefined }))
-      .subscribe({
-        next: () => {
-          this.busy.set(false);
-          this.snackBar.open($localize`:@@campuses.settingsSaved:Campus codes saved.`, undefined, { duration: 3000 });
-          this.loadSettings();
-          this.load();
-        },
-        error: (error: unknown) => {
-          this.busy.set(false);
-          this.settingsErrors.set(problemMessages(error));
-        },
-      });
+  /** Opens the campus's details in a dialog. */
+  protected openDetails(campus: CampusDto): void {
+    this.dialog.open(CampusDetailsDialogComponent, { data: campus, width: '640px', autoFocus: 'dialog' });
   }
 
   startAdd(): void {
@@ -234,6 +244,8 @@ export class CampusesPage {
       schoolNumber: details.schoolNumber ?? '',
       shortName: details.shortName ?? '',
       principalId: details.principalId ?? '',
+      latitude: details.latitude ?? null,
+      longitude: details.longitude ?? null,
     });
     this.setPhones(phones);
   }
@@ -242,6 +254,20 @@ export class CampusesPage {
     this.errors.set([]);
     this.adding.set(false);
     this.editingId.set(null);
+  }
+
+  /** The place the map picker reported: the form stores it. */
+  setLocation(point: LatLng): void {
+    this.form.patchValue({ latitude: point.lat, longitude: point.lng });
+    this.form.markAsDirty();
+  }
+
+  /** A Google Maps link to the campus's place. Null when the campus has no place. */
+  protected mapLink(details: { latitude?: number | null; longitude?: number | null }): string | null {
+    if (details.latitude == null || details.longitude == null) {
+      return null;
+    }
+    return `https://www.google.com/maps?q=${details.latitude},${details.longitude}`;
   }
 
   /** Changing the state clears the city, which must belong to the new state. */
@@ -281,6 +307,8 @@ export class CampusesPage {
       schoolNumber: value.schoolNumber.trim(),
       shortName: value.shortName.trim(),
       principalId: value.principalId || undefined,
+      latitude: value.latitude ?? undefined,
+      longitude: value.longitude ?? undefined,
     });
 
     this.busy.set(true);
@@ -337,6 +365,8 @@ export class CampusesPage {
       schoolNumber: '',
       shortName: '',
       principalId: '',
+      latitude: null,
+      longitude: null,
     });
     this.setPhones(['']);
   }

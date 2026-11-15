@@ -1,0 +1,29 @@
+.mm-campus-dialog__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mm-space-2);
+}
+
+.mm-campus-dialog__code {
+  font-size: var(--mm-text-sm);
+  font-weight: 500;
+  color: var(--mm-text-muted);
+}
+
+.mm-campus-dialog__details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--mm-space-2) var(--mm-space-4);
+  margin: 0;
+}
+
+.mm-campus-dialog__details dt {
+  font-weight: 600;
+  color: var(--mm-text-primary);
+}
+
+.mm-campus-dialog__details dd {
+  margin: 0;
+  color: var(--mm-text-body);
+  overflow-wrap: anywhere;
+}
