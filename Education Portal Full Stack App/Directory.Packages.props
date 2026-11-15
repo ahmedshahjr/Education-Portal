@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Ardalis.GuardClauses" Version="5.0.0" />
-    <PackageVersion Include="AutoMapper" Version="16.3.0" />
+    <PackageVersion Include="AutoMapper" Version="17.0.0" />
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
     <!-- Secret stores behind ISecretProvider (ADR-006): Azure Key Vault, AWS Secrets Manager, Google Secret Manager, HashiCorp Vault -->
     <PackageVersion Include="Azure.Security.KeyVault.Secrets" Version="4.12.0" />
