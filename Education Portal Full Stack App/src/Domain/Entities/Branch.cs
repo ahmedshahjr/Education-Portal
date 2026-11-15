@@ -1,5 +1,6 @@
 using EducationPortal.Domain.Common;
 using EducationPortal.Domain.Enums;
+using EducationPortal.Domain.ValueObjects;
 
 namespace EducationPortal.Domain.Entities;
 
@@ -76,6 +77,58 @@ public class Branch : BaseSoftDeletableEntity
     public string Code { get; private set; }
 
     public BranchKind Kind { get; private set; }
+
+    /// <summary>The street address. Optional.</summary>
+    public string? Address { get; private set; }
+
+    /// <summary>The state or province, from the location data. Optional.</summary>
+    public int? StateId { get; private set; }
+
+    public State? State { get; private set; }
+
+    /// <summary>The city, from the location data. Set only together with a state.</summary>
+    public int? CityId { get; private set; }
+
+    public City? City { get; private set; }
+
+    public string? PostalCode { get; private set; }
+
+    public string? Phone { get; private set; }
+
+    public string? Website { get; private set; }
+
+    /// <summary>The school's registration number for the campus.</summary>
+    public string? SchoolNumber { get; private set; }
+
+    public string? ShortName { get; private set; }
+
+    /// <summary>The principal of the campus: a person of the same school whose user type is <see cref="UserType.Principal"/>.</summary>
+    public int? PrincipalUserDetailsId { get; private set; }
+
+    public UserDetails? PrincipalUserDetails { get; private set; }
+
+    /// <summary>
+    /// Replaces the campus's contact and registration details. The values were checked by <see cref="CampusDetails.Create"/>;
+    /// the use case has checked that the state, city and principal belong to the campus's school and country.
+    /// </summary>
+    public void UpdateDetails(CampusDetails details)
+    {
+        ArgumentNullException.ThrowIfNull(details);
+        if (IsDeleted)
+        {
+            throw new InvalidOperationException("A deleted campus cannot be changed.");
+        }
+
+        Address = details.Address;
+        StateId = details.StateId;
+        CityId = details.CityId;
+        PostalCode = details.PostalCode;
+        Phone = details.Phone;
+        Website = details.Website;
+        SchoolNumber = details.SchoolNumber;
+        ShortName = details.ShortName;
+        PrincipalUserDetailsId = details.PrincipalUserDetailsId;
+    }
 
     /// <summary>The main campus is the school's registration campus: it cannot be deleted or deactivated.</summary>
     protected override bool CanBeDeactivated => Kind != BranchKind.Main;

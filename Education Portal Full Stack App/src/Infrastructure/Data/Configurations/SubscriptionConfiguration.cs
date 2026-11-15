@@ -1,4 +1,5 @@
 using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -21,6 +22,37 @@ public class BranchConfiguration : IEntityTypeConfiguration<Branch>
             .IsUnique()
             .HasFilter("\"Kind\" = 1")
             .HasDatabaseName("IX_Branches_SingleMainPerSchool");
+
+        // Contact and registration details (CampusDetails). Lengths match the domain limits.
+        builder.Property(b => b.Address).HasMaxLength(CampusDetails.AddressMaxLength);
+        builder.Property(b => b.PostalCode).HasMaxLength(ContactRules.PostalCodeMaxLength);
+        builder.Property(b => b.Phone).HasMaxLength(ContactRules.PhoneMaxLength);
+        builder.Property(b => b.Website).HasMaxLength(ContactRules.WebsiteMaxLength);
+        builder.Property(b => b.SchoolNumber).HasMaxLength(CampusDetails.SchoolNumberMaxLength);
+        builder.Property(b => b.ShortName).HasMaxLength(CampusDetails.ShortNameMaxLength);
+
+        // A city belongs to a state, so a city is never stored without one.
+        builder.ToTable(t => t.HasCheckConstraint("CK_Branches_CityNeedsState", "\"CityId\" IS NULL OR \"StateId\" IS NOT NULL"));
+
+        builder.HasOne(b => b.State).WithMany().HasForeignKey(b => b.StateId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(b => b.City).WithMany().HasForeignKey(b => b.CityId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(b => b.PrincipalUserDetails).WithMany().HasForeignKey(b => b.PrincipalUserDetailsId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(b => b.PrincipalUserDetailsId);
+    }
+}
+
+public class UserDetailsConfiguration : IEntityTypeConfiguration<UserDetails>
+{
+    public void Configure(EntityTypeBuilder<UserDetails> builder)
+    {
+        builder.HasOne<School>().WithMany().HasForeignKey(u => u.SchoolId).OnDelete(DeleteBehavior.Cascade);
+        builder.Property(u => u.FirstName).IsRequired().HasMaxLength(UserDetails.NameMaxLength);
+        builder.Property(u => u.MiddleName).HasMaxLength(UserDetails.NameMaxLength);
+        builder.Property(u => u.LastName).IsRequired().HasMaxLength(UserDetails.NameMaxLength);
+        builder.Property(u => u.Phone).HasMaxLength(ContactRules.PhoneMaxLength);
+
+        // The school's people are listed and filtered by school (ENG-EF-09).
+        builder.HasIndex(u => new { u.SchoolId, u.UserType });
     }
 }
 
@@ -59,6 +91,13 @@ public class TenantModuleConfiguration : IEntityTypeConfiguration<TenantModule>
 
         // A subscription gives a module to each branch once. The main branch's grant is the whole school's.
         builder.HasIndex(m => new { m.SubscriptionId, m.ModuleId, m.BranchId }).IsUnique();
+
+        // A school has at most one default grant of a module on a branch: nulls are distinct in a unique index, so the
+        // subscription index above does not cover the default grants (SubscriptionId null).
+        builder.HasIndex(m => new { m.SchoolId, m.ModuleId, m.BranchId })
+            .IsUnique()
+            .HasFilter("\"SubscriptionId\" IS NULL")
+            .HasDatabaseName("IX_TenantModules_DefaultGrantOnce");
         builder.HasIndex(m => new { m.SchoolId, m.ModuleId });
         builder.HasIndex(m => m.BranchId);
     }

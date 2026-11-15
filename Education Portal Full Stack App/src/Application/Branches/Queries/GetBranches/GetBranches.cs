@@ -40,13 +40,53 @@ public class GetBranchesQueryHandler : IRequestHandler<GetBranchesQuery, IReadOn
             .Where(b => b.SchoolId == schoolId)
             .OrderBy(b => b.Kind)
             .ThenBy(b => b.Name)
-            .Select(b => new { b.PublicId, b.Name, b.Code, b.Kind })
+            .Select(b => new
+            {
+                b.PublicId,
+                b.Name,
+                b.Code,
+                b.Kind,
+                b.Address,
+                StateId = b.State == null ? (Guid?)null : b.State.PublicId,
+                StateName = b.State == null ? null : b.State.Name,
+                CityId = b.City == null ? (Guid?)null : b.City.PublicId,
+                CityName = b.City == null ? null : b.City.Name,
+                b.PostalCode,
+                b.Phone,
+                b.Website,
+                b.SchoolNumber,
+                b.ShortName,
+                PrincipalId = b.PrincipalUserDetails == null ? (Guid?)null : b.PrincipalUserDetails.PublicId,
+                PrincipalName = b.PrincipalUserDetails == null
+                    ? null
+                    : b.PrincipalUserDetails.FirstName
+                        + (b.PrincipalUserDetails.MiddleName == null ? "" : " " + b.PrincipalUserDetails.MiddleName)
+                        + " " + b.PrincipalUserDetails.LastName,
+            })
             .ToListAsync(cancellationToken);
 
         var prefix = school.CampusCodePrefixEnabled ? school.CampusCodePrefix ?? string.Empty : string.Empty;
 
         return campuses
-            .Select(c => new BranchDto(c.PublicId, c.Name, c.Code, prefix + c.Code, c.Kind))
+            .Select(c => new BranchDto(
+                c.PublicId,
+                c.Name,
+                c.Code,
+                prefix + c.Code,
+                c.Kind,
+                new CampusDetailsDto(
+                    c.Address,
+                    c.StateId,
+                    c.StateName,
+                    c.CityId,
+                    c.CityName,
+                    c.PostalCode,
+                    c.Phone,
+                    c.Website,
+                    c.SchoolNumber,
+                    c.ShortName,
+                    c.PrincipalId,
+                    c.PrincipalName)))
             .ToList();
     }
 }

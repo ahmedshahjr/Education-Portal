@@ -259,7 +259,7 @@ public class PricingTests : TestBase
         for (var run = 0; run < 2; run++)
         {
             using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-            await scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>().SeedPricingAsync();
+            await scope.ServiceProvider.GetRequiredService<DevelopmentDataSeeder>().SeedPricingAsync();
         }
 
         var paid = ModuleCatalog.CreateModules().Count(m => !m.IsCore);

@@ -1,4 +1,4 @@
-# AGENTS.md: Education Portal
+﻿# AGENTS.md: Education Portal
 
 This file tells AI coding assistants (Claude, ChatGPT/Codex, Gemini, GitHub Copilot, Cursor, and others) what this project is and how to work in it. It follows the open [AGENTS.md](https://agents.md) convention. `CLAUDE.md`, `GEMINI.md` and `.github/copilot-instructions.md` only point here, so **this file is the single source of truth**. When a decision changes, update this file in the same PR.
 
@@ -66,11 +66,11 @@ Effective access for a school user = **modules enabled for their school** ∩ **
    | Code | Module | Covers | Kind |
    |---|---|---|---|
    | SCHOOL | School | School profile, settings and the school overview dashboard | Core |
-   | BRANCH | Campuses | Create and edit the school's campuses, with four-digit codes and an optional prefix | Core |
+   | BRANCH | Campuses | Create and edit the school's campuses: four-digit codes, an optional prefix, and contact and registration details (address, state and city from the location data, ZIP, phone, website, school number, short name, principal) | Core |
    | ACADEMIC_SETUP | Academic setup | Academic years, classes, courses and enrolments | Core |
    | USERS_ROLES | Users & Roles | Staff accounts, roles with rights per module, branch assignment | Core |
    | STUDENTS | Students | Student records and branch membership | Core |
-   | STAFF | Staff | Teacher and staff records and branch membership | Core |
+   | STAFF | Staff | People of the school (UserDetails: principals, teachers and other staff, with first, middle and last name, phone and user type), and branch membership | Core |
    | ADMISSIONS | Admissions | Enquiries, applications and admission decisions | Paid |
    | ATTENDANCE | Attendance | Daily and per-lesson attendance | Paid |
    | FEES | Fees | Fee structures, student invoices and fee collection | Paid |
@@ -124,7 +124,7 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 | Solution | `.slnx` format (needs a recent .NET SDK / VS 2022 17.13+) |
 | Orchestration | .NET Aspire 13.6; `src/AppHost` is the startup project |
 | API | ASP.NET Core 10 minimal APIs, OpenAPI + Scalar UI |
-| Application | MediatR 14 (CQRS), FluentValidation 12, AutoMapper 16, Ardalis.GuardClauses |
+| Application | MediatR 14 (CQRS), FluentValidation 12, hand-written mapping to DTOs (no mapping library), Ardalis.GuardClauses |
 | Scheduling | Quartz.NET 4 (`Quartz`), in-memory schedule in the API, cron in UTC (ADR-015) |
 | Data | EF Core 10, PostgreSQL (Npgsql) |
 | Auth | ASP.NET Core Identity from the template (decided 2026-11-09); school, branch and role data are added as claims and must match the tenant resolved from the host |
@@ -194,7 +194,7 @@ Aspire also starts a local HashiCorp Vault (dev mode, `http://localhost:8200`) a
 
 Aspire also starts the observability stack (ADR-007): the API sends logs, metrics and traces to an OpenTelemetry Collector (`localhost:4317`), which forwards them to Prometheus (`http://localhost:9090`), Loki (`http://localhost:3100`), Jaeger (`http://localhost:16686`) and the Aspire dashboard. Grafana on `http://localhost:13000` shows all three, with a starter dashboard. See `docs/observability.md`. Every local resource has a fixed port, set in `src/AppHost/LocalPorts.cs` (Angular app `http://localhost:14200`, PostgreSQL `15432`); add a port there for any new resource.
 
-In Development the database is dropped and recreated on every start by `ApplicationDbContextInitialiser` (`EnsureDeleted` + `EnsureCreated`), then seeded with the master tenant on `localhost` (account `administrator@localhost`) and a Demo School on `demo.localhost` (account `administrator@demo.localhost`). Both accounts use the password set in `ApplicationDbContextInitialiser`; the seed never runs outside Development (SEC-SECRET-04). Open the Angular app on `http://localhost:14200` for the master tenant or `http://demo.localhost:14200` for the Demo School; `*.localhost` needs no hosts-file change. There are no EF Core migrations yet; add them when the schema needs to survive restarts.
+In Development the EF Core migrations are applied on every start by `DatabaseStartupExtensions.MigrateAndSeedDevelopmentDatabaseAsync` (`MigrateAsync`; nothing is dropped), then the demo data is seeded by `DevelopmentDataSeeder` (idempotent): the master tenant on `localhost` (account `administrator@localhost`) and a Demo School on `demo.localhost` (account `administrator@demo.localhost`). The accounts use the password set in `DevelopmentDataSeeder`; the seed never runs outside Development (SEC-SECRET-04). Open the Angular app on `http://localhost:14200` for the master tenant or `http://demo.localhost:14200` for the Demo School; `*.localhost` needs no hosts-file change. The first EF Core migration is `InitialCreate`; tables are grouped by feature into PostgreSQL schemas (`Data/DatabaseSchemas.cs`), so every new entity type must be mapped there.
 
 Functional and acceptance tests start PostgreSQL in a container through Aspire, so Docker must be running.
 
@@ -216,6 +216,7 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
 - **Feature folders:** `Application/<Feature>/Commands/<UseCase>/` and `Application/<Feature>/Queries/<UseCase>/`, each with its handler and FluentValidation validator.
 - **Endpoints:** one file per feature in `Web/Endpoints/<Feature>.cs`, sending MediatR requests. Keep them thin.
 - **Validation** lives in FluentValidation validators run by the MediatR pipeline, not in endpoints.
+- **DTO mapping** is written by hand in the handler or a static `ToDto` method, with no mapping library (AutoMapper was removed, 2026-11-15). Read-only queries project with `Select(...)` (ENG-EF-03).
 - **Entities** live in `Domain/Entities` and inherit the template's base/auditable entity. Raise domain events instead of calling services from entities.
 - **Ids and enums** (decided 2026-11-11, [ADR-008](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-008-Guid-Public-Ids-And-Numeric-Enums.md), [identifiers-enums skill](docs/ai/engineering/identifiers-enums/SKILL.md)): every entity has an internal `int Id` primary key (`integer`, identity) and a `Guid PublicId` alternate key from `BaseEntity`. The API never exposes the `int`: DTOs, routes (`{id:guid}`) and bodies carry the `Guid`, and the handler resolves it to the `int` (`ResolveIdAsync`) before any business logic. Enums are strongly typed with an explicit number on every member, travel over the API by name (`JsonStringEnumConverter(allowIntegerValues: false)` in `Web/DependencyInjection.cs`), are stored as numbers (never `HasConversion<string>()`), and every enum column has a lookup table seeded from the enum (`Infrastructure/Data/Lookups/EnumLookupTables.cs`).
 - **Grades** are several scored assessments per enrolment, not one final grade.

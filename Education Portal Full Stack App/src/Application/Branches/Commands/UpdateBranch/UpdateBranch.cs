@@ -1,4 +1,5 @@
 using System.Globalization;
+using EducationPortal.Application.Branches.Common;
 using EducationPortal.Application.Common.Exceptions;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Models;
@@ -19,6 +20,12 @@ public record UpdateBranchCommand : IRequest
     public Guid BranchId { get; init; }
 
     public string Name { get; init; } = string.Empty;
+
+    /// <summary>
+    /// The campus's contact and registration details. When it is left out the details stay as they are; when it is sent,
+    /// it replaces them, so an empty object clears them.
+    /// </summary>
+    public CampusDetailsInput? Details { get; init; }
 }
 
 public class UpdateBranchCommandValidator : AbstractValidator<UpdateBranchCommand>
@@ -30,6 +37,10 @@ public class UpdateBranchCommandValidator : AbstractValidator<UpdateBranchComman
         RuleFor(c => c.Name)
             .NotEmpty()
             .MaximumLength(Branch.NameMaxLength);
+
+        RuleFor(c => c.Details!)
+            .SetValidator(new CampusDetailsInputValidator())
+            .When(c => c.Details is not null);
     }
 }
 
@@ -51,6 +62,12 @@ public class UpdateBranchCommandHandler : IRequestHandler<UpdateBranchCommand>
         var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
         var branch = await _context.Branches.FirstOrDefaultAsync(b => b.SchoolId == schoolId && b.PublicId == request.BranchId, cancellationToken);
         Guard.Against.NotFound(request.BranchId, branch);
+
+        if (request.Details is not null)
+        {
+            var details = await CampusDetailsResolver.ResolveAsync(_context, schoolId, request.Details, cancellationToken);
+            branch.UpdateDetails(details);
+        }
 
         branch.Rename(request.Name);
         await _context.SaveChangesAsync(cancellationToken);

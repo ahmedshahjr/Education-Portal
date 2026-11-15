@@ -50,6 +50,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<Branch> Branches => Set<Branch>();
 
+    public DbSet<UserDetails> UserDetails => Set<UserDetails>();
+
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
     public DbSet<TenantModule> TenantModules => Set<TenantModule>();
@@ -77,10 +79,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        builder.HasSequence<int>(Configurations.InvoiceConfiguration.NumberSequence);
+        builder.HasSequence<int>(Configurations.InvoiceConfiguration.NumberSequence, DatabaseSchemas.Billing);
 
         // Enum columns hold numbers; a seeded lookup table per enum names them for reports (ENG-ENUM-04).
         EnumLookupTables.Configure(builder);
+
+        // Last, so every entity type of the model, the lookup tables included, is in its feature schema.
+        builder.ApplyFeatureSchemas();
 
         // Tenant isolation (SEC-AUTHZ-03): a school sees only its own rows, the master tenant sees every school's. With
         // no resolved tenant, CurrentSchoolId is null and nothing matches.
@@ -89,6 +94,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
         builder.Entity<Branch>()
             .HasQueryFilter(b => IsMasterTenant || b.SchoolId == CurrentSchoolId);
+
+        builder.Entity<UserDetails>()
+            .HasQueryFilter(u => IsMasterTenant || u.SchoolId == CurrentSchoolId);
 
         builder.Entity<ChangeAuditEntry>()
             .HasQueryFilter(e => IsMasterTenant || e.SchoolId == CurrentSchoolId);

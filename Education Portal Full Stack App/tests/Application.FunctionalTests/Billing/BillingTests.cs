@@ -463,8 +463,8 @@ public class BillingTests : TestBase
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var subscriptionStatus = (int)SubscriptionStatus.Suspended;
         var moduleStatus = (int)TenantModuleStatus.Suspended;
-        await context.Database.ExecuteSqlAsync($"UPDATE \"Subscriptions\" SET \"Status\" = {subscriptionStatus} WHERE \"SchoolId\" = {schoolId}");
-        await context.Database.ExecuteSqlAsync($"UPDATE \"TenantModules\" SET \"Status\" = {moduleStatus} WHERE \"SchoolId\" = {schoolId}");
+        await context.Database.ExecuteSqlAsync($"UPDATE \"billing\".\"Subscriptions\" SET \"Status\" = {subscriptionStatus} WHERE \"SchoolId\" = {schoolId}");
+        await context.Database.ExecuteSqlAsync($"UPDATE \"modules\".\"TenantModules\" SET \"Status\" = {moduleStatus} WHERE \"SchoolId\" = {schoolId}");
     }
 
     private static async Task<InvoiceDto> ReadAsync(HttpSession master, Guid id)

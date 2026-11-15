@@ -1,4 +1,5 @@
 using EducationPortal.Domain.Entities;
+using EducationPortal.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,7 +17,7 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         // The number comes from a sequence when the row is inserted: unique, readable, not gap-free.
         builder.Property(i => i.Number)
             .HasMaxLength(Invoice.NumberMaxLength)
-            .HasDefaultValueSql($"'INV-' || lpad(nextval('\"{NumberSequence}\"')::text, 6, '0')")
+            .HasDefaultValueSql($"'INV-' || lpad(nextval('\"{DatabaseSchemas.Billing}\".\"{NumberSequence}\"')::text, 6, '0')")
             .HasSentinel(string.Empty)
             .ValueGeneratedOnAdd();
         builder.HasIndex(i => i.Number).IsUnique();

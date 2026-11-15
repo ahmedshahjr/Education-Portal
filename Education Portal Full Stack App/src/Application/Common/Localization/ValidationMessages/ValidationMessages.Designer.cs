@@ -767,5 +767,77 @@ namespace EducationPortal.Application.Common.Localization {
                 return ResourceManager.GetString("UnknownModules", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The state must belong to the school&apos;s country..
+        /// </summary>
+        internal static string CampusStateNotInCountry {
+            get {
+                return ResourceManager.GetString("CampusStateNotInCountry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose a state before choosing a city..
+        /// </summary>
+        internal static string CampusCityNeedsState {
+            get {
+                return ResourceManager.GetString("CampusCityNeedsState", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The city must belong to the chosen state..
+        /// </summary>
+        internal static string CampusCityNotInState {
+            get {
+                return ResourceManager.GetString("CampusCityNotInState", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The principal must be a person of this school..
+        /// </summary>
+        internal static string CampusPrincipalNotFound {
+            get {
+                return ResourceManager.GetString("CampusPrincipalNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The chosen person is not a principal..
+        /// </summary>
+        internal static string CampusPrincipalNotPrincipal {
+            get {
+                return ResourceManager.GetString("CampusPrincipalNotPrincipal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A postal code has letters, digits, spaces and hyphens only, up to 10 characters..
+        /// </summary>
+        internal static string PostalCodeInvalid {
+            get {
+                return ResourceManager.GetString("PostalCodeInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A phone number has 7 to 15 digits and may start with +..
+        /// </summary>
+        internal static string PhoneInvalid {
+            get {
+                return ResourceManager.GetString("PhoneInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A website must be an absolute http or https address..
+        /// </summary>
+        internal static string WebsiteInvalid {
+            get {
+                return ResourceManager.GetString("WebsiteInvalid", resourceCulture);
+            }
+        }
     }
 }

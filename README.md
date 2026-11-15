@@ -1,4 +1,4 @@
-# Education Portal
+﻿# Education Portal
 
 A multi-tenant education portal for schools, built as an MVP.
 
@@ -31,7 +31,7 @@ Every technology the portal uses, what it does here, and where its flow diagram 
 | API docs | OpenAPI + Scalar | Scalar 2.19 | OpenAPI document at `/openapi/v1.json` and the Scalar UI at `/scalar`, Development only | [NSwag client](#nswag-api-client-generation-flow) |
 | Use cases | MediatR | 14 | Every endpoint sends a command or query; pipeline behaviours log, authorize, validate and time it | [How a request flows](#how-a-request-flows), [authorization](#authorization-and-module-check-flow) |
 | Validation | FluentValidation | 12 | One validator per request, run by `ValidationBehaviour`; failures become 400 | [How a request flows](#how-a-request-flows) |
-| Mapping | AutoMapper | 16 | Entity to DTO maps in the Application layer | [How a request flows](#how-a-request-flows) |
+| Mapping | Hand-written mapping in handlers | n/a | No mapping library: DTOs are built by hand in the Application layer | [How a request flows](#how-a-request-flows) |
 | Guards | Ardalis.GuardClauses | 5 | Argument and lookup checks in handlers and start-up code; `Guard.Against.NotFound` becomes 404 | [How a request flows](#how-a-request-flows) |
 | Scheduling | Quartz.NET (`Quartz`) | 4.7 | Runs the daily subscription lifecycle job inside the API, on a UTC cron schedule kept in memory | [Subscription lifecycle job](#subscription-lifecycle-job-flow) |
 | Data access | EF Core with Npgsql | EF Core 10, Npgsql provider 10 | `ApplicationDbContext`, entity configurations, query filters for tenants and soft delete, save interceptors | [EF Core](#ef-core-and-postgresql-flow) |
@@ -313,7 +313,7 @@ flowchart TB
 | Project | Contains | References |
 |---|---|---|
 | `Domain` | Entities, value objects, enums, domain events, constants | nothing |
-| `Application` | Use cases as MediatR commands and queries, FluentValidation validators, DTOs and AutoMapper maps, pipeline behaviours, interfaces | `Domain` |
+| `Application` | Use cases as MediatR commands and queries, FluentValidation validators, DTOs (mapped by hand), pipeline behaviours, interfaces | `Domain` |
 | `Infrastructure` | `ApplicationDbContext` (EF Core + Identity), entity configurations, save interceptors, `IdentityService`, database initialiser and seed data, the secrets layer, OpenTelemetry setup (`AddObservability`) | `Application`, `Shared` |
 | `Web` | The ASP.NET Core host: endpoint groups in `Endpoints/`, `CurrentUser`, `ProblemDetailsExceptionHandler`, OpenAPI and Scalar, the Angular app | `Application`, `Infrastructure`, `ServiceDefaults` |
 | `ServiceDefaults` | Health checks, HTTP resilience, service discovery | nothing |
@@ -390,7 +390,7 @@ Step 2 adds a permission check after authorization: the module is switched on fo
 
 ### Multi-tenancy and permissions (step 2, in progress)
 
-Built so far: schools with their own domains, exactly one master tenant, tenant resolution from the host, sign-in scoped to the school, per-school branding, and the sellable module catalogue (core and paid modules with dependencies) with paid modules switched on per school. Branches and roles come next.
+Built so far: schools with their own domains, exactly one master tenant, tenant resolution from the host, sign-in scoped to the school, per-school branding, the sellable module catalogue (core and paid modules with dependencies) with paid modules switched on per school, and campuses with contact and registration details, their principal chosen from the school's people (UserDetails, with a user type). Roles come next.
 
 The rules live in [AGENTS.md, section 2](AGENTS.md#2-multi-tenancy-and-permissions). This is how they fit together.
 
@@ -465,7 +465,7 @@ A record from another school or branch returns 404 rather than 403, so ids can't
 - Entities raise domain events instead of calling services. `DispatchDomainEventsInterceptor` publishes them through MediatR just before the changes are saved.
 - `ChangeAuditInterceptor` runs last and adds a `ChangeAuditEntry` to the same save for every added, changed or removed subscription, tenant module, invoice, invoice line, payment, add-on request, module, module dependency, plan, plan module, price book and price: who (or the system), when, which row, and each changed value before and after, as jsonb ([ADR-016](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-016-Change-Audit-For-Commercial-Records.md)). The table is append-only and filtered by school.
 - Aspire passes the connection string (`ConnectionStrings__EducationPortalDb`) to the API, so there is nothing to configure locally.
-- In Development the database is dropped and recreated on every start (`ApplicationDbContextInitialiser`: `EnsureDeleted`, then `EnsureCreated`) and then seeded. There are no EF Core migrations yet. They are required before any shared environment exists.
+- In Development the EF Core migrations are applied on every start (`MigrateAsync`, nothing is dropped), then the location data is imported and the demo data is seeded (`DevelopmentDataSeeder`, idempotent). The first migration is `InitialCreate`. Tables live in one PostgreSQL schema per feature (`identity`, `access`, `schools`, `modules`, `billing`, `audit`, `lookups`; see `Data/DatabaseSchemas.cs`). Outside Development the schema must be migrated by a reviewed migration script before the app starts.
 - Location reference data (`Countries`, `States`, `Cities`, and the `StateTypes` lookup) has no `SchoolId`: it is shared by every school. `States` and `Cities` have `IsActive` and `IsCustom` flags; the ISO codes (`Countries.Code`, `Countries.Iso3`, `States.IsoCode`) are unique, and a city name is unique within its state.
 - Student data is treated with the most care: personal fields are labelled by data class, never logged, and only ever synthetic in development and tests ([student-data-privacy skill](docs/ai/secure-compliance/student-data-privacy/SKILL.md)).
 
@@ -502,7 +502,7 @@ The API sends OpenTelemetry logs, metrics and traces over OTLP to one endpoint, 
 | Project | What it covers | Needs |
 |---|---|---|
 | `tests/Domain.UnitTests` | Entities and value objects | nothing |
-| `tests/Application.UnitTests` | Pipeline behaviours, exceptions, AutoMapper configuration | nothing |
+| `tests/Application.UnitTests` | Pipeline behaviours, exceptions, validators, handlers | nothing |
 | `tests/Infrastructure.IntegrationTests` | Empty for now; meant for EF Core and Identity tests | nothing |
 | `tests/Application.FunctionalTests` | Use cases end to end through MediatR, against a real PostgreSQL started by `tests/TestAppHost`. Respawn clears the data between tests. | Docker |
 | `tests/Web.AcceptanceTests` | Browser tests written as Reqnroll `.feature` files and run by Playwright against the whole app started by the AppHost | Docker and the Playwright browsers |
@@ -657,7 +657,7 @@ Role rights per module (View, Create, Edit, Delete) and branch checks are added 
 
 ### EF Core and PostgreSQL flow
 
-`src/Infrastructure/Data/ApplicationDbContext.cs`, `Data/Interceptors/` and `ApplicationDbContextInitialiser.cs`.
+`src/Infrastructure/Data/ApplicationDbContext.cs`, `Data/Interceptors/`, `Data/DatabaseSchemas.cs` (one PostgreSQL schema per feature), `Data/DatabaseStartup.cs` (migrations at start-up in Development) and `Data/DevelopmentDataSeeder.cs`.
 
 ```mermaid
 flowchart TB
@@ -675,10 +675,10 @@ flowchart TB
     end
     npgsqlR --> pg[("PostgreSQL<br/>EducationPortalDb")]
     npgsqlW --> pg
-    init["Development start-up:<br/>EnsureDeleted, EnsureCreated, seed"] --> pg
+    init["Development start-up:<br/>apply migrations, import locations, seed (nothing dropped)"] --> pg
 ```
 
-The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Branch`, `Invoice`, `InvoiceLine`, `Payment`, `AddOnRequest`, `RenewalReminder`, `ChangeAuditEntry`, `SchoolRole` and `RolePermission` today. Every new school-owned entity is added to them (AGENTS.md section 2).
+The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Branch`, `Invoice`, `InvoiceLine`, `Payment`, `AddOnRequest`, `RenewalReminder`, `ChangeAuditEntry`, `SchoolRole`, `RolePermission` and `UserDetails` today. Every new school-owned entity is added to them (AGENTS.md section 2).
 
 ### Secrets flow
 

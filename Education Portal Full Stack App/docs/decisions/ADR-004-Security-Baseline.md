@@ -30,7 +30,7 @@ The template ships a public register endpoint, the Identity API endpoints and a 
 7. **Security headers** are written in `OnStarting`, so they also appear on error responses. `Program.cs` calls authentication and authorization explicitly after the header middleware, because `WebApplication` would otherwise place them before it and a 401 would have no headers. The policy is `default-src 'self'`, `script-src 'self'` with no inline scripts, and `frame-ancestors 'none'`. The theme script moved to `assets/theme-init.js`, and the Google Fonts links were removed.
 8. **Rate limit**: five sign-in attempts per minute per client address (fixed window), set by `RateLimiting:SignInPermitLimit`. The address is the direct peer. Forwarded headers are not trusted (SEC-WEB-08).
 9. **Audit**: sign-in success and failure, lockout and sign-out are written to the `SecurityAuditEvents` table. Each write uses its own scope, so the record is kept when the request fails. The application has no update or delete use case for this table, and test resets leave it alone.
-10. **Development only**: the seeded `administrator@localhost` account, the OpenAPI document and the Scalar UI exist only in Development (SEC-CFG-01, SEC-WEB-05). `InitialiseDatabaseAsync` throws outside Development.
+10. **Development only**: the seeded `administrator@localhost` account, the OpenAPI document and the Scalar UI exist only in Development (SEC-CFG-01, SEC-WEB-05). `MigrateAndSeedDevelopmentDatabaseAsync` throws outside Development.
 11. **No public sign-up**: the register endpoint and page are removed. Accounts are created by staff (SEC-AUTHN-08), and that feature comes in step 2b.
 
 ## Rationale

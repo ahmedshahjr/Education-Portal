@@ -131,4 +131,7 @@ public enum SecurityAuditEventType
 
     /// <summary>The school administrator changed the campus code prefix settings.</summary>
     CampusSettingsChanged = 45,
+
+    /// <summary>The school administrator added a person (principal, teacher or staff) to the school.</summary>
+    UserDetailsCreated = 46,
 }

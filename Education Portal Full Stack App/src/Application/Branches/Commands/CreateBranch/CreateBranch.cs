@@ -19,6 +19,9 @@ namespace EducationPortal.Application.Branches.Commands.CreateBranch;
 public record CreateBranchCommand : IRequest<Guid>
 {
     public string Name { get; init; } = string.Empty;
+
+    /// <summary>The optional contact and registration details of the campus.</summary>
+    public CampusDetailsInput? Details { get; init; }
 }
 
 public class CreateBranchCommandValidator : AbstractValidator<CreateBranchCommand>
@@ -28,6 +31,10 @@ public class CreateBranchCommandValidator : AbstractValidator<CreateBranchComman
         RuleFor(c => c.Name)
             .NotEmpty()
             .MaximumLength(Branch.NameMaxLength);
+
+        RuleFor(c => c.Details!)
+            .SetValidator(new CampusDetailsInputValidator())
+            .When(c => c.Details is not null);
     }
 }
 
@@ -57,7 +64,10 @@ public class CreateBranchCommandHandler : IRequestHandler<CreateBranchCommand, G
         var code = CampusCodes.NextFree(used, Random.Shared)
             ?? throw new Application.Common.Exceptions.ValidationException([new ValidationFailure(nameof(request.Name),ValidationMessages.CampusCodesExhausted)]);
 
+        var details = await CampusDetailsResolver.ResolveAsync(_context, schoolId, request.Details ?? new CampusDetailsInput(), cancellationToken);
+
         var branch = Branch.Create(schoolId, request.Name, code);
+        branch.UpdateDetails(details);
         _context.Branches.Add(branch);
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -354,4 +354,28 @@
   <data name="AddOnRequestNotPending" xml:space="preserve">
     <value>Only a pending request can be approved or rejected.</value>
   </data>
+  <data name="CampusStateNotInCountry" xml:space="preserve">
+    <value>The state must belong to the school's country.</value>
+  </data>
+  <data name="CampusCityNeedsState" xml:space="preserve">
+    <value>Choose a state before choosing a city.</value>
+  </data>
+  <data name="CampusCityNotInState" xml:space="preserve">
+    <value>The city must belong to the chosen state.</value>
+  </data>
+  <data name="CampusPrincipalNotFound" xml:space="preserve">
+    <value>The principal must be a person of this school.</value>
+  </data>
+  <data name="CampusPrincipalNotPrincipal" xml:space="preserve">
+    <value>The chosen person is not a principal.</value>
+  </data>
+  <data name="PostalCodeInvalid" xml:space="preserve">
+    <value>A postal code has letters, digits, spaces and hyphens only, up to 10 characters.</value>
+  </data>
+  <data name="PhoneInvalid" xml:space="preserve">
+    <value>A phone number has 7 to 15 digits and may start with +.</value>
+  </data>
+  <data name="WebsiteInvalid" xml:space="preserve">
+    <value>A website must be an absolute http or https address.</value>
+  </data>
 </root>

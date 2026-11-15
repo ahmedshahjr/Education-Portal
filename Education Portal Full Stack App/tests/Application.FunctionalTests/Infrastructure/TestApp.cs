@@ -3,6 +3,7 @@ using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
 using EducationPortal.Infrastructure.Data;
 using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Modules.Common;
 using EducationPortal.Infrastructure.Identity;
 using EducationPortal.Web.Services;
 using MediatR;
@@ -64,7 +65,17 @@ public static class TestApp
     {
         var school = School.Create(name, domain);
         await AddAsync(school);
+        await GrantDefaultModulesAsync(school.Id);
         return new EntityIds(school.Id, school.PublicId);
+    }
+
+    /// <summary>Gives a school the modules that are on by default, as a registering school gets them (CreateSchool).</summary>
+    private static async Task GrantDefaultModulesAsync(int schoolId)
+    {
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+        await SchoolDefaultModules.GrantAsync(context, schoolId, DateTimeOffset.UtcNow, CancellationToken.None);
+        await context.SaveChangesAsync(CancellationToken.None);
     }
 
     /// <summary>Adds a country with its regional settings and returns its id.</summary>
@@ -81,6 +92,7 @@ public static class TestApp
         var school = School.Create(name, domain);
         school.AssignCountry(countryId);
         await AddAsync(school);
+        await GrantDefaultModulesAsync(school.Id);
         return new EntityIds(school.Id, school.PublicId);
     }
 

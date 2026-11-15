@@ -20,7 +20,7 @@ Based on Microsoft's EF Core documentation: [efficient querying](https://learn.m
 
 | ID | Rule |
 |---|---|
-| ENG-EF-03 | **Read-only queries project.** Queries return DTOs/view models with `Select(...)` or AutoMapper `ProjectTo<T>(...)`, loading only the columns needed. When you must load entities you will not change, use `AsNoTracking()`. Track only in commands that modify the loaded entities. |
+| ENG-EF-03 | **Read-only queries project.** Queries return DTOs/view models with a hand-written `Select(...)` projection, loading only the columns needed. When you must load entities you will not change, use `AsNoTracking()`. Track only in commands that modify the loaded entities. |
 | ENG-EF-04 | **No N+1 and no lazy loading.** Lazy-loading proxies stay off. Load related data with projection or explicit `Include`/`ThenInclude` in the same query; never query inside a loop over results. Use `AsSplitQuery()` when including more than one collection navigation to avoid cartesian explosion. |
 | ENG-EF-05 | **Filter, sort and page in the database.** Keep `Where`, `OrderBy`, `Skip`/`Take` on `IQueryable` before materialising (`ToListAsync`). Never call `ToList()`/`AsEnumerable()` and then filter in memory. Every list endpoint is paginated with a stable `OrderBy` and a maximum page size; prefer keyset pagination for large tables. |
 | ENG-EF-06 | **Async with cancellation.** Use the async operators (`ToListAsync`, `FirstOrDefaultAsync`, `AnyAsync`, `SaveChangesAsync`, ...) and pass the request's `CancellationToken`. Never block with `.Result`, `.Wait()` or `.GetAwaiter().GetResult()`. |

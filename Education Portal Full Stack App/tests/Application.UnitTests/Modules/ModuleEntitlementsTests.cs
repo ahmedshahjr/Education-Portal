@@ -5,8 +5,8 @@ using Shouldly;
 namespace EducationPortal.Application.UnitTests.Modules;
 
 /// <summary>
-/// The rule behind every module check (SEC-AUTHZ-01, -06): core always, paid only inside an active grant's period. A grant
-/// on the school's main branch covers the whole school; a grant on another branch covers that branch only.
+/// The rule behind every module check (SEC-AUTHZ-01, -06): every module, core or paid, is on only inside an active grant's
+/// period. A grant on the school's main branch covers the whole school; a grant on another branch covers that branch only.
 /// </summary>
 public class ModuleEntitlementsTests
 {
@@ -17,14 +17,17 @@ public class ModuleEntitlementsTests
     private static readonly DateTimeOffset Now = new(2026, 6, 15, 12, 0, 0, TimeSpan.Zero);
 
     private static ModuleEntitlements With(params ModuleGrant[] grants) =>
-        new(["STUDENTS", "ATTENDANCE", "FEES"], ["STUDENTS"], grants);
+        new(["STUDENTS", "ATTENDANCE", "FEES"], grants);
 
     /// <summary>A grant on the main branch: the whole school.</summary>
     private static ModuleGrant WholeSchool(string code, DateTimeOffset from, DateTimeOffset? to) => new(code, MainBranch, true, from, to);
 
     [Test]
-    public void ShouldAlwaysHaveACoreModule() =>
-        With().Has("STUDENTS", null, Now).ShouldBeTrue();
+    public void ShouldNotHaveACoreModuleWithoutAGrant_SoTheMasterCanSwitchItOff()
+    {
+        With().Has("STUDENTS", null, Now).ShouldBeFalse();
+        With(WholeSchool("STUDENTS", Now.AddDays(-1), null)).Has("STUDENTS", null, Now).ShouldBeTrue();
+    }
 
     [Test]
     public void ShouldNotHaveAPaidModuleWithoutAGrantOrAnUnknownOne()
@@ -99,6 +102,7 @@ public class ModuleEntitlementsTests
     public void ShouldListOnlyTheWholeSchoolModulesInCatalogueOrder()
     {
         var entitlements = With(
+            WholeSchool("STUDENTS", Now.AddDays(-1), null),
             WholeSchool("FEES", Now.AddDays(-1), null),
             new ModuleGrant("ATTENDANCE", North, false, Now.AddDays(-1), null),          // one branch only: not whole-school
             WholeSchool("ATTENDANCE", Now.AddDays(-9), Now.AddDays(-1)));              // ended

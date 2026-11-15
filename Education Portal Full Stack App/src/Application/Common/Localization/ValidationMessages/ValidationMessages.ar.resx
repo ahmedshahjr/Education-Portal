@@ -354,4 +354,28 @@
   <data name="AddOnRequestNotPending" xml:space="preserve">
     <value>لا يمكن الموافقة أو الرفض إلا على الطلب المعلّق.</value>
   </data>
+  <data name="CampusStateNotInCountry" xml:space="preserve">
+    <value>يجب أن تنتمي الولاية إلى دولة المدرسة.</value>
+  </data>
+  <data name="CampusCityNeedsState" xml:space="preserve">
+    <value>اختر الولاية قبل اختيار المدينة.</value>
+  </data>
+  <data name="CampusCityNotInState" xml:space="preserve">
+    <value>يجب أن تنتمي المدينة إلى الولاية المختارة.</value>
+  </data>
+  <data name="CampusPrincipalNotFound" xml:space="preserve">
+    <value>يجب أن يكون المدير شخصًا من هذه المدرسة.</value>
+  </data>
+  <data name="CampusPrincipalNotPrincipal" xml:space="preserve">
+    <value>الشخص المختار ليس مديرًا.</value>
+  </data>
+  <data name="PostalCodeInvalid" xml:space="preserve">
+    <value>يتكون الرمز البريدي من حروف وأرقام ومسافات وشرطات فقط، بحد أقصى 10 أحرف.</value>
+  </data>
+  <data name="PhoneInvalid" xml:space="preserve">
+    <value>يتكون رقم الهاتف من 7 إلى 15 رقمًا، ويجوز أن يبدأ بعلامة +.</value>
+  </data>
+  <data name="WebsiteInvalid" xml:space="preserve">
+    <value>يجب أن يكون الموقع عنوانًا مطلقًا بصيغة http أو https.</value>
+  </data>
 </root>

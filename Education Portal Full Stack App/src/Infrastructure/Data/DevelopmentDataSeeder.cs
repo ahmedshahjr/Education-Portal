@@ -1,94 +1,33 @@
-﻿using EducationPortal.Domain.Constants;
+using EducationPortal.Application.Modules.Common;
+using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
-using EducationPortal.Infrastructure.Data.Locations;
 using EducationPortal.Infrastructure.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace EducationPortal.Infrastructure.Data;
 
-public static class InitialiserExtensions
+/// <summary>
+/// Development-only demo data: the master tenant, demo schools, their subscriptions, branches, invoices, roles and
+/// sign-in accounts. It runs after the migrations and adds only what is missing, so it is safe to run on every start.
+/// </summary>
+public class DevelopmentDataSeeder
 {
-    public static async Task InitialiseDatabaseAsync(this WebApplication app)
-    {
-        // EnsureDeleted drops the database, so this must never run outside Development (SEC-CFG-03).
-        if (!app.Environment.IsDevelopment())
-        {
-            throw new InvalidOperationException("The database is only reset and seeded in the Development environment.");
-        }
-
-        using var scope = app.Services.CreateScope();
-
-        var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
-
-        await initialiser.InitialiseAsync();
-
-        // The location data comes before the demo seed, which assigns its schools to the imported countries.
-        await scope.ServiceProvider.GetRequiredService<LocationDataImporter>().ImportAsync();
-
-        await initialiser.SeedAsync();
-    }
-
-    /// <summary>
-    /// Imports the built-in countries, states and cities (<see cref="LocationDataImporter"/>). Runs on every start-up outside
-    /// Development, where <see cref="InitialiseDatabaseAsync"/> does it; safe to run again. The schema must already exist.
-    /// </summary>
-    public static async Task ImportLocationDataAsync(this WebApplication app)
-    {
-        using var scope = app.Services.CreateScope();
-
-        await scope.ServiceProvider.GetRequiredService<LocationDataImporter>().ImportAsync();
-    }
-}
-
-public class ApplicationDbContextInitialiser
-{
-    private readonly ILogger<ApplicationDbContextInitialiser> _logger;
+    private readonly ILogger<DevelopmentDataSeeder> _logger;
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly TimeProvider _timeProvider;
 
-    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, TimeProvider timeProvider)
+    public DevelopmentDataSeeder(ILogger<DevelopmentDataSeeder> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, TimeProvider timeProvider)
     {
         _timeProvider = timeProvider;
         _logger = logger;
         _context = context;
         _userManager = userManager;
         _roleManager = roleManager;
-    }
-
-    public async Task InitialiseAsync()
-    {
-        try
-        {
-            // See https://jasontaylor.dev/ef-core-database-initialisation-strategies
-            await _context.Database.EnsureDeletedAsync();
-            await _context.Database.EnsureCreatedAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while initialising the database.");
-            throw;
-        }
-    }
-
-    public async Task SeedAsync()
-    {
-        try
-        {
-            await TrySeedAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while seeding the database.");
-            throw;
-        }
     }
 
     /// <summary>The master tenant's domain in Development. The admin sign-in works on http(s)://localhost.</summary>
@@ -109,10 +48,23 @@ public class ApplicationDbContextInitialiser
     // Development-only seed accounts (SEC-SECRET-04). It meets the 15-character minimum of SEC-AUTHN-03.
     private const string DevelopmentPassword = "Local-Dev-Only-2026!";
 
-    public async Task TrySeedAsync()
+    public async Task SeedAsync()
+    {
+        try
+        {
+            await SeedDemoDataAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while seeding the development data.");
+            throw;
+        }
+    }
+
+    private async Task SeedDemoDataAsync()
     {
         // Modules and their dependencies: add any the code knows and the database lacks. The master tenant changes them
-        // afterwards. Seeding runs in Development only, where the database is recreated on every start.
+        // afterwards.
         var knownModules = await _context.Modules.Select(m => m.Code).ToListAsync();
         var missingModules = ModuleCatalog.CreateModules().Where(m => !knownModules.Contains(m.Code)).ToList();
 
@@ -178,6 +130,14 @@ public class ApplicationDbContextInitialiser
         var uaeDemoSchool = await _context.Schools.SingleAsync(s => s.Domain == UaeDemoSchoolDomain);
         var usaDemoSchool = await _context.Schools.SingleAsync(s => s.Domain == UsaDemoSchoolDomain);
 
+        // The demo schools registered like any new school: they get the modules that are on by default.
+        foreach (var school in new[] { demoSchool, uaeDemoSchool, usaDemoSchool })
+        {
+            await SchoolDefaultModules.GrantAsync(_context, school.Id, _timeProvider.GetUtcNow(), CancellationToken.None);
+        }
+
+        await _context.SaveChangesAsync();
+
         // The demo schools run on the Full plan for a year, so every module works when developing.
         await SeedDemoSubscriptionAsync(demoSchool, pakistan);
         await SeedDemoSubscriptionAsync(uaeDemoSchool, uae);
@@ -202,51 +162,27 @@ public class ApplicationDbContextInitialiser
         }
 
         // Default users
-        var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost", SchoolId = master.Id };
+        await CreateAdministratorAsync("administrator@localhost", master.Id, administratorRole.Name);
 
-        if (_userManager.Users.All(u => u.UserName != administrator.UserName))
+        // Each demo school's administrator signs in on that school's domain only.
+        await CreateAdministratorAsync("administrator@demo.localhost", demoSchool.Id, administratorRole.Name);
+        await CreateAdministratorAsync("administrator@uae.localhost", uaeDemoSchool.Id, administratorRole.Name);
+        await CreateAdministratorAsync("administrator@usa.localhost", usaDemoSchool.Id, administratorRole.Name);
+    }
+
+    private async Task CreateAdministratorAsync(string userName, int schoolId, string? roleName)
+    {
+        if (await _userManager.Users.AnyAsync(u => u.UserName == userName))
         {
-            await _userManager.CreateAsync(administrator, DevelopmentPassword);
-            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
-            {
-                await _userManager.AddToRolesAsync(administrator, new [] { administratorRole.Name });
-            }
+            return;
         }
 
-        // The demo school's administrator signs in on demo.localhost only.
-        var demoAdministrator = new ApplicationUser { UserName = "administrator@demo.localhost", Email = "administrator@demo.localhost", SchoolId = demoSchool.Id };
+        var administrator = new ApplicationUser { UserName = userName, Email = userName, SchoolId = schoolId };
+        await _userManager.CreateAsync(administrator, DevelopmentPassword);
 
-        if (_userManager.Users.All(u => u.UserName != demoAdministrator.UserName))
+        if (!string.IsNullOrWhiteSpace(roleName))
         {
-            await _userManager.CreateAsync(demoAdministrator, DevelopmentPassword);
-            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
-            {
-                await _userManager.AddToRolesAsync(demoAdministrator, new [] { administratorRole.Name });
-            }
-        }
-
-        // The UAE demo school's administrator signs in on uae.localhost only.
-        var uaeAdministrator = new ApplicationUser { UserName = "administrator@uae.localhost", Email = "administrator@uae.localhost", SchoolId = uaeDemoSchool.Id };
-
-        if (_userManager.Users.All(u => u.UserName != uaeAdministrator.UserName))
-        {
-            await _userManager.CreateAsync(uaeAdministrator, DevelopmentPassword);
-            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
-            {
-                await _userManager.AddToRolesAsync(uaeAdministrator, new [] { administratorRole.Name });
-            }
-        }
-
-        // The USA demo school's administrator signs in on usa.localhost only.
-        var usaAdministrator = new ApplicationUser { UserName = "administrator@usa.localhost", Email = "administrator@usa.localhost", SchoolId = usaDemoSchool.Id };
-
-        if (_userManager.Users.All(u => u.UserName != usaAdministrator.UserName))
-        {
-            await _userManager.CreateAsync(usaAdministrator, DevelopmentPassword);
-            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
-            {
-                await _userManager.AddToRolesAsync(usaAdministrator, new [] { administratorRole.Name });
-            }
+            await _userManager.AddToRolesAsync(administrator, new[] { roleName });
         }
     }
 
@@ -311,11 +247,17 @@ public class ApplicationDbContextInitialiser
     }
 
     /// <summary>
-    /// Gives a demo school a one-year subscription to the Full plan, priced from its country's price book. The database
-    /// is recreated on every start in Development, so this runs once per school.
+    /// Gives a demo school a one-year subscription to the Full plan, priced from its country's price book. Safe to run
+    /// again: a school that already has a subscription is skipped, because a second one would break the one-per-school rule.
     /// </summary>
     private async Task SeedDemoSubscriptionAsync(School school, Country country)
     {
+        // The seed runs with no tenant, so the tenant filters would hide the rows: ignore them, scoped to this school.
+        if (await _context.Subscriptions.IgnoreQueryFilters().AnyAsync(s => s.SchoolId == school.Id))
+        {
+            return;
+        }
+
         var plan = await _context.Plans.SingleAsync(p => p.Code == PricingCatalog.Full);
         var book = await _context.PriceBooks.SingleAsync(b => b.CountryCode == country.Code);
         var price = await _context.PriceBookItems.SingleAsync(i => i.PriceBookId == book.Id && i.PlanId == plan.Id && i.BillingCycle == BillingCycle.Yearly);

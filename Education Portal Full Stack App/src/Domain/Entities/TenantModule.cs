@@ -3,17 +3,49 @@ using EducationPortal.Domain.Enums;
 namespace EducationPortal.Domain.Entities;
 
 /// <summary>
-/// A module a school has through its subscription: core modules, the plan's modules and add-ons. Rows are written with
-/// the subscription (<see cref="Subscription.AddModule"/>), never on their own. Every row names a branch:
-/// <see cref="BranchId"/> is the school's main branch for a module the whole school has (<see cref="IsSchoolWide"/>), or
-/// another branch for a module limited to that branch. Owned by the school (<c>SchoolId</c>) and covered by the tenant
-/// query filter (SEC-AUTHZ-03). The module's data is kept when the row expires or is suspended.
+/// A module a school has: through its subscription (the plan's modules, add-ons and core modules, written with
+/// <see cref="Subscription.AddModule"/>), or as a default grant when the school registers (<see cref="CreateDefault"/>,
+/// with no subscription and no end). Every row names a branch: <see cref="BranchId"/> is the school's main branch for a
+/// module the whole school has (<see cref="IsSchoolWide"/>), or another branch for a module limited to that branch. Owned
+/// by the school (<c>SchoolId</c>) and covered by the tenant query filter (SEC-AUTHZ-03). The module's data is kept when
+/// the row expires or is suspended.
 /// </summary>
 public class TenantModule : BaseAuditableEntity
 {
     private TenantModule()
     {
         // For EF Core.
+    }
+
+    private TenantModule(int schoolId, PortalModule module, Branch mainBranch, DateTimeOffset validFrom)
+    {
+        SchoolId = schoolId;
+        ModuleId = module.Id;
+        BranchId = mainBranch.Id;
+        IsSchoolWide = true;
+        Status = TenantModuleStatus.Active;
+        ValidFrom = validFrom;
+        ValidTo = null;
+    }
+
+    /// <summary>
+    /// The default grant of a module to a school that registers: the whole school, from <paramref name="now"/>, with no end
+    /// and no subscription. Free of charge, and not suspended by billing. The caller checks the school has no grant of it yet.
+    /// </summary>
+    public static TenantModule CreateDefault(int schoolId, PortalModule module, Branch mainBranch, DateTimeOffset now)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(schoolId);
+        ArgumentNullException.ThrowIfNull(module);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(module.Id);
+        ArgumentNullException.ThrowIfNull(mainBranch);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(mainBranch.Id);
+
+        if (mainBranch.Kind != BranchKind.Main || mainBranch.SchoolId != schoolId)
+        {
+            throw new ArgumentException("A default grant is for the school's main branch.", nameof(mainBranch));
+        }
+
+        return new TenantModule(schoolId, module, mainBranch, now);
     }
 
     internal TenantModule(Subscription subscription, PortalModule module, Branch branch, DateTimeOffset validFrom, DateTimeOffset? validTo)
@@ -41,7 +73,8 @@ public class TenantModule : BaseAuditableEntity
 
     public int ModuleId { get; private set; }
 
-    public int SubscriptionId { get; private set; }
+    /// <summary>The subscription that gives the module, or <c>null</c> for a default grant.</summary>
+    public int? SubscriptionId { get; private set; }
 
     public Subscription? Subscription { get; private set; }
 

@@ -103,7 +103,7 @@ public class IdentifierAndEnumTests : TestBase
 
         // The lookup table's foreign key stops a value no member has, even from outside the application.
         await Should.ThrowAsync<PostgresException>(() =>
-            context.Database.ExecuteSqlAsync($"UPDATE \"SchoolRequests\" SET \"Status\" = {99} WHERE \"Id\" = {request.Id}"));
+            context.Database.ExecuteSqlAsync($"UPDATE \"schools\".\"SchoolRequests\" SET \"Status\" = {99} WHERE \"Id\" = {request.Id}"));
     }
 
     [Test]

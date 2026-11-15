@@ -354,4 +354,28 @@
   <data name="AddOnRequestNotPending" xml:space="preserve">
     <value>صرف زیر التوا درخواست منظور یا مسترد کی جا سکتی ہے۔</value>
   </data>
+  <data name="CampusStateNotInCountry" xml:space="preserve">
+    <value>ریاست اس اسکول کے ملک میں ہونی چاہیے۔</value>
+  </data>
+  <data name="CampusCityNeedsState" xml:space="preserve">
+    <value>شہر منتخب کرنے سے پہلے ریاست منتخب کریں۔</value>
+  </data>
+  <data name="CampusCityNotInState" xml:space="preserve">
+    <value>منتخب شہر منتخب ریاست میں ہونا چاہیے۔</value>
+  </data>
+  <data name="CampusPrincipalNotFound" xml:space="preserve">
+    <value>پرنسپل اسی اسکول کا فرد ہونا چاہیے۔</value>
+  </data>
+  <data name="CampusPrincipalNotPrincipal" xml:space="preserve">
+    <value>منتخب شخص پرنسپل نہیں ہے۔</value>
+  </data>
+  <data name="PostalCodeInvalid" xml:space="preserve">
+    <value>پوسٹل کوڈ میں صرف حروف، ہندسے، خالی جگہ اور ہائفن ہو سکتے ہیں، زیادہ سے زیادہ 10 حروف۔</value>
+  </data>
+  <data name="PhoneInvalid" xml:space="preserve">
+    <value>فون نمبر میں 7 سے 15 ہندسے ہوں اور آغاز میں + ہو سکتا ہے۔</value>
+  </data>
+  <data name="WebsiteInvalid" xml:space="preserve">
+    <value>ویب سائٹ ایک مکمل http یا https پتہ ہونا چاہیے۔</value>
+  </data>
 </root>

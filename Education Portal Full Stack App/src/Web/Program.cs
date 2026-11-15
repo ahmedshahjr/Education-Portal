@@ -23,8 +23,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // Resets the schema, imports the location data and seeds the demo tenants.
-    await app.InitialiseDatabaseAsync();
+    // Applies the migrations, imports the location data and seeds the demo tenants (nothing is dropped).
+    await app.MigrateAndSeedDevelopmentDatabaseAsync();
 }
 else
 {

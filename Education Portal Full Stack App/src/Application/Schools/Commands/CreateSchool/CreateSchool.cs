@@ -2,6 +2,7 @@ using System.Globalization;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Common.Security;
+using EducationPortal.Application.Modules.Common;
 using EducationPortal.Domain.Constants;
 using FluentValidation.Results;
 
@@ -90,12 +91,14 @@ public class CreateSchoolCommandHandler : IRequestHandler<CreateSchoolCommand, G
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
     private readonly ISecurityAuditLog _auditLog;
+    private readonly TimeProvider _timeProvider;
 
-    public CreateSchoolCommandHandler(IApplicationDbContext context, IIdentityService identityService, ISecurityAuditLog auditLog)
+    public CreateSchoolCommandHandler(IApplicationDbContext context, IIdentityService identityService, ISecurityAuditLog auditLog, TimeProvider timeProvider)
     {
         _context = context;
         _identityService = identityService;
         _auditLog = auditLog;
+        _timeProvider = timeProvider;
     }
 
     public async Task<Guid> Handle(CreateSchoolCommand request, CancellationToken cancellationToken)
@@ -112,6 +115,10 @@ public class CreateSchoolCommandHandler : IRequestHandler<CreateSchoolCommand, G
         var administratorId = await _context.ExecuteInTransactionAsync(async token =>
         {
             _context.Schools.Add(school);
+            await _context.SaveChangesAsync(token);
+
+            // The modules that are on by default, free of charge, from the moment the school exists (the same transaction).
+            await SchoolDefaultModules.GrantAsync(_context, school.Id, _timeProvider.GetUtcNow(), token);
             await _context.SaveChangesAsync(token);
 
             var (result, userId) = await _identityService.CreateSchoolAdministratorAsync(
