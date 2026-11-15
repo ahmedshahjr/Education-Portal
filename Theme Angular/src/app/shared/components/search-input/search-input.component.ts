@@ -56,8 +56,9 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
       color: var(--mm-text-primary);
       font-size: var(--mm-text-sm);
       font-family: inherit;
-      transition: border-color var(--mm-duration) var(--mm-ease),
-                  background-color var(--mm-duration) var(--mm-ease);
+      transition:
+        border-color var(--mm-duration) var(--mm-ease),
+        background-color var(--mm-duration) var(--mm-ease);
 
       &::placeholder {
         color: var(--mm-text-muted);

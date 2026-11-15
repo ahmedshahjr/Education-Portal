@@ -33,7 +33,7 @@ export const routes: Routes = [
     path: '',
     loadComponent: () =>
       import('./shared/components/app-layout/app-layout.component').then(
-        (m) => m.AppLayoutComponent
+        (m) => m.AppLayoutComponent,
       ),
     canActivate: [authGuard],
     children: [
@@ -47,7 +47,7 @@ export const routes: Routes = [
             data: { variant: '1' },
             loadComponent: () =>
               import('./features/dashboard/dashboard-overview/dashboard-overview.page').then(
-                (m) => m.DashboardOverviewPageComponent
+                (m) => m.DashboardOverviewPageComponent,
               ),
           },
           {
@@ -56,7 +56,7 @@ export const routes: Routes = [
             data: { variant: '2' },
             loadComponent: () =>
               import('./features/dashboard/dashboard-overview/dashboard-overview.page').then(
-                (m) => m.DashboardOverviewPageComponent
+                (m) => m.DashboardOverviewPageComponent,
               ),
           },
           {
@@ -64,7 +64,7 @@ export const routes: Routes = [
             title: 'Dashboard 3 - MaterialM Angular 22',
             loadComponent: () =>
               import('./features/dashboard/dashboard3/dashboard3.page').then(
-                (m) => m.Dashboard3PageComponent
+                (m) => m.Dashboard3PageComponent,
               ),
           },
           { path: '', redirectTo: 'dashboard3', pathMatch: 'full' },
@@ -84,7 +84,7 @@ export const routes: Routes = [
             title: 'Transactions - MaterialM Angular 22',
             loadComponent: () =>
               import('./features/transactions/transactions.page').then(
-                (m) => m.TransactionsPageComponent
+                (m) => m.TransactionsPageComponent,
               ),
           },
         ],
@@ -103,7 +103,7 @@ export const routes: Routes = [
             title: 'Account Settings - MaterialM Angular 22',
             loadComponent: () =>
               import('./features/settings/account-settings.page').then(
-                (m) => m.AccountSettingsPageComponent
+                (m) => m.AccountSettingsPageComponent,
               ),
           },
           {
@@ -111,7 +111,7 @@ export const routes: Routes = [
             title: 'UI Components - MaterialM Angular 22',
             loadComponent: () =>
               import('./features/ui-showcase/ui-showcase.page').then(
-                (m) => m.UiShowcasePageComponent
+                (m) => m.UiShowcasePageComponent,
               ),
           },
         ],

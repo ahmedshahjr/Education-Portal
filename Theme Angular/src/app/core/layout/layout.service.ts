@@ -53,7 +53,7 @@ export class LayoutService {
 
   /** Effective desktop mini-rail state (manual mini OR automatic compact <=1180px) */
   readonly isMiniSidebar = computed(
-    () => !this.isMobile() && (this.sidebarMode() === 'mini' || this.isCompactViewport())
+    () => !this.isMobile() && (this.sidebarMode() === 'mini' || this.isCompactViewport()),
   );
 
   readonly effectiveSidebarWidth = computed(() => {

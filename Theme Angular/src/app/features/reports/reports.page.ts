@@ -18,7 +18,14 @@ import { BreadcrumbItem } from '../../shared/models/navigation.models';
 @Component({
   selector: 'app-reports-page',
   standalone: true,
-  imports: [RouterLink, MatButtonModule, ChartComponent, PageHeaderComponent, ChartCardComponent, StatusBadgeComponent],
+  imports: [
+    RouterLink,
+    MatButtonModule,
+    ChartComponent,
+    PageHeaderComponent,
+    ChartCardComponent,
+    StatusBadgeComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-page-header
