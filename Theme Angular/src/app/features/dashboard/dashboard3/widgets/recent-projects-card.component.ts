@@ -51,10 +51,7 @@ import { ProjectCategory } from '../../../../shared/models/dashboard.models';
           </thead>
           <tbody>
             @for (project of projects(); track project.id) {
-              <tr
-                class="mm-proj-row"
-                [class.is-selected]="isSelected(project.id)"
-              >
+              <tr class="mm-proj-row" [class.is-selected]="isSelected(project.id)">
                 <td class="col-check">
                   <mat-checkbox
                     [checked]="isSelected(project.id)"
@@ -63,11 +60,7 @@ import { ProjectCategory } from '../../../../shared/models/dashboard.models';
                   />
                 </td>
                 <td>
-                  <button
-                    type="button"
-                    class="mm-proj-name-btn"
-                    (click)="openProjectsApp()"
-                  >
+                  <button type="button" class="mm-proj-name-btn" (click)="openProjectsApp()">
                     <span
                       class="mm-proj-brand"
                       [style.background-color]="project.brandBg"
@@ -79,7 +72,10 @@ import { ProjectCategory } from '../../../../shared/models/dashboard.models';
                   </button>
                 </td>
                 <td class="text-right mm-proj-budget">
-                  {{ project.budget | currency : 'USD' : 'symbol' : project.budget < 10 ? '1.3-4' : '1.2-2' }}
+                  {{
+                    project.budget
+                      | currency: 'USD' : 'symbol' : (project.budget < 10 ? '1.3-4' : '1.2-2')
+                  }}
                 </td>
                 <td class="text-right">
                   <div class="mm-avatar-stack">
@@ -279,7 +275,7 @@ export class RecentProjectsCardComponent {
   ];
 
   protected readonly projects = computed(() =>
-    this.dataService.getProjectsForDashboardTab(this.selectedCategory())
+    this.dataService.getProjectsForDashboardTab(this.selectedCategory()),
   );
 
   protected readonly sparkChart: ApexChart = {

@@ -11,12 +11,18 @@ import {
   ConfirmationDialogData,
 } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { FilterOption, FilterPanelComponent } from '../../shared/components/filter-panel/filter-panel.component';
+import {
+  FilterOption,
+  FilterPanelComponent,
+} from '../../shared/components/filter-panel/filter-panel.component';
 import { FormInputComponent } from '../../shared/components/form-input/form-input.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { SearchInputComponent } from '../../shared/components/search-input/search-input.component';
-import { SelectInputComponent, SelectOption } from '../../shared/components/select-input/select-input.component';
+import {
+  SelectInputComponent,
+  SelectOption,
+} from '../../shared/components/select-input/select-input.component';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { BreadcrumbItem } from '../../shared/models/navigation.models';
@@ -105,8 +111,18 @@ import { BreadcrumbItem } from '../../shared/models/navigation.models';
             />
 
             <div class="mm-kit-tiles">
-              <app-analytics-card label="Total Sales" value="$14,673" icon="trending-up" tone="warning" />
-              <app-analytics-card label="Total Profit" value="$9,281" icon="dollar-sign" tone="error" />
+              <app-analytics-card
+                label="Total Sales"
+                value="$14,673"
+                icon="trending-up"
+                tone="warning"
+              />
+              <app-analytics-card
+                label="Total Profit"
+                value="$9,281"
+                icon="dollar-sign"
+                tone="error"
+              />
             </div>
           </div>
         </app-chart-card>
@@ -192,7 +208,8 @@ export class UiShowcasePageComponent {
   protected openSampleDialog(): void {
     const data: ConfirmationDialogData = {
       title: 'Confirm Action',
-      message: 'This reusable confirmation dialog follows MaterialM border radius and typography tokens.',
+      message:
+        'This reusable confirmation dialog follows MaterialM border radius and typography tokens.',
       confirmText: 'Proceed',
     };
     this.dialog

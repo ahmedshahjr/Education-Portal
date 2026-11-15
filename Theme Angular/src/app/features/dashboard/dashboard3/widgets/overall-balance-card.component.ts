@@ -17,7 +17,10 @@ import {
 import { LayoutService } from '../../../../core/layout/layout.service';
 import { DashboardDataService } from '../../../../core/services/dashboard-data.service';
 import { AnalyticsCardComponent } from '../../../../shared/components/analytics-card/analytics-card.component';
-import { FilterOption, FilterPanelComponent } from '../../../../shared/components/filter-panel/filter-panel.component';
+import {
+  FilterOption,
+  FilterPanelComponent,
+} from '../../../../shared/components/filter-panel/filter-panel.component';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 import { OverallBalanceTab } from '../../../../shared/models/dashboard.models';
 

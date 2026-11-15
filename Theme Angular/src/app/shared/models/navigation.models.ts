@@ -1,4 +1,5 @@
-export type NavBadgeVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'outlined';
+export type NavBadgeVariant =
+  'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'outlined';
 
 export type AppIconName =
   | 'layout-grid'

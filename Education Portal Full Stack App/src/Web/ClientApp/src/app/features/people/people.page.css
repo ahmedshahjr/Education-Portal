@@ -47,3 +47,26 @@ h3 {
   align-items: flex-start;
   gap: var(--mm-space-3);
 }
+.mm-people__toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--mm-space-3);
+}
+
+.mm-people__form {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--mm-space-2) var(--mm-space-3);
+}
+
+.mm-people__form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--mm-space-2);
+}
+
+.mm-people__error {
+  margin: var(--mm-space-2) 0 0;
+  color: var(--mm-error);
+}

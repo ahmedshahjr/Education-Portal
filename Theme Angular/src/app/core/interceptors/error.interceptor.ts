@@ -9,13 +9,18 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: unknown) => {
       if (error instanceof HttpErrorResponse) {
-        const message =
-          (typeof error.error === 'object' && error.error?.message) ||
-          error.message ||
-          'An unexpected network error occurred.';
+        const body: unknown = error.error;
+        const bodyMessage =
+          typeof body === 'object' &&
+          body !== null &&
+          'message' in body &&
+          typeof body.message === 'string'
+            ? body.message
+            : undefined;
+        const message = bodyMessage || error.message || 'An unexpected network error occurred.';
         notifications.notify(message, 'error');
       }
       return throwError(() => error);
-    })
+    }),
   );
 };

@@ -9,7 +9,9 @@
     "test": "ng test --watch=false",
     "lint": "eslint .",
     "lint:report": "eslint . -f json -o eslint-report.json",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "lint:fix": "eslint . --fix"
   },
   "private": true,
   "packageManager": "npm@11.19.0",

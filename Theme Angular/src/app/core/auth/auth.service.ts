@@ -37,7 +37,7 @@ export class AuthService {
         this.userSignal.set(user);
         this.authenticatedSignal.set(true);
         this.tokenSignal.set('demo-materialm-session-token');
-      })
+      }),
     );
   }
 
@@ -58,7 +58,7 @@ export class AuthService {
     };
     return of(next).pipe(
       delay(250),
-      tap((saved) => this.userSignal.set(saved))
+      tap((saved) => this.userSignal.set(saved)),
     );
   }
 }
