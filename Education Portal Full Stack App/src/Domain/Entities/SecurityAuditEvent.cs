@@ -26,8 +26,8 @@ public class SecurityAuditEvent
     /// <summary>The actor's school, once schools exist (step 2b).</summary>
     public int? ActorSchoolId { get; init; }
 
-    /// <summary>The actor's current branch, once branches exist (step 2b).</summary>
-    public int? ActorBranchId { get; init; }
+    /// <summary>The actor's current campus, once campuses exist (step 2b).</summary>
+    public int? ActorCampusId { get; init; }
 
     /// <summary>The kind of thing acted on, for example <c>User</c> or a request name.</summary>
     public string? TargetType { get; init; }

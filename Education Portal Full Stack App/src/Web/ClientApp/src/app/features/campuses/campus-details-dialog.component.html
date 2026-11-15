@@ -1,0 +1,51 @@
+<h2 mat-dialog-title class="mm-campus-dialog__title">
+  {{ campus.name }} <span class="mm-campus-dialog__code"><bdi dir="ltr">{{ campus.displayCode }}</bdi></span>
+</h2>
+
+<mat-dialog-content>
+  <dl class="mm-campus-dialog__details">
+    <dt i18n="@@campuses.kind">Type</dt>
+    <dd>{{ campus.kind === kinds.Main ? 'Main campus' : 'Campus' }}</dd>
+
+    <dt i18n="@@campuses.addressLabel">Address</dt>
+    <dd>{{ campus.details.address || '—' }}</dd>
+
+    <dt i18n="@@campuses.state">State or province</dt>
+    <dd>{{ campus.details.stateName || '—' }}</dd>
+
+    <dt i18n="@@campuses.city">City</dt>
+    <dd>{{ campus.details.cityName || '—' }}</dd>
+
+    <dt i18n="@@campuses.postalCode">Postal code</dt>
+    <dd><bdi dir="ltr">{{ campus.details.postalCode || '—' }}</bdi></dd>
+
+    <dt i18n="@@campuses.phones">Phone numbers</dt>
+    <dd><bdi dir="ltr">{{ campus.details.phones.join(' · ') || '—' }}</bdi></dd>
+
+    <dt i18n="@@campuses.website">Website</dt>
+    <dd><bdi dir="ltr">{{ campus.details.website || '—' }}</bdi></dd>
+
+    <dt i18n="@@campuses.schoolNumber">School number</dt>
+    <dd>{{ campus.details.schoolNumber || '—' }}</dd>
+
+    <dt i18n="@@campuses.shortName">Short name</dt>
+    <dd>{{ campus.details.shortName || '—' }}</dd>
+
+    <dt i18n="@@campuses.principal">Principal</dt>
+    <dd>{{ campus.details.principalName || '—' }}</dd>
+
+    <dt i18n="@@campuses.coordinates">Map location</dt>
+    <dd>
+      @if (mapLink(); as link) {
+        <bdi dir="ltr">{{ campus.details.latitude }}, {{ campus.details.longitude }}</bdi>
+        · <a [href]="link" target="_blank" rel="noopener" i18n="@@campuses.openMap">Open in Google Maps</a>
+      } @else {
+        —
+      }
+    </dd>
+  </dl>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button type="button" mat-dialog-close i18n="@@common.close">Close</button>
+</mat-dialog-actions>

@@ -6,9 +6,9 @@ using EducationPortal.Domain.Constants;
 namespace EducationPortal.Application.Modules.Commands.UpdateModule;
 
 /// <summary>
-/// Changes a module: name, description, core or paid, sort order and whether it is active. An inactive module is off
-/// for every school. A core module is always on and requires only core modules. The code never changes. Master tenant
-/// administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
+/// Changes a module: name, description, core or paid, sort order, whether it is on by default for a new school, and whether
+/// it is active. An inactive module is off for every school, core ones included. A core module requires only core modules.
+/// The code never changes. Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
 public record UpdateModuleCommand : ModuleFields, IRequest
@@ -24,10 +24,6 @@ public class UpdateModuleCommandValidator : ModuleFieldsValidator<UpdateModuleCo
     public UpdateModuleCommandValidator(IApplicationDbContext context)
     {
         RuleFor(c => c.Code).NotEmpty().MaximumLength(PortalModule.CodeMaxLength);
-
-        RuleFor(c => c.IsActive)
-            .Must((command, isActive) => isActive || !command.IsCore)
-            .WithMessage(_ => ValidationMessages.CoreModuleAlwaysOn);
 
         // A core module is in every subscription, so everything it requires must be too.
         RuleFor(c => c.IsCore)
@@ -72,17 +68,16 @@ public class UpdateModuleCommandHandler : IRequestHandler<UpdateModuleCommand>
         var module = await _context.Modules.FirstOrDefaultAsync(m => m.Code == request.Code, cancellationToken);
         Guard.Against.NotFound(request.Code, module);
 
-        // Order matters: a module is activated before it can become core, and stops being core before it can be made inactive.
         if (request.IsActive)
         {
             module.Activate();
-            module.Update(request.Name, request.Description, request.IsCore, request.SortOrder);
         }
         else
         {
-            module.Update(request.Name, request.Description, request.IsCore, request.SortOrder);
             module.Deactivate();
         }
+
+        module.Update(request.Name, request.Description, request.IsCore, request.SortOrder, request.IsDefaultEnabled);
 
         await _context.SaveChangesAsync(cancellationToken);
 

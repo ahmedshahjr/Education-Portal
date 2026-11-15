@@ -1,0 +1,71 @@
+<app-page-header
+  title="Invoices"
+  i18n-title="@@invoices.title"
+  subtitle="Invoices issued to schools for their subscription periods."
+  i18n-subtitle="@@invoices.subtitle"
+></app-page-header>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@invoices.school">School</mat-label>
+      <mat-select [value]="schoolFilter()" (selectionChange)="setSchool($event.value)">
+        <mat-option value="" i18n="@@invoices.allSchools">All schools</mat-option>
+        @for (school of schools(); track school.id) {
+          <mat-option [value]="school.id">{{ school.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="Invoices could not be loaded"
+        i18n-title="@@invoices.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else if (invoices(); as list) {
+      @if (list.length === 0) {
+        <app-empty-state icon="receipt" title="No invoices" i18n-title="@@invoices.empty" description="Invoices appear here once a school's period is billed." i18n-description="@@invoices.emptyDescription" />
+      } @else {
+        <table class="mm-invoices__table" aria-label="Invoices" i18n-aria-label="@@invoices.tableLabel">
+          <thead>
+            <tr>
+              <th scope="col" i18n="@@invoices.number">Number</th>
+              <th scope="col" i18n="@@invoices.status">Status</th>
+              <th scope="col" i18n="@@invoices.period">Period</th>
+              <th scope="col" i18n="@@invoices.due">Due</th>
+              <th scope="col" i18n="@@invoices.total">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (invoice of list; track invoice.id) {
+              <tr>
+                <td><bdi dir="ltr">{{ invoice.number }}</bdi></td>
+                <td>
+                  @if (invoice.status === statuses.Paid) {
+                    <app-status-badge tone="success" i18n="@@invoices.paid">Paid</app-status-badge>
+                  } @else if (invoice.status === statuses.Void) {
+                    <app-status-badge tone="error" i18n="@@invoices.void">Void</app-status-badge>
+                  } @else if (invoice.overdueSince) {
+                    <app-status-badge tone="error" i18n="@@invoices.overdue">Overdue</app-status-badge>
+                  } @else {
+                    <app-status-badge tone="warning" i18n="@@invoices.open">Open</app-status-badge>
+                  }
+                </td>
+                <td>{{ invoice.periodStart | localDate }} – {{ invoice.periodEnd | localDate }}</td>
+                <td>{{ invoice.dueDate | localDate }}</td>
+                <td><bdi dir="ltr">{{ invoice.total }} {{ invoice.currencyCode }}</bdi></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    } @else {
+      <app-loading-state />
+    }
+  </mat-card-content>
+</mat-card>

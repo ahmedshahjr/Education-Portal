@@ -125,6 +125,9 @@ public class SubscriptionTests : TestBase
         var schoolId = await AddPakistaniSchoolAsync("School One", SchoolDomain);
         await SetUpPricesAsync(master);
         (await master.PostAsync("/api/Plans", new { code = "UNPRICED", name = "Unpriced", description = "", modules = Array.Empty<string>() })).Dispose();
+
+        // The school's default grants (registration) are not written by these requests; they are counted before and after.
+        var grantsBefore = await TestApp.CountAsync<TenantModule>();
         var path = $"/api/Schools/{schoolId.PublicId}/subscription";
         string[] none = [];
 
@@ -149,7 +152,7 @@ public class SubscriptionTests : TestBase
         }
 
         (await TestApp.CountAsync<Subscription>()).ShouldBe(0);
-        (await TestApp.CountAsync<TenantModule>()).ShouldBe(0);
+        (await TestApp.CountAsync<TenantModule>()).ShouldBe(grantsBefore);
     }
 
     [Test]

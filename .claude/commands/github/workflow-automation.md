@@ -175,7 +175,7 @@ jobs:
 name: Smart Deployment
 on:
   push:
-    branches: [main]
+    campuses: [main]
 
 jobs:
   progressive-deploy:

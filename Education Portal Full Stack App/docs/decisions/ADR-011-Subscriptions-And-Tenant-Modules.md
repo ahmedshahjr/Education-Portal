@@ -22,7 +22,7 @@ record of what it bought, at what price, and which modules that gives it.
   `StartDate`, `EndDate` (the current period's end; the trial's end while on trial) and `TrialEndDate`. A school has at
   most one subscription that is not cancelled (a unique partial index). The master tenant needs none.
 - **`TenantModule`** (table `TenantModules`, tenant-owned): `SchoolId`, `ModuleId`, `SubscriptionId`, `Status` (Active,
-  Suspended, Expired, with a lookup table), `ValidFrom`, `ValidTo` and a nullable `BranchId` (empty means the whole
+  Suspended, Expired, with a lookup table), `ValidFrom`, `ValidTo` and a nullable `CampusId` (empty means the whole
   school). Its data is kept when it expires or is suspended; nothing is deleted.
 - **Entitlement rules** (`SubscriptionPlanner`): the school gets the plan's paid modules, the add-ons, everything those
   require (`ModuleDependencyGraph.RequiredBy`) and every core module. Inactive modules, unknown or core add-ons and
@@ -30,8 +30,8 @@ record of what it bought, at what price, and which modules that gives it.
   include (including paid modules pulled in as dependencies), all from the price book of the school's country, active,
   in the chosen cycle; a missing price refuses the subscription. The subscription and its modules are saved with one
   `SaveChanges`, so they are stored together or not at all.
-- **`Branch`** (table `Branches`): a minimal tenant-owned row (`SchoolId`, `Name`) so a `TenantModule` can point to a
-  branch. It has no endpoints yet.
+- **`Campus`** (table `Campuses`): a minimal tenant-owned row (`SchoolId`, `Name`) so a `TenantModule` can point to a
+  campus. It has no endpoints yet.
 - **`School.DataRegion`** (SouthAsia, MiddleEast, NorthAmerica; nullable, with a lookup table) is the only new column on
   `School`. Currency and languages already come from the school's `Country`.
 - **API** (master tenant administrators only, audited as `SubscriptionCreated` and `DataRegionChanged`):

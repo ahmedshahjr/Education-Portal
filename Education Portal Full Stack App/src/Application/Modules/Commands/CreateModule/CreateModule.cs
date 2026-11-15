@@ -46,7 +46,7 @@ public class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand, s
 
     public async Task<string> Handle(CreateModuleCommand request, CancellationToken cancellationToken)
     {
-        var module = PortalModule.Create(request.Code, request.Name, request.Description, request.IsCore, request.SortOrder);
+        var module = PortalModule.Create(request.Code, request.Name, request.Description, request.IsCore, request.SortOrder, request.IsDefaultEnabled);
 
         _context.Modules.Add(module);
         await _context.SaveChangesAsync(cancellationToken);

@@ -1,0 +1,63 @@
+<div class="mm-location">
+  @if (status() === 'loading' || status() === 'ready') {
+    <div class="mm-location__map" #canvas role="application" aria-live="off" i18n-aria-label="@@campuses.mapLabel" aria-label="Map to place the campus"></div>
+  }
+
+  @switch (status()) {
+    @case ('loading') {
+      <p class="mm-location__hint" i18n="@@campuses.mapLoading">Loading the map…</p>
+    }
+    @case ('ready') {
+      <p class="mm-location__hint" i18n="@@campuses.mapHint">Click the map or drag the pin to place the campus. You can also type the coordinates.</p>
+    }
+    @case ('unavailable') {
+      <p class="mm-location__hint" i18n="@@campuses.mapUnavailable">No map is set up for this school yet. Type the coordinates below, or ask the administrator to add the Google Maps key.</p>
+    }
+    @case ('failed') {
+      <p class="mm-location__hint" role="status" i18n="@@campuses.mapFailed">The map could not load. Type the coordinates below.</p>
+    }
+  }
+
+  <div class="mm-location__coordinates">
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.latitude">Latitude</mat-label>
+      <input
+        #latitudeInput
+        matInput
+        type="text"
+        inputmode="decimal"
+        autocomplete="off"
+        dir="ltr"
+        maxlength="12"
+        [value]="latitudeText()"
+        (change)="onLatitudeChange(latitudeInput.value)"
+        [attr.aria-invalid]="latitudeInvalid()"
+      />
+      <mat-hint i18n="@@campuses.latitudeHint">Between -90 and 90.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.longitude">Longitude</mat-label>
+      <input
+        #longitudeInput
+        matInput
+        type="text"
+        inputmode="decimal"
+        autocomplete="off"
+        dir="ltr"
+        maxlength="13"
+        [value]="longitudeText()"
+        (change)="onLongitudeChange(longitudeInput.value)"
+        [attr.aria-invalid]="longitudeInvalid()"
+      />
+      <mat-hint i18n="@@campuses.longitudeHint">Between -180 and 180.</mat-hint>
+    </mat-form-field>
+  </div>
+
+  @if (latitudeInvalid()) {
+    <p class="mm-location__error" role="alert" i18n="@@campuses.latitudeRange">Latitude must be between -90 and 90.</p>
+  }
+  @if (longitudeInvalid()) {
+    <p class="mm-location__error" role="alert" i18n="@@campuses.longitudeRange">Longitude must be between -180 and 180.</p>
+  }
+</div>

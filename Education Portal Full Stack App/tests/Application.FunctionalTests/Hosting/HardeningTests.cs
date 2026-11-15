@@ -93,6 +93,7 @@ public class HardeningTests : TestBase
         headers.ShouldContainKey("Content-Security-Policy");
         headers["Content-Security-Policy"].ShouldContain("default-src 'self'");
         headers["Content-Security-Policy"].ShouldContain("object-src 'none'");
+        headers["Content-Security-Policy"].ShouldContain("script-src 'self' https://maps.googleapis.com;");
         headers["Content-Security-Policy"].ShouldContain("frame-ancestors 'none'");
         headers["X-Content-Type-Options"].ShouldBe("nosniff");
         headers["X-Frame-Options"].ShouldBe("DENY");

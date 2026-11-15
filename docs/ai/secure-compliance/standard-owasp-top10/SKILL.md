@@ -17,7 +17,7 @@ The OWASP Top 10 is an awareness list of the most critical web application secur
 
 | Risk | How it shows up here | Prevent with |
 |---|---|---|
-| A01 Broken Access Control | Reading another school's or branch's students by changing an ID or host; missing module/right check; SSRF | [authorization-tenant-isolation](../authorization-tenant-isolation/SKILL.md) (SEC-AUTHZ-01..11) |
+| A01 Broken Access Control | Reading another school's or campus's students by changing an ID or host; missing module/right check; SSRF | [authorization-tenant-isolation](../authorization-tenant-isolation/SKILL.md) (SEC-AUTHZ-01..11) |
 | A02 Security Misconfiguration | `AllowAnyOrigin` CORS, Scalar UI in production, missing headers, dev seed data in prod | [web-api-hardening](../web-api-hardening/SKILL.md), [configuration-environments](../configuration-environments/SKILL.md) |
 | A03 Software Supply Chain Failures | Vulnerable or malicious NuGet/npm packages, unpinned CI actions | [dependencies-supply-chain](../dependencies-supply-chain/SKILL.md) |
 | A04 Cryptographic Failures | Weak algorithms, no TLS to PostgreSQL, unprotected Data Protection keys | [cryptography-secrets](../cryptography-secrets/SKILL.md) |
@@ -30,7 +30,7 @@ The OWASP Top 10 is an awareness list of the most critical web application secur
 
 ## Review checklist for every PR
 
-- Could a user of `school1.com` reach `school2.com` data, or a branch they are not assigned to? (A01)
+- Could a user of `school1.com` reach `school2.com` data, or a campus they are not assigned to? (A01)
 - Is anything enabled outside Development that should not be? (A02)
 - New or updated package: audited and justified? (A03)
 - Any crypto, secret or connection string touched? (A04)

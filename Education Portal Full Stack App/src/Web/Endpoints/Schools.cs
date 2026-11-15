@@ -1,6 +1,7 @@
-using EducationPortal.Application.Branding.Common;
+﻿using EducationPortal.Application.Branding.Common;
 using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Modules.Common;
+using EducationPortal.Application.Modules.Commands.SetSchoolModule;
 using EducationPortal.Application.Modules.Queries.GetSchoolModules;
 using EducationPortal.Application.Schools.Commands.CreateSchool;
 using EducationPortal.Application.Schools.Commands.SetDataRegion;
@@ -74,6 +75,10 @@ public class Schools : IEndpointGroup
 
         groupBuilder.MapGet(GetSchoolModules, "{schoolId:guid}/modules")
             .RequireAuthorization();
+
+        groupBuilder.MapPut(SetSchoolModule, "{schoolId:guid}/modules/{moduleCode}")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
         groupBuilder.MapPut(SetDataRegion, "{schoolId:guid}/data-region")
             .RequireAuthorization()
@@ -217,10 +222,20 @@ public class Schools : IEndpointGroup
     }
 
     [EndpointSummary("List a school's modules")]
-    [EndpointDescription("Returns every module as it stands for the school: core modules are always on, paid modules are on when the school's subscription gives them now. Read only; change them through the subscription. Master tenant only.")]
+    [EndpointDescription("Returns every module as it stands for the school: a module is on when the school has a grant for it: the default grant from its registration, or its subscription. The master tenant changes any of them with the school's switches (PUT .../modules/{moduleCode}). Master tenant only.")]
     public static async Task<Ok<IReadOnlyList<SchoolModuleDto>>> GetSchoolModules(ISender sender, Guid schoolId)
     {
         return TypedResults.Ok(await sender.Send(new GetSchoolModulesQuery(schoolId)));
+    }
+
+    [EndpointSummary("Turn a module on or off for a school")]
+    [EndpointDescription("Turns a module on for the school (free, whole school, no end) or off (its active grants end now). Core and default modules can be switched too. A module switched off for every school cannot be turned on. Master tenant only.")]
+    public static async Task<NoContent> SetSchoolModule(ISender sender, Guid schoolId, string moduleCode, SetSchoolModuleCommand command)
+    {
+        // The route names the school and the module; ids in the body are ignored.
+        await sender.Send(command with { SchoolId = schoolId, ModuleCode = moduleCode });
+
+        return TypedResults.NoContent();
     }
 
     [EndpointSummary("Change a school's country")]

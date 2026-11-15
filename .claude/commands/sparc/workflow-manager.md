@@ -41,7 +41,7 @@ npx claude-flow@alpha sparc run workflow-manager "automate deployment"
 
 ## Workflow Patterns
 - Sequential flows
-- Parallel branches
+- Parallel campuses
 - Conditional logic
 - Loop iterations
 - Error handling

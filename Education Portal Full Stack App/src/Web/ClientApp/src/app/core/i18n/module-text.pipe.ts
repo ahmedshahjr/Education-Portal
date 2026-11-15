@@ -15,9 +15,9 @@ const MODULE_TEXT: Readonly<Record<string, ModuleText>> = {
     name: $localize`:@@module.school.name:School`,
     description: $localize`:@@module.school.description:School profile, settings and the school overview dashboard.`,
   },
-  BRANCH: {
-    name: $localize`:@@module.branch.name:Campuses`,
-    description: $localize`:@@module.branch.description:Create and edit the school's campuses.`,
+  CAMPUS: {
+    name: $localize`:@@module.campus.name:Campuses`,
+    description: $localize`:@@module.campus.description:Create and edit the school's campuses.`,
   },
   ACADEMIC_SETUP: {
     name: $localize`:@@module.academicSetup.name:Academic setup`,
@@ -25,15 +25,15 @@ const MODULE_TEXT: Readonly<Record<string, ModuleText>> = {
   },
   USERS_ROLES: {
     name: $localize`:@@module.usersRoles.name:Users & Roles`,
-    description: $localize`:@@module.usersRoles.description:Staff accounts, roles with rights per module, branch assignment.`,
+    description: $localize`:@@module.usersRoles.description:Staff accounts, roles with rights per module, campus assignment.`,
   },
   STUDENTS: {
     name: $localize`:@@module.students.name:Students`,
-    description: $localize`:@@module.students.description:Student records and branch membership.`,
+    description: $localize`:@@module.students.description:Student records and campus membership.`,
   },
   STAFF: {
     name: $localize`:@@module.staff.name:Staff`,
-    description: $localize`:@@module.staff.description:Teacher and staff records and branch membership.`,
+    description: $localize`:@@module.staff.description:Teacher and staff records and campus membership.`,
   },
   ADMISSIONS: {
     name: $localize`:@@module.admissions.name:Admissions`,

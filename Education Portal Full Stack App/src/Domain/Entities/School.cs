@@ -15,7 +15,7 @@ public class School : BaseSoftDeletableEntity
     /// <summary>The accent colour a school starts with: the theme's default cyan.</summary>
     public static readonly HexColor DefaultAccentColor = HexColor.From("#00a1ff");
 
-    private readonly List<Branch> _branches = [];
+    private readonly List<Campus> _campuses = [];
 
     private School()
     {
@@ -35,15 +35,15 @@ public class School : BaseSoftDeletableEntity
         IsMaster = isMaster;
         AccentColor = DefaultAccentColor;
 
-        // Every school has its registration branch from the start, saved with it in the same save.
-        _branches.Add(Branch.CreateMain());
+        // Every school has its registration campus from the start, saved with it in the same save.
+        _campuses.Add(Campus.CreateMain());
     }
 
     /// <summary>
-    /// The school's branches. It always holds exactly one main branch, created with the school; nothing removes it, and
+    /// The school's campuses. It always holds exactly one main campus, created with the school; nothing removes it, and
     /// the database allows only one per school.
     /// </summary>
-    public IReadOnlyCollection<Branch> Branches => _branches;
+    public IReadOnlyCollection<Campus> Campuses => _campuses;
 
     /// <summary>Creates the master tenant. Only seeding calls this; there is no use case for it.</summary>
     public static School CreateMaster(string name, string domain) => new(name, domain, isMaster: true);

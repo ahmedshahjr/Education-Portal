@@ -9,7 +9,7 @@ public static class ModuleCodes
 {
     // Core: always included in every subscription, never sold on their own.
     public const string School = "SCHOOL";
-    public const string Branch = "BRANCH";
+    public const string Campus = "CAMPUS";
     public const string AcademicSetup = "ACADEMIC_SETUP";
     public const string UsersRoles = "USERS_ROLES";
     public const string Students = "STUDENTS";

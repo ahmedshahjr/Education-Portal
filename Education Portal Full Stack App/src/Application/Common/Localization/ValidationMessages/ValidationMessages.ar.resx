@@ -312,10 +312,10 @@
   <data name="CampusCodesExhausted" xml:space="preserve">
     <value>لم يبق لهذه المدرسة رمز فرع متاح.</value>
   </data>
-  <data name="BranchMainNotDeletable" xml:space="preserve">
+  <data name="CampusMainNotDeletable" xml:space="preserve">
     <value>لا يمكن حذف الفرع الرئيسي: تحتفظ به كل مدرسة.</value>
   </data>
-  <data name="BranchHasModules" xml:space="preserve">
+  <data name="CampusHasModules" xml:space="preserve">
     <value>ما زال لهذا الفرع وحدات مفعّلة. أوقفها أولًا.</value>
   </data>
   <data name="SchoolMasterNotDeletable" xml:space="preserve">
@@ -353,5 +353,56 @@
   </data>
   <data name="AddOnRequestNotPending" xml:space="preserve">
     <value>لا يمكن الموافقة أو الرفض إلا على الطلب المعلّق.</value>
+  </data>
+  <data name="CampusStateNotInCountry" xml:space="preserve">
+    <value>يجب أن تنتمي الولاية إلى دولة المدرسة.</value>
+  </data>
+  <data name="CampusCityNeedsState" xml:space="preserve">
+    <value>اختر الولاية قبل اختيار المدينة.</value>
+  </data>
+  <data name="CampusCityNotInState" xml:space="preserve">
+    <value>يجب أن تنتمي المدينة إلى الولاية المختارة.</value>
+  </data>
+  <data name="CampusPrincipalNotFound" xml:space="preserve">
+    <value>يجب أن يكون المدير شخصًا من هذه المدرسة.</value>
+  </data>
+  <data name="CampusPrincipalNotPrincipal" xml:space="preserve">
+    <value>الشخص المختار ليس مديرًا.</value>
+  </data>
+  <data name="PostalCodeInvalid" xml:space="preserve">
+    <value>يتكون الرمز البريدي من حروف وأرقام ومسافات وشرطات فقط، بحد أقصى 10 أحرف.</value>
+  </data>
+  <data name="CampusLocationRequired" xml:space="preserve">
+    <value>ضع الحرم على الخريطة.</value>
+  </data>
+  <data name="LatitudeInvalid" xml:space="preserve">
+    <value>يجب أن يكون خط العرض بين -90 و90.</value>
+  </data>
+  <data name="UserDetailsIsPrincipal" xml:space="preserve">
+    <value>هذا الشخص مدير لحرم. اختر مديرًا آخر لذلك الحرم أولًا.</value>
+  </data>
+  <data name="LongitudeInvalid" xml:space="preserve">
+    <value>يجب أن يكون خط الطول بين -180 و180.</value>
+  </data>
+  <data name="PhoneInvalid" xml:space="preserve">
+    <value>يتكون رقم الهاتف من 7 إلى 15 رقمًا، ويجوز أن يبدأ بعلامة +.</value>
+  </data>
+  <data name="WebsiteInvalid" xml:space="preserve">
+    <value>يجب أن يكون الموقع عنوانًا مطلقًا بصيغة http أو https.</value>
+  </data>
+  <data name="CountryHasNoPriceBook" xml:space="preserve">
+    <value>ليس لهذه الدولة قائمة أسعار بعد. على المدير الرئيسي تحديد أسعارها قبل تسجيل مدرسة فيها.</value>
+  </data>
+  <data name="SchoolRequestNotPending" xml:space="preserve">
+    <value>لا يمكن الموافقة على طلب المدرسة أو رفضه إلا إذا كان معلّقًا.</value>
+  </data>
+  <data name="ModuleSwitchedOff" xml:space="preserve">
+    <value>هذه الوحدة موقوفة لكل المدارس، لذلك لا يمكن تفعيلها لهذه المدرسة.</value>
+  </data>
+  <data name="CampusPhonesRequired" xml:space="preserve">
+    <value>أضف رقم هاتف واحدًا على الأقل للحرم.</value>
+  </data>
+  <data name="CampusPhonesTooMany" xml:space="preserve">
+    <value>يسرد الحرم خمسة أرقام هاتف كحد أقصى.</value>
   </data>
 </root>

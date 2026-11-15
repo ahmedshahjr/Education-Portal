@@ -62,15 +62,15 @@ public class ModuleDenialTests : TestBase
     }
 
     [Test]
-    public async Task ShouldRefuseAModuleGrantedToOneBranchWhenNoBranchIsKnown()
+    public async Task ShouldRefuseAModuleGrantedToOneCampusWhenNoCampusIsKnown()
     {
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        var branch = Branch.Create(school.Id, "North", "0002");
-        await TestApp.AddAsync(branch);
-        await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], branchId: branch.Id);
+        var campus = Campus.Create(school.Id, "North", "0002");
+        await TestApp.AddAsync(campus);
+        await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], campusId: campus.Id);
         await RunAsSchoolAdministratorAsync(school.Id);
 
-        // A branch-only grant counts only for that branch; the pipeline knows no branch, so it fails closed.
+        // A campus-only grant counts only for that campus; the pipeline knows no campus, so it fails closed.
         await Should.ThrowAsync<ModuleNotEnabledException>(() => TestApp.SendAsync(new FeesModuleProbe()));
     }
 

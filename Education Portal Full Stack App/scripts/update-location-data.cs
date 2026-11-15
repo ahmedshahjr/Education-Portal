@@ -3,7 +3,7 @@
 //
 //   dotnet run scripts/update-location-data.cs -- <commit-sha-or-tag>
 //
-// Pin a commit or tag, not a branch, so the file says exactly which data it holds. Review the diff, then open a PR.
+// Pin a commit or tag, not a campus, so the file says exactly which data it holds. Review the diff, then open a PR.
 // The app imports the file on start-up (LocationDataImporter); rows that administrators added (IsCustom) are never
 // touched. The script fails if the data has a state type the app does not know, so add it to StateType first.
 //

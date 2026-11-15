@@ -40,7 +40,7 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
-        builder.Services.AddScoped<ApplicationDbContextInitialiser>();
+        builder.Services.AddScoped<DevelopmentDataSeeder>();
         builder.Services.AddScoped<LocationDataImporter>();
 
         builder.Services.AddSingleton(TimeProvider.System);

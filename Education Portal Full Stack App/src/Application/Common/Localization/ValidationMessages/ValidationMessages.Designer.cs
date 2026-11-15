@@ -94,20 +94,20 @@ namespace EducationPortal.Application.Common.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This branch still has module grants. Turn those modules off first..
+        ///   Looks up a localized string similar to This campus still has module grants. Turn those modules off first..
         /// </summary>
-        internal static string BranchHasModules {
+        internal static string CampusHasModules {
             get {
-                return ResourceManager.GetString("BranchHasModules", resourceCulture);
+                return ResourceManager.GetString("CampusHasModules", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The main branch cannot be deleted: every school keeps it..
+        ///   Looks up a localized string similar to The main campus cannot be deleted: every school keeps it..
         /// </summary>
-        internal static string BranchMainNotDeletable {
+        internal static string CampusMainNotDeletable {
             get {
-                return ResourceManager.GetString("BranchMainNotDeletable", resourceCulture);
+                return ResourceManager.GetString("CampusMainNotDeletable", resourceCulture);
             }
         }
         
@@ -765,6 +765,159 @@ namespace EducationPortal.Application.Common.Localization {
         internal static string UnknownModules {
             get {
                 return ResourceManager.GetString("UnknownModules", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The state must belong to the school&apos;s country..
+        /// </summary>
+        internal static string CampusStateNotInCountry {
+            get {
+                return ResourceManager.GetString("CampusStateNotInCountry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose a state before choosing a city..
+        /// </summary>
+        internal static string CampusCityNeedsState {
+            get {
+                return ResourceManager.GetString("CampusCityNeedsState", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The city must belong to the chosen state..
+        /// </summary>
+        internal static string CampusCityNotInState {
+            get {
+                return ResourceManager.GetString("CampusCityNotInState", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The principal must be a person of this school..
+        /// </summary>
+        internal static string CampusPrincipalNotFound {
+            get {
+                return ResourceManager.GetString("CampusPrincipalNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The chosen person is not a principal..
+        /// </summary>
+        internal static string CampusPrincipalNotPrincipal {
+            get {
+                return ResourceManager.GetString("CampusPrincipalNotPrincipal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A postal code has letters, digits, spaces and hyphens only, up to 10 characters..
+        /// </summary>
+        internal static string PostalCodeInvalid {
+            get {
+                return ResourceManager.GetString("PostalCodeInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Place the campus on the map..
+        /// </summary>
+        internal static string CampusLocationRequired {
+            get {
+                return ResourceManager.GetString("CampusLocationRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Latitude must be between -90 and 90..
+        /// </summary>
+        internal static string LatitudeInvalid {
+            get {
+                return ResourceManager.GetString("LatitudeInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This person is the principal of a campus. Choose another principal there first..
+        /// </summary>
+        internal static string UserDetailsIsPrincipal {
+            get {
+                return ResourceManager.GetString("UserDetailsIsPrincipal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Longitude must be between -180 and 180..
+        /// </summary>
+        internal static string LongitudeInvalid {
+            get {
+                return ResourceManager.GetString("LongitudeInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A phone number has 7 to 15 digits and may start with +..
+        /// </summary>
+        internal static string PhoneInvalid {
+            get {
+                return ResourceManager.GetString("PhoneInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A website must be an absolute http or https address..
+        /// </summary>
+        internal static string WebsiteInvalid {
+            get {
+                return ResourceManager.GetString("WebsiteInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The country has no price book yet..
+        /// </summary>
+        internal static string CountryHasNoPriceBook {
+            get {
+                return ResourceManager.GetString("CountryHasNoPriceBook", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Only a pending school request can be approved or rejected..
+        /// </summary>
+        internal static string ModuleSwitchedOff {
+            get {
+                return ResourceManager.GetString("ModuleSwitchedOff", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Only a pending school request can be approved or rejected..
+        /// </summary>
+        internal static string SchoolRequestNotPending {
+            get {
+                return ResourceManager.GetString("SchoolRequestNotPending", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add at least one phone number for the campus..
+        /// </summary>
+        internal static string CampusPhonesRequired {
+            get {
+                return ResourceManager.GetString("CampusPhonesRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A campus lists at most five phone numbers..
+        /// </summary>
+        internal static string CampusPhonesTooMany {
+            get {
+                return ResourceManager.GetString("CampusPhonesTooMany", resourceCulture);
             }
         }
     }

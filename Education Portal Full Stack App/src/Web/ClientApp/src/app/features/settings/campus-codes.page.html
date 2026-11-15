@@ -1,0 +1,32 @@
+<app-page-header
+  title="Campus codes"
+  i18n-title="@@campusCodes.title"
+  subtitle="The code shown in front of every campus, for example KHI0002 when the prefix is KHI."
+  i18n-subtitle="@@campusCodes.subtitle"
+></app-page-header>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (settings(); as current) {
+      <form class="mm-campus-codes__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <mat-slide-toggle formControlName="prefixEnabled" (change)="updatePrefixValidation()" i18n="@@campuses.prefixOn">Show a prefix in front of every campus code</mat-slide-toggle>
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@campuses.prefix">Prefix</mat-label>
+          <input matInput formControlName="prefix" maxlength="6" autocomplete="off" dir="ltr" />
+          <mat-hint i18n="@@campuses.prefixHint">Letters or digits, up to 6. Shown as the prefix followed by the code, for example KHI0002.</mat-hint>
+        </mat-form-field>
+        <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@campuses.saveCodes">Save codes</button>
+      </form>
+      <p class="mm-campus-codes__example">
+        <span i18n="@@campusCodes.example">Example: </span>
+        <bdi dir="ltr">{{ current.prefixEnabled && current.prefix ? current.prefix : '' }}0002</bdi>
+      </p>
+    } @else {
+      <app-loading-state />
+    }
+
+    @for (message of errors(); track message) {
+      <p class="mm-campus-codes__error" role="alert">{{ message }}</p>
+    }
+  </mat-card-content>
+</mat-card>

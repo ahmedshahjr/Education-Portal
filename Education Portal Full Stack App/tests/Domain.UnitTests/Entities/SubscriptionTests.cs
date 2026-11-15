@@ -82,37 +82,37 @@ public class SubscriptionTests
     {
         var subscription = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 1m, Start, 0);
 
-        var tenantModule = subscription.AddModule(Module("FEES", 7), TestBranches.MainBranch());
+        var tenantModule = subscription.AddModule(Module("FEES", 7), TestCampuses.MainCampus());
 
         tenantModule.ShouldSatisfyAllConditions(
             m => m.SchoolId.ShouldBe(9),
             m => m.ModuleId.ShouldBe(7),
-            m => m.BranchId.ShouldBe(1),
+            m => m.CampusId.ShouldBe(1),
             m => m.IsSchoolWide.ShouldBeTrue(),
             m => m.Status.ShouldBe(TenantModuleStatus.Active),
             m => m.ValidFrom.ShouldBe(Start),
             m => m.ValidTo.ShouldBe(subscription.EndDate));
         subscription.Modules.Count.ShouldBe(1);
-        Should.Throw<InvalidOperationException>(() => subscription.AddModule(Module("FEES", 7), TestBranches.MainBranch()));
+        Should.Throw<InvalidOperationException>(() => subscription.AddModule(Module("FEES", 7), TestCampuses.MainCampus()));
     }
 
     [Test]
-    public void ShouldLimitAModuleGivenToAnotherBranchToThatBranch()
+    public void ShouldLimitAModuleGivenToAnotherCampusToThatCampus()
     {
         var subscription = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 1m, Start, 0);
-        var north = Branch.Create(9, "North", "0002");
+        var north = Campus.Create(9, "North", "0002");
         north.Id = 2;
 
         var tenantModule = subscription.AddModule(Module("FEES", 7), north);
 
-        tenantModule.ShouldSatisfyAllConditions(m => m.BranchId.ShouldBe(2), m => m.IsSchoolWide.ShouldBeFalse());
+        tenantModule.ShouldSatisfyAllConditions(m => m.CampusId.ShouldBe(2), m => m.IsSchoolWide.ShouldBeFalse());
     }
 
     [Test]
-    public void ShouldRefuseABranchOfAnotherSchool()
+    public void ShouldRefuseACampusOfAnotherSchool()
     {
         var subscription = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 1m, Start, 0);
-        var other = Branch.Create(4, "Other", "0003");
+        var other = Campus.Create(4, "Other", "0003");
         other.Id = 3;
 
         Should.Throw<ArgumentException>(() => subscription.AddModule(Module("FEES", 7), other));
@@ -123,21 +123,21 @@ public class SubscriptionTests
     {
         var subscription = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 1m, Start, 0);
 
-        Should.Throw<ArgumentOutOfRangeException>(() => subscription.AddModule(Module("FEES", 0), TestBranches.MainBranch()));
+        Should.Throw<ArgumentOutOfRangeException>(() => subscription.AddModule(Module("FEES", 0), TestCampuses.MainCampus()));
     }
 
     [Test]
-    public void ShouldCreateABranchForASchool()
+    public void ShouldCreateACampusForASchool()
     {
-        var branch = Branch.Create(9, " North campus ", "0004");
+        var campus = Campus.Create(9, " North campus ", "0004");
 
-        branch.SchoolId.ShouldBe(9);
-        branch.Name.ShouldBe("North campus");
-        branch.Code.ShouldBe("0004");
-        Should.Throw<ArgumentOutOfRangeException>(() => Branch.Create(0, "x", "0005"));
-        Should.Throw<ArgumentException>(() => Branch.Create(9, " ", "0005"));
-        Should.Throw<ArgumentOutOfRangeException>(() => Branch.Create(9, new string('a', Branch.NameMaxLength + 1), "0005"));
-        Branch.Create(9, new string('a', Branch.NameMaxLength), "0005").Name.Length.ShouldBe(Branch.NameMaxLength);
+        campus.SchoolId.ShouldBe(9);
+        campus.Name.ShouldBe("North campus");
+        campus.Code.ShouldBe("0004");
+        Should.Throw<ArgumentOutOfRangeException>(() => Campus.Create(0, "x", "0005"));
+        Should.Throw<ArgumentException>(() => Campus.Create(9, " ", "0005"));
+        Should.Throw<ArgumentOutOfRangeException>(() => Campus.Create(9, new string('a', Campus.NameMaxLength + 1), "0005"));
+        Campus.Create(9, new string('a', Campus.NameMaxLength), "0005").Name.Length.ShouldBe(Campus.NameMaxLength);
     }
 
     [Test]
@@ -157,7 +157,7 @@ public class SubscriptionTests
         var subscription = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 100m, Start, 0);
         foreach (var module in modules)
         {
-            subscription.AddModule(module, TestBranches.MainBranch());
+            subscription.AddModule(module, TestCampuses.MainCampus());
         }
 
         return subscription;
@@ -193,7 +193,7 @@ public class SubscriptionTests
     public void ShouldExtendThePeriodAndEveryModuleAndTheTrialWhileOnTrial()
     {
         var trial = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 100m, Start, 14);
-        trial.AddModule(Module("FEES", 7), TestBranches.MainBranch());
+        trial.AddModule(Module("FEES", 7), TestCampuses.MainCampus());
 
         trial.Extend(10);
 
@@ -224,7 +224,7 @@ public class SubscriptionTests
         var subscription = WithModules(fees, exams);
         var now = Start.AddDays(5);
 
-        subscription.Reconfigure(null, Book(), 250m, [fees, library], now, TestBranches.MainBranch());
+        subscription.Reconfigure(null, Book(), 250m, [fees, library], now, TestCampuses.MainCampus());
 
         subscription.Amount.ShouldBe(250m);
         var byModule = subscription.Modules.ToDictionary(m => m.ModuleId);
@@ -237,7 +237,7 @@ public class SubscriptionTests
             m => m.ValidTo.ShouldBe(subscription.EndDate));
 
         // A module that returns is restored for the rest of the period; no second row is made for it.
-        subscription.Reconfigure(null, Book(), 300m, [fees, exams, library], now.AddDays(1), TestBranches.MainBranch());
+        subscription.Reconfigure(null, Book(), 300m, [fees, exams, library], now.AddDays(1), TestCampuses.MainCampus());
 
         subscription.Modules.Count.ShouldBe(3);
         byModule[8].Status.ShouldBe(TenantModuleStatus.Active);
@@ -250,7 +250,7 @@ public class SubscriptionTests
         var subscription = WithModules(Module("FEES", 7));
         var dollars = Saved(PriceBook.Create("US", "USD"), 4);
 
-        Should.Throw<ArgumentException>(() => subscription.Reconfigure(null, dollars, 1m, [], Start, TestBranches.MainBranch()));
-        Should.Throw<ArgumentOutOfRangeException>(() => subscription.Reconfigure(null, Book(), 1.234m, [], Start, TestBranches.MainBranch()));
+        Should.Throw<ArgumentException>(() => subscription.Reconfigure(null, dollars, 1m, [], Start, TestCampuses.MainCampus()));
+        Should.Throw<ArgumentOutOfRangeException>(() => subscription.Reconfigure(null, Book(), 1.234m, [], Start, TestCampuses.MainCampus()));
     }
 }

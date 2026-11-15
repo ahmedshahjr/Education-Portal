@@ -1,4 +1,4 @@
-﻿using EducationPortal.Domain.Constants;
+using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using NUnit.Framework;
 using Shouldly;
@@ -6,8 +6,8 @@ using Shouldly;
 namespace EducationPortal.Domain.UnitTests.Entities;
 
 /// <summary>
-/// A module is core (in every subscription, always on) or paid (on for a school only when given to it), and an inactive
-/// module is off for every school.
+/// Every module can be switched off by the master, core ones included: an inactive module is off for every school. A
+/// registering school gets the modules that are on by default. Core modules are part of every subscription.
 /// </summary>
 public class PortalModuleTests
 {
@@ -22,24 +22,49 @@ public class PortalModuleTests
     }
 
     [Test]
-    public void ShouldNeverDeactivateOrDeleteACoreModule()
+    public void ShouldLetTheMasterSwitchACoreModuleOffAndBackOn()
     {
-        var module = PortalModule.Create(ModuleCodes.Students, "Students", "", isCore: true, sortOrder: 50);
+        var module = PortalModule.Create(ModuleCodes.Students, "Students", "", isCore: true, sortOrder: 50, isDefaultEnabled: true);
 
-        Should.Throw<InvalidOperationException>(module.Deactivate);
-        Should.Throw<InvalidOperationException>(() => module.Delete(DateTimeOffset.UtcNow, "user"));
+        module.Deactivate();
+        module.IsActive.ShouldBeFalse();
+
+        module.Activate();
         module.IsActive.ShouldBeTrue();
-        module.IsDeleted.ShouldBeFalse();
     }
 
     [Test]
-    public void ShouldRefuseToMakeAnInactiveModuleCore()
+    public void ShouldStillNotDeleteAModuleWithoutKeepingItsRow()
+    {
+        var module = PortalModule.Create(ModuleCodes.Students, "Students", "", isCore: true, sortOrder: 50);
+
+        module.Delete(DateTimeOffset.UtcNow, "user");
+
+        module.IsDeleted.ShouldBeTrue();
+        module.IsActive.ShouldBeFalse();
+    }
+
+    [Test]
+    public void ShouldKeepTheDefaultFlagAndLetTheMasterChangeIt()
+    {
+        var module = PortalModule.Create(ModuleCodes.Fees, "Fees", "", isCore: false, sortOrder: 120);
+        module.IsDefaultEnabled.ShouldBeFalse();
+
+        module.Update("Fees", "", isCore: false, sortOrder: 120, isDefaultEnabled: true);
+
+        module.IsDefaultEnabled.ShouldBeTrue();
+    }
+
+    [Test]
+    public void ShouldAllowAnInactiveModuleToBecomeCore()
     {
         var module = PortalModule.Create(ModuleCodes.Fees, "Fees", "", isCore: false, sortOrder: 120);
         module.Deactivate();
 
-        Should.Throw<InvalidOperationException>(() => module.Update("Fees", "", isCore: true, sortOrder: 120));
-        module.IsCore.ShouldBeFalse();
+        module.Update("Fees", "", isCore: true, sortOrder: 120);
+
+        module.IsCore.ShouldBeTrue();
+        module.IsActive.ShouldBeFalse();
     }
 
     [Test]
@@ -106,7 +131,7 @@ public class PortalModuleTests
         modules.Select(m => m.Code).ShouldBe(codes, ignoreOrder: true);
         modules.ShouldAllBe(m => m.IsActive);
         modules.Where(m => m.IsCore).Select(m => m.Code).ShouldBe(
-            [ModuleCodes.School, ModuleCodes.Branch, ModuleCodes.AcademicSetup, ModuleCodes.UsersRoles, ModuleCodes.Students, ModuleCodes.Staff],
+            [ModuleCodes.School, ModuleCodes.Campus, ModuleCodes.AcademicSetup, ModuleCodes.UsersRoles, ModuleCodes.Students, ModuleCodes.Staff],
             ignoreOrder: true);
         modules.Select(m => m.SortOrder).ShouldBeUnique();
     }

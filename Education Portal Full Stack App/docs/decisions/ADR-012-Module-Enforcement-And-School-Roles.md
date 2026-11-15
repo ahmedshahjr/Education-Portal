@@ -17,9 +17,9 @@ Enforcement must follow the subscription, answer fast, and fail closed.
 ## Decision
 
 - **Entitlements** (`ModuleEntitlementLoader`): the active core modules, plus the paid modules whose `TenantModule` is
-  Active, inside `ValidFrom <= now < ValidTo`, with the module itself active. A grant limited to a branch counts only
-  for that branch; a check that names no branch fails closed for branch-only grants. The master tenant is never limited.
-- **`IModuleAccess.HasModuleAsync(schoolId, code, branchId)`** and `GetEnabledCodesAsync(schoolId)` replace
+  Active, inside `ValidFrom <= now < ValidTo`, with the module itself active. A grant limited to a campus counts only
+  for that campus; a check that names no campus fails closed for campus-only grants. The master tenant is never limited.
+- **`IModuleAccess.HasModuleAsync(schoolId, code, campusId)`** and `GetEnabledCodesAsync(schoolId)` replace
   `IsEnabledAsync`. `AuthorizationBehaviour` refuses a request to a module that is off with `ModuleNotEnabledException`,
   a `ForbiddenAccessException` that the API answers as 403 ProblemDetails with `code = MODULE_NOT_ENABLED` and the
   module code. Data is never deleted when a module turns off.
@@ -31,7 +31,7 @@ Enforcement must follow the subscription, answer fast, and fail closed.
   /api/Schools/{id}/modules` is read only. The Angular page shows On or Off. Development seeds give the three demo
   schools a yearly Full-plan subscription. Audit event number 11 (`SchoolModuleChanged`) stays in the enum; numbers are
   never reused.
-- **Applied to** the school branding update (module SCHOOL). There are no branch endpoints yet, so none could be guarded.
+- **Applied to** the school branding update (module SCHOOL). There are no campus endpoints yet, so none could be guarded.
 - **School roles**: `SchoolRole` (name unique per school) and `RolePermission` (View, Create, Edit, Delete per module;
   Create, Edit and Delete need View, also enforced by a check constraint), both tenant-owned with query filters. The
   school administrator manages them under `/api/SchoolRoles` (module USERS_ROLES, audited as `RoleCreated`,

@@ -12,10 +12,12 @@ public sealed record AvailableAddOnDto(string Code, string Name, string Descript
 
 /// <summary>What a school's administrator sees under "My subscription".</summary>
 /// <param name="Subscription">The current subscription, or <c>null</c> when the school has none.</param>
+/// <param name="TrialDaysRemaining">While the subscription is on its trial: the whole days left, rounded up, never below 0. Otherwise <c>null</c>.</param>
 public sealed record MySubscriptionDto(
     SubscriptionDto? Subscription,
     IReadOnlyList<AvailableAddOnDto> AvailableAddOns,
-    IReadOnlyList<AddOnRequestDto> Requests);
+    IReadOnlyList<AddOnRequestDto> Requests,
+    int? TrialDaysRemaining);
 
 /// <summary>
 /// The current school's subscription, the paid modules it could add with their prices, and its add-on requests. The school
@@ -28,11 +30,13 @@ public class GetMySubscriptionQueryHandler : IRequestHandler<GetMySubscriptionQu
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;
+    private readonly TimeProvider _timeProvider;
 
-    public GetMySubscriptionQueryHandler(IApplicationDbContext context, ICurrentTenant tenant)
+    public GetMySubscriptionQueryHandler(IApplicationDbContext context, ICurrentTenant tenant, TimeProvider timeProvider)
     {
         _context = context;
         _tenant = tenant;
+        _timeProvider = timeProvider;
     }
 
     public async Task<MySubscriptionDto> Handle(GetMySubscriptionQuery request, CancellationToken cancellationToken)
@@ -71,6 +75,17 @@ public class GetMySubscriptionQueryHandler : IRequestHandler<GetMySubscriptionQu
                 .ToList();
         }
 
-        return new MySubscriptionDto(subscription, addOns, requests);
+        return new MySubscriptionDto(subscription, addOns, requests, TrialDaysRemaining(subscription, _timeProvider.GetUtcNow()));
+    }
+
+    /// <summary>The whole days left of a trial, rounded up, or <c>null</c> when the school is not on a trial.</summary>
+    public static int? TrialDaysRemaining(SubscriptionDto? subscription, DateTimeOffset now)
+    {
+        if (subscription is not { Status: SubscriptionStatus.Trial, TrialEndDate: { } trialEnd })
+        {
+            return null;
+        }
+
+        return Math.Max(0, (int)Math.Ceiling((trialEnd - now).TotalDays));
     }
 }

@@ -68,7 +68,7 @@ mcp__claude-flow__agent_spawn({
 // Quality assessment
 mcp__claude-flow__quality_assess({
   "target": "test-coverage",
-  "criteria": ["line-coverage", "branch-coverage", "function-coverage"]
+  "criteria": ["line-coverage", "campus-coverage", "function-coverage"]
 })
 
 // Edge case detection

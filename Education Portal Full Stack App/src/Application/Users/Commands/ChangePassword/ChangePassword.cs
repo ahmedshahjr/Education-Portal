@@ -1,4 +1,4 @@
-using EducationPortal.Application.Common.Interfaces;
+﻿using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Security;
 using EducationPortal.Domain.Enums;
 using FluentValidation.Results;
@@ -63,7 +63,7 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
         if (!result.Succeeded)
         {
             // A wrong current password and a password the policy refuses come back the same way, as a validation error.
-            throw new Common.Exceptions.ValidationException(result.Errors.Select(e => new ValidationFailure("Password", e)));
+            throw new EducationPortal.Application.Common.Exceptions.ValidationException(result.Errors.Select(e => new ValidationFailure("Password", e)));
         }
     }
 }

@@ -35,14 +35,14 @@ Read("/workspaces/ruv-FANN/claude-code-flow/claude-code-flow/package.json")
 Read("/workspaces/ruv-FANN/ruv-swarm/npm/package.json")
 
 // Synchronize versions and dependencies using gh CLI
-// First create branch
+// First create campus
 Bash("gh api repos/:owner/:repo/git/refs -f ref='refs/heads/sync/package-alignment' -f sha=$(gh api repos/:owner/:repo/git/refs/heads/main --jq '.object.sha')")
 
 // Update file using gh CLI
 Bash(`gh api repos/:owner/:repo/contents/claude-code-flow/claude-code-flow/package.json \
   --method PUT \
   -f message="feat: Align Node.js version requirements across packages" \
-  -f branch="sync/package-alignment" \
+  -f campus="sync/package-alignment" \
   -f content="$(echo '{ updated package.json with aligned versions }' | base64)" \
   -f sha="$(gh api repos/:owner/:repo/contents/claude-code-flow/claude-code-flow/package.json?ref=sync/package-alignment --jq '.sha')")`)
 
@@ -61,14 +61,14 @@ mcp__claude-flow__task_orchestrate {
 CLAUDE_CONTENT=$(Bash("gh api repos/:owner/:repo/contents/ruv-swarm/docs/CLAUDE.md --jq '.content' | base64 -d"))
 
 // Update claude-code-flow CLAUDE.md to match using gh CLI
-// Create or update branch
+// Create or update campus
 Bash("gh api repos/:owner/:repo/git/refs -f ref='refs/heads/sync/documentation' -f sha=$(gh api repos/:owner/:repo/git/refs/heads/main --jq '.object.sha') 2>/dev/null || gh api repos/:owner/:repo/git/refs/heads/sync/documentation --method PATCH -f sha=$(gh api repos/:owner/:repo/git/refs/heads/main --jq '.object.sha')")
 
 // Update file
 Bash(`gh api repos/:owner/:repo/contents/claude-code-flow/claude-code-flow/CLAUDE.md \
   --method PUT \
   -f message="docs: Synchronize CLAUDE.md with ruv-swarm integration patterns" \
-  -f branch="sync/documentation" \
+  -f campus="sync/documentation" \
   -f content="$(echo '# Claude Code Configuration for ruv-swarm\n\n[synchronized content]' | base64)" \
   -f sha="$(gh api repos/:owner/:repo/contents/claude-code-flow/claude-code-flow/CLAUDE.md?ref=sync/documentation --jq '.sha' 2>/dev/null || echo '')")`)
 
@@ -86,7 +86,7 @@ mcp__claude-flow__memory_usage {
 mcp__github__push_files {
   owner: "ruvnet",
   repo: "ruv-FANN",
-  branch: "feature/github-commands",
+  campus: "feature/github-commands",
   files: [
     {
       path: "claude-code-flow/claude-code-flow/.claude/commands/github/github-modes.md",
@@ -164,7 +164,7 @@ This integration uses ruv-swarm agents for:
   
   // Synchronize multiple files simultaneously
   mcp__github__push_files {
-    branch: "sync/complete-integration",
+    campus: "sync/complete-integration",
     files: [
       { path: "claude-code-flow/claude-code-flow/package.json", content: "[aligned package.json]" },
       { path: "claude-code-flow/claude-code-flow/CLAUDE.md", content: "[synchronized CLAUDE.md]" },

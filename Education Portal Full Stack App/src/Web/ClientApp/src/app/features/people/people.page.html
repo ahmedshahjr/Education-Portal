@@ -1,0 +1,88 @@
+<app-page-header
+  title="Users"
+  i18n-title="@@people.title"
+  subtitle="The school's users: principals, teachers and other staff. A campus names its principal from this list."
+  i18n-subtitle="@@people.subtitle"
+></app-page-header>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    <div class="mm-people__filters" role="group" aria-label="Show" i18n-aria-label="@@people.filterLabel">
+      <button mat-button type="button" [class.mm-people__active]="filter() === null" (click)="setFilter(null)" i18n="@@people.all">All</button>
+      <button mat-button type="button" [class.mm-people__active]="filter() === types[0]" (click)="setFilter(types[0])" i18n="@@people.principals">Principals</button>
+      <button mat-button type="button" [class.mm-people__active]="filter() === types[1]" (click)="setFilter(types[1])" i18n="@@people.teachers">Teachers</button>
+      <button mat-button type="button" [class.mm-people__active]="filter() === types[2]" (click)="setFilter(types[2])" i18n="@@people.staff">Staff</button>
+    </div>
+
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="Users could not be loaded"
+        i18n-title="@@people.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else if (people(); as list) {
+      @if (list.length === 0) {
+        <app-empty-state icon="users" title="No users yet" i18n-title="@@people.empty" description="Add the school's principals, teachers and staff as users below." i18n-description="@@people.emptyDescription" />
+      } @else {
+        <ul class="mm-people__list" aria-label="Users" i18n-aria-label="@@people.listLabel">
+          @for (person of list; track person.id) {
+            <li class="mm-people__row">
+              <span class="mm-people__name">
+                {{ person.firstName }}{{ person.middleName ? ' ' + person.middleName : '' }} {{ person.lastName }}
+              </span>
+              <app-status-badge tone="primary">{{ person.userType }}</app-status-badge>
+              <bdi class="mm-people__phone" dir="ltr">{{ person.phone || '—' }}</bdi>
+            </li>
+          }
+        </ul>
+      }
+    } @else {
+      <app-loading-state />
+    }
+
+    <h2 class="mm-people__heading" i18n="@@people.addHeading">Add a user</h2>
+    <form class="mm-people__form" [formGroup]="form" (ngSubmit)="add()" novalidate>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@people.firstName">First name</mat-label>
+        <input matInput formControlName="firstName" maxlength="100" autocomplete="off" />
+        @if (form.controls.firstName.hasError('required')) {
+          <mat-error i18n="@@people.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@people.middleName">Middle name</mat-label>
+        <input matInput formControlName="middleName" maxlength="100" autocomplete="off" />
+        <mat-hint i18n="@@people.optional">Optional.</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@people.lastName">Last name</mat-label>
+        <input matInput formControlName="lastName" maxlength="100" autocomplete="off" />
+        @if (form.controls.lastName.hasError('required')) {
+          <mat-error i18n="@@people.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@people.userType">Type</mat-label>
+        <mat-select formControlName="userType">
+          <mat-option [value]="types[0]" i18n="@@people.principal">Principal</mat-option>
+          <mat-option [value]="types[1]" i18n="@@people.teacher">Teacher</mat-option>
+          <mat-option [value]="types[2]" i18n="@@people.staffMember">Staff</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@people.phone">Phone</mat-label>
+        <input matInput formControlName="phone" maxlength="30" autocomplete="off" dir="ltr" />
+        <mat-hint i18n="@@people.optional">Optional.</mat-hint>
+      </mat-form-field>
+      <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@people.add">Add user</button>
+    </form>
+
+    @for (message of errors(); track message) {
+      <p class="mm-people__error" role="alert">{{ message }}</p>
+    }
+  </mat-card-content>
+</mat-card>

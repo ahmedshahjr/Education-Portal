@@ -41,7 +41,11 @@ public interface IApplicationDbContext
     /// <summary>The prices of plans and add-on modules in each price book.</summary>
     DbSet<PriceBookItem> PriceBookItems { get; }
 
-    DbSet<Branch> Branches { get; }
+    DbSet<Campus> Campuses { get; }
+    /// <summary>The phone numbers of each campus, in order.</summary>
+    DbSet<CampusPhone> CampusPhones { get; }
+    /// <summary>The people of each school (principals, teachers, staff). Owned by the school and filtered by it.</summary>
+    DbSet<UserDetails> UserDetails { get; }
 
     DbSet<Subscription> Subscriptions { get; }
 

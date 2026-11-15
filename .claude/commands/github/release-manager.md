@@ -13,7 +13,7 @@ Automated release coordination and deployment with ruv-swarm orchestration for s
 ## Tools Available
 - `mcp__github__create_pull_request`
 - `mcp__github__merge_pull_request`
-- `mcp__github__create_branch`
+- `mcp__github__create_campus`
 - `mcp__github__push_files`
 - `mcp__github__create_issue`
 - `mcp__claude-flow__*` (all swarm coordination tools)
@@ -32,11 +32,11 @@ mcp__claude-flow__agent_spawn { agentType: "coder", name: "Version Manager" }
 mcp__claude-flow__agent_spawn { agentType: "analyst", name: "Deployment Analyst" }
 
 // Create release preparation branch
-mcp__github__create_branch {
+mcp__github__create_campus {
   owner: "ruvnet",
   repo: "ruv-FANN",
   branch: "release/v1.0.72",
-  from_branch: "main"
+  from_campus: "main"
 }
 
 // Orchestrate release preparation
@@ -305,7 +305,7 @@ const rollbackPlan = {
 name: Release Management
 on:
   pull_request:
-    branches: [main]
+    campuses: [main]
     paths: ['**/package.json', 'CHANGELOG.md']
 
 jobs:
