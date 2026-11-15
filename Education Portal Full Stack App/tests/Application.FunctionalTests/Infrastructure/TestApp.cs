@@ -191,7 +191,10 @@ public static class TestApp
             await context.SaveChangesAsync();
         }
 
-        var branch = branchId is null ? null : await context.Branches.FirstAsync(b => b.Id == branchId);
+        // Without a branch the modules are for the whole school: they go on its main branch.
+        var branch = branchId is null
+            ? await context.Branches.SingleAsync(b => b.SchoolId == schoolId && b.Kind == EducationPortal.Domain.Enums.BranchKind.Main)
+            : await context.Branches.FirstAsync(b => b.Id == branchId);
         var subscription = Subscription.Create(schoolId, null, book, BillingCycle.Monthly, amount, start ?? DateTimeOffset.UtcNow, trialDays);
         foreach (var module in await context.Modules.Where(m => moduleCodes.Contains(m.Code)).ToListAsync())
         {

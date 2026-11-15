@@ -11,6 +11,21 @@
         (action)="load()"
       />
     } @else if (subscription(); as sub) {
+      <div class="mm-subscription__plan-switch">
+        <div>
+          <div class="mm-subscription__title" i18n="@@subscription.planActive">Plan active</div>
+          <div class="mm-subscription__muted" i18n="@@subscription.planActiveHelp">Off suspends the plan: its modules are switched off and its data is kept.</div>
+        </div>
+        <mat-slide-toggle
+          #planToggle
+          [checked]="isOn(sub)"
+          [disabled]="busy()"
+          (change)="togglePlan(planToggle, $event.checked)"
+          aria-label="Plan active"
+          i18n-aria-label="@@subscription.planActive"
+        />
+      </div>
+
       <dl class="mm-subscription__summary">
         <div>
           <dt i18n="@@subscription.plan">Plan</dt>
@@ -34,31 +49,6 @@
         </div>
       </dl>
 
-      <h3 class="mm-subscription__heading" i18n="@@subscription.modulesHeading">Modules</h3>
-      <ul class="mm-subscription__list">
-        @for (module of sub.modules; track module.code) {
-          <li>
-            <span>
-              {{ module | moduleText }}
-              <app-status-badge [tone]="tone(module.status)">{{ module.status }}</app-status-badge>
-            </span>
-            @if (removableCodes().has(module.code)) {
-              <button mat-button type="button" [disabled]="busy()" (click)="removeModule(module.code)" i18n="@@subscription.removeModule">Remove</button>
-            }
-          </li>
-        }
-      </ul>
-
-      <h3 class="mm-subscription__heading" i18n="@@subscription.actionsHeading">Actions</h3>
-      <div class="mm-subscription__row">
-        @if (sub.status === statuses.Suspended || sub.status === statuses.PastDue) {
-          <button mat-flat-button type="button" [disabled]="busy()" (click)="reactivate()" i18n="@@subscription.reactivate">Reactivate</button>
-        }
-        @if (sub.status !== statuses.Suspended) {
-          <button mat-stroked-button type="button" [disabled]="busy()" (click)="suspend()" i18n="@@subscription.suspend">Suspend</button>
-        }
-      </div>
-
       <form class="mm-subscription__row" [formGroup]="extendForm" (ngSubmit)="extend()" novalidate>
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label i18n="@@subscription.extendDays">Extend by (days)</mat-label>
@@ -79,64 +69,6 @@
         <button mat-stroked-button type="submit" [disabled]="busy() || planForm.invalid" i18n="@@subscription.changePlan">Change plan</button>
       </form>
       <p class="mm-subscription__muted" i18n="@@subscription.noProration">Changes take effect at once. The current period is not credited or charged; the next invoice uses the new price.</p>
-
-      <form class="mm-subscription__row" [formGroup]="moduleForm" (ngSubmit)="addModule()" novalidate>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label i18n="@@subscription.addModule">Add a module</mat-label>
-          <mat-select formControlName="moduleCode">
-            @for (module of addableModules(); track module.code) {
-              <mat-option [value]="module.code">{{ module | moduleText }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <button mat-stroked-button type="submit" [disabled]="busy() || moduleForm.invalid" i18n="@@subscription.addModuleButton">Add module</button>
-      </form>
-
-      <h3 class="mm-subscription__heading" i18n="@@subscription.invoicesHeading">Invoices</h3>
-      <div class="mm-subscription__row">
-        <button mat-stroked-button type="button" [disabled]="busy()" (click)="issueInvoice(false)" i18n="@@subscription.issueCurrent">Invoice current period</button>
-        <button mat-stroked-button type="button" [disabled]="busy()" (click)="issueInvoice(true)" i18n="@@subscription.issueNext">Invoice next period</button>
-      </div>
-      @if (invoices().length === 0) {
-        <p class="mm-subscription__muted" i18n="@@subscription.noInvoices">No invoices yet.</p>
-      } @else {
-        <ul class="mm-subscription__list">
-          @for (invoice of invoices(); track invoice.id) {
-            <li>
-              <span>
-                {{ invoice.number }} · {{ invoice.total | number: '1.2-2' }} {{ invoice.currencyCode }} ·
-                {{ invoice.periodStart | localDate }} - {{ invoice.periodEnd | localDate }}
-                <app-status-badge [tone]="tone(invoice.status)">{{ invoice.status }}</app-status-badge>
-              </span>
-              @if (invoice.status === invoiceStatuses.Open) {
-                <span>
-                  <button mat-button type="button" [disabled]="busy()" (click)="startPayment(invoice)" i18n="@@subscription.recordPayment">Record payment</button>
-                  <button mat-button type="button" [disabled]="busy()" (click)="voidInvoice(invoice)" i18n="@@subscription.voidInvoice">Void</button>
-                </span>
-              }
-            </li>
-          }
-        </ul>
-      }
-
-      @if (payingInvoice(); as invoice) {
-        <form class="mm-subscription__row" [formGroup]="paymentForm" (ngSubmit)="recordPayment()" novalidate>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label i18n="@@subscription.method">Payment method</mat-label>
-            <mat-select formControlName="method">
-              @for (method of methods; track method) {
-                <mat-option [value]="method">{{ method }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label i18n="@@subscription.reference">Reference</mat-label>
-            <input matInput formControlName="reference" maxlength="100" autocomplete="off" dir="ltr" />
-          </mat-form-field>
-          <button mat-flat-button type="submit" [disabled]="busy() || paymentForm.invalid" i18n="@@subscription.payTotal">Record payment of {{ invoice.total | number: '1.2-2' }} {{ invoice.currencyCode }}</button>
-          <button mat-button type="button" (click)="payingInvoice.set(null)" i18n="@@common.cancel">Cancel</button>
-        </form>
-      }
     } @else if (hasNone()) {
       <h2 class="mm-subscription__title" i18n="@@subscription.startTitle">Start a subscription</h2>
       <p class="mm-subscription__muted" i18n="@@subscription.startHelp">The school needs a country; the price comes from that country's price book. Add-on modules can be added once it has started.</p>

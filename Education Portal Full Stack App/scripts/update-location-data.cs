@@ -18,7 +18,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Unicode;
 
-string[] CountryCodes = ["SA", "AE", "QA", "KW", "BH", "OM", "US", "JP", "PK"];
+string[] CountryCodes = ["SA", "AE", "US", "JP", "PK"];
 
 // The dataset's state types, as the app's StateType enum names them.
 var stateTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

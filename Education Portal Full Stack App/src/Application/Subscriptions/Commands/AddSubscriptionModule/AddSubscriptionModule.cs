@@ -50,7 +50,7 @@ public class AddSubscriptionModuleCommandHandler : IRequestHandler<AddSubscripti
         var (planCode, addOns) = await SubscriptionChanges.CurrentChoiceAsync(_context, subscription, cancellationToken);
 
         var held = subscription.Modules
-            .Where(m => m.BranchId is null && m.Status != TenantModuleStatus.Expired)
+            .Where(m => m.IsSchoolWide && m.Status != TenantModuleStatus.Expired)
             .Join(_context.Modules, m => m.ModuleId, m => m.Id, (_, m) => m.Code)
             .ToHashSet();
         if (held.Contains(request.ModuleCode))

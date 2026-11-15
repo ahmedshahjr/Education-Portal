@@ -12,7 +12,7 @@ internal static class InvoiceReader
                 join s in context.Schools on i.SchoolId equals s.Id
                 where (schoolId == null || s.PublicId == schoolId) && (invoiceId == null || i.PublicId == invoiceId)
                 orderby i.IssueDate descending, i.Id descending
-                select new { i.Id, i.PublicId, SchoolPublicId = s.PublicId, i.Number, i.Status, i.CurrencyCode, i.Subtotal, i.TaxRate, i.TaxAmount, i.Total, i.IssueDate, i.DueDate, i.PeriodStart, i.PeriodEnd, i.PaidDate })
+                select new { i.Id, i.PublicId, SchoolPublicId = s.PublicId, i.Number, i.Status, i.CurrencyCode, i.Subtotal, i.TaxRate, i.TaxAmount, i.Total, i.IssueDate, i.DueDate, i.PeriodStart, i.PeriodEnd, i.PaidDate, i.OverdueSince })
             .ToListAsync(cancellationToken);
 
         var ids = invoices.Select(i => i.Id).ToList();
@@ -26,7 +26,7 @@ internal static class InvoiceReader
         return invoices
             .Select(i => new InvoiceDto(
                 i.PublicId, i.SchoolPublicId, i.Number, i.Status, i.CurrencyCode, i.Subtotal, i.TaxRate, i.TaxAmount, i.Total,
-                i.IssueDate, i.DueDate, i.PeriodStart, i.PeriodEnd, i.PaidDate, lines[i.Id].ToList(), payments[i.Id].ToList()))
+                i.IssueDate, i.DueDate, i.PeriodStart, i.PeriodEnd, i.PaidDate, lines[i.Id].ToList(), payments[i.Id].ToList(), i.OverdueSince))
             .ToList();
     }
 }

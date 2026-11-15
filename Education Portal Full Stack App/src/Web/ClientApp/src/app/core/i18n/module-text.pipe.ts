@@ -16,8 +16,8 @@ const MODULE_TEXT: Readonly<Record<string, ModuleText>> = {
     description: $localize`:@@module.school.description:School profile, settings and the school overview dashboard.`,
   },
   BRANCH: {
-    name: $localize`:@@module.branch.name:Branches`,
-    description: $localize`:@@module.branch.description:Create and edit the school's branches.`,
+    name: $localize`:@@module.branch.name:Campuses`,
+    description: $localize`:@@module.branch.description:Create and edit the school's campuses.`,
   },
   ACADEMIC_SETUP: {
     name: $localize`:@@module.academicSetup.name:Academic setup`,
