@@ -1,4 +1,5 @@
 import { NavItem, NavSection } from '../../shared/models/navigation.models';
+import { MODULE_CODES } from '../modules/modules.service';
 
 /** Who sees a menu item. The server enforces the same rule on every request; the menu only hides what would be refused. */
 export type NavAccess = 'everyone' | 'administrator' | 'school-administrator' | 'master-administrator';
@@ -25,6 +26,7 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
     items: [
       { id: 'branding', label: $localize`:@@nav.branding:Branding`, icon: 'sliders-horizontal', route: '/settings/branding', access: 'administrator' },
       { id: 'subscription', label: $localize`:@@nav.subscription:My subscription`, icon: 'layers', route: '/subscription', access: 'school-administrator' },
+      { id: 'branches', label: $localize`:@@nav.branches:Campuses`, icon: 'git-branch', route: '/campuses', access: 'administrator', module: MODULE_CODES.branch },
     ],
   },
   {

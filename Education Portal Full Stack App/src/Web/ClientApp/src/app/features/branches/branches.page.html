@@ -1,0 +1,92 @@
+<app-page-header
+  title="Campuses"
+  i18n-title="@@branches.title"
+  subtitle="Your school's campuses. Each campus has a four-digit code, unique in the school."
+  i18n-subtitle="@@branches.subtitle"
+></app-page-header>
+
+<mat-card class="mm-card mm-elevated mm-branches__settings">
+  <mat-card-content>
+    <h2 class="mm-branches__heading" i18n="@@branches.codesHeading">Campus codes</h2>
+    @if (settings(); as current) {
+      <form class="mm-branches__form" [formGroup]="settingsForm" (ngSubmit)="saveSettings()" novalidate>
+        <mat-slide-toggle formControlName="prefixEnabled" (change)="updatePrefixValidation()" i18n="@@branches.prefixOn">Show a prefix in front of every campus code</mat-slide-toggle>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n="@@branches.prefix">Prefix</mat-label>
+          <input matInput formControlName="prefix" maxlength="6" autocomplete="off" dir="ltr" />
+          <mat-hint i18n="@@branches.prefixHint">Letters or digits, up to 6. Shown as the prefix followed by the code, for example KHI0002.</mat-hint>
+        </mat-form-field>
+        <button mat-flat-button type="submit" [disabled]="busy() || settingsForm.invalid" i18n="@@branches.saveCodes">Save codes</button>
+      </form>
+      @for (message of settingsErrors(); track message) {
+        <p class="mm-branches__error" role="alert">{{ message }}</p>
+      }
+    } @else {
+      <app-loading-state />
+    }
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="Campuses could not be loaded"
+        i18n-title="@@branches.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else if (branches(); as list) {
+      <ul class="mm-branches__list" aria-label="Campuses" i18n-aria-label="@@branches.listLabel">
+        @for (branch of list; track branch.id) {
+          <li class="mm-branches__row">
+            @if (editingId() === branch.id) {
+              <form class="mm-branches__form" [formGroup]="form" (ngSubmit)="saveEdit(branch)" novalidate>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label i18n="@@branches.name">Campus name</mat-label>
+                  <input matInput formControlName="name" maxlength="200" autocomplete="off" />
+                </mat-form-field>
+                <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@branches.save">Save</button>
+                <button mat-button type="button" [disabled]="busy()" (click)="cancelEdit()" i18n="@@common.cancel">Cancel</button>
+              </form>
+            } @else {
+              <span class="mm-branches__name">
+                {{ branch.name }}
+                <span class="mm-branches__code"><bdi dir="ltr">{{ branch.displayCode }}</bdi></span>
+              </span>
+              <span class="mm-branches__actions">
+                @if (branch.kind === kinds.Main) {
+                  <app-status-badge tone="success" i18n="@@branches.main">Main campus</app-status-badge>
+                } @else {
+                  <app-status-badge tone="primary" i18n="@@branches.other">Campus</app-status-badge>
+                  <button mat-button type="button" [disabled]="busy()" (click)="confirmDelete(branch)" i18n="@@branches.delete">Delete</button>
+                }
+                <button mat-button type="button" [disabled]="busy()" (click)="startEdit(branch)" i18n="@@branches.edit">Rename</button>
+              </span>
+            }
+          </li>
+        }
+      </ul>
+
+      @if (editingId() === null) {
+        <form class="mm-branches__form" [formGroup]="form" (ngSubmit)="add()" novalidate>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label i18n="@@branches.name">Campus name</mat-label>
+            <input matInput formControlName="name" maxlength="200" autocomplete="off" />
+            <mat-hint i18n="@@branches.codeGenerated">The code is generated when the campus is added.</mat-hint>
+          </mat-form-field>
+          <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@branches.add">Add campus</button>
+        </form>
+      }
+
+      @for (message of errors(); track message) {
+        <p class="mm-branches__error" role="alert">{{ message }}</p>
+      }
+    } @else {
+      <app-loading-state />
+    }
+  </mat-card-content>
+</mat-card>

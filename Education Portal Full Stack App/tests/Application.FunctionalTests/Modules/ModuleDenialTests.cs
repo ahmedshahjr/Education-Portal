@@ -65,7 +65,7 @@ public class ModuleDenialTests : TestBase
     public async Task ShouldRefuseAModuleGrantedToOneBranchWhenNoBranchIsKnown()
     {
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        var branch = Branch.Create(school.Id, "North");
+        var branch = Branch.Create(school.Id, "North", "0002");
         await TestApp.AddAsync(branch);
         await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], branchId: branch.Id);
         await RunAsSchoolAdministratorAsync(school.Id);
