@@ -12,10 +12,10 @@ const SCHOOL = '0190f3a0-0000-7000-8000-000000000005';
 const url = (path: string) => `/api/Schools/${SCHOOL}/${path}`;
 
 const modules = [
-  { code: 'STUDENTS', name: 'Students', description: '', isCore: true, isActive: true, isDefaultEnabled: true, isEnabled: true },
-  { code: 'EXAMS', name: 'Exams', description: '', isCore: false, isActive: true, isDefaultEnabled: false, isEnabled: true },
-  { code: 'LIBRARY', name: 'Library', description: '', isCore: false, isActive: true, isDefaultEnabled: false, isEnabled: false },
-  { code: 'HOSTEL', name: 'Hostel', description: '', isCore: false, isActive: false, isDefaultEnabled: false, isEnabled: false },
+  { code: 'Students', name: 'Students', description: '', isCore: true, isActive: true, isDefaultEnabled: true, isEnabled: true },
+  { code: 'Exams', name: 'Exams', description: '', isCore: false, isActive: true, isDefaultEnabled: false, isEnabled: true },
+  { code: 'Library', name: 'Library', description: '', isCore: false, isActive: true, isDefaultEnabled: false, isEnabled: false },
+  { code: 'Hostel', name: 'Hostel', description: '', isCore: false, isActive: false, isDefaultEnabled: false, isEnabled: false },
 ];
 
 const openDialog = vi.fn();
@@ -70,7 +70,7 @@ describe('SchoolModulesComponent', () => {
 
     switchInput(element, 2).click();
 
-    const request = http.expectOne({ method: 'PUT', url: url('modules/LIBRARY') });
+    const request = http.expectOne({ method: 'PUT', url: url('modules/Library') });
     expect(JSON.parse(request.request.body as string)).toEqual({ enabled: true });
     request.flush(null, { status: 204, statusText: 'No Content' });
     await reloadAfterChange(http);
@@ -82,7 +82,7 @@ describe('SchoolModulesComponent', () => {
 
     switchInput(element, 1).click();
 
-    const request = http.expectOne({ method: 'PUT', url: url('modules/EXAMS') });
+    const request = http.expectOne({ method: 'PUT', url: url('modules/Exams') });
     expect(JSON.parse(request.request.body as string)).toEqual({ enabled: false });
     request.flush(null, { status: 204, statusText: 'No Content' });
     await reloadAfterChange(http);
@@ -94,6 +94,6 @@ describe('SchoolModulesComponent', () => {
 
     switchInput(element, 1).click();
 
-    http.expectNone({ method: 'PUT', url: url('modules/EXAMS') });
+    http.expectNone({ method: 'PUT', url: url('modules/Exams') });
   });
 });

@@ -1,4 +1,6 @@
 {
+  "field.hidePassword": "پاس ورڈ چھپائیں",
+  "field.showPassword": "پاس ورڈ دکھائیں",
   "locale": "ur",
   "translations": {
     "addOnRequests.approve": "منظور کریں",

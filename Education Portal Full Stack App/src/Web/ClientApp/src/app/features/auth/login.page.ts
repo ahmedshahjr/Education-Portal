@@ -57,6 +57,7 @@ import { LanguageMenuComponent } from '../../shared/components/language-menu/lan
                 type="password"
                 fieldId="password"
                 autocomplete="current-password"
+                [revealable]="true"
                 [control]="form.controls.password"
               />
 

@@ -109,6 +109,17 @@ internal sealed class HttpSession(HttpClient client) : IDisposable
         return await SendAsync(HttpMethod.Put, path, form, withAntiforgeryToken: true);
     }
 
+    /// <summary>Sends a multipart form with POST, with the antiforgery token, as the Angular client does for uploads.</summary>
+    public async Task<HttpResponseMessage> PostFormAsync(string path, MultipartFormDataContent form)
+    {
+        if (Cookie(AntiforgeryTokenCookie.CookieName) is null)
+        {
+            (await GetAsync("/")).Dispose();
+        }
+
+        return await SendAsync(HttpMethod.Post, path, form, withAntiforgeryToken: true);
+    }
+
     public void Dispose() => client.Dispose();
 
     private async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, object? body, bool withAntiforgeryToken)

@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-11-17T11:28:33.184Z",
+  "projectRoot": "C:\\Users\\ahmed\\source\\repos\\Education-Portal",
+  "structure": {
+    "hasPackageJson": false,
+    "hasTsConfig": false,
+    "hasClaudeConfig": true,
+    "hasClaudeFlow": true
+  },
+  "scannedAt": 1794914913184
+}

@@ -1,4 +1,6 @@
 {
+  "field.hidePassword": "إخفاء كلمة المرور",
+  "field.showPassword": "إظهار كلمة المرور",
   "locale": "ar",
   "translations": {
     "addOnRequests.approve": "موافقة",

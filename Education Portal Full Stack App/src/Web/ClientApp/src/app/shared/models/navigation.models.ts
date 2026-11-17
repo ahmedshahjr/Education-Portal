@@ -59,6 +59,7 @@ export type AppIconName =
   | 'trash-2'
   | 'edit-3'
   | 'eye'
+  | 'eye-off'
   | 'map-pin'
   | 'check'
   | 'x'

@@ -9,7 +9,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
-import { ModuleDto, ModulesClient, UpdateModuleCommand } from '../../web-api-client';
+import { ModuleCode, ModuleDto, ModulesClient, UpdateModuleCommand } from '../../web-api-client';
 
 /**
  * Master portal: the module catalogue, what the platform sells. Core modules are in every subscription and always on;
@@ -150,7 +150,7 @@ export class ModulesPage {
   }
 
   /** A required module's name in the page's language. */
-  protected nameOf(code: string): string {
+  protected nameOf(code: ModuleCode): string {
     return moduleText(this.byCode().get(code) ?? { code, name: code });
   }
 

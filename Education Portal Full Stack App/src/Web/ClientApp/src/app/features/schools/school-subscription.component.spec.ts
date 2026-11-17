@@ -23,7 +23,7 @@ const subscription = {
   endDate: '2026-12-01T00:00:00Z',
   modules: [],
 };
-const plans = [{ id: 'p1', code: 'BASIC', name: 'Basic', description: '', isActive: true, modules: ['EXAMS'] }];
+const plans = [{ id: 'p1', code: 'BASIC', name: 'Basic', description: '', isActive: true, modules: ['Exams'] }];
 
 const openDialog = vi.fn();
 

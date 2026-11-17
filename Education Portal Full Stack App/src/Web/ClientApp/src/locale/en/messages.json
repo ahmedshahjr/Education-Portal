@@ -1,4 +1,6 @@
 {
+  "field.hidePassword": "Hide password",
+  "field.showPassword": "Show password",
   "locale": "en",
   "translations": {
     "addOnRequests.approve": "Approve",

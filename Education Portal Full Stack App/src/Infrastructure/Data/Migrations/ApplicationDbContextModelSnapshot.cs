@@ -3646,6 +3646,51 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         {
                             Id = 50,
                             Name = "UserDetailsDeleted"
+                        },
+                        new
+                        {
+                            Id = 51,
+                            Name = "PublicPageProfileChanged"
+                        },
+                        new
+                        {
+                            Id = 52,
+                            Name = "PublicPagePublished"
+                        },
+                        new
+                        {
+                            Id = 53,
+                            Name = "PublicPageUnpublished"
+                        },
+                        new
+                        {
+                            Id = 54,
+                            Name = "SchoolCurriculaChanged"
+                        },
+                        new
+                        {
+                            Id = 55,
+                            Name = "SchoolFacilityChanged"
+                        },
+                        new
+                        {
+                            Id = 56,
+                            Name = "SchoolPhotoUploaded"
+                        },
+                        new
+                        {
+                            Id = 57,
+                            Name = "SchoolPhotoChanged"
+                        },
+                        new
+                        {
+                            Id = 58,
+                            Name = "SchoolPhotoDeleted"
+                        },
+                        new
+                        {
+                            Id = 59,
+                            Name = "ClassOfferingChanged"
                         });
                 });
 

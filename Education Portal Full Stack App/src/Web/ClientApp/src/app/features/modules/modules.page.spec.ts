@@ -13,8 +13,8 @@ async function render() {
   fixture.detectChanges();
   http.expectOne('/api/Modules').flush(
     json([
-      { code: 'STUDENTS', name: 'Students', description: '', isCore: true, isActive: true, sortOrder: 50, requires: [] },
-      { code: 'FEES', name: 'Fees', description: 'Fee collection.', isCore: false, isActive: false, sortOrder: 120, requires: ['STUDENTS'] },
+      { code: 'Students', name: 'Students', description: '', isCore: true, isActive: true, sortOrder: 50, requires: [] },
+      { code: 'Fees', name: 'Fees', description: 'Fee collection.', isCore: false, isActive: false, sortOrder: 120, requires: ['Students'] },
     ])
   );
   const element = fixture.nativeElement as HTMLElement;
@@ -46,7 +46,7 @@ describe('ModulesPage', () => {
 
     element.querySelectorAll<HTMLButtonElement>('button[role="switch"]')[1].click();
 
-    const request = http.expectOne('/api/Modules/FEES');
+    const request = http.expectOne('/api/Modules/Fees');
     expect(request.request.method).toBe('PUT');
     expect(JSON.parse(request.request.body as string)).toEqual({
       name: 'Fees',

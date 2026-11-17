@@ -160,6 +160,7 @@ public class SchoolWithoutDomainTests : TestBase
     public async Task ShouldKeepTheMasterAdministratorAsTheMaster()
     {
         await TestApp.AddSchoolAsync("No Domain School", null);
+        await TestApp.RunAsAdministratorAsync();
         using var master = await CommercialHttp.SignInAsMasterAsync();
 
         using var schools = await master.GetAsync("/api/Schools");
