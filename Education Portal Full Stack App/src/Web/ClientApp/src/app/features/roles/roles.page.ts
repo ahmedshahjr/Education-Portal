@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { moduleText, ModuleTextPipe } from '../../core/i18n/module-text.pipe';
@@ -53,7 +53,7 @@ export class RolesPage {
   private readonly rolesClient = inject(SchoolRolesClient);
   private readonly modulesClient = inject(ModulesClient);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
 
   protected readonly roles = signal<readonly SchoolRoleDto[] | null>(null);
@@ -193,7 +193,7 @@ export class RolesPage {
       next: () => {
         this.busy.set(false);
         onSuccess?.();
-        this.snackBar.open(done, undefined, { duration: 3000 });
+        this.toast.success(done);
         this.load();
       },
       error: (error: unknown) => {

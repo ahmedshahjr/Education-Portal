@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, input, signal } fro
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggle, MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { problemMessages } from '../../core/http/problem-details';
 import { ModuleTextPipe } from '../../core/i18n/module-text.pipe';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -106,7 +106,7 @@ import { SchoolModuleDto, SchoolsClient, SchoolSummaryDto, SetSchoolModuleComman
 })
 export class SchoolModulesComponent {
   private readonly schools = inject(SchoolsClient);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
 
   readonly school = input.required<SchoolSummaryDto>();
@@ -170,13 +170,13 @@ export class SchoolModulesComponent {
     request.subscribe({
       next: () => {
         this.busy.set(false);
-        this.snackBar.open(done, undefined, { duration: 3000 });
+        this.toast.success(done);
         this.load();
       },
       error: (error: unknown) => {
         this.busy.set(false);
         toggle.checked = module.isEnabled;
-        this.snackBar.open(problemMessages(error)[0], undefined, { duration: 5000 });
+        this.toast.error(error);
         this.load();
       },
     });

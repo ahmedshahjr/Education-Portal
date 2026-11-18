@@ -30,6 +30,7 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
       { id: 'campuses', label: $localize`:@@nav.campuses:Campuses`, icon: 'git-branch', route: '/campuses', access: 'school-administrator', module: MODULE_CODES.campus },
       { id: 'people', label: $localize`:@@nav.people:Users`, icon: 'users', route: '/people', access: 'school-administrator', module: MODULE_CODES.staff },
       { id: 'roles', label: $localize`:@@nav.roles:Roles`, icon: 'key-round', route: '/roles', access: 'school-administrator', module: MODULE_CODES.usersRoles },
+      { id: 'class-offerings', label: $localize`:@@nav.classOfferings:Class offerings`, icon: 'book-open', route: '/class-offerings', access: 'school-administrator', module: MODULE_CODES.school },
     ],
   },
   {
@@ -59,6 +60,7 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
       { id: 'school-requests', label: $localize`:@@nav.schoolRequests:School requests`, icon: 'inbox', route: '/school-requests', access: 'master-administrator' },
       { id: 'pricing', label: $localize`:@@nav.pricing:Plans and prices`, icon: 'wallet', route: '/pricing', access: 'master-administrator' },
       { id: 'invoices', label: $localize`:@@nav.invoices:Invoices`, icon: 'receipt', route: '/invoices', access: 'master-administrator' },
+      { id: 'development-data', label: $localize`:@@nav.developmentData:Development data`, icon: 'wrench', route: '/development-data', access: 'master-administrator' },
     ],
   },
 ];

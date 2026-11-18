@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "contract": "ruflo.mission-observation/1",
+  "source": "ruflo-cli/missions",
+  "workspaceId": "ws_48fc84af0e8a3b7e",
+  "observedAt": "2026-11-17T13:31:49.040Z",
+  "truncated": false,
+  "missions": [
+    {
+      "missionId": "msn_cb3148a74d68cbf6ccc3e5d2",
+      "objective": "add all enties in the ui and show trail banner above the ui if trail is active and add toaster from messager. if comapus are multiple more than 1 add dropwndo above to filter databased on that.",
+      "state": "planned",
+      "revision": 2,
+      "executionMode": "session-bound",
+      "plan": {
+        "revision": 1,
+        "digest": "sha256:7eccbded0c27b9257796bab718528ac9206d9b9b6db4da18bb6c1fe33ac5a716",
+        "taskCount": 8,
+        "tasks": [
+          {
+            "id": "t1",
+            "title": "Specification: Specify the requirements and acceptance criteria",
+            "dependsOn": [],
+            "status": "pending"
+          },
+          {
+            "id": "t2",
+            "title": "Pseudocode: Write the pseudocode for the core logic",
+            "dependsOn": [
+              "t1"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t3",
+            "title": "Architecture: Design the architecture and interfaces",
+            "dependsOn": [
+              "t1"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t4",
+            "title": "Refinement: Write the failing tests first",
+            "dependsOn": [
+              "t3",
+              "t2"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t5",
+            "title": "Refinement: Implement until the tests pass",
+            "dependsOn": [
+              "t4"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t6",
+            "title": "Refinement: Run the full test suite",
+            "dependsOn": [
+              "t5"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t7",
+            "title": "Completion: Integrate: build and CI",
+            "dependsOn": [
+              "t6"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t8",
+            "title": "Completion: Validate the result against the goal",
+            "dependsOn": [
+              "t6",
+              "t7"
+            ],
+            "status": "pending"
+          }
+        ]
+      },
+      "budget": {
+        "currency": "USD",
+        "ceilingMinor": 3125,
+        "estimatedMinor": 2500,
+        "reservedMinor": 0,
+        "settledMinor": 0,
+        "unresolvedMinor": 0
+      },
+      "evidence": {
+        "count": 0,
+        "verified": 0
+      },
+      "executor": null,
+      "unresolvedOperations": 0,
+      "blockedReason": null,
+      "lastEventSequence": 2,
+      "updatedAt": "2026-11-17T13:31:49.040Z"
+    }
+  ]
+}

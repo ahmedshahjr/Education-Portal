@@ -71,6 +71,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/add-on-requests/add-on-requests.page').then((m) => m.AddOnRequestsPage),
       },
       {
+        path: 'development-data',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () =>
+          import('./features/development-data/development-data.page').then((m) => m.DevelopmentDataPage),
+      },
+      {
         path: 'countries',
         canActivate: [masterAdministratorGuard],
         loadComponent: () => import('./features/countries/countries.page').then((m) => m.CountriesPage),
@@ -89,6 +95,12 @@ export const routes: Routes = [
         path: 'roles',
         canActivate: [administratorGuard, moduleGuard(MODULE_CODES.usersRoles)],
         loadComponent: () => import('./features/roles/roles.page').then((m) => m.RolesPage),
+      },
+      {
+        path: 'class-offerings',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.school)],
+        loadComponent: () =>
+          import('./features/class-offerings/class-offerings.page').then((m) => m.ClassOfferingsPage),
       },
       {
         path: 'school-requests',

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
@@ -43,7 +43,7 @@ interface CountryRow {
 })
 export class CountriesPage {
   private readonly client = inject(CountriesClient);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   protected readonly countries = signal<readonly CountryDto[] | null>(null);
   protected readonly loadError = signal<string | null>(null);
@@ -120,7 +120,7 @@ export class CountriesPage {
       next: () => {
         this.saving.set(false);
         this.editing.set(null);
-        this.snackBar.open($localize`:@@countries.saved:${changes.name}:COUNTRY: saved`, undefined, { duration: 3000 });
+        this.toast.success($localize`:@@countries.saved:${changes.name}:COUNTRY: saved`);
         this.load();
       },
       error: (error: unknown) => {

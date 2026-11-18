@@ -1,0 +1,164 @@
+{
+  "tasks": {
+    "task-1794922311114-yslku4": {
+      "taskId": "task-1794922311114-yslku4",
+      "type": "feature",
+      "description": "[msn_cb3148a74d68cbf6ccc3e5d2/t1] Specification: Specify the requirements and acceptance criteria",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_cb3148a74d68cbf6ccc3e5d2",
+        "task:t1",
+        "phase:S"
+      ],
+      "createdAt": "2026-11-17T13:31:51.114Z",
+      "startedAt": "2026-11-17T13:39:08.738Z",
+      "completedAt": "2026-11-17T13:40:23.345Z",
+      "result": {
+        "summary": "Specification written for mission msn_cb3148a74d68cbf6ccc3e5d2: four requirements (entities in UI, trial banner above content, snackbar toasts, campus filter when more than one campus), each with testable acceptance criteria, the module/interface design, and five open questions for the owner.",
+        "evidence": "File added: Education Portal Full Stack App/docs/specs/mission-msn-cb3148a7-ui-entities.md (77 lines). Checked in the repo: trial banner component exists and is rendered in app-layout.component.ts:50; MatSnackBar is used in 18 files; GET /api/Campuses endpoint exists (Web/Endpoints/Campuses.cs). No code changed. No tests run: the task only requires a specification. Open questions OQ1-OQ5 must be answered before implementation."
+      }
+    },
+    "task-1794922313197-veatnh": {
+      "taskId": "task-1794922313197-veatnh",
+      "type": "feature",
+      "description": "[msn_cb3148a74d68cbf6ccc3e5d2/t2] Pseudocode: Write the pseudocode for the core logic",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_cb3148a74d68cbf6ccc3e5d2",
+        "task:t2",
+        "phase:P"
+      ],
+      "createdAt": "2026-11-17T13:31:53.197Z",
+      "startedAt": "2026-11-17T14:06:31.536Z",
+      "completedAt": "2026-11-17T14:06:47.643Z",
+      "result": {
+        "summary": "Pseudocode written for mission msn_cb3148a74d68cbf6ccc3e5d2 covering every acceptance criterion of the t1 spec: AC1.1-AC1.4 (entity screens, loading states, module gating), AC2.1-AC2.4 (trial banner logic and days left), AC3.1-AC3.3 (toasts and translation), AC4.1-AC4.4 (campus filter and route), AC5.1-AC5.3 (build, per-use-case denial tests, no test removal). Open questions OQ1-OQ5 are stated as assumptions in the steps that use them.",
+        "evidence": "File added: Education Portal Full Stack App/docs/specs/mission-msn-cb3148a7-pseudocode.md (103 lines). No code changed; no tests run (the task requires pseudocode only). Covers every AC id in docs/specs/mission-msn-cb3148a7-ui-entities.md."
+      }
+    },
+    "task-1794922315256-tt78u0": {
+      "taskId": "task-1794922315256-tt78u0",
+      "type": "feature",
+      "description": "[msn_cb3148a74d68cbf6ccc3e5d2/t3] Architecture: Design the architecture and interfaces",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_cb3148a74d68cbf6ccc3e5d2",
+        "task:t3",
+        "phase:A"
+      ],
+      "createdAt": "2026-11-17T13:31:55.256Z",
+      "startedAt": "2026-11-17T14:10:47.372Z",
+      "completedAt": "2026-11-17T14:11:11.210Z",
+      "result": {
+        "summary": "Architecture written for mission msn_cb3148a74d68cbf6ccc3e5d2: six modules (entity screens, trial banner, toast service, campus filter, module guard, authorization pipeline), the new and changed TypeScript interfaces, the data flow from browser to server, and six recorded decisions (D1 to D6). Server interfaces unchanged. The entity screens wait for OQ1.",
+        "evidence": "File added: Education Portal Full Stack App/docs/specs/mission-msn-cb3148a7-architecture.md (80 lines). Verified in code: app-layout.component.ts:50 renders app-trial-banner; Web/Endpoints/Campuses.cs:25 maps GET list; GET /api/Modules/enabled and GET /api/Subscriptions/mine are the existing endpoints named in AGENTS.md and the modules endpoint file. No code changed; no tests run (the task requires the design only). An ADR is needed before implementation (change-management rules), recorded as follow-up."
+      }
+    },
+    "task-1794922317286-ypjsdu": {
+      "taskId": "task-1794922317286-ypjsdu",
+      "type": "feature",
+      "description": "[msn_cb3148a74d68cbf6ccc3e5d2/t4] Refinement: Write the failing tests first",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_cb3148a74d68cbf6ccc3e5d2",
+        "task:t4",
+        "phase:R"
+      ],
+      "createdAt": "2026-11-17T13:31:57.286Z",
+      "startedAt": "2026-11-17T14:11:22.662Z",
+      "completedAt": "2026-11-17T14:12:21.989Z",
+      "result": {
+        "summary": "Failing tests written first for the new behaviour: trial-days and banner visibility rules (AC2.1 to AC2.4), the toast service (AC3.1, AC3.2) and the campus filter (AC4.1). All three fail before the change because their modules do not exist yet.",
+        "evidence": "Files added: src/Web/ClientApp/src/app/shared/components/trial-banner/trial-banner.logic.spec.ts; src/Web/ClientApp/src/app/shared/services/toast.service.spec.ts; src/Web/ClientApp/src/app/shared/components/campus-filter/campus-filter.component.spec.ts. Command: npx ng test --watch=false --include \"src/app/shared/**/*.spec.ts\". Result: the run stops at compile with TS2307 'Cannot find module' for './trial-banner.logic', './toast.service' and './campus-filter.component'. The behavioural assertions have not run yet, because the missing modules stop compilation before any test runs. No implementation was written."
+      }
+    },
+    "task-1794922319297-31e46q": {
+      "taskId": "task-1794922319297-31e46q",
+      "type": "feature",
+      "description": "[msn_cb3148a74d68cbf6ccc3e5d2/t5] Refinement: Implement until the tests pass",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_cb3148a74d68cbf6ccc3e5d2",
+        "task:t5",
+        "phase:R"
+      ],
+      "createdAt": "2026-11-17T13:31:59.297Z",
+      "startedAt": "2026-11-17T14:12:49.615Z",
+      "completedAt": "2026-11-17T14:16:14.296Z",
+      "result": {
+        "summary": "Implemented the three modules the t4 tests specify: trial-days and banner rules, ToastService, and CampusFilterComponent (with external template and styles, and translations in en, ar and ur). The 17 shared tests pass. The whole Angular suite still has 18 failing tests, all in files this change does not touch, and they fail in isolation too. The mission criterion 'the whole test suite passes' is therefore not met yet.",
+        "evidence": "Files added: shared/components/trial-banner/trial-banner.logic.ts; shared/services/toast.service.ts; shared/components/campus-filter/campus-filter.component.{ts,html,css}. Locale: campusFilter.label and campusFilter.all added to en, ar and ur messages.json. Commands: npx ng test --watch=false --include 'src/app/shared/**/*.spec.ts' -> 17 passed, 5 files. npx ng build --configuration development -> exit 0. Full suite: npx ng test --watch=false -> 18 failed, 148 passed (166). Failing: schools.page.spec (4), navigation.spec (2), translations.spec ar/ur placeholder (2), session.interceptor.spec (3), layout.service.spec (1), campuses.page.spec (6). Of these, schools, navigation and translations were failing before this change. session.interceptor, layout.service and campuses.page are in files git reports as unchanged, and they fail when run alone. Their errors (TestBed configured after inject; unexpected open HTTP requests) do not involve the new modules."
+      }
+    },
+    "task-1794922321412-xf6fy3": {
+      "taskId": "task-1794922321412-xf6fy3",
+      "type": "feature",
+      "description": "[msn_cb3148a74d68cbf6ccc3e5d2/t6] Refinement: Run the full test suite",
+      "priority": "normal",
+      "status": "failed",
+      "progress": 5,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_cb3148a74d68cbf6ccc3e5d2",
+        "task:t6",
+        "phase:R"
+      ],
+      "createdAt": "2026-11-17T13:32:01.412Z",
+      "startedAt": "2026-11-17T15:12:21.797Z",
+      "completedAt": "2026-11-17T15:20:29.683Z",
+      "result": {
+        "reason": "The whole suite is not green. Angular: 18 failed, 148 passed (166); failures in schools, navigation, translations (ar/ur), session.interceptor, layout.service and campuses.page specs. .NET: 4 failed. Application.FunctionalTests: 1 failed of 338 (Tenancy/SchoolWithoutDomainTests.ShouldKeepTwoSchoolsWithoutDomainsApart: expected at least 2 campuses, found 1; fails on every run; the test file is unchanged). Web.AcceptanceTests: 3 failed, all because the Playwright Chromium executable is not installed on this machine. Passing: Domain.UnitTests 432, Application.UnitTests 338, Infrastructure.IntegrationTests 95, and the other 337 functional tests. Not verified: whether the functional failure and the Angular failures existed before this mission's changes."
+      }
+    },
+    "task-1794922323644-wsnord": {
+      "taskId": "task-1794922323644-wsnord",
+      "type": "feature",
+      "description": "[msn_cb3148a74d68cbf6ccc3e5d2/t7] Completion: Integrate: build and CI",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_cb3148a74d68cbf6ccc3e5d2",
+        "task:t7",
+        "phase:C"
+      ],
+      "createdAt": "2026-11-17T13:32:03.645Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1794922325756-i2gsbq": {
+      "taskId": "task-1794922325756-i2gsbq",
+      "type": "feature",
+      "description": "[msn_cb3148a74d68cbf6ccc3e5d2/t8] Completion: Validate the result against the goal",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_cb3148a74d68cbf6ccc3e5d2",
+        "task:t8",
+        "phase:C"
+      ],
+      "createdAt": "2026-11-17T13:32:05.756Z",
+      "startedAt": null,
+      "completedAt": null
+    }
+  },
+  "version": "3.0.0"
+}

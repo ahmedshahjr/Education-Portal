@@ -1,5 +1,7 @@
 using Bogus;
+using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.DevelopmentData.Common;
+using EducationPortal.Application.Schools.Registration;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +11,10 @@ namespace EducationPortal.Infrastructure.Data.DevelopmentData;
 
 /// <summary>
 /// Creates fake schools, campuses and people with Bogus, in batches, through the domain factories (so every rule still
-/// applies). Each school gets its main campus from <see cref="School.Create"/>, then the requested extra campuses, then
-/// its people. The master tenant runs it, so the tenant filters are not used.
+/// applies). Each school is registered the same way the master tenant registers one (its country, default modules, trial
+/// and first administrator), so it can be signed in to. The administrator's email is <c>admin@{domain}</c> and its password
+/// is <see cref="DevelopmentDataSeeder.DevelopmentPassword"/>. Then the requested extra campuses, then its people.
+/// The master tenant runs it, so the tenant filters are not used.
 /// </summary>
 public sealed class DevelopmentDataGenerator : IDevelopmentDataGenerator
 {
@@ -21,11 +25,19 @@ public sealed class DevelopmentDataGenerator : IDevelopmentDataGenerator
     private const int FirstCampusCode = 1001;
 
     private readonly ApplicationDbContext _context;
+    private readonly IIdentityService _identity;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger<DevelopmentDataGenerator> _logger;
 
-    public DevelopmentDataGenerator(ApplicationDbContext context, ILogger<DevelopmentDataGenerator> logger)
+    public DevelopmentDataGenerator(
+        ApplicationDbContext context,
+        IIdentityService identity,
+        TimeProvider timeProvider,
+        ILogger<DevelopmentDataGenerator> logger)
     {
         _context = context;
+        _identity = identity;
+        _timeProvider = timeProvider;
         _logger = logger;
     }
 
@@ -44,23 +56,32 @@ public sealed class DevelopmentDataGenerator : IDevelopmentDataGenerator
             cancellationToken.ThrowIfCancellationRequested();
 
             var domain = await FreeDomainAsync(faker, cancellationToken);
-            var school = School.Create(faker.Company.CompanyName(), domain);
-            school.AssignCountry(country.Id);
-            _context.Schools.Add(school);
-            await _context.SaveChangesAsync(cancellationToken);
+            var registered = await _context.ExecuteInTransactionAsync(token => SchoolRegistration.RegisterAsync(
+                _context,
+                _identity,
+                _timeProvider,
+                new SchoolRegistrationRequest(
+                    faker.Company.CompanyName(),
+                    domain,
+                    country.PublicId,
+                    DataRegion: null,
+                    AdministratorEmail: $"admin@{domain}",
+                    AdministratorPassword: DevelopmentDataSeeder.DevelopmentPassword),
+                token), cancellationToken);
+            var schoolId = registered.Id;
 
             for (var campusNumber = 0; campusNumber < request.CampusesPerSchool - 1; campusNumber++)
             {
-                _context.Campuses.Add(Campus.Create(school.Id, faker.Address.City() + " Campus", (FirstCampusCode + campusNumber).ToString()));
+                _context.Campuses.Add(Campus.Create(schoolId, faker.Address.City() + " Campus", (FirstCampusCode + campusNumber).ToString()));
                 campuses++;
             }
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            var campusIds = await _context.Campuses.Where(c => c.SchoolId == school.Id).Select(c => c.Id).ToListAsync(cancellationToken);
+            var campusIds = await _context.Campuses.Where(c => c.SchoolId == schoolId).Select(c => c.Id).ToListAsync(cancellationToken);
             foreach (var _ in campusIds)
             {
-                people += await AddPeopleAsync(faker, school.Id, request.PeoplePerCampus, cancellationToken);
+                people += await AddPeopleAsync(faker, schoolId, request.PeoplePerCampus, cancellationToken);
             }
 
             // The school's people are saved; the tracked graph is dropped so memory does not grow with the run.

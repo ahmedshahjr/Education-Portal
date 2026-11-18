@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -51,7 +51,7 @@ export class SchoolRequestsQueuePage {
   private readonly requestsClient = inject(SchoolRequestsClient);
   private readonly countriesClient = inject(CountriesClient);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
 
   protected readonly requests = signal<readonly SchoolRequestDto[] | null>(null);
@@ -139,7 +139,7 @@ export class SchoolRequestsQueuePage {
       .subscribe({
         next: () => {
           this.busy.set(false);
-          this.snackBar.open($localize`:@@requests.approved:School approved. It has a 30-day free trial.`, undefined, { duration: 4000 });
+          this.toast.success($localize`:@@requests.approved:School approved. It has a 30-day free trial.`);
           this.approvingId.set(null);
           this.load();
         },
@@ -173,7 +173,7 @@ export class SchoolRequestsQueuePage {
     request.subscribe({
       next: () => {
         this.busy.set(false);
-        this.snackBar.open(done, undefined, { duration: 3000 });
+        this.toast.success(done);
         this.load();
       },
       error: (error: unknown) => {

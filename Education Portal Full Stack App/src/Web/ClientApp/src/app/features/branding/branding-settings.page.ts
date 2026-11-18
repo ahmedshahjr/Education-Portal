@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { BrandingService } from '../../core/branding/branding.service';
 import { problemMessages } from '../../core/http/problem-details';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
@@ -33,7 +33,7 @@ export class BrandingSettingsPage {
     () => $localize`:@@branding.subtitle:How ${this.brandingService.schoolName()}:SCHOOL: looks to everyone who signs in on this domain.`
   );
   private readonly client = inject(BrandingClient);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   protected readonly saving = signal(false);
   protected readonly errors = signal<readonly string[]>([]);
@@ -55,7 +55,7 @@ export class BrandingSettingsPage {
         next: () => {
           this.brandingService.load().subscribe(() => {
             this.saving.set(false);
-            this.snackBar.open($localize`:@@branding.saved:Branding saved`, undefined, { duration: 3000 });
+            this.toast.success($localize`:@@branding.saved:Branding saved`);
           });
         },
         error: (error: unknown) => {

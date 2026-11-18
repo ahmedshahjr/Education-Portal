@@ -61,6 +61,26 @@ public class HardeningTests : TestBase
     }
 
     [Test]
+    public async Task ShouldRelaxTheContentSecurityPolicyOnlyForTheApiReferenceInDevelopment()
+    {
+        await TestApp.RunAsDefaultUserAsync();
+
+        using var development = TestHttp.CreateDevelopmentSession();
+        var reference = await development.GetAsync("/scalar/");
+        var referenceCsp = reference.Headers.GetValues("Content-Security-Policy").Single();
+        referenceCsp.ShouldContain("script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;");
+        referenceCsp.ShouldContain("object-src 'none'");
+
+        // Every other page keeps the strict policy, in Development too.
+        var api = await development.GetAsync("/api/Locations");
+        api.Headers.GetValues("Content-Security-Policy").Single().ShouldNotContain("cdn.jsdelivr.net");
+
+        using var production = TestHttp.CreateProductionSession();
+        var productionReference = await production.GetAsync("/scalar/");
+        productionReference.Headers.GetValues("Content-Security-Policy").Single().ShouldNotContain("cdn.jsdelivr.net");
+    }
+
+    [Test]
     public async Task ShouldRejectASignInWithoutTheAntiforgeryTokenBeforeAnyPasswordIsChecked()
     {
         var userId = await TestApp.RunAsDefaultUserAsync();

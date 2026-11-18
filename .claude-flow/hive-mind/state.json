@@ -1,14 +1,31 @@
 {
   "initialized": true,
   "topology": "hierarchical-mesh",
-  "workers": [],
+  "workers": [
+    "hive-worker-1794924563430-40s5",
+    "hive-worker-1794924563430-27yj",
+    "hive-worker-1794924563430-kk72",
+    "hive-worker-1794928708395-c32i",
+    "hive-worker-1795015147937-9rks",
+    "hive-worker-1795015154799-tfby"
+  ],
   "consensus": {
     "pending": [],
     "history": []
   },
-  "sharedMemory": {},
+  "sharedMemory": {
+    "broadcasts": [
+      {
+        "messageId": "msg-1794924746262-ea2ys3",
+        "message": "finis all task lauch more agents",
+        "priority": "normal",
+        "fromId": "console-operator",
+        "timestamp": "2026-11-17T14:12:26.262Z"
+      }
+    ]
+  },
   "createdAt": "2026-11-17T11:07:04.268Z",
-  "updatedAt": "2026-11-17T11:07:04.269Z",
+  "updatedAt": "2026-11-18T15:19:14.806Z",
   "consensusStrategy": "raft",
   "maxAgents": 15,
   "memoryBackend": "hybrid",

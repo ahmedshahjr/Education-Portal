@@ -41,7 +41,7 @@ else
 
 app.UseHttpsRedirection();
 app.UseExceptionHandler(options => { });
-app.UseSecurityHeaders();
+app.UseSecurityHeaders(app.Environment.IsDevelopment());
 
 // Every request belongs to the school that owns its host; unknown hosts get 404 and nothing else (SEC-AUTHZ-10).
 app.UseTenantResolution();

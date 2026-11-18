@@ -1,0 +1,30 @@
+.mm-devdata__form {
+  display: grid;
+  gap: var(--mm-grid-gap);
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.mm-devdata__total {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.mm-devdata__total--over {
+  color: var(--mm-error, #b3261e);
+}
+
+.mm-devdata__error {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--mm-error, #b3261e);
+}
+
+.mm-devdata__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mm-devdata__summary {
+  margin: var(--mm-grid-gap) 0 0;
+}

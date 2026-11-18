@@ -33,8 +33,11 @@ public class DevelopmentDataSeeder
     /// <summary>The master tenant's domain in Development. The admin sign-in works on http(s)://localhost.</summary>
     public const string MasterDomain = "localhost";
 
-    // Development-only seed account (SEC-SECRET-04). It meets the 15-character minimum of SEC-AUTHN-03.
-    private const string DevelopmentPassword = "Local-Dev-Only-2026!";
+    /// <summary>
+    /// The password of every Development-only account, the seed administrator and the administrators of generated schools.
+    /// It meets the 15-character minimum of SEC-AUTHN-03. Never used outside Development (SEC-SECRET-04).
+    /// </summary>
+    public const string DevelopmentPassword = "Local-Dev-Only-2026!";
 
     public async Task SeedAsync()
     {

@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { problemMessages } from '../../core/http/problem-details';
@@ -57,7 +57,7 @@ export class SchoolsPage {
   private readonly client = inject(SchoolsClient);
   private readonly countriesClient = inject(CountriesClient);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
 
   protected readonly schools = signal<readonly SchoolSummaryDto[] | null>(null);
@@ -136,11 +136,7 @@ export class SchoolsPage {
       next: () => {
         this.creating.set(false);
         this.adding.set(false);
-        this.snackBar.open(
-          $localize`:@@schools.created:${school.name}:SCHOOL: added. Its administrator signs in on ${school.domain}:DOMAIN: and must change the one-time password.`,
-          undefined,
-          { duration: 6000 }
-        );
+        this.toast.success($localize`:@@schools.created:${school.name}:SCHOOL: added. Its administrator signs in on ${school.domain}:DOMAIN: and must change the one-time password.`);
         this.load();
       },
       error: (error: unknown) => {
@@ -155,12 +151,12 @@ export class SchoolsPage {
     this.client.updateSchoolCountry(school.id, new UpdateSchoolCountryCommand({ countryId: countryId ?? undefined })).subscribe({
       next: () => {
         this.assigning.set(null);
-        this.snackBar.open($localize`:@@schools.countrySaved:Country of ${school.name}:SCHOOL: saved`, undefined, { duration: 3000 });
+        this.toast.success($localize`:@@schools.countrySaved:Country of ${school.name}:SCHOOL: saved`);
         this.load();
       },
       error: (error: unknown) => {
         this.assigning.set(null);
-        this.snackBar.open(problemMessages(error)[0], undefined, { duration: 5000 });
+        this.toast.error(error);
         this.load();
       },
     });
@@ -190,10 +186,10 @@ export class SchoolsPage {
   private deleteSchool(school: SchoolSummaryDto): void {
     this.client.deleteSchool(school.id).subscribe({
       next: () => {
-        this.snackBar.open($localize`:@@schools.deleted:School deleted.`, undefined, { duration: 3000 });
+        this.toast.success($localize`:@@schools.deleted:School deleted.`);
         this.load();
       },
-      error: (error: unknown) => this.snackBar.open(problemMessages(error)[0], undefined, { duration: 5000 }),
+      error: (error: unknown) => this.toast.error(error),
     });
   }
 

@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
@@ -55,7 +55,7 @@ type TypeFilter = 'All' | UserType;
 export class PeoplePage {
   private readonly peopleClient = inject(UserDetailsClient);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
 
   protected readonly people = signal<readonly UserDetailsDto[] | null>(null);
@@ -183,11 +183,7 @@ export class PeoplePage {
     request.subscribe({
       next: () => {
         this.busy.set(false);
-        this.snackBar.open(
-          editing ? $localize`:@@people.updated:User saved.` : $localize`:@@people.added:User added.`,
-          undefined,
-          { duration: 3000 }
-        );
+        this.toast.success(editing ? $localize`:@@people.updated:User saved.` : $localize`:@@people.added:User added.`);
         this.cancel();
         this.load();
       },
@@ -221,7 +217,7 @@ export class PeoplePage {
     request.subscribe({
       next: () => {
         this.busy.set(false);
-        this.snackBar.open(done, undefined, { duration: 3000 });
+        this.toast.success(done);
         this.load();
       },
       error: (error: unknown) => {

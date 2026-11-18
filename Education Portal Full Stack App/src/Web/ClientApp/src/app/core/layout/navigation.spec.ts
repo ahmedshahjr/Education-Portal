@@ -13,6 +13,15 @@ describe('visibleNavSections', () => {
     expect(ids(true, false)).toEqual(['dashboard', 'branding', 'subscription']);
   });
 
+  it('shows class offerings to a school administrator only when the School module is on', () => {
+    const schoolItems = (enabled: string[]) =>
+      visibleNavSections(APP_NAV_SECTIONS, true, false, new Set(enabled))
+        .flatMap((s) => s.items.map((i) => i.id))
+        .filter((id) => id === 'class-offerings');
+    expect(schoolItems(['School'])).toEqual(['class-offerings']);
+    expect(schoolItems([])).toEqual([]);
+  });
+
   it('shows the master portal to master tenant administrators', () => {
     expect(ids(true, true)).toEqual([
       'dashboard',
@@ -24,6 +33,7 @@ describe('visibleNavSections', () => {
       'school-requests',
       'pricing',
       'invoices',
+      'development-data',
     ]);
   });
 

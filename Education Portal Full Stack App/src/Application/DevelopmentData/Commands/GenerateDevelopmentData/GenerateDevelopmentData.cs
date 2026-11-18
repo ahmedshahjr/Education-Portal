@@ -1,8 +1,6 @@
 using EducationPortal.Application.Common.Security;
 using EducationPortal.Application.DevelopmentData.Common;
 using EducationPortal.Domain.Constants;
-using FluentValidation;
-using MediatR;
 
 namespace EducationPortal.Application.DevelopmentData.Commands.GenerateDevelopmentData;
 

@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -43,7 +43,7 @@ export class PricingPage {
   private readonly modulesClient = inject(ModulesClient);
   private readonly countriesClient = inject(CountriesClient);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
 
   protected readonly plans = signal<readonly PlanDto[] | null>(null);
@@ -221,7 +221,7 @@ export class PricingPage {
       next: () => {
         this.busy.set(false);
         onSuccess?.();
-        this.snackBar.open(done, undefined, { duration: 3000 });
+        this.toast.success(done);
         this.loadAll();
       },
       error: (error: unknown) => {

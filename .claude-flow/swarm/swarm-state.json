@@ -5,7 +5,11 @@
       "topology": "hierarchical",
       "maxAgents": 8,
       "status": "running",
-      "agents": [],
+      "agents": [
+        "agent-1794922377144-biu0m0",
+        "agent-1794922383791-112hq0",
+        "agent-1794922388946-0198mi"
+      ],
       "tasks": [],
       "config": {
         "topology": "hierarchical",
