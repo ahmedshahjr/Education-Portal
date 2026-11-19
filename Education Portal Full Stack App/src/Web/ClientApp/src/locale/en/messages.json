@@ -312,7 +312,7 @@
     "people.loadError": "Users could not be loaded",
     "people.search": "Search users...",
     "people.empty": "No users yet",
-    "people.emptyDescription": "Add the school's principals, teachers and staff as users below.",
+    "people.emptyDescription": "Use Add user to add the school's principals, teachers, staff and students.",
     "people.filterLabel": "Show",
     "people.addButton": "Add user",
     "people.editHeading": "Edit user",
@@ -627,6 +627,17 @@
     "topbar.lightMode": "Light mode",
     "topbar.darkMode": "Dark mode",
     "trial.endsToday": "The free trial ends today.",
-    "trial.active": "Trial period active: {$INTERPOLATION} days remaining."
+    "trial.active": "Trial period active: {$INTERPOLATION} days remaining.",
+    "people.accountHeading": "Login",
+    "people.dialogAddTitle": "Add a user",
+    "people.dialogEditTitle": "Edit user",
+    "people.email": "Email",
+    "people.emailError": "Enter a valid email address.",
+    "people.emailHint": "The person signs in with this address.",
+    "people.oneTimePassword": "One-time password",
+    "people.passwordError": "Use 15 to 128 characters.",
+    "people.passwordHint": "At least 15 characters. The person must change it on first sign-in.",
+    "people.student": "Student",
+    "people.studentNote": "A student's date of birth, father's name and class are entered in Admissions."
   }
 }
