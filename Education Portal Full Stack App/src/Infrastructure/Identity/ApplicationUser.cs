@@ -21,4 +21,10 @@ public class ApplicationUser : IdentityUser
     /// request except reading their account, changing the password and signing out is refused.
     /// </summary>
     public bool MustChangePassword { get; set; }
+
+    /// <summary>
+    /// The person this account belongs to (their record in the school's people), or null for an account that is not a
+    /// person's own: the school administrator and the master tenant's accounts. One account per person in a school.
+    /// </summary>
+    public int? UserDetailsId { get; set; }
 }

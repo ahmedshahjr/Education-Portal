@@ -3,6 +3,7 @@ using EducationPortal.Application.Common.Models;
 using EducationPortal.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace EducationPortal.Infrastructure.Identity;
 
@@ -77,6 +78,38 @@ public class IdentityService : IIdentityService
         var inRole = await _userManager.AddToRoleAsync(user, Roles.Administrator);
 
         return (inRole.ToApplicationResult(), user.Id);
+    }
+
+    public async Task<(Result Result, string UserId)> CreatePersonAccountAsync(int schoolId, int userDetailsId, string email, string oneTimePassword)
+    {
+        var user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            SchoolId = schoolId,
+            UserDetailsId = userDetailsId,
+            MustChangePassword = true,
+        };
+
+        var created = await _userManager.CreateAsync(user, oneTimePassword);
+
+        return (created.ToApplicationResult(), created.Succeeded ? user.Id : string.Empty);
+    }
+
+    public async Task<string?> FindAccountIdOfPersonAsync(int schoolId, int userDetailsId)
+    {
+        return await _userManager.Users
+            .Where(u => u.SchoolId == schoolId && u.UserDetailsId == userDetailsId)
+            .Select(u => u.Id)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<int?> FindPersonIdOfAccountAsync(string userId)
+    {
+        return await _userManager.Users
+            .Where(u => u.Id == userId)
+            .Select(u => u.UserDetailsId)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<Result> ChangePasswordAsync(string userId, string currentPassword, string newPassword)

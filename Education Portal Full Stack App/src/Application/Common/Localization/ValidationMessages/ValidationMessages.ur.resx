@@ -417,4 +417,19 @@
   <data name="StudentAdmissionTooFarAhead" xml:space="preserve">
     <value>داخلے کی تاریخ آج سے {0} دن سے زیادہ آگے نہیں ہو سکتی۔</value>
   </data>
+  <data name="ParentIsNotParent" xml:space="preserve">
+    <value>منتخب شخص والد یا سرپرست نہیں ہے۔</value>
+  </data>
+  <data name="StudentIsNotStudent" xml:space="preserve">
+    <value>منتخب بچہ طالب علم نہیں ہے۔</value>
+  </data>
+  <data name="ParentAlreadyLinked" xml:space="preserve">
+    <value>یہ والد پہلے ہی اس طالب علم سے منسلک ہے۔</value>
+  </data>
+  <data name="PersonHasNoAccount" xml:space="preserve">
+    <value>اس شخص کا ابھی لاگ اِن اکاؤنٹ نہیں ہے۔ پہلے اکاؤنٹ شامل کریں۔</value>
+  </data>
+  <data name="RoleNotInSchool" xml:space="preserve">
+    <value>ایک کردار اس مدرسے کا نہیں ہے۔</value>
+  </data>
 </root>

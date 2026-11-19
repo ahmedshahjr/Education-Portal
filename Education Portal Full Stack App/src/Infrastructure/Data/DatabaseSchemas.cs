@@ -1,4 +1,4 @@
-﻿using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.Entities;
 using EducationPortal.Infrastructure.Data.Lookups;
 using EducationPortal.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,12 +28,14 @@ public static class DatabaseSchemas
     {
         [typeof(SchoolRole)] = Access,
         [typeof(RolePermission)] = Access,
+        [typeof(AccountRole)] = Access,
 
         [typeof(School)] = Schools,
         [typeof(Campus)] = Schools,
         [typeof(CampusPhone)] = Schools,
         [typeof(UserDetails)] = Schools,
         [typeof(StudentProfile)] = Schools,
+        [typeof(ParentStudent)] = Schools,
         [typeof(SchoolProfile)] = Schools,
         [typeof(SchoolCurriculum)] = Schools,
         [typeof(SchoolFacility)] = Schools,

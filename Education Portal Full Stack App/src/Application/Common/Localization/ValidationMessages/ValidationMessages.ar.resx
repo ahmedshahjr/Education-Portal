@@ -417,4 +417,19 @@
   <data name="StudentAdmissionTooFarAhead" xml:space="preserve">
     <value>لا يمكن أن يكون تاريخ القبول بعد أكثر من {0} يومًا من اليوم.</value>
   </data>
+  <data name="ParentIsNotParent" xml:space="preserve">
+    <value>الشخص المختار ليس ولي أمر.</value>
+  </data>
+  <data name="StudentIsNotStudent" xml:space="preserve">
+    <value>الشخص المختار ليس طالباً.</value>
+  </data>
+  <data name="ParentAlreadyLinked" xml:space="preserve">
+    <value>هذا الولي مرتبط بهذا الطالب بالفعل.</value>
+  </data>
+  <data name="PersonHasNoAccount" xml:space="preserve">
+    <value>هذا الشخص ليس لديه حساب دخول بعد. أضف الحساب أولاً.</value>
+  </data>
+  <data name="RoleNotInSchool" xml:space="preserve">
+    <value>أحد الأدوار ليس من أدوار هذه المدرسة.</value>
+  </data>
 </root>

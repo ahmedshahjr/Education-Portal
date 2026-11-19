@@ -24,6 +24,18 @@ public interface IIdentityService
     Task<(Result Result, string UserId)> CreateSchoolAdministratorAsync(int schoolId, string email, string oneTimePassword);
 
     /// <summary>
+    /// Creates the login account of a person of the school, linked to the person's record, with a one-time password the
+    /// person must replace on first sign-in. The account gets no role here; roles are assigned separately.
+    /// </summary>
+    Task<(Result Result, string UserId)> CreatePersonAccountAsync(int schoolId, int userDetailsId, string email, string oneTimePassword);
+
+    /// <summary>The login account of a person of the school, or null when the person has none.</summary>
+    Task<string?> FindAccountIdOfPersonAsync(int schoolId, int userDetailsId);
+
+    /// <summary>The person a login account belongs to, or null when the account is not a person's.</summary>
+    Task<int?> FindPersonIdOfAccountAsync(string userId);
+
+    /// <summary>
     /// Replaces the user's password after checking the current one, ends the one-time-password block, ends their other
     /// sessions (new security stamp) and renews the current one (SEC-AUTHN-07).
     /// </summary>

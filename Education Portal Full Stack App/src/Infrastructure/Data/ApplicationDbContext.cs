@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Reflection;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Domain.Common;
@@ -55,6 +55,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<CampusPhone> CampusPhones => Set<CampusPhone>();
 
     public DbSet<UserDetails> UserDetails => Set<UserDetails>();
+
+    public DbSet<ParentStudent> ParentStudents => Set<ParentStudent>();
+
+    public DbSet<AccountRole> AccountRoles => Set<AccountRole>();
 
     public DbSet<StudentProfile> StudentProfiles => Set<StudentProfile>();
 

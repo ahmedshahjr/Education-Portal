@@ -1,0 +1,11 @@
+.mm-my-children__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mm-my-children__row {
+  padding-block: var(--mm-space-2);
+  border-bottom: 1px solid var(--mm-border-color);
+  font-weight: 600;
+}

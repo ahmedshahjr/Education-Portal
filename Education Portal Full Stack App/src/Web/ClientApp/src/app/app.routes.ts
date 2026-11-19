@@ -118,6 +118,16 @@ export const routes: Routes = [
         canActivate: [masterAdministratorGuard],
         loadComponent: () => import('./features/invoices/invoices.page').then((m) => m.InvoicesPage),
       },
+      {
+        path: 'audit',
+        canActivate: [administratorGuard],
+        loadComponent: () => import('./features/audit/audit.page').then((m) => m.AuditPage),
+      },
+      {
+        path: 'my-children',
+        canActivate: [authGuard, moduleGuard(MODULE_CODES.students)],
+        loadComponent: () => import('./features/my-children/my-children.page').then((m) => m.MyChildrenPage),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

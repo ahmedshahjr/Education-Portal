@@ -1,0 +1,112 @@
+<h2 mat-dialog-title>
+  @if (adding) {
+    <ng-container i18n="@@people.dialogAddTitle">Add a user</ng-container>
+  } @else {
+    <ng-container i18n="@@people.dialogEditTitle">Edit user</ng-container>
+  }
+</h2>
+
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-dialog-content class="mm-person-dialog">
+    <div class="mm-person-dialog__grid">
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@people.firstName">First name</mat-label>
+        <input matInput formControlName="firstName" maxlength="100" autocomplete="off" />
+        @if (form.controls.firstName.hasError('required')) {
+          <mat-error i18n="@@people.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@people.middleName">Middle name</mat-label>
+        <input matInput formControlName="middleName" maxlength="100" autocomplete="off" />
+        <mat-hint i18n="@@people.optional">Optional.</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@people.lastName">Last name</mat-label>
+        <input matInput formControlName="lastName" maxlength="100" autocomplete="off" />
+        @if (form.controls.lastName.hasError('required')) {
+          <mat-error i18n="@@people.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@people.userType">Type</mat-label>
+        <mat-select formControlName="userType">
+          <mat-option [value]="types[0]" i18n="@@people.principal">Principal</mat-option>
+          <mat-option [value]="types[1]" i18n="@@people.teacher">Teacher</mat-option>
+          <mat-option [value]="types[2]" i18n="@@people.staffMember">Staff</mat-option>
+          <mat-option [value]="types[3]" i18n="@@people.student">Student</mat-option>
+          <mat-option [value]="types[4]" i18n="@@people.parentOption">Parent</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@people.phone">Phone</mat-label>
+        <input matInput formControlName="phone" maxlength="30" autocomplete="off" dir="ltr" />
+        <mat-hint i18n="@@people.optional">Optional.</mat-hint>
+      </mat-form-field>
+    </div>
+
+    @if (showAdmissionNote()) {
+      <p class="mm-person-dialog__note" i18n="@@people.studentNote">
+        A student's date of birth, father's name and class are entered in Admissions.
+      </p>
+    }
+
+    @if (showChildren()) {
+      <h3 class="mm-person-dialog__heading" i18n="@@people.childrenHeading">Children</h3>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@people.childrenLabel">Students</mat-label>
+        <mat-select formControlName="children" multiple>
+          @for (student of students; track student.id) {
+            <mat-option [value]="student.id">{{ student.firstName }} {{ student.lastName }}</mat-option>
+          } @empty {
+            <mat-option [disabled]="true" i18n="@@people.noStudents">No students yet. Add the students first.</mat-option>
+          }
+        </mat-select>
+        <mat-hint i18n="@@people.childrenHint">The parent sees only these students.</mat-hint>
+      </mat-form-field>
+    }
+
+    <h3 class="mm-person-dialog__heading" i18n="@@people.rolesHeading">Roles</h3>
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@people.rolesLabel">Roles</mat-label>
+      <mat-select formControlName="roles" multiple>
+        @for (role of roles; track role.id) {
+          <mat-option [value]="role.id">{{ role.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint i18n="@@people.rolesHint">Decides what the user may see. The built-in roles are a starting point.</mat-hint>
+    </mat-form-field>
+
+    @if (adding) {
+      <h3 class="mm-person-dialog__heading" i18n="@@people.accountHeading">Login</h3>
+      <div class="mm-person-dialog__grid">
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@people.email">Email</mat-label>
+          <input matInput type="email" formControlName="email" maxlength="256" autocomplete="off" dir="ltr" />
+          <mat-hint i18n="@@people.emailHint">The person signs in with this address.</mat-hint>
+          @if (form.controls.email.invalid) {
+            <mat-error i18n="@@people.emailError">Enter a valid email address.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@people.oneTimePassword">One-time password</mat-label>
+          <input matInput type="password" formControlName="oneTimePassword" maxlength="128" autocomplete="new-password" dir="ltr" />
+          <mat-hint i18n="@@people.passwordHint">At least 15 characters. The person must change it on first sign-in.</mat-hint>
+          @if (form.controls.oneTimePassword.invalid) {
+            <mat-error i18n="@@people.passwordError">Use 15 to 128 characters.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close i18n="@@common.cancel">Cancel</button>
+    <button mat-flat-button type="submit" [disabled]="form.invalid" i18n="@@people.save">Save user</button>
+  </mat-dialog-actions>
+</form>

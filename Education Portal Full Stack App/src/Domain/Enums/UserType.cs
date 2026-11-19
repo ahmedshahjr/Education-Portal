@@ -10,4 +10,7 @@ public enum UserType
     Teacher = 2,
     Staff = 3,
     Student = 4,
+
+    /// <summary>A parent of one or more students, linked to them (ParentStudent). Sees only their own children.</summary>
+    Parent = 5,
 }
