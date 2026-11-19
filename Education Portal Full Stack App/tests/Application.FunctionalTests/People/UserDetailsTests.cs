@@ -7,6 +7,8 @@ using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
 using EducationPortal.Infrastructure.Data;
+using EducationPortal.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
@@ -38,6 +40,36 @@ public class UserDetailsTests : TestBase
             p => p.LastName.ShouldBe("Khan"),
             p => p.UserType.ShouldBe(UserType.Principal),
             p => p.Phone.ShouldBe("+92 300 1234567"));
+    }
+
+    [Test]
+    public async Task ShouldCreateAPersonWithALinkedAccountThatMustChangeItsPassword()
+    {
+        await TestApp.RunAsAdministratorAsync();
+        var session = await SetUpSchoolAsync("People Account", SchoolDomain, "admin@people-account.local");
+
+        using var create = await session.PostAsync("/api/UserDetails", new { firstName = "Bilal", lastName = "Ahmed", userType = "Teacher", email = "bilal@people-account.local", oneTimePassword = "violet harbour lantern 47" });
+        create.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        var schoolId = (await TestApp.FindSchoolIdAsync(SchoolDomain))!.Id;
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+        var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var account = (await users.FindByEmailAsync("bilal@people-account.local")).ShouldNotBeNull();
+        account.SchoolId.ShouldBe(schoolId);
+        account.MustChangePassword.ShouldBeTrue();
+        account.UserDetailsId.ShouldNotBeNull();
+    }
+
+    [Test]
+    public async Task ShouldRefuseAWeakOneTimePasswordAndSaveNoPerson()
+    {
+        await TestApp.RunAsAdministratorAsync();
+        var session = await SetUpSchoolAsync("People Weak", SchoolDomain, "admin@people-weak.local");
+
+        using var create = await session.PostAsync("/api/UserDetails", new { firstName = "Sana", lastName = "Malik", userType = "Staff", email = "sana@people-weak.local", oneTimePassword = "short" });
+
+        create.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await ReadAsync(session, "/api/UserDetails")).ShouldBeEmpty();
     }
 
     [Test]

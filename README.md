@@ -381,6 +381,7 @@ Step 2 adds a permission check after authorization: the module is switched on fo
 - In production the API serves the built Angular files and falls back to `index.html` for app routes.
 
 ### Sign-in and accounts
+- **Accounts for people** (`feature/person-accounts`). Adding a person with `POST /api/UserDetails` can also create their login: an `email` and a `oneTimePassword` (the same account rules as the school administrator's account, with the password policy checked when the account is made). The person and the account are saved in one transaction, the account is marked to change its password on first sign-in, and it is linked to the person by `AspNetUsers.UserDetailsId`, unique per school (migration `AddPersonAccountLink`). Roles and parent links come in the next phases.
 
 - ASP.NET Core Identity from the template (kept on purpose), with users and roles in the same PostgreSQL database.
 - Four endpoints under `/api/Users` (`login`, `logout`, `me` and `me/password`) replace the template's Identity API endpoints. Signing in sets a session cookie.

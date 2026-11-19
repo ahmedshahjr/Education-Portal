@@ -12,6 +12,11 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
     {
         builder.HasIndex(u => u.SchoolId);
 
+        // A person has at most one account in their school (accounts without a person are not indexed).
+        builder.HasIndex(u => new { u.SchoolId, u.UserDetailsId })
+            .IsUnique()
+            .HasFilter("\"UserDetailsId\" IS NOT NULL");
+
         builder.Property(u => u.PreferredLanguage).HasMaxLength(Language.CodeLength);
 
         builder.HasOne<School>()

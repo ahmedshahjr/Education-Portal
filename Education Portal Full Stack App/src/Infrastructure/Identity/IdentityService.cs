@@ -79,6 +79,22 @@ public class IdentityService : IIdentityService
         return (inRole.ToApplicationResult(), user.Id);
     }
 
+    public async Task<(Result Result, string UserId)> CreatePersonAccountAsync(int schoolId, int userDetailsId, string email, string oneTimePassword)
+    {
+        var user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            SchoolId = schoolId,
+            UserDetailsId = userDetailsId,
+            MustChangePassword = true,
+        };
+
+        var created = await _userManager.CreateAsync(user, oneTimePassword);
+
+        return (created.ToApplicationResult(), created.Succeeded ? user.Id : string.Empty);
+    }
+
     public async Task<Result> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
     {
         var user = await _userManager.FindByIdAsync(userId);
