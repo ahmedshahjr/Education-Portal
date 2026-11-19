@@ -52,6 +52,11 @@ export class ModulesService {
     );
   }
 
+  /** Sets the list from a sign-in answer, so the menu needs no second request (the server checks every call anyway). */
+  set(codes: readonly ModuleCode[]): void {
+    this.keys.set(new Set(codes));
+  }
+
   clear(): void {
     this.keys.set(new Set());
   }
