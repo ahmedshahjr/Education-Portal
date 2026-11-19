@@ -3,14 +3,14 @@
   "contract": "ruflo.mission-observation/1",
   "source": "ruflo-cli/missions",
   "workspaceId": "ws_48fc84af0e8a3b7e",
-  "observedAt": "2026-11-17T13:31:49.040Z",
+  "observedAt": "2026-11-19T04:07:50.958Z",
   "truncated": false,
   "missions": [
     {
       "missionId": "msn_cb3148a74d68cbf6ccc3e5d2",
       "objective": "add all enties in the ui and show trail banner above the ui if trail is active and add toaster from messager. if comapus are multiple more than 1 add dropwndo above to filter databased on that.",
-      "state": "planned",
-      "revision": 2,
+      "state": "cancelled",
+      "revision": 4,
       "executionMode": "session-bound",
       "plan": {
         "revision": 1,
@@ -98,8 +98,8 @@
       "executor": null,
       "unresolvedOperations": 0,
       "blockedReason": null,
-      "lastEventSequence": 2,
-      "updatedAt": "2026-11-17T13:31:49.040Z"
+      "lastEventSequence": 4,
+      "updatedAt": "2026-11-19T04:07:50.958Z"
     }
   ]
 }

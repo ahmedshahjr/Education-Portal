@@ -130,7 +130,7 @@
       "type": "feature",
       "description": "[msn_cb3148a74d68cbf6ccc3e5d2/t7] Completion: Integrate: build and CI",
       "priority": "normal",
-      "status": "pending",
+      "status": "cancelled",
       "progress": 0,
       "assignedTo": [],
       "tags": [
@@ -140,14 +140,17 @@
       ],
       "createdAt": "2026-11-17T13:32:03.645Z",
       "startedAt": null,
-      "completedAt": null
+      "completedAt": "2026-11-19T04:07:46.313Z",
+      "result": {
+        "cancelReason": "mission cancelled from the console"
+      }
     },
     "task-1794922325756-i2gsbq": {
       "taskId": "task-1794922325756-i2gsbq",
       "type": "feature",
       "description": "[msn_cb3148a74d68cbf6ccc3e5d2/t8] Completion: Validate the result against the goal",
       "priority": "normal",
-      "status": "pending",
+      "status": "cancelled",
       "progress": 0,
       "assignedTo": [],
       "tags": [
@@ -157,7 +160,10 @@
       ],
       "createdAt": "2026-11-17T13:32:05.756Z",
       "startedAt": null,
-      "completedAt": null
+      "completedAt": "2026-11-19T04:07:48.679Z",
+      "result": {
+        "cancelReason": "mission cancelled from the console"
+      }
     }
   },
   "version": "3.0.0"
