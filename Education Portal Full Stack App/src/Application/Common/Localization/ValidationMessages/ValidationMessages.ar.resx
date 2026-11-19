@@ -450,4 +450,16 @@
   <data name="GradeScaleInvalid" xml:space="preserve">
     <value>يجب أن تغطي الشرائح من 0 إلى 100 مرة واحدة: لكل شريحة حرف، ويجب ألا يتجاوز حدها الأدنى حدها الأقصى، ولا يجوز أن تتداخل الشرائح أو تترك فجوة بينها.</value>
   </data>
+  <data name="TimetableTeacherClash" xml:space="preserve">
+    <value>المعلم يدرّس بالفعل في هذا الوقت (الحصة {0}).</value>
+  </data>
+  <data name="TimetableRoomClash" xml:space="preserve">
+    <value>القاعة محجوزة بالفعل في هذا الوقت (الحصة {0}).</value>
+  </data>
+  <data name="TimetableClassClash" xml:space="preserve">
+    <value>الصف لديه حصة بالفعل في هذا الوقت (الحصة {0}).</value>
+  </data>
+  <data name="TimetableEndsAfterStart" xml:space="preserve">
+    <value>تنتهي الحصة بعد بدايتها.</value>
+  </data>
 </root>

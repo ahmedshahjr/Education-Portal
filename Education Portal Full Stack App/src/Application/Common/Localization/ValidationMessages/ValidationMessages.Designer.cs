@@ -1047,6 +1047,42 @@ namespace EducationPortal.Application.Common.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The teacher already teaches a lesson at this time (lesson {0}).
+        /// </summary>
+        internal static string TimetableTeacherClash {
+            get {
+                return ResourceManager.GetString("TimetableTeacherClash", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The room is already booked at this time (lesson {0}).
+        /// </summary>
+        internal static string TimetableRoomClash {
+            get {
+                return ResourceManager.GetString("TimetableRoomClash", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The class already has a lesson at this time (lesson {0}).
+        /// </summary>
+        internal static string TimetableClassClash {
+            get {
+                return ResourceManager.GetString("TimetableClassClash", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A lesson ends after it starts.
+        /// </summary>
+        internal static string TimetableEndsAfterStart {
+            get {
+                return ResourceManager.GetString("TimetableEndsAfterStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This student is not enrolled in the course's class.
         /// </summary>
         internal static string StudentNotInCourseClass {

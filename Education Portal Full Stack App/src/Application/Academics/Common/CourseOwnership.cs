@@ -8,7 +8,7 @@ namespace EducationPortal.Application.Academics.Common;
 /// The rule that a teacher grades only the courses they teach (AGENTS.md section 2). Administrators (the school's owners) are
 /// not limited by it. The signed-in person is the one the account belongs to.
 /// </summary>
-internal static class CourseOwnership
+public static class CourseOwnership
 {
     public static bool IsAdministrator(IUser user) => user.Roles?.Contains(Roles.Administrator) ?? false;
 

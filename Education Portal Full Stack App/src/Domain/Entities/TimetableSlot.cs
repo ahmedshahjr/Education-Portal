@@ -63,4 +63,30 @@ public class TimetableSlot : BaseAuditableEntity, ITenantOwned
     public TimeOnly End { get; private set; }
 
     public string? Room { get; private set; }
+
+    /// <summary>Moves the lesson to another day, time, room or campus. The same rules as <see cref="Create"/> apply.</summary>
+    public void Reschedule(int? campusId, Weekday day, TimeOnly start, TimeOnly end, string? room)
+    {
+        if (campusId is { } campus)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campus);
+        }
+
+        if (end <= start)
+        {
+            throw new ArgumentException("A lesson ends after it starts.", nameof(end));
+        }
+
+        var trimmed = string.IsNullOrWhiteSpace(room) ? null : room.Trim();
+        if (trimmed is not null)
+        {
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(trimmed.Length, RoomMaxLength, nameof(room));
+        }
+
+        CampusId = campusId;
+        Day = day;
+        Start = start;
+        End = end;
+        Room = trimmed;
+    }
 }

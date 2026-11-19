@@ -42,6 +42,7 @@ public sealed class ChangeAuditInterceptor : SaveChangesInterceptor
         typeof(Score),
         typeof(GradingScale),
         typeof(GradingBand),
+        typeof(TimetableSlot),
     };
 
     // Kept by the auditable-entity interceptor already; recording them again in every entry adds nothing.

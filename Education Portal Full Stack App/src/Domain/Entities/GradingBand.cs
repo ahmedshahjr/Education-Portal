@@ -38,7 +38,4 @@ public class GradingBand : BaseAuditableEntity, ITenantOwned
     public string Letter { get; private set; } = string.Empty;
 
     public decimal Points { get; private set; }
-
-    /// <summary>The band as the pure grading rules see it.</summary>
-    public GradeBand ToGradeBand() => new(MinPercent, MaxPercent, Letter, Points);
 }
