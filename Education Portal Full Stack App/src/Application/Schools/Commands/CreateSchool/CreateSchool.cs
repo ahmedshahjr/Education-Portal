@@ -13,7 +13,7 @@ namespace EducationPortal.Application.Schools.Commands.CreateSchool;
 /// Adds a school tenant on its own domain, with its country (languages, time zone, currency and price book, which must exist)
 /// and data region, together with its first administrator. The administrator gets a one-time password from the master
 /// and must replace it on first sign-in. School and account are saved in one transaction, so neither exists without the
-/// other. The school starts with the default branding, the modules that are on by default, and a 30-day free trial of the Full
+/// other. The school starts with the default branding, the modules that are on by default, and a three-month (90-day) free trial of the Full
 /// plan when it has a country. Master tenant administrators only
 /// (SEC-AUTHZ-07); the master tenant itself is only ever created by seeding. Audited (SEC-LOG-03).
 /// </summary>

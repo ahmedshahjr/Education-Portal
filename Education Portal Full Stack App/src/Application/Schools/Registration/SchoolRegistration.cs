@@ -31,7 +31,7 @@ public sealed record RegisteredSchool(int Id, Guid PublicId, string Administrato
 public static class SchoolRegistration
 {
     /// <summary>The length of the free trial a registered school gets.</summary>
-    public const int TrialDays = 30;
+    public const int TrialDays = 90;
 
     /// <summary>
     /// Registers a school: the school, its default grants, its trial and its first administrator. The caller runs it inside

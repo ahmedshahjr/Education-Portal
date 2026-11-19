@@ -14,7 +14,7 @@ namespace EducationPortal.Application.SchoolRequests.Commands.ApproveSchoolReque
 
 /// <summary>
 /// The master tenant approves a pending school request: the school is registered (domain, country, first administrator, the
-/// modules that are on by default and a 30-day free trial), exactly as the master adding a school does, and the request
+/// modules that are on by default and a three-month (90-day) free trial), exactly as the master adding a school does, and the request
 /// becomes approved. The school's registration and the approval are saved together, so a request is never approved
 /// without its school. Master tenant administrators only (SEC-AUTHZ-07). Audited (SEC-LOG-03).
 /// </summary>
