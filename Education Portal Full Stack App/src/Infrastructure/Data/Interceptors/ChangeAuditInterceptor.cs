@@ -40,6 +40,8 @@ public sealed class ChangeAuditInterceptor : SaveChangesInterceptor
         typeof(Enrolment),
         typeof(Assessment),
         typeof(Score),
+        typeof(GradingScale),
+        typeof(GradingBand),
     };
 
     // Kept by the auditable-entity interceptor already; recording them again in every entry adds nothing.

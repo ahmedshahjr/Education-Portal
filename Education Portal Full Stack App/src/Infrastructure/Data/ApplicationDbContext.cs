@@ -108,6 +108,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<TimetableSlot> TimetableSlots => Set<TimetableSlot>();
 
+    public DbSet<GradingScale> GradingScales => Set<GradingScale>();
+
+    public DbSet<GradingBand> GradingBands => Set<GradingBand>();
+
 
     // Read by the query filters on every query, so each request sees its own tenant (ENG-EF-10).
     private int? CurrentSchoolId => _tenant.SchoolId;

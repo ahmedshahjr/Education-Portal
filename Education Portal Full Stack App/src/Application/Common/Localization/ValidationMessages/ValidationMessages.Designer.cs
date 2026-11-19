@@ -1038,6 +1038,15 @@ namespace EducationPortal.Application.Common.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The bands must cover 0 to 100 once: each band needs a letter, its minimum must not be above its maximum, and the bands must neither overlap nor leave a gap.
+        /// </summary>
+        internal static string GradeScaleInvalid {
+            get {
+                return ResourceManager.GetString("GradeScaleInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This student is not enrolled in the course's class.
         /// </summary>
         internal static string StudentNotInCourseClass {

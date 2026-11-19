@@ -73,6 +73,8 @@ public static class DatabaseSchemas
         [typeof(Assessment)] = Academics,
         [typeof(Score)] = Academics,
         [typeof(TimetableSlot)] = Academics,
+        [typeof(GradingScale)] = Academics,
+        [typeof(GradingBand)] = Academics,
 
         [typeof(SecurityAuditEvent)] = Audit,
         [typeof(ChangeAuditEntry)] = Audit,

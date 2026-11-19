@@ -447,4 +447,7 @@
   <data name="StudentNotInCourseClass" xml:space="preserve">
     <value>یہ طالب علم کورس کی کلاس میں داخل نہیں ہے۔</value>
   </data>
+  <data name="GradeScaleInvalid" xml:space="preserve">
+    <value>درجات کے حصے 0 سے 100 تک ایک بار آنے چاہئیں: ہر حصے کا ایک حرف ہو، اس کی کم از کم قدر زیادہ سے زیادہ قدر سے بڑھ نہ ہو، اور حصے نہ ایک دوسرے میں ملیں اور نہ خلا چھوڑیں۔</value>
+  </data>
 </root>

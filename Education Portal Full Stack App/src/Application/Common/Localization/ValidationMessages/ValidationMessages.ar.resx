@@ -447,4 +447,7 @@
   <data name="StudentNotInCourseClass" xml:space="preserve">
     <value>هذا الطالب غير مسجل في صف المقرر.</value>
   </data>
+  <data name="GradeScaleInvalid" xml:space="preserve">
+    <value>يجب أن تغطي الشرائح من 0 إلى 100 مرة واحدة: لكل شريحة حرف، ويجب ألا يتجاوز حدها الأدنى حدها الأقصى، ولا يجوز أن تتداخل الشرائح أو تترك فجوة بينها.</value>
+  </data>
 </root>
