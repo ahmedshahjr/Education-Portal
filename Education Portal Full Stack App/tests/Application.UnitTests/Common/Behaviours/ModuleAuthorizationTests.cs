@@ -105,5 +105,5 @@ public class ModuleAuthorizationTests
     }
 
     private AuthorizationBehaviour<TRequest, int> Behaviour<TRequest>() where TRequest : notnull =>
-        new(_user.Object, Mock.Of<IIdentityService>(), _tenant.Object, _modules.Object);
+        new(_user.Object, Mock.Of<IIdentityService>(), _tenant.Object, _modules.Object, Mock.Of<IRoleRights>());
 }

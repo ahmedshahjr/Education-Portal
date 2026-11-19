@@ -1,4 +1,4 @@
-﻿namespace EducationPortal.Application.Common.Security;
+namespace EducationPortal.Application.Common.Security;
 using EducationPortal.Domain.Enums;
 
 
@@ -35,6 +35,12 @@ public class AuthorizeAttribute : Attribute
     /// tenant is never limited by modules.
     /// </summary>
     public ModuleCode Module { get; set; } = ModuleCode.None;
+
+    /// <summary>
+    /// The right the request needs in <see cref="Module"/> (SEC-AUTHZ-02): a school role of the user must give it. Administrators
+    /// and the master tenant are not checked. A request that names a right must also name its module.
+    /// </summary>
+    public AccessRight Right { get; set; } = AccessRight.None;
 
     /// <summary>
     /// When true, the request still runs while the user must replace a one-time password (reading their own account,

@@ -2,6 +2,8 @@ using System.Reflection;
 using EducationPortal.Application.Common.Exceptions;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Security;
+using EducationPortal.Domain.Constants;
+using EducationPortal.Domain.Enums;
 using EducationPortal.Domain.Enums;
 
 namespace EducationPortal.Application.Common.Behaviours;
@@ -13,17 +15,20 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
     private readonly IIdentityService _identityService;
     private readonly ICurrentTenant _tenant;
     private readonly IModuleAccess _moduleAccess;
+    private readonly IRoleRights _roleRights;
 
     public AuthorizationBehaviour(
         IUser user,
         IIdentityService identityService,
         ICurrentTenant tenant,
-        IModuleAccess moduleAccess)
+        IModuleAccess moduleAccess,
+        IRoleRights roleRights)
     {
         _user = user;
         _identityService = identityService;
         _tenant = tenant;
         _moduleAccess = moduleAccess;
+        _roleRights = roleRights;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -96,6 +101,29 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
                 if (!authorized)
                 {
                     throw new ForbiddenAccessException();
+                }
+            }
+
+            // Role rights (SEC-AUTHZ-02): a request that names a right needs a school role of the user that gives it in the module.
+            // A right without its module is a mistake in the code, so it is refused whoever asks.
+            var rights = authorizeAttributes.Where(a => a.Right != AccessRight.None).ToList();
+            if (rights.Any(a => a.Module == ModuleCode.None))
+            {
+                throw new InvalidOperationException("A request that names a right must also name its module.");
+            }
+
+            // Administrators (the school's owners) and the master tenant are not checked against roles.
+            var checkRights = rights.Count > 0 && !_tenant.IsMaster && !(_user.Roles?.Contains(Roles.Administrator) ?? false);
+            if (checkRights)
+            {
+                var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+
+                foreach (var attribute in rights)
+                {
+                    if (!await _roleRights.HasRightAsync(_user.Id!, schoolId, attribute.Module, attribute.Right, cancellationToken))
+                    {
+                        throw new ForbiddenAccessException();
+                    }
                 }
             }
 
