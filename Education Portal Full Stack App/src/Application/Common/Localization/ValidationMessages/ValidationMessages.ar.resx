@@ -432,4 +432,19 @@
   <data name="RoleNotInSchool" xml:space="preserve">
     <value>أحد الأدوار ليس من أدوار هذه المدرسة.</value>
   </data>
+  <data name="PersonIsNotTeacher" xml:space="preserve">
+    <value>الشخص المختار ليس معلماً.</value>
+  </data>
+  <data name="StudentAlreadyEnrolled" xml:space="preserve">
+    <value>هذا الطالب مسجل بالفعل في هذا الصف.</value>
+  </data>
+  <data name="AssessmentWeightsTooHigh" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز مجموع أوزان تقييمات المقرر 100.</value>
+  </data>
+  <data name="ScoreOutOfRange" xml:space="preserve">
+    <value>الدرجة من 0 إلى الحد الأقصى للتقييم.</value>
+  </data>
+  <data name="StudentNotInCourseClass" xml:space="preserve">
+    <value>هذا الطالب غير مسجل في صف المقرر.</value>
+  </data>
 </root>

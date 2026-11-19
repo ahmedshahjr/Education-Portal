@@ -1001,5 +1001,50 @@ namespace EducationPortal.Application.Common.Localization {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to The chosen person is not a teacher.
+        /// </summary>
+        internal static string PersonIsNotTeacher {
+            get {
+                return ResourceManager.GetString("PersonIsNotTeacher", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This student is already enrolled in this class.
+        /// </summary>
+        internal static string StudentAlreadyEnrolled {
+            get {
+                return ResourceManager.GetString("StudentAlreadyEnrolled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The weights of the course's assessments cannot add up to more than 100.
+        /// </summary>
+        internal static string AssessmentWeightsTooHigh {
+            get {
+                return ResourceManager.GetString("AssessmentWeightsTooHigh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A score is from 0 to the assessment's maximum.
+        /// </summary>
+        internal static string ScoreOutOfRange {
+            get {
+                return ResourceManager.GetString("ScoreOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This student is not enrolled in the course's class.
+        /// </summary>
+        internal static string StudentNotInCourseClass {
+            get {
+                return ResourceManager.GetString("StudentNotInCourseClass", resourceCulture);
+            }
+        }
+        
 }
 }

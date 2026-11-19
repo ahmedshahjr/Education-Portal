@@ -36,6 +36,10 @@ public sealed class ChangeAuditInterceptor : SaveChangesInterceptor
         typeof(PriceBookItem),
         typeof(ParentStudent),
         typeof(AccountRole),
+        typeof(Course),
+        typeof(Enrolment),
+        typeof(Assessment),
+        typeof(Score),
     };
 
     // Kept by the auditable-entity interceptor already; recording them again in every entry adds nothing.

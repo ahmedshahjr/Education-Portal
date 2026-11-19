@@ -52,6 +52,16 @@ public interface IApplicationDbContext
     DbSet<ChangeAuditEntry> ChangeAuditEntries { get; }
 
     DbSet<AccountRole> AccountRoles { get; }
+
+    DbSet<Course> Courses { get; }
+
+    DbSet<Enrolment> Enrolments { get; }
+
+    DbSet<Assessment> Assessments { get; }
+
+    DbSet<Score> Scores { get; }
+
+    DbSet<TimetableSlot> TimetableSlots { get; }
     /// <summary>The admission form of each student, one per student person. Owned by the school and filtered by it.</summary>
     DbSet<StudentProfile> StudentProfiles { get; }
     // The public page of a school and its admission enquiries. Owned by the school and filtered by it.
