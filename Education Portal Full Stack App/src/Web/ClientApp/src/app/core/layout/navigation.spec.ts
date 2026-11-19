@@ -10,7 +10,7 @@ describe('visibleNavSections', () => {
   });
 
   it('shows branding and the subscription to a school administrator but not the master portal', () => {
-    expect(ids(true, false)).toEqual(['dashboard', 'branding', 'subscription']);
+    expect(ids(true, false)).toEqual(['dashboard', 'subscription', 'audit', 'branding']);
   });
 
   it('shows class offerings to a school administrator only when the School module is on', () => {

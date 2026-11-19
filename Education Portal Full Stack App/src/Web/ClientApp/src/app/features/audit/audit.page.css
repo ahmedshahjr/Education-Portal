@@ -1,0 +1,13 @@
+.mm-audit__scroll {
+  overflow-x: auto;
+}
+
+.mm-audit__table {
+  width: 100%;
+}
+
+.mm-audit__changes {
+  font-size: var(--mm-text-sm);
+  white-space: pre-wrap;
+  word-break: break-all;
+}

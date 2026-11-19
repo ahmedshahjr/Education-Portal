@@ -646,6 +646,22 @@
     "people.parentOption": "Parent",
     "people.rolesHeading": "Roles",
     "people.rolesHint": "Decides what the user may see. The built-in roles are a starting point.",
-    "people.rolesLabel": "Roles"
+    "people.rolesLabel": "Roles",
+    "audit.action": "Action",
+    "audit.changes": "Changes",
+    "audit.empty": "No changes recorded yet",
+    "audit.loadError": "The change history could not be loaded",
+    "audit.record": "Record",
+    "audit.subtitle": "The latest changes made in the school: links, roles, subscriptions and invoices. Read only.",
+    "audit.title": "Change history",
+    "audit.when": "When",
+    "myChildren.empty": "No students linked yet",
+    "myChildren.emptyDescription": "The school links your children to your account.",
+    "myChildren.listLabel": "Your children",
+    "myChildren.loadError": "Your children could not be loaded",
+    "myChildren.subtitle": "The students linked to your account.",
+    "myChildren.title": "My children",
+    "nav.audit": "Change history",
+    "nav.myChildren": "My children"
   }
 }

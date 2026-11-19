@@ -648,6 +648,22 @@
     "people.parentOption": "والد",
     "people.rolesHeading": "کردار",
     "people.rolesHint": "طے کرتا ہے کہ صارف کیا دیکھ سکتا ہے۔ بلٹ اِن کردار ابتدائی نقطہ ہیں۔",
-    "people.rolesLabel": "کردار"
+    "people.rolesLabel": "کردار",
+    "audit.action": "عمل",
+    "audit.changes": "تبدیلیاں",
+    "audit.empty": "ابھی کوئی تبدیلی درج نہیں ہوئی",
+    "audit.loadError": "تبدیلیوں کی تاریخ لوڈ نہیں ہو سکی",
+    "audit.record": "ریکارڈ",
+    "audit.subtitle": "مدرسے میں ہونے والی تازہ ترین تبدیلیاں: روابط، کردار، سبسکرپشنز اور انوائسز۔ صرف پڑھنے کے لیے۔",
+    "audit.title": "تبدیلیوں کی تاریخ",
+    "audit.when": "کب",
+    "myChildren.empty": "ابھی کوئی طالب علم منسلک نہیں",
+    "myChildren.emptyDescription": "مدرسہ آپ کے بچوں کو آپ کے اکاؤنٹ سے منسلک کرتا ہے۔",
+    "myChildren.listLabel": "آپ کے بچے",
+    "myChildren.loadError": "آپ کے بچے لوڈ نہیں ہو سکے",
+    "myChildren.subtitle": "وہ طلبہ جو آپ کے اکاؤنٹ سے منسلک ہیں۔",
+    "myChildren.title": "میرے بچے",
+    "nav.audit": "تبدیلیوں کی تاریخ",
+    "nav.myChildren": "میرے بچے"
   }
 }

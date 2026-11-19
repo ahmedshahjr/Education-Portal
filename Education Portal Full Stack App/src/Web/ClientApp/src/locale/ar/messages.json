@@ -648,6 +648,22 @@
     "people.parentOption": "ولي أمر",
     "people.rolesHeading": "الأدوار",
     "people.rolesHint": "يحدد ما يمكن للمستخدم رؤيته. الأدوار المدمجة نقطة بداية.",
-    "people.rolesLabel": "الأدوار"
+    "people.rolesLabel": "الأدوار",
+    "audit.action": "الإجراء",
+    "audit.changes": "التغييرات",
+    "audit.empty": "لم يتم تسجيل أي تغييرات بعد",
+    "audit.loadError": "تعذر تحميل سجل التغييرات",
+    "audit.record": "السجل",
+    "audit.subtitle": "آخر التغييرات في المدرسة: الروابط والأدوار والاشتراكات والفواتير. للقراءة فقط.",
+    "audit.title": "سجل التغييرات",
+    "audit.when": "متى",
+    "myChildren.empty": "لا يوجد طلاب مرتبطون بعد",
+    "myChildren.emptyDescription": "تربط المدرسة أبناءك بحسابك.",
+    "myChildren.listLabel": "أبناؤك",
+    "myChildren.loadError": "تعذر تحميل أبنائك",
+    "myChildren.subtitle": "الطلاب المرتبطون بحسابك.",
+    "myChildren.title": "أبنائي",
+    "nav.audit": "سجل التغييرات",
+    "nav.myChildren": "أبنائي"
   }
 }

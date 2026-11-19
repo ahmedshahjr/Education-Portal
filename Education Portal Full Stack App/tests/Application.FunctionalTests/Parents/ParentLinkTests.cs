@@ -87,6 +87,22 @@ public class ParentLinkTests : TestBase
         (await ReadChildrenAsync(session, parent)).ShouldBeEmpty();
     }
 
+    [Test]
+    public async Task ShouldRecordTheLinkInTheSchoolsChangeAudit()
+    {
+        await TestApp.RunAsAdministratorAsync();
+        var session = await SetUpSchoolAsync("Parents Audit", SchoolDomain, "admin@parents-audit.local");
+        var parent = await AddPersonAsync(session, "Hina", "Parent");
+        var student = await AddPersonAsync(session, "Zain", "Student");
+        (await session.PostAsync($"/api/UserDetails/{parent}/children", new { studentId = student })).StatusCode.ShouldBe(HttpStatusCode.NoContent);
+
+        using var response = await session.GetAsync("/api/ChangeAudit");
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var entries = (await response.Content.ReadFromJsonAsync<List<AuditReadModel>>())!;
+        entries.ShouldContain(e => e.EntityType == "ParentStudent" && e.Action == "Added");
+    }
+
     /// <summary>Adds a person of the given type and returns their public id.</summary>
     private static async Task<Guid> AddPersonAsync(HttpSession session, string firstName, string userType)
     {
@@ -125,4 +141,6 @@ public class ParentLinkTests : TestBase
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
 
     private sealed record PersonReadModel(Guid Id, string FirstName, string? MiddleName, string LastName, UserType UserType, string? Phone);
+
+    private sealed record AuditReadModel(string EntityType, string Action);
 }
