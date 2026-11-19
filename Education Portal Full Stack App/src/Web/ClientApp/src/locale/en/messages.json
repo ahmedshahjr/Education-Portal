@@ -638,6 +638,14 @@
     "people.passwordError": "Use 15 to 128 characters.",
     "people.passwordHint": "At least 15 characters. The person must change it on first sign-in.",
     "people.student": "Student",
-    "people.studentNote": "A student's date of birth, father's name and class are entered in Admissions."
+    "people.studentNote": "A student's date of birth, father's name and class are entered in Admissions.",
+    "people.childrenHeading": "Children",
+    "people.childrenHint": "The parent sees only these students.",
+    "people.childrenLabel": "Students",
+    "people.noStudents": "No students yet. Add the students first.",
+    "people.parentOption": "Parent",
+    "people.rolesHeading": "Roles",
+    "people.rolesHint": "Decides what the user may see. The built-in roles are a starting point.",
+    "people.rolesLabel": "Roles"
   }
 }

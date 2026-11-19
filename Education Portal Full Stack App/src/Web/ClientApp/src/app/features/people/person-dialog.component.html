@@ -38,6 +38,7 @@
           <mat-option [value]="types[1]" i18n="@@people.teacher">Teacher</mat-option>
           <mat-option [value]="types[2]" i18n="@@people.staffMember">Staff</mat-option>
           <mat-option [value]="types[3]" i18n="@@people.student">Student</mat-option>
+          <mat-option [value]="types[4]" i18n="@@people.parentOption">Parent</mat-option>
         </mat-select>
       </mat-form-field>
 
@@ -53,6 +54,32 @@
         A student's date of birth, father's name and class are entered in Admissions.
       </p>
     }
+
+    @if (showChildren()) {
+      <h3 class="mm-person-dialog__heading" i18n="@@people.childrenHeading">Children</h3>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@people.childrenLabel">Students</mat-label>
+        <mat-select formControlName="children" multiple>
+          @for (student of students; track student.id) {
+            <mat-option [value]="student.id">{{ student.firstName }} {{ student.lastName }}</mat-option>
+          } @empty {
+            <mat-option [disabled]="true" i18n="@@people.noStudents">No students yet. Add the students first.</mat-option>
+          }
+        </mat-select>
+        <mat-hint i18n="@@people.childrenHint">The parent sees only these students.</mat-hint>
+      </mat-form-field>
+    }
+
+    <h3 class="mm-person-dialog__heading" i18n="@@people.rolesHeading">Roles</h3>
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@people.rolesLabel">Roles</mat-label>
+      <mat-select formControlName="roles" multiple>
+        @for (role of roles; track role.id) {
+          <mat-option [value]="role.id">{{ role.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint i18n="@@people.rolesHint">Decides what the user may see. The built-in roles are a starting point.</mat-hint>
+    </mat-form-field>
 
     @if (adding) {
       <h3 class="mm-person-dialog__heading" i18n="@@people.accountHeading">Login</h3>

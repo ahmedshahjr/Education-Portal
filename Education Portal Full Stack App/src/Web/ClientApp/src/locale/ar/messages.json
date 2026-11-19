@@ -640,6 +640,14 @@
     "people.passwordError": "استخدم من 15 إلى 128 حرفاً.",
     "people.passwordHint": "15 حرفاً على الأقل. يجب على الشخص تغييرها عند أول تسجيل دخول.",
     "people.student": "طالب",
-    "people.studentNote": "تُدخل تاريخ ميلاد الطالب واسم والده وصفه في قسم القبول."
+    "people.studentNote": "تُدخل تاريخ ميلاد الطالب واسم والده وصفه في قسم القبول.",
+    "people.childrenHeading": "الأبناء",
+    "people.childrenHint": "يرى ولي الأمر هؤلاء الطلاب فقط.",
+    "people.childrenLabel": "الطلاب",
+    "people.noStudents": "لا يوجد طلاب بعد. أضف الطلاب أولاً.",
+    "people.parentOption": "ولي أمر",
+    "people.rolesHeading": "الأدوار",
+    "people.rolesHint": "يحدد ما يمكن للمستخدم رؤيته. الأدوار المدمجة نقطة بداية.",
+    "people.rolesLabel": "الأدوار"
   }
 }

@@ -640,6 +640,14 @@
     "people.passwordError": "15 سے 128 حروف استعمال کریں۔",
     "people.passwordHint": "کم از کم 15 حروف۔ شخص کو پہلی بار سائن اِن پر اسے بدلنا ہوگا۔",
     "people.student": "طالب علم",
-    "people.studentNote": "طالب علم کی تاریخ پیدائش، والد کا نام اور کلاس داخلہ میں درج کی جاتی ہے۔"
+    "people.studentNote": "طالب علم کی تاریخ پیدائش، والد کا نام اور کلاس داخلہ میں درج کی جاتی ہے۔",
+    "people.childrenHeading": "بچے",
+    "people.childrenHint": "والد صرف انہی طلبہ کو دیکھ سکتا ہے۔",
+    "people.childrenLabel": "طلبہ",
+    "people.noStudents": "ابھی کوئی طالب علم نہیں۔ پہلے طلبہ شامل کریں۔",
+    "people.parentOption": "والد",
+    "people.rolesHeading": "کردار",
+    "people.rolesHint": "طے کرتا ہے کہ صارف کیا دیکھ سکتا ہے۔ بلٹ اِن کردار ابتدائی نقطہ ہیں۔",
+    "people.rolesLabel": "کردار"
   }
 }

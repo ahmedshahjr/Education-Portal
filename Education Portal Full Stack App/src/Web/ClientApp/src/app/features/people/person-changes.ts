@@ -42,3 +42,22 @@ export function buildPersonChanges(value: PersonFormValue, adding: boolean): Per
 export function needsAdmissionDetails(type: UserType): boolean {
   return type === UserType.Student;
 }
+
+/** The links a parent's children need: the students to link and the ones to unlink, to go from the current list to the wanted one. */
+export function planChildLinks(current: readonly string[], wanted: readonly string[]): { add: string[]; remove: string[] } {
+  const now = new Set(current);
+  const next = new Set(wanted);
+  return {
+    add: [...new Set(wanted)].filter((id) => !now.has(id)),
+    remove: [...new Set(current)].filter((id) => !next.has(id)),
+  };
+}
+
+/** True when two lists of role ids hold the same roles, in any order. */
+export function sameRoles(a: readonly string[], b: readonly string[]): boolean {
+  if (new Set(a).size !== new Set(b).size) {
+    return false;
+  }
+  const other = new Set(b);
+  return a.every((id) => other.has(id));
+}

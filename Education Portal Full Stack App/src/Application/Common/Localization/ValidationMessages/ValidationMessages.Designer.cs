@@ -956,5 +956,50 @@ namespace EducationPortal.Application.Common.Localization {
             }
         }
         
-    }
+            /// <summary>
+        ///   Looks up a localized string similar to The chosen person is not a parent.
+        /// </summary>
+        internal static string ParentIsNotParent {
+            get {
+                return ResourceManager.GetString("ParentIsNotParent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The chosen child is not a student.
+        /// </summary>
+        internal static string StudentIsNotStudent {
+            get {
+                return ResourceManager.GetString("StudentIsNotStudent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This parent is already linked to this student.
+        /// </summary>
+        internal static string ParentAlreadyLinked {
+            get {
+                return ResourceManager.GetString("ParentAlreadyLinked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This person has no login account yet. Add the account first.
+        /// </summary>
+        internal static string PersonHasNoAccount {
+            get {
+                return ResourceManager.GetString("PersonHasNoAccount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to One of the roles is not a role of this school.
+        /// </summary>
+        internal static string RoleNotInSchool {
+            get {
+                return ResourceManager.GetString("RoleNotInSchool", resourceCulture);
+            }
+        }
+        
+}
 }

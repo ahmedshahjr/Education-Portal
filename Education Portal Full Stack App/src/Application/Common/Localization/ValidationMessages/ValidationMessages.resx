@@ -417,4 +417,19 @@
   <data name="StudentAdmissionTooFarAhead" xml:space="preserve">
     <value>The admission date cannot be more than {0} days ahead.</value>
   </data>
+  <data name="ParentIsNotParent" xml:space="preserve">
+    <value>The chosen person is not a parent.</value>
+  </data>
+  <data name="StudentIsNotStudent" xml:space="preserve">
+    <value>The chosen child is not a student.</value>
+  </data>
+  <data name="ParentAlreadyLinked" xml:space="preserve">
+    <value>This parent is already linked to this student.</value>
+  </data>
+  <data name="PersonHasNoAccount" xml:space="preserve">
+    <value>This person has no login account yet. Add the account first.</value>
+  </data>
+  <data name="RoleNotInSchool" xml:space="preserve">
+    <value>One of the roles is not a role of this school.</value>
+  </data>
 </root>

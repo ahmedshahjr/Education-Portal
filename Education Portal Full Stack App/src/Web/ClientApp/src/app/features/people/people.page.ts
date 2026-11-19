@@ -3,7 +3,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastService } from '../../shared/services/toast.service';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { problemMessages } from '../../core/http/problem-details';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -12,9 +13,19 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { FilterOption, FilterPanelComponent } from '../../shared/components/filter-panel/filter-panel.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
-import { CreateUserDetailsCommand, UpdateUserDetailsCommand, UserDetailsClient, UserDetailsDto, UserType } from '../../web-api-client';
-import { PersonChanges } from './person-changes';
-import { PersonDialogComponent, PersonDialogData } from './person-dialog.component';
+import {
+  CreateUserDetailsCommand,
+  LinkStudentCommand,
+  SchoolRoleDto,
+  SchoolRolesClient,
+  SetAccountRolesCommand,
+  UpdateUserDetailsCommand,
+  UserDetailsClient,
+  UserDetailsDto,
+  UserType,
+} from '../../web-api-client';
+import { planChildLinks, sameRoles } from './person-changes';
+import { PersonDialogComponent, PersonDialogData, PersonDialogResult } from './person-dialog.component';
 
 /** The type tabs: everyone, or one user type. */
 type TypeFilter = 'All' | UserType;
@@ -42,6 +53,7 @@ type TypeFilter = 'All' | UserType;
 })
 export class PeoplePage {
   private readonly peopleClient = inject(UserDetailsClient);
+  private readonly rolesClient = inject(SchoolRolesClient);
   private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
 
@@ -55,7 +67,6 @@ export class PeoplePage {
   /** The type tab chosen. */
   protected readonly selectedType = signal<TypeFilter>('All');
 
-  protected readonly types = [UserType.Principal, UserType.Teacher, UserType.Staff];
 
   protected readonly typeTabs: readonly FilterOption<TypeFilter>[] = [
     { id: 'All', label: $localize`:@@people.all:All` },
@@ -104,38 +115,88 @@ export class PeoplePage {
     });
   }
 
-  /** Opens the modal to add a person, or to change one. The modal returns the fields; nothing is saved until it does. */
+  /**
+   * Opens the modal to add a person, or to change one. The modal chooses from the school's students and roles, and starts
+   * from the children and roles the person has now. The built-in roles are added to the school first, once it is needed.
+   */
   protected openDialog(person: UserDetailsDto | null): void {
     this.errors.set([]);
-    const data: PersonDialogData = { person };
-    this.dialog
-      .open<PersonDialogComponent, PersonDialogData, PersonChanges>(PersonDialogComponent, { data, width: '640px', autoFocus: 'first-tabbable' })
-      .afterClosed()
-      .subscribe((changes) => {
-        if (changes) {
-          this.save(person?.id ?? null, changes);
-        }
+    this.rolesClient
+      .ensureBuiltInRoles()
+      .pipe(
+        catchError(() => of(undefined)),
+        switchMap(() =>
+          forkJoin({
+            students: this.peopleClient.getUserDetails(UserType.Student).pipe(catchError(() => of([] as UserDetailsDto[]))),
+            roles: this.rolesClient.getRoles().pipe(catchError(() => of([] as SchoolRoleDto[]))),
+            children: person
+              ? this.peopleClient.getChildren(person.id).pipe(catchError(() => of([] as UserDetailsDto[])))
+              : of([] as UserDetailsDto[]),
+            roleIds: person ? this.peopleClient.getAccountRoles(person.id).pipe(catchError(() => of([] as string[]))) : of([] as string[]),
+          })
+        )
+      )
+      .subscribe(({ students, roles, children, roleIds }) => {
+        const data: PersonDialogData = {
+          person,
+          students,
+          roles,
+          currentChildIds: children.map((child) => child.id),
+          currentRoleIds: roleIds,
+        };
+        this.dialog
+          .open<PersonDialogComponent, PersonDialogData, PersonDialogResult>(PersonDialogComponent, { data, width: '640px', autoFocus: 'first-tabbable' })
+          .afterClosed()
+          .subscribe((result) => {
+            if (result) {
+              this.save(person, result, data.currentRoleIds, data.currentChildIds);
+            }
+          });
       });
   }
 
-  private save(editingId: string | null, fields: PersonChanges): void {
+  /** Saves the person, then the roles of their account and the children of a parent, as the modal chose them. */
+  private save(person: UserDetailsDto | null, result: PersonDialogResult, startRoles: readonly string[], startChildren: readonly string[]): void {
     this.busy.set(true);
     this.errors.set([]);
-    const request: Observable<unknown> = editingId
-      ? this.peopleClient.updateUserDetails(editingId, new UpdateUserDetailsCommand(fields))
-      : this.peopleClient.createUserDetails(new CreateUserDetailsCommand(fields));
 
-    request.subscribe({
+    const saved: Observable<string> = person
+      ? this.peopleClient.updateUserDetails(person.id, new UpdateUserDetailsCommand(result.fields)).pipe(map(() => person.id))
+      : this.peopleClient.createUserDetails(new CreateUserDetailsCommand(result.fields));
+
+    saved.pipe(switchMap((personId) => this.applyRelations(personId, result, startRoles, startChildren))).subscribe({
       next: () => {
         this.busy.set(false);
-        this.toast.success(editingId ? $localize`:@@people.updated:User saved.` : $localize`:@@people.added:User added.`);
+        this.toast.success(person ? $localize`:@@people.updated:User saved.` : $localize`:@@people.added:User added.`);
         this.load();
       },
       error: (error: unknown) => {
         this.busy.set(false);
         this.errors.set(problemMessages(error));
+        // The person may have been saved before the roles or children failed, so the list is shown again.
+        this.load();
       },
     });
+  }
+
+  /** The roles of the account and the links of a parent, changed only where they differ from what the person had. */
+  private applyRelations(
+    personId: string,
+    result: PersonDialogResult,
+    startRoles: readonly string[],
+    startChildren: readonly string[]
+  ): Observable<unknown> {
+    const roles: Observable<unknown> = sameRoles(result.roleIds, startRoles)
+      ? of(null)
+      : this.peopleClient.setAccountRoles(personId, new SetAccountRolesCommand({ roleIds: [...result.roleIds] }));
+
+    const links = planChildLinks(startChildren, result.childIds);
+    const children: Observable<unknown>[] = [
+      ...links.add.map((studentId) => this.peopleClient.linkStudent(personId, new LinkStudentCommand({ studentId }))),
+      ...links.remove.map((studentId) => this.peopleClient.unlinkStudent(personId, studentId)),
+    ];
+
+    return forkJoin([roles, ...children]);
   }
 
   /** Asks first. The user is hidden everywhere; the server refuses a principal of a campus. */

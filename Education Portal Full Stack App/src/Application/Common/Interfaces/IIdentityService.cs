@@ -29,6 +29,12 @@ public interface IIdentityService
     /// </summary>
     Task<(Result Result, string UserId)> CreatePersonAccountAsync(int schoolId, int userDetailsId, string email, string oneTimePassword);
 
+    /// <summary>The login account of a person of the school, or null when the person has none.</summary>
+    Task<string?> FindAccountIdOfPersonAsync(int schoolId, int userDetailsId);
+
+    /// <summary>The person a login account belongs to, or null when the account is not a person's.</summary>
+    Task<int?> FindPersonIdOfAccountAsync(string userId);
+
     /// <summary>
     /// Replaces the user's password after checking the current one, ends the one-time-password block, ends their other
     /// sessions (new security stamp) and renews the current one (SEC-AUTHN-07).

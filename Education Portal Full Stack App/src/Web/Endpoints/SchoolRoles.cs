@@ -1,4 +1,5 @@
 using EducationPortal.Application.SchoolRoles.Commands.CreateRole;
+using EducationPortal.Application.SchoolRoles.Commands.EnsureBuiltInRoles;
 using EducationPortal.Application.SchoolRoles.Commands.DeleteRole;
 using EducationPortal.Application.SchoolRoles.Commands.UpdateRole;
 using EducationPortal.Application.SchoolRoles.Common;
@@ -19,6 +20,10 @@ public class SchoolRoles : IEndpointGroup
     {
         groupBuilder.MapGet(GetRoles)
             .RequireAuthorization();
+
+        groupBuilder.MapPost(EnsureBuiltInRoles, "built-in")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
         groupBuilder.MapPost(CreateRole)
             .RequireAuthorization()
@@ -61,6 +66,15 @@ public class SchoolRoles : IEndpointGroup
     public static async Task<NoContent> DeleteRole(ISender sender, Guid id)
     {
         await sender.Send(new DeleteRoleCommand(id));
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Add the built-in roles")]
+    [EndpointDescription("Adds the built-in roles (Principal, Teacher, Student, Parent) that the school does not have yet, with their starting rights. Running it again changes nothing. Needs the Users & Roles module.")]
+    public static async Task<NoContent> EnsureBuiltInRoles(ISender sender)
+    {
+        await sender.Send(new EnsureBuiltInRolesCommand());
+
         return TypedResults.NoContent();
     }
 }

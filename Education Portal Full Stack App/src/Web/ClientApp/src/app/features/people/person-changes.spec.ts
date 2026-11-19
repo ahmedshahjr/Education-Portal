@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { UserType } from '../../web-api-client';
-import { buildPersonChanges, needsAdmissionDetails, PersonFormValue } from './person-changes';
+import { buildPersonChanges, needsAdmissionDetails, planChildLinks, PersonFormValue, sameRoles } from './person-changes';
 
 const form: PersonFormValue = {
   firstName: '  Ayesha ',
@@ -48,5 +48,30 @@ describe('needsAdmissionDetails', () => {
     expect(needsAdmissionDetails(UserType.Student)).toBe(true);
     expect(needsAdmissionDetails(UserType.Teacher)).toBe(false);
     expect(needsAdmissionDetails(UserType.Principal)).toBe(false);
+  });
+});
+
+describe('planChildLinks', () => {
+  it('links the students that are new and unlinks the ones that are no longer wanted', () => {
+    expect(planChildLinks(['a', 'b'], ['b', 'c'])).toEqual({ add: ['c'], remove: ['a'] });
+  });
+
+  it('does nothing when the children are the same', () => {
+    expect(planChildLinks(['a', 'b'], ['b', 'a'])).toEqual({ add: [], remove: [] });
+  });
+
+  it('links every student of a new parent and removes none', () => {
+    expect(planChildLinks([], ['a', 'a', 'b'])).toEqual({ add: ['a', 'b'], remove: [] });
+  });
+});
+
+describe('sameRoles', () => {
+  it('is true for the same roles in any order', () => {
+    expect(sameRoles(['r1', 'r2'], ['r2', 'r1'])).toBe(true);
+  });
+
+  it('is false when a role is added or removed', () => {
+    expect(sameRoles(['r1'], ['r1', 'r2'])).toBe(false);
+    expect(sameRoles(['r1', 'r2'], ['r1'])).toBe(false);
   });
 });
