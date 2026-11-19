@@ -13,7 +13,7 @@ public static class EnumLookupTables
     /// tests (Respawn) leaves them alone.
     /// </summary>
     public static IReadOnlyList<string> Tables { get; } =
-        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes", "BillingCycles", "SubscriptionStatuses", "TenantModuleStatuses", "DataRegions", "InvoiceStatuses", "PaymentMethods", "AddOnRequestStatuses", "ChangeAuditActions", "CampusKinds", "UserTypes", "Genders", "ModuleCodes", "SchoolGenderPolicies", "CurriculumKinds", "FacilityKinds", "ClassLevels", "AdmissionStatuses", "PhotoKinds", "EnquiryChannels", "EnquiryStatuses", "FollowUpKinds", "VisitStatuses", "ReviewStatuses", "ReviewerRelations", "Weekdays"];
+        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes", "BillingCycles", "SubscriptionStatuses", "TenantModuleStatuses", "DataRegions", "InvoiceStatuses", "PaymentMethods", "AddOnRequestStatuses", "ChangeAuditActions", "CampusKinds", "UserTypes", "Genders", "ModuleCodes", "SchoolGenderPolicies", "CurriculumKinds", "FacilityKinds", "ClassLevels", "AdmissionStatuses", "PhotoKinds", "EnquiryChannels", "EnquiryStatuses", "FollowUpKinds", "VisitStatuses", "ReviewStatuses", "ReviewerRelations", "Weekdays", "EventAudiences"];
 
     internal static void Configure(ModelBuilder builder)
     {
@@ -47,6 +47,7 @@ public static class EnumLookupTables
         Map<SchoolReview, ReviewStatus>(builder, Tables[27], r => r.Status);
         Map<SchoolReview, ReviewerRelation>(builder, Tables[28], r => r.Relation);
         Map<TimetableSlot, Weekday>(builder, Tables[29], t => t.Day);
+        Map<SchoolEvent, EventAudience>(builder, Tables[30], e => e.Audience);
 
         // More columns of an enum that already has its lookup table.
         Reference<Subscription, BillingCycle>(builder, s => s.BillingCycle);

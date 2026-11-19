@@ -462,4 +462,13 @@
   <data name="TimetableEndsAfterStart" xml:space="preserve">
     <value>تنتهي الحصة بعد بدايتها.</value>
   </data>
+  <data name="EventEndsAfterStart" xml:space="preserve">
+    <value>ينتهي الحدث بعد بدايته.</value>
+  </data>
+  <data name="CalendarRangeInvalid" xml:space="preserve">
+    <value>ينتهي نطاق التقويم بعد بدايته.</value>
+  </data>
+  <data name="CalendarRangeTooLong" xml:space="preserve">
+    <value>لا يغطي نطاق التقويم أكثر من 366 يوماً.</value>
+  </data>
 </root>

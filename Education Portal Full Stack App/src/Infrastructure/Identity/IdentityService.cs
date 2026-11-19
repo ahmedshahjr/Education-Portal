@@ -104,6 +104,19 @@ public class IdentityService : IIdentityService
             .FirstOrDefaultAsync();
     }
 
+    public async Task<IReadOnlyList<string>> FindAccountIdsAsync(int schoolId, IReadOnlyCollection<int>? personIds)
+    {
+        var accounts = _userManager.Users.Where(u => u.SchoolId == schoolId);
+
+        if (personIds is not null)
+        {
+            var ids = personIds.ToList();
+            accounts = accounts.Where(u => u.UserDetailsId != null && ids.Contains(u.UserDetailsId.Value));
+        }
+
+        return await accounts.Select(u => u.Id).ToListAsync();
+    }
+
     public async Task<int?> FindPersonIdOfAccountAsync(string userId)
     {
         return await _userManager.Users

@@ -1083,6 +1083,33 @@ namespace EducationPortal.Application.Common.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An event ends after it starts.
+        /// </summary>
+        internal static string EventEndsAfterStart {
+            get {
+                return ResourceManager.GetString("EventEndsAfterStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The calendar range ends after it starts.
+        /// </summary>
+        internal static string CalendarRangeInvalid {
+            get {
+                return ResourceManager.GetString("CalendarRangeInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A calendar range covers at most 366 days.
+        /// </summary>
+        internal static string CalendarRangeTooLong {
+            get {
+                return ResourceManager.GetString("CalendarRangeTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This student is not enrolled in the course's class.
         /// </summary>
         internal static string StudentNotInCourseClass {

@@ -66,6 +66,10 @@ public interface IApplicationDbContext
     DbSet<GradingScale> GradingScales { get; }
 
     DbSet<GradingBand> GradingBands { get; }
+
+    DbSet<SchoolEvent> SchoolEvents { get; }
+
+    DbSet<Notification> Notifications { get; }
     /// <summary>The admission form of each student, one per student person. Owned by the school and filtered by it.</summary>
     DbSet<StudentProfile> StudentProfiles { get; }
     // The public page of a school and its admission enquiries. Owned by the school and filtered by it.

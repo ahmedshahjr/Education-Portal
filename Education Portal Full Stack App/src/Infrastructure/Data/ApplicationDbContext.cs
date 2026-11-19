@@ -112,6 +112,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<GradingBand> GradingBands => Set<GradingBand>();
 
+    public DbSet<SchoolEvent> SchoolEvents => Set<SchoolEvent>();
+
+    public DbSet<Notification> Notifications => Set<Notification>();
+
 
     // Read by the query filters on every query, so each request sees its own tenant (ENG-EF-10).
     private int? CurrentSchoolId => _tenant.SchoolId;

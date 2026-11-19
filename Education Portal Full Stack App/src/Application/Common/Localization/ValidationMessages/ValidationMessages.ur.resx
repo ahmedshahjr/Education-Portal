@@ -462,4 +462,13 @@
   <data name="TimetableEndsAfterStart" xml:space="preserve">
     <value>پیریڈ شروع ہونے کے بعد ختم ہوتا ہے۔</value>
   </data>
+  <data name="EventEndsAfterStart" xml:space="preserve">
+    <value>تقریب شروع ہونے کے بعد ختم ہوتی ہے۔</value>
+  </data>
+  <data name="CalendarRangeInvalid" xml:space="preserve">
+    <value>کیلنڈر کی مدت شروع ہونے کے بعد ختم ہوتی ہے۔</value>
+  </data>
+  <data name="CalendarRangeTooLong" xml:space="preserve">
+    <value>کیلنڈر کی مدت زیادہ سے زیادہ 366 دن کی ہو سکتی ہے۔</value>
+  </data>
 </root>

@@ -462,4 +462,13 @@
   <data name="TimetableEndsAfterStart" xml:space="preserve">
     <value>A lesson ends after it starts.</value>
   </data>
+  <data name="EventEndsAfterStart" xml:space="preserve">
+    <value>An event ends after it starts.</value>
+  </data>
+  <data name="CalendarRangeInvalid" xml:space="preserve">
+    <value>The calendar range ends after it starts.</value>
+  </data>
+  <data name="CalendarRangeTooLong" xml:space="preserve">
+    <value>A calendar range covers at most 366 days.</value>
+  </data>
 </root>
