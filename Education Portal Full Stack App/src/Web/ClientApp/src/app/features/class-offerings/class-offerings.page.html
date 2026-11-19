@@ -1,0 +1,33 @@
+<app-page-header
+  title="Class offerings"
+  i18n-title="@@classOfferings.title"
+  subtitle="The classes the school offers on its public page, for each academic year and campus."
+  i18n-subtitle="@@classOfferings.subtitle"
+></app-page-header>
+
+@if (loadError(); as message) {
+  <app-empty-state
+    icon="alert-triangle"
+    title="Class offerings could not be loaded"
+    i18n-title="@@classOfferings.loadError"
+    [description]="message"
+  />
+} @else {
+  <app-campus-filter [campuses]="campusOptions()" (selected)="selectedCampusId.set($event)" />
+
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <app-data-table
+        [data]="visibleOfferings()"
+        [columns]="columns"
+        [loading]="offerings() === null"
+        searchPlaceholder="Search class offerings..."
+        i18n-searchPlaceholder="@@classOfferings.search"
+        emptyTitle="No class offerings yet"
+        i18n-emptyTitle="@@classOfferings.empty"
+        emptyDescription="Class offerings added for the public page appear here."
+        i18n-emptyDescription="@@classOfferings.emptyDescription"
+      />
+    </mat-card-content>
+  </mat-card>
+}

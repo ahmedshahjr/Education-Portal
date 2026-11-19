@@ -27,9 +27,10 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
     title: $localize`:@@nav.school:School`,
     items: [
       { id: 'subscription', label: $localize`:@@nav.subscription:My subscription`, icon: 'layers', route: '/subscription', access: 'school-administrator' },
-      { id: 'campuses', label: $localize`:@@nav.campuses:Campuses`, icon: 'git-branch', route: '/campuses', access: 'administrator', module: MODULE_CODES.campus },
-      { id: 'people', label: $localize`:@@nav.people:Users`, icon: 'users', route: '/people', access: 'administrator', module: MODULE_CODES.staff },
-      { id: 'roles', label: $localize`:@@nav.roles:Roles`, icon: 'key-round', route: '/roles', access: 'administrator', module: MODULE_CODES.usersRoles },
+      { id: 'campuses', label: $localize`:@@nav.campuses:Campuses`, icon: 'git-branch', route: '/campuses', access: 'school-administrator', module: MODULE_CODES.campus },
+      { id: 'people', label: $localize`:@@nav.people:Users`, icon: 'users', route: '/people', access: 'school-administrator', module: MODULE_CODES.staff },
+      { id: 'roles', label: $localize`:@@nav.roles:Roles`, icon: 'key-round', route: '/roles', access: 'school-administrator', module: MODULE_CODES.usersRoles },
+      { id: 'class-offerings', label: $localize`:@@nav.classOfferings:Class offerings`, icon: 'book-open', route: '/class-offerings', access: 'school-administrator', module: MODULE_CODES.school },
     ],
   },
   {
@@ -43,7 +44,7 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
         access: 'administrator',
         children: [
           { id: 'branding', label: $localize`:@@nav.branding:Branding`, icon: 'sliders-horizontal', route: '/settings/branding', access: 'administrator' },
-          { id: 'campus-codes', label: $localize`:@@nav.campusCodes:Campus codes`, icon: 'git-branch', route: '/settings/campus-codes', access: 'administrator', module: MODULE_CODES.campus },
+          { id: 'campus-codes', label: $localize`:@@nav.campusCodes:Campus codes`, icon: 'git-branch', route: '/settings/campus-codes', access: 'school-administrator', module: MODULE_CODES.campus },
         ],
       },
     ],
@@ -59,6 +60,7 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
       { id: 'school-requests', label: $localize`:@@nav.schoolRequests:School requests`, icon: 'inbox', route: '/school-requests', access: 'master-administrator' },
       { id: 'pricing', label: $localize`:@@nav.pricing:Plans and prices`, icon: 'wallet', route: '/pricing', access: 'master-administrator' },
       { id: 'invoices', label: $localize`:@@nav.invoices:Invoices`, icon: 'receipt', route: '/invoices', access: 'master-administrator' },
+      { id: 'development-data', label: $localize`:@@nav.developmentData:Development data`, icon: 'wrench', route: '/development-data', access: 'master-administrator' },
     ],
   },
 ];

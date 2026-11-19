@@ -8,7 +8,7 @@ using EducationPortal.Domain.Constants;
 namespace EducationPortal.Application.Subscriptions.Queries.GetMySubscription;
 
 /// <summary>A paid module the school could add, with its price for the subscription's billing cycle.</summary>
-public sealed record AvailableAddOnDto(string Code, string Name, string Description, decimal? Price, bool Requested);
+public sealed record AvailableAddOnDto(ModuleCode Code, string Name, string Description, decimal? Price, bool Requested);
 
 /// <summary>What a school's administrator sees under "My subscription".</summary>
 /// <param name="Subscription">The current subscription, or <c>null</c> when the school has none.</param>
@@ -23,7 +23,7 @@ public sealed record MySubscriptionDto(
 /// The current school's subscription, the paid modules it could add with their prices, and its add-on requests. The school
 /// comes from the host (SEC-AUTHZ-04); a school sees only its own rows (SEC-AUTHZ-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.School)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
 public record GetMySubscriptionQuery : IRequest<MySubscriptionDto>;
 
 public class GetMySubscriptionQueryHandler : IRequestHandler<GetMySubscriptionQuery, MySubscriptionDto>

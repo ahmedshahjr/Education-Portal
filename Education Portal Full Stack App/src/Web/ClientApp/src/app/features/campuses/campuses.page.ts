@@ -7,10 +7,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { CampusDetailsDialogComponent } from './campus-details-dialog.component';
 import { CampusLocationPickerComponent } from './campus-location-picker.component';
+import { CampusScopeService } from '../../core/campus/campus-scope.service';
 import { problemMessages } from '../../core/http/problem-details';
 import { LatLng } from '../../core/maps/google-maps';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
@@ -79,8 +80,9 @@ export class CampusesPage {
   private readonly campusesClient = inject(CampusesClient);
   private readonly userDetailsClient = inject(UserDetailsClient);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
+  private readonly campusScope = inject(CampusScopeService);
 
   protected readonly campuses = signal<readonly CampusDto[] | null>(null);
   protected readonly loadError = signal<string | null>(null);
@@ -110,9 +112,12 @@ export class CampusesPage {
   readonly visibleCampuses = computed(() => {
     const state = this.stateFilter();
     const city = this.cityFilter();
+    // The campus chosen in the top bar narrows the list too.
     return (this.campuses() ?? []).filter(
       (campus) =>
-        (state === '' || campus.details.stateId === state) && (city === '' || campus.details.cityId === city)
+        this.campusScope.shows(campus.id) &&
+        (state === '' || campus.details.stateId === state) &&
+        (city === '' || campus.details.cityId === city)
     );
   });
 
@@ -320,13 +325,9 @@ export class CampusesPage {
     request.subscribe({
       next: () => {
         this.busy.set(false);
-        this.snackBar.open(
-          editing
+        this.toast.success(editing
             ? $localize`:@@campuses.updated:Campus saved.`
-            : $localize`:@@campuses.added:Campus added.`,
-          undefined,
-          { duration: 3000 }
-        );
+            : $localize`:@@campuses.added:Campus added.`);
         this.cancel();
         this.load();
       },
@@ -385,7 +386,7 @@ export class CampusesPage {
     request.subscribe({
       next: () => {
         this.busy.set(false);
-        this.snackBar.open(done, undefined, { duration: 3000 });
+        this.toast.success(done);
         this.load();
       },
       error: (error: unknown) => {

@@ -23,10 +23,26 @@ public static class SecurityHeaders
         "form-action 'self'; " +
         "frame-ancestors 'none'";
 
+    // The API reference (/scalar) is Development-only. Its page loads script and fonts from the Scalar CDN and runs an
+    // inline bootstrap script, which the strict policy above blocks. This relaxed policy is sent only for that page in
+    // Development, so production keeps the strict policy (SEC-WEB-04, SEC-WEB-05).
+    private const string ScalarContentSecurityPolicy =
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+        "img-src 'self' data: https:; " +
+        "font-src 'self' https://cdn.jsdelivr.net; " +
+        "connect-src 'self'; " +
+        "worker-src 'self' blob:; " +
+        "object-src 'none'; " +
+        "base-uri 'self'; " +
+        "form-action 'self'; " +
+        "frame-ancestors 'none'";
+
     private const string PermissionsPolicy =
         "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()";
 
-    public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app)
+    public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app, bool isDevelopment)
     {
         return app.Use(async (context, next) =>
         {
@@ -34,10 +50,13 @@ public static class SecurityHeaders
             // ones an exception handler writes after clearing the response.
             context.Response.OnStarting(static state =>
             {
-                var httpContext = (HttpContext)state;
+                var (httpContext, relaxForScalar) = ((HttpContext, bool))state;
                 var headers = httpContext.Response.Headers;
 
-                headers["Content-Security-Policy"] = ContentSecurityPolicy;
+                headers["Content-Security-Policy"] = relaxForScalar
+                    && httpContext.Request.Path.StartsWithSegments("/scalar")
+                        ? ScalarContentSecurityPolicy
+                        : ContentSecurityPolicy;
                 headers["X-Content-Type-Options"] = "nosniff";
                 headers["X-Frame-Options"] = "DENY";
                 headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
@@ -50,7 +69,7 @@ public static class SecurityHeaders
                 }
 
                 return Task.CompletedTask;
-            }, context);
+            }, (context, isDevelopment));
 
             await next();
         });

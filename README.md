@@ -35,6 +35,7 @@ Every technology the portal uses, what it does here, and where its flow diagram 
 | Guards | Ardalis.GuardClauses | 5 | Argument and lookup checks in handlers and start-up code; `Guard.Against.NotFound` becomes 404 | [How a request flows](#how-a-request-flows) |
 | Scheduling | Quartz.NET (`Quartz`) | 4.7 | Runs the daily subscription lifecycle job inside the API, on a UTC cron schedule kept in memory | [Subscription lifecycle job](#subscription-lifecycle-job-flow) |
 | Data access | EF Core with Npgsql | EF Core 10, Npgsql provider 10 | `ApplicationDbContext`, entity configurations, query filters for tenants and soft delete, save interceptors | [EF Core](#ef-core-and-postgresql-flow) |
+| Development data | Bogus | Bogus 35.6.5 | `Infrastructure/Data/DevelopmentData/DevelopmentDataGenerator.cs`, Development only | [Development data](#repository-layout) |
 | Database | PostgreSQL | Aspire container (Azure Database for PostgreSQL on publish) | One shared database, `EducationPortalDb`, for every school | [EF Core](#ef-core-and-postgresql-flow) |
 | Sign-in | ASP.NET Core Identity with cookies | 10 | Accounts, password check, lockout, `SchoolId` claim, 15 minute sliding and 12 hour absolute session | [Sign-in](#sign-in-flow-aspnet-core-identity) |
 | Multi-tenancy | Host-based tenant resolution (own code) | n/a | Maps the request host to a school before any endpoint runs; unknown hosts get 404 | [Tenant resolution](#tenant-resolution-flow) |
@@ -119,9 +120,7 @@ Then:
 2. Click the **webfrontend** URL to open the Angular app.
 3. Sign in. The address picks the school, so the login page already shows that school's name, logo and colours:
    - `http://localhost:<port>` is the **master tenant** (the platform owner). Account: `administrator@localhost`.
-   - `http://demo.localhost:<port>` (same port) is the **Demo School**, in Pakistan (English and Urdu). Account: `administrator@demo.localhost`.
-   - `http://uae.localhost:<port>` (same port) is the **Demo School UAE** (English and Arabic). Account: `administrator@uae.localhost`.
-   - `http://usa.localhost:<port>` (same port) is the **Demo School USA**, in the United States (English, US date and number formats, US dollars, `America/New_York` as the fallback time zone). Account: `administrator@usa.localhost`.
+   - Schools are not seeded any more. Create them through the API, or generate fake ones with `POST /api/DevelopmentData/generate` (Development only, master administrator, Bogus-based; limits in the endpoint description: at most 500 schools, 50 campuses per school, 5000 people per campus and 1,000,000 people per call).
 
    All use the Development-only password `Local-Dev-Only-2026!`. They exist only in your local database, and only in Development. `*.localhost` names point to your own machine in every current browser, so no hosts-file change is needed. An account only works on its own school's address.
 4. API docs (Scalar) are at `/scalar` on the **webapi** URL.
@@ -221,6 +220,7 @@ Every diagram in this README, what it shows, and the code it is drawn from. When
 | [Clean Architecture layers](#clean-architecture-layers) | Projects and which references which | a `.csproj` added or removed, or its `<ProjectReference>` lines |
 | [How a request flows](#how-a-request-flows) | Endpoint to MediatR pipeline to handler to database | pipeline behaviours added or removed, `AddOpenBehavior` order in `src/Application/DependencyInjection.cs` |
 | [Multi-tenancy and permissions](#multi-tenancy-and-permissions-step-2-in-progress) | Master, schools and campuses, and the checks on every request | `TenantResolution.cs`, `TenantResolver.cs`, query filters in `ApplicationDbContext.cs`, module/role/campus checks in `AuthorizationBehaviour.cs` |
+| [User map](#user-map) | Who uses the portal (master, school administrator, school users, students and parents), what each sees and changes | `src/Web/Endpoints/Overview.cs`, `src/Application/Overview/`, role and right checks in `src/Application/Common/Behaviours/AuthorizationBehaviour.cs` |
 | [Aspire orchestration flow](#aspire-orchestration-flow) | Run mode and publish mode, start order | `src/AppHost/` |
 | [ASP.NET Core middleware pipeline](#aspnet-core-middleware-pipeline) | Middleware order | `app.Use…` / `app.Map…` / `builder.…` lines in `src/Web/Program.cs` |
 | [Tenant resolution flow](#tenant-resolution-flow) | Host to school, unknown host 404, session check | `src/Web/Infrastructure/TenantResolution.cs`, `src/Infrastructure/Identity/TenantResolver.cs` |
@@ -410,7 +410,7 @@ flowchart TB
 ```
 
 - **One shared database.** Rows owned by a school have a `SchoolId`, and campus data also has a `CampusId`. EF Core global query filters add those conditions to every query, so handlers never filter by tenant by hand. Only explicitly authorized and audited master-tenant use cases read across schools.
-- **The domain picks the school.** Each school has its own domain. Before any endpoint runs, the API looks up the request's host in a domain table, and an unknown domain gets 404 with nothing served. The master portal has its own domain. The school is never taken from the request body, query string or a header. For local development, `localhost` is the master tenant and `demo.localhost` is the Demo School.
+- **The domain picks the school.** Each school has its own domain. Before any endpoint runs, the API looks up the request's host in a domain table, and an unknown domain gets 404 with nothing served. The master portal has its own domain. The school is never taken from the request body, query string or a header. For local development, `localhost` is the master tenant; other schools are created through the API or the development data endpoint.
 - **The user must belong to that school.** The school in the user's sign-in must match the domain's school on every request; a mismatch is rejected and audited. Sign-in cookies are host-only, so a session from `school1.com` is never sent to `school2.com`.
 - **The campus is picked inside the app.** Campuses never get their own domain. Staff, students and parents can belong to several campuses and switch between them in the app, with the campus in the route (for example `/campuses/12/students`). The server checks that campus against the user on every request.
 - **Languages come from the school's country.** The master tenant manages countries (languages offered, default language, time zone, currency) on the **Countries and languages** page and assigns each school to one on the **Schools** page. ASP.NET Core request localization, with a culture provider that knows the school, answers each request in one of that school's languages only: the visitor's choice, then the browser's, then the country's default. Server messages come from `.resx` files: error titles in `src/Web/Resources`, validation messages and the property names inside them in `src/Application/Common/Localization` (Arabic and Urdu next to English; FluentValidation's built-in messages ship in Arabic, and the portal adds Urdu) ([ADR-005](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-005-Localization-Per-Country.md)).
@@ -457,6 +457,35 @@ A record from another school or campus returns 404 rather than 403, so ids can't
 
 - **Subscription management and add-on requests** (decided 2026-11-13, [ADR-014](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-014-Subscription-Management-And-Add-On-Requests.md)). The master tenant suspends, reactivates and extends a school's subscription, changes its plan and adds or removes add-on modules (`/api/Schools/{id}/subscription/suspend`, `reactivate`, `extend`, `plan`, `modules`). Plan, add and remove share one engine that re-quotes from the subscription's price book; changes take effect at once with no credit or charge for the current period, and modules that leave expire but keep their data. A school administrator sees its own subscription, the add-ons it could take with prices and its requests on **My subscription** (`GET /api/Subscriptions/mine`) and asks for a module with `POST /api/AddOnRequests`; the master approves (the module is added in the same save) or rejects on the **Add-on requests** page. The Schools page gets a Subscription panel for the master (start, actions, invoices, record payment, void).
 
+### User map
+
+Who uses the portal, what each one sees and what each one can change. The rules behind it are in [AGENTS.md, section 2](AGENTS.md#2-multi-tenancy-and-permissions); the checks run on the server for every request.
+
+```mermaid
+flowchart LR
+    master["Master administrator<br/>administrator@localhost<br/>the software seller, owns no school"]
+    sadmin["School administrator<br/>administrator@&lt;school&gt;.localhost"]
+    staff["School users<br/>principals, teachers, other staff"]
+    campus["Campuses of one school<br/>chosen in the top bar when there are several"]
+    family["Students and parents<br/>planned, MVP step 3"]
+
+    master -->|"adds and approves schools, sets modules, prices, invoices"| sadmin
+    master -->|"dashboard: every school and its campuses"| campus
+    sadmin -->|"campuses, campus codes, branding, roles"| campus
+    sadmin -->|"adds, edits and deletes users"| staff
+    staff -->|"campus data, within the role's rights"| campus
+    family -.->|"read only, own children only (planned)"| campus
+```
+
+| User | Sees | Changes | Limited by |
+|---|---|---|---|
+| Master administrator | Every school and its campuses (the dashboard), the master portal menus | Schools, modules per school, plans and prices, invoices, approvals | Nothing in a school's modules; it has no school menus of its own |
+| School administrator | Its own school only, on its own domain | Its campuses, campus codes, users, roles, branding | The school's modules and the campuses it is assigned to |
+| School user (principal, teacher, staff) | Its school's data for the modules its role allows | Within its role's View, Create, Edit and Delete rights | Role rights per module; campus assignment (planned) |
+| Student and parent | Their own record and their children (planned) | Read only | Fixed rules: parents see only their children (AGENTS.md section 2) |
+
+A campus switcher in the top bar appears to a school administrator when the school has more than one campus. It narrows the campus list to the chosen campus. Users are not yet linked to campuses, so the switcher does not narrow them.
+
 ### Data and database
 
 - `ApplicationDbContext` (in `Infrastructure`) is the EF Core context for both Identity and the app's own tables. Entity mappings are `IEntityTypeConfiguration<T>` classes in `src/Infrastructure/Data/Configurations/`, picked up automatically.
@@ -465,7 +494,7 @@ A record from another school or campus returns 404 rather than 403, so ids can't
 - Entities raise domain events instead of calling services. `DispatchDomainEventsInterceptor` publishes them through MediatR just before the changes are saved.
 - `ChangeAuditInterceptor` runs last and adds a `ChangeAuditEntry` to the same save for every added, changed or removed subscription, tenant module, invoice, invoice line, payment, add-on request, module, module dependency, plan, plan module, price book and price: who (or the system), when, which row, and each changed value before and after, as jsonb ([ADR-016](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-016-Change-Audit-For-Commercial-Records.md)). The table is append-only and filtered by school.
 - Aspire passes the connection string (`ConnectionStrings__EducationPortalDb`) to the API, so there is nothing to configure locally.
-- In Development the EF Core migrations are applied on every start (`MigrateAsync`, nothing is dropped), then the location data is imported and the demo data is seeded (`DevelopmentDataSeeder`, idempotent). The first migration is `InitialCreate`. Tables live in one PostgreSQL schema per feature (`identity`, `access`, `schools`, `modules`, `billing`, `audit`, `lookups`; see `Data/DatabaseSchemas.cs`). Outside Development the schema must be migrated by a reviewed migration script before the app starts.
+- In Development the EF Core migrations are applied on every start (`MigrateAsync`, nothing is dropped), then the location data is imported and the start-up data is seeded (`DevelopmentDataSeeder`, idempotent: modules, plans, price books, the master tenant and its administrator; no schools or people). The first migration is `InitialCreate`. Tables live in one PostgreSQL schema per feature (`identity`, `access`, `schools`, `modules`, `billing`, `audit`, `lookups`, `admissions`; see `Data/DatabaseSchemas.cs`). Every school-owned entity implements `ITenantOwned`, and `ApplicationDbContext` gives all of them the tenant filter in one loop; two tests fail the build when an entity has a `SchoolId` without it. Modules are the fixed `ModuleCode` enum, so the master edits modules but cannot create or delete one. Outside Development the schema must be migrated by a reviewed migration script before the app starts.
 - Location reference data (`Countries`, `States`, `Cities`, and the `StateTypes` lookup) has no `SchoolId`: it is shared by every school. `States` and `Cities` have `IsActive` and `IsCustom` flags; the ISO codes (`Countries.Code`, `Countries.Iso3`, `States.IsoCode`) are unique, and a city name is unique within its state.
 - Student data is treated with the most care: personal fields are labelled by data class, never logged, and only ever synthetic in development and tests ([student-data-privacy skill](docs/ai/secure-compliance/student-data-privacy/SKILL.md)).
 
@@ -1041,9 +1070,9 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | Aspire dashboard | `https://educationportal.dev.localhost:17080` (the console prints a sign-in link) |
 | API (`webapi`) | `https://localhost:7052` and `http://localhost:5132` |
 | API reference and health (in Development) | Scalar at `/scalar`, the OpenAPI document at `/openapi/v1.json`, health at `/health` and `/alive` |
-| Angular app (`webfrontend`) | `http://localhost:14200` (master tenant) or `http://demo.localhost:14200` (Demo School) |
+| Angular app (`webfrontend`) | `http://localhost:14200` (master tenant) |
 | Database connection | Passed in by Aspire as `ConnectionStrings__EducationPortalDb` |
-| Development seed accounts | `administrator@localhost` (master tenant, on `localhost`), `administrator@demo.localhost` (Demo School, Pakistan, on `demo.localhost`), `administrator@uae.localhost` (Demo School UAE, on `uae.localhost`) and `administrator@usa.localhost` (Demo School USA, on `usa.localhost`), password `Local-Dev-Only-2026!` (local database, Development only) |
+| Development seed account | `administrator@localhost` (master tenant, on `localhost`), password `Local-Dev-Only-2026!` (local database, Development only) |
 | Allowed hosts | `localhost` and `*.localhost` in Development (`AllowedHosts`); each school's domain is added when it is deployed |
 | Observability | `Observability:OtlpEndpoint` (set to the local Collector by Aspire), `TraceSampleRatio` (1.0 in Development, 0.1 elsewhere), `TenantIdAsMetricLabel` (off), `Enabled`. Grafana `http://localhost:13000`, Prometheus `http://localhost:9090`, Jaeger `http://localhost:16686`, Loki `http://localhost:3100`, Collector `localhost:4317`/`4318` ([docs/observability.md](Education%20Portal%20Full%20Stack%20App/docs/observability.md)) |
 | Subscription lifecycle | `SubscriptionLifecycle:Enabled` (true), `Schedule` (Quartz cron in UTC, `0 0 1 * * ?`), `GracePeriodDays` (30, 0 to 90), `ReminderDays` (`[30, 7, 1]`, each 1 to 365). Checked at start-up; bad values stop the app |

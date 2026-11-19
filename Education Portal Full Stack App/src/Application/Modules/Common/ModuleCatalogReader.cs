@@ -22,7 +22,7 @@ internal static class ModuleCatalogReader
     }
 
     /// <summary>The modules in catalogue order (sort order, then code), optionally only the one with the code, with what each requires.</summary>
-    public static async Task<List<ModuleDto>> LoadAsync(IApplicationDbContext context, string? code, CancellationToken cancellationToken)
+    public static async Task<List<ModuleDto>> LoadAsync(IApplicationDbContext context, ModuleCode? code, CancellationToken cancellationToken)
     {
         var modules = await context.Modules
             .AsNoTracking()

@@ -18,7 +18,7 @@ public sealed record CampusLocationsDto(string? CountryName, IReadOnlyList<Campu
 /// The states of the current school's country, each with its cities, for the address of a campus. The school comes from the
 /// host (SEC-AUTHZ-04). Needs the Campuses module. A school without a country has no states.
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.Campus)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
 public record GetCampusLocationsQuery : IRequest<CampusLocationsDto>;
 
 public class GetCampusLocationsQueryHandler : IRequestHandler<GetCampusLocationsQuery, CampusLocationsDto>

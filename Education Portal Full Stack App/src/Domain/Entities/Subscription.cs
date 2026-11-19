@@ -7,7 +7,7 @@ namespace EducationPortal.Domain.Entities;
 /// (<c>SchoolId</c>) and covered by the tenant query filter (SEC-AUTHZ-03). A school has at most one subscription that
 /// is not cancelled.
 /// </summary>
-public class Subscription : BaseAuditableEntity
+public class Subscription : BaseAuditableEntity, ITenantOwned
 {
     public const int MaxTrialDays = 90;
 

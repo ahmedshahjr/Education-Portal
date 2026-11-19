@@ -15,7 +15,7 @@ namespace EducationPortal.Application.Campuses.Commands.CreateCampus;
 /// Adds a campus to the current school. The campus gets a four-digit code, generated here and unique within the school. The school
 /// is the one the request's host resolves to (SEC-AUTHZ-04). Needs the Campuses module. Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.Campus)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
 public record CreateCampusCommand : IRequest<Guid>
 {
     public string Name { get; init; } = string.Empty;

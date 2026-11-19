@@ -920,5 +920,41 @@ namespace EducationPortal.Application.Common.Localization {
                 return ResourceManager.GetString("CampusPhonesTooMany", resourceCulture);
             }
         }
+        /// <summary>
+        ///   Looks up a localized string similar to The student must be {0} to {1} years old on the admission date..
+        /// </summary>
+        internal static string StudentAgeOutOfRange {
+            get {
+                return ResourceManager.GetString("StudentAgeOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The date of birth cannot be in the future..
+        /// </summary>
+        internal static string StudentBirthDateInFuture {
+            get {
+                return ResourceManager.GetString("StudentBirthDateInFuture", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The admission date cannot be before the date of birth..
+        /// </summary>
+        internal static string StudentAdmissionBeforeBirth {
+            get {
+                return ResourceManager.GetString("StudentAdmissionBeforeBirth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The admission date cannot be more than {0} days ahead..
+        /// </summary>
+        internal static string StudentAdmissionTooFarAhead {
+            get {
+                return ResourceManager.GetString("StudentAdmissionTooFarAhead", resourceCulture);
+            }
+        }
+        
     }
 }

@@ -61,7 +61,7 @@ public static class TestApp
     public static void UseTenant(int schoolId, bool isMaster = false) => _tenant = new ResolvedTenant(schoolId, isMaster);
 
     /// <summary>Adds a school with its own domain and returns its id.</summary>
-    public static async Task<EntityIds> AddSchoolAsync(string name, string domain)
+    public static async Task<EntityIds> AddSchoolAsync(string name, string? domain)
     {
         var school = School.Create(name, domain);
         await AddAsync(school);
@@ -87,7 +87,7 @@ public static class TestApp
     }
 
     /// <summary>Adds a school with its own domain in a country and returns its id.</summary>
-    public static async Task<EntityIds> AddSchoolAsync(string name, string domain, int countryId)
+    public static async Task<EntityIds> AddSchoolAsync(string name, string? domain, int countryId)
     {
         var school = School.Create(name, domain);
         school.AssignCountry(countryId);
@@ -188,7 +188,7 @@ public static class TestApp
     /// trial of <paramref name="trialDays"/> days, at <paramref name="amount"/> a month; with a campus, the modules are for that campus only. The school's cached
     /// entitlements are dropped, as after a real change.
     /// </summary>
-    public static async Task<Subscription> SubscribeAsync(int schoolId, string[] moduleCodes, DateTimeOffset? start = null, int? campusId = null, int trialDays = 0, decimal amount = 0m)
+    public static async Task<Subscription> SubscribeAsync(int schoolId, ModuleCode[] moduleCodes, DateTimeOffset? start = null, int? campusId = null, int trialDays = 0, decimal amount = 0m)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
 

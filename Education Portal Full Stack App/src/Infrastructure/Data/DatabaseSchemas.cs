@@ -1,4 +1,4 @@
-using EducationPortal.Domain.Entities;
+﻿using EducationPortal.Domain.Entities;
 using EducationPortal.Infrastructure.Data.Lookups;
 using EducationPortal.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,9 +19,10 @@ public static class DatabaseSchemas
     public const string Billing = "billing";
     public const string Audit = "audit";
     public const string Lookups = "lookups";
+    public const string Admissions = "admissions";
 
     /// <summary>Every feature schema, for tools that reset or inspect the database (Respawn in the functional tests).</summary>
-    public static readonly string[] All = [Identity, Access, Schools, Modules, Billing, Audit, Lookups];
+    public static readonly string[] All = [Identity, Access, Schools, Modules, Billing, Audit, Lookups, Admissions];
 
     private static readonly Dictionary<Type, string> BySchool = new()
     {
@@ -32,6 +33,17 @@ public static class DatabaseSchemas
         [typeof(Campus)] = Schools,
         [typeof(CampusPhone)] = Schools,
         [typeof(UserDetails)] = Schools,
+        [typeof(StudentProfile)] = Schools,
+        [typeof(SchoolProfile)] = Schools,
+        [typeof(SchoolCurriculum)] = Schools,
+        [typeof(SchoolFacility)] = Schools,
+        [typeof(ClassOffering)] = Schools,
+        [typeof(SchoolPhoto)] = Schools,
+        [typeof(SchoolReview)] = Schools,
+        [typeof(AdmissionEnquiry)] = Admissions,
+        [typeof(EnquiryFollowUp)] = Admissions,
+        [typeof(CampusVisit)] = Admissions,
+
         [typeof(BrandingImage)] = Schools,
         [typeof(SchoolRequest)] = Schools,
         [typeof(Country)] = Schools,

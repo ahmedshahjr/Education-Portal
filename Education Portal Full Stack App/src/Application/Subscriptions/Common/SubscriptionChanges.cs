@@ -30,7 +30,7 @@ internal static class SubscriptionChanges
     /// modules it gives that its plan does not include (a module that an add-on requires counts as an add-on too, as it
     /// was priced that way).
     /// </summary>
-    public static async Task<(string? PlanCode, List<string> AddOns)> CurrentChoiceAsync(
+    public static async Task<(string? PlanCode, List<ModuleCode> AddOns)> CurrentChoiceAsync(
         IApplicationDbContext context, Subscription subscription, CancellationToken cancellationToken)
     {
         string? planCode = null;
@@ -60,11 +60,11 @@ internal static class SubscriptionChanges
     /// Re-quotes <paramref name="planCode"/> and <paramref name="addOns"/> from the subscription's own price book and
     /// applies them. Returns the codes of every module the school now has.
     /// </summary>
-    public static async Task<IReadOnlyList<string>> ApplyAsync(
+    public static async Task<IReadOnlyList<ModuleCode>> ApplyAsync(
         IApplicationDbContext context,
         Subscription subscription,
         string? planCode,
-        IReadOnlyCollection<string> addOns,
+        IReadOnlyCollection<ModuleCode> addOns,
         TimeProvider timeProvider,
         CancellationToken cancellationToken)
     {

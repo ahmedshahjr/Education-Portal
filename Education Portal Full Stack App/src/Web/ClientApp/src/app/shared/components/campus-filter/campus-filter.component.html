@@ -1,0 +1,11 @@
+@if (visible()) {
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-campus-filter">
+    <mat-label i18n="@@campusFilter.label">Campus</mat-label>
+    <mat-select aria-label="Campus" i18n-aria-label="@@campusFilter.label" [value]="null" (selectionChange)="choose($event.value)">
+      <mat-option [value]="null" i18n="@@campusFilter.all">All campuses</mat-option>
+      @for (campus of campuses(); track campus.id) {
+        <mat-option [value]="campus.id">{{ campus.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+}

@@ -405,4 +405,16 @@
   <data name="CampusPhonesTooMany" xml:space="preserve">
     <value>کیمپس میں زیادہ سے زیادہ پانچ فون نمبر ہو سکتے ہیں۔</value>
   </data>
+  <data name="StudentAgeOutOfRange" xml:space="preserve">
+    <value>طالب علم کی عمر داخلے کی تاریخ پر {0} سے {1} سال ہونی چاہیے۔</value>
+  </data>
+  <data name="StudentBirthDateInFuture" xml:space="preserve">
+    <value>تاریخ پیدائش مستقبل میں نہیں ہو سکتی۔</value>
+  </data>
+  <data name="StudentAdmissionBeforeBirth" xml:space="preserve">
+    <value>داخلے کی تاریخ تاریخ پیدائش سے پہلے نہیں ہو سکتی۔</value>
+  </data>
+  <data name="StudentAdmissionTooFarAhead" xml:space="preserve">
+    <value>داخلے کی تاریخ آج سے {0} دن سے زیادہ آگے نہیں ہو سکتی۔</value>
+  </data>
 </root>

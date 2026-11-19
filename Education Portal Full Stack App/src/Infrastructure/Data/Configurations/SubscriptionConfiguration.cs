@@ -1,4 +1,4 @@
-using EducationPortal.Domain.Entities;
+﻿using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;

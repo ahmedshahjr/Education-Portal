@@ -1,7 +1,7 @@
 namespace EducationPortal.Domain.Entities;
 
 /// <summary>One line of an invoice: what is billed and how much (before tax), in the invoice's currency.</summary>
-public class InvoiceLine : BaseEntity
+public class InvoiceLine : BaseEntity, ITenantOwned
 {
     public const int DescriptionMaxLength = 200;
 

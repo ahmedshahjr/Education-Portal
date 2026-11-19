@@ -2,6 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { ChangePasswordCommand, CurrentUserDto, SignInCommand, UsersClient } from '../../web-api-client';
+import { BrandingService } from '../branding/branding.service';
 import { ModulesService } from '../modules/modules.service';
 
 export const ADMINISTRATOR_ROLE = 'Administrator';
@@ -11,6 +12,7 @@ export const ADMINISTRATOR_ROLE = 'Administrator';
 export class AuthService {
   private readonly users = inject(UsersClient);
   private readonly modules = inject(ModulesService);
+  private readonly branding = inject(BrandingService);
   private readonly user = signal<CurrentUserDto | null>(null);
 
   readonly currentUser = this.user.asReadonly();
@@ -45,9 +47,14 @@ export class AuthService {
     );
   }
 
+  /**
+   * A school without its own domain signs in on the master tenant's address. The server then acts as that school, so
+   * its branding is read again here: the theme and the master flag follow the session, not the address.
+   */
   signIn(email: string, password: string): Observable<void> {
     return this.users.signIn(new SignInCommand({ email, password })).pipe(
       switchMap(() => this.initialize()),
+      switchMap(() => this.branding.load()),
       map(() => undefined)
     );
   }
@@ -60,9 +67,11 @@ export class AuthService {
     );
   }
 
+  /** Ends the session, then shows the branding of the host again (the master's on the master's address). */
   signOut(): Observable<void> {
     return this.users.signOut().pipe(
       switchMap(() => this.initialize()),
+      switchMap(() => this.branding.load()),
       map(() => undefined)
     );
   }

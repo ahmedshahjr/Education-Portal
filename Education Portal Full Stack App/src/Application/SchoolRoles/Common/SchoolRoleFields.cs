@@ -24,8 +24,8 @@ public abstract class SchoolRoleFieldsValidator<T> : AbstractValidator<T>
 
         RuleFor(r => r.Permissions)
             .NotNull()
-            .Must(p => p.Count <= PortalModule.CodeMaxLength * 10)
-            .Must(p => p.Select(x => x.Module).Distinct(StringComparer.Ordinal).Count() == p.Count)
+            .Must(p => p.Count <= Enum.GetValues<ModuleCode>().Length)
+            .Must(p => p.Select(x => x.Module).Distinct().Count() == p.Count)
             .WithMessage(_ => ValidationMessages.ModuleListedTwice)
             .Must(p => p.All(x => x.CanView || !(x.CanCreate || x.CanEdit || x.CanDelete)))
             .WithMessage(_ => ValidationMessages.RightsNeedView)
@@ -37,7 +37,7 @@ public abstract class SchoolRoleFieldsValidator<T> : AbstractValidator<T>
                 }
 
                 var enabled = await moduleAccess.GetEnabledCodesAsync(schoolId, cancellationToken);
-                if (permissions.Any(p => !enabled.Contains(p.Module, StringComparer.Ordinal)))
+                if (permissions.Any(p => !enabled.Contains(p.Module)))
                 {
                     validation.AddFailure(ValidationMessages.ModuleNotEnabledForSchool);
                 }
@@ -54,7 +54,7 @@ internal static class SchoolRoleStore
     public static async Task SetPermissionsAsync(
         IApplicationDbContext context, IModuleAccess moduleAccess, SchoolRole role, IReadOnlyList<RolePermissionDto> wanted, CancellationToken cancellationToken)
     {
-        var enabled = (await moduleAccess.GetEnabledCodesAsync(role.SchoolId, cancellationToken)).ToHashSet(StringComparer.Ordinal);
+        var enabled = (await moduleAccess.GetEnabledCodesAsync(role.SchoolId, cancellationToken)).ToHashSet();
         var modules = await context.Modules.Where(m => enabled.Contains(m.Code)).ToListAsync(cancellationToken);
         var current = await context.RolePermissions.Where(p => p.SchoolRoleId == role.Id).ToListAsync(cancellationToken);
 
@@ -95,7 +95,7 @@ internal static class SchoolRoleReader
             .Select(r => new { r.Id, r.PublicId, r.Name })
             .ToListAsync(cancellationToken);
 
-        var enabled = (await moduleAccess.GetEnabledCodesAsync(schoolId, cancellationToken)).ToHashSet(StringComparer.Ordinal);
+        var enabled = (await moduleAccess.GetEnabledCodesAsync(schoolId, cancellationToken)).ToHashSet();
         var roleIds = roles.Select(r => r.Id).ToList();
         var rights = (await (
                 from p in context.RolePermissions.AsNoTracking()

@@ -11,17 +11,17 @@ namespace EducationPortal.Application.AddOnRequests.Commands.RequestAddOn;
 /// id is returned. Nothing changes until the master tenant approves it. The school comes from the host, never from the
 /// request (SEC-AUTHZ-04). Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.School)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
 public record RequestAddOnCommand : IRequest<Guid>
 {
-    public string ModuleCode { get; init; } = string.Empty;
+    public ModuleCode ModuleCode { get; init; } = ModuleCode.None;
 }
 
 public class RequestAddOnCommandValidator : AbstractValidator<RequestAddOnCommand>
 {
     public RequestAddOnCommandValidator(IApplicationDbContext context, ICurrentTenant tenant)
     {
-        RuleFor(c => c.ModuleCode).NotEmpty().MaximumLength(PortalModule.CodeMaxLength);
+        RuleFor(c => c.ModuleCode).IsInEnum().NotEqual(ModuleCode.None);
 
         RuleFor(c => c.ModuleCode)
             .MustAsync(async (code, cancellationToken) => await context.Modules.AnyAsync(m => m.Code == code && m.IsActive && !m.IsCore, cancellationToken))

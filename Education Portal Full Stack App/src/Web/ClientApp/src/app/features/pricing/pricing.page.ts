@@ -6,28 +6,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
-import {
-  BillingCycle,
-  CountriesClient,
-  CountryDto,
-  CreatePlanCommand,
-  CreatePriceBookCommand,
-  ModuleDto,
-  ModulesClient,
-  PlanDto,
-  PlansClient,
-  PriceBookDto,
-  PriceDto,
-  PriceBooksClient,
-  SetPriceCommand,
-} from '../../web-api-client';
+import { BillingCycle, CountriesClient, CountryDto, CreatePlanCommand, CreatePriceBookCommand, ModuleCode, ModuleDto, ModulesClient, PlanDto, PlansClient, PriceBookDto, PriceBooksClient, PriceDto, SetPriceCommand } from '../../web-api-client';
 
 /**
  * The master tenant's pricing: the plans (named bundles of paid modules) and one price book per country, with the price of
@@ -57,7 +43,7 @@ export class PricingPage {
   private readonly modulesClient = inject(ModulesClient);
   private readonly countriesClient = inject(CountriesClient);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
 
   protected readonly plans = signal<readonly PlanDto[] | null>(null);
@@ -77,7 +63,7 @@ export class PricingPage {
     code: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[A-Z][A-Z0-9_]*$/)]],
     name: ['', [Validators.required, Validators.maxLength(100)]],
     description: ['', [Validators.maxLength(300)]],
-    modules: [[] as string[]],
+    modules: [[] as ModuleCode[]],
   });
 
   protected readonly bookForm = this.formBuilder.nonNullable.group({
@@ -89,7 +75,7 @@ export class PricingPage {
     bookId: ['', [Validators.required]],
     target: ['plan', [Validators.required]],
     planCode: [''],
-    moduleCode: [''],
+    moduleCode: [null as ModuleCode | null],
     billingCycle: [BillingCycle.Monthly as BillingCycle, [Validators.required]],
     price: [0, [Validators.required, Validators.min(0)]],
   });
@@ -112,7 +98,7 @@ export class PricingPage {
     this.countriesClient.getCountries(1, 100).subscribe({ next: (page) => this.countries.set(page.items) });
   }
 
-  protected toggleModule(code: string): void {
+  protected toggleModule(code: ModuleCode): void {
     const current = this.planForm.controls.modules.value;
     this.planForm.controls.modules.setValue(current.includes(code) ? current.filter((c) => c !== code) : [...current, code]);
   }
@@ -178,14 +164,14 @@ export class PricingPage {
         new SetPriceCommand({
           priceBookId: value.bookId,
           planCode: isPlan ? value.planCode : undefined,
-          moduleCode: isPlan ? undefined : value.moduleCode,
+          moduleCode: isPlan ? undefined : (value.moduleCode ?? undefined),
           billingCycle: value.billingCycle,
           price: value.price,
         })
       ),
       $localize`:@@pricing.priceSaved:Price saved.`,
       this.priceErrors,
-      () => this.priceForm.patchValue({ planCode: '', moduleCode: '', price: 0 })
+      () => this.priceForm.patchValue({ planCode: '', moduleCode: null, price: 0 })
     );
   }
 
@@ -216,7 +202,7 @@ export class PricingPage {
   }
 
   /** The name of a module by its code, for display. */
-  protected moduleName(code: string): string {
+  protected moduleName(code: ModuleCode | string): string {
     return this.modules().find((m) => m.code === code)?.name ?? code;
   }
 
@@ -235,7 +221,7 @@ export class PricingPage {
       next: () => {
         this.busy.set(false);
         onSuccess?.();
-        this.snackBar.open(done, undefined, { duration: 3000 });
+        this.toast.success(done);
         this.loadAll();
       },
       error: (error: unknown) => {

@@ -78,12 +78,12 @@ public class ChangeAuditTests : TestBase
         var school = await AddSubscribedSchoolAsync(master, await SetUpCatalogueAsync(master), "School One", SchoolDomain);
         var path = $"/api/Schools/{school.PublicId}/subscription/modules";
 
-        await ExpectAsync(master.PostAsync(path, new { moduleCode = ModuleCodes.Library }), HttpStatusCode.NoContent);
+        await ExpectAsync(master.PostAsync(path, new { moduleCode = nameof(ModuleCode.Library) }), HttpStatusCode.NoContent);
         var added = (await EntriesAsync(nameof(TenantModule))).Last();
         added.Action.ShouldBe(ChangeAuditAction.Added);
         Changes(added).ShouldContainKey("ModuleId");
 
-        await ExpectAsync(master.DeleteAsync($"{path}/{ModuleCodes.Library}"), HttpStatusCode.NoContent);
+        await ExpectAsync(master.DeleteAsync($"{path}/{ModuleCode.Library}"), HttpStatusCode.NoContent);
         var removed = (await EntriesAsync(nameof(TenantModule))).Last();
         removed.EntityId.ShouldBe(added.EntityId);
         removed.Action.ShouldBe(ChangeAuditAction.Modified); // the row is kept and expired, never deleted

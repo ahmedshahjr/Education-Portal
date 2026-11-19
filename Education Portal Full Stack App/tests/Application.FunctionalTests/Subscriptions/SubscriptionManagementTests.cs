@@ -81,26 +81,26 @@ public class SubscriptionManagementTests : TestBase
         var school = await SetUpSubscribedSchoolAsync(master);
         var path = $"/api/Schools/{school.PublicId}/subscription/modules";
 
-        using var add = await master.PostAsync(path, new { moduleCode = ModuleCodes.Library });
+        using var add = await master.PostAsync(path, new { moduleCode = nameof(ModuleCode.Library) });
         var added = await ReadAsync(master, school.PublicId);
-        using var addAgain = await master.PostAsync(path, new { moduleCode = ModuleCodes.Library });
-        using var remove = await master.DeleteAsync($"{path}/{ModuleCodes.Library}");
+        using var addAgain = await master.PostAsync(path, new { moduleCode = nameof(ModuleCode.Library) });
+        using var remove = await master.DeleteAsync($"{path}/{ModuleCode.Library}");
         var removed = await ReadAsync(master, school.PublicId);
-        using var removeAgain = await master.DeleteAsync($"{path}/{ModuleCodes.Library}");
+        using var removeAgain = await master.DeleteAsync($"{path}/{ModuleCode.Library}");
 
         add.StatusCode.ShouldBe(HttpStatusCode.NoContent, await add.Content.ReadAsStringAsync());
         added.Amount.ShouldBe(25000m + 500m);
-        added.Modules.ShouldContain(m => m.Code == ModuleCodes.Library && m.Status == TenantModuleStatus.Active && m.ValidTo == added.EndDate);
+        added.Modules.ShouldContain(m => m.Code == ModuleCode.Library && m.Status == TenantModuleStatus.Active && m.ValidTo == added.EndDate);
         addAgain.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         remove.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         removed.Amount.ShouldBe(25000m);
-        removed.Modules.ShouldContain(m => m.Code == ModuleCodes.Library && m.Status == TenantModuleStatus.Expired);
+        removed.Modules.ShouldContain(m => m.Code == ModuleCode.Library && m.Status == TenantModuleStatus.Expired);
         removeAgain.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
         // The module's row is kept (its data stays) and adding it again restores it without a second row.
-        using var addBack = await master.PostAsync(path, new { moduleCode = ModuleCodes.Library });
+        using var addBack = await master.PostAsync(path, new { moduleCode = nameof(ModuleCode.Library) });
         addBack.StatusCode.ShouldBe(HttpStatusCode.NoContent);
-        (await ReadAsync(master, school.PublicId)).Modules.Count(m => m.Code == ModuleCodes.Library).ShouldBe(1);
+        (await ReadAsync(master, school.PublicId)).Modules.Count(m => m.Code == ModuleCode.Library).ShouldBe(1);
     }
 
     [Test]
@@ -113,12 +113,12 @@ public class SubscriptionManagementTests : TestBase
 
         var responses = new[]
         {
-            await master.PostAsync(path, new { moduleCode = ModuleCodes.Students }),   // core modules are never sold
+            await master.PostAsync(path, new { moduleCode = nameof(ModuleCode.Students) }),   // core modules are never sold
             await master.PostAsync(path, new { moduleCode = "NOPE" }),                  // unknown
-            await master.PostAsync(path, new { moduleCode = ModuleCodes.Hostel }),     // no price in the price book
-            await master.PostAsync(path, new { moduleCode = ModuleCodes.Attendance }), // the plan already includes it
-            await master.DeleteAsync($"{path}/{ModuleCodes.Attendance}"),               // part of the plan: not removable
-            await master.DeleteAsync($"{path}/{ModuleCodes.Students}"),                 // core
+            await master.PostAsync(path, new { moduleCode = nameof(ModuleCode.Hostel) }),     // no price in the price book
+            await master.PostAsync(path, new { moduleCode = nameof(ModuleCode.Attendance) }), // the plan already includes it
+            await master.DeleteAsync($"{path}/{ModuleCode.Attendance}"),               // part of the plan: not removable
+            await master.DeleteAsync($"{path}/{ModuleCode.Students}"),                 // core
             await master.DeleteAsync($"{path}/NOPE"),
         };
 
@@ -137,9 +137,9 @@ public class SubscriptionManagementTests : TestBase
         await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
         var school = await SetUpSubscribedSchoolAsync(master);
-        (await master.PostAsync("/api/Plans", new { code = "PLUS", name = "Plus", description = "", modules = new[] { ModuleCodes.Attendance, ModuleCodes.Fees } })).Dispose();
+        (await master.PostAsync("/api/Plans", new { code = "PLUS", name = "Plus", description = "", modules = new[] { ModuleCode.Attendance, ModuleCode.Fees } })).Dispose();
         await SetPriceAsync(master, new { planCode = "PLUS", billingCycle = "Monthly", price = 40000 });
-        (await master.PostAsync($"/api/Schools/{school.PublicId}/subscription/modules", new { moduleCode = ModuleCodes.Library })).Dispose();
+        (await master.PostAsync($"/api/Schools/{school.PublicId}/subscription/modules", new { moduleCode = nameof(ModuleCode.Library) })).Dispose();
 
         using var change = await master.PutAsync($"/api/Schools/{school.PublicId}/subscription/plan", new { planCode = "PLUS" });
         using var unknown = await master.PutAsync($"/api/Schools/{school.PublicId}/subscription/plan", new { planCode = "NOPE" });
@@ -152,10 +152,10 @@ public class SubscriptionManagementTests : TestBase
         subscription.ShouldSatisfyAllConditions(
             s => s.PlanCode.ShouldBe("PLUS"),
             s => s.Amount.ShouldBe(40000m + 500m), // the plan plus the Library add-on, which is kept
-            s => s.Modules.Single(m => m.Code == ModuleCodes.Exams).Status.ShouldBe(TenantModuleStatus.Expired),
-            s => s.Modules.Single(m => m.Code == ModuleCodes.Fees).Status.ShouldBe(TenantModuleStatus.Active),
-            s => s.Modules.Single(m => m.Code == ModuleCodes.Library).Status.ShouldBe(TenantModuleStatus.Active),
-            s => s.Modules.Single(m => m.Code == ModuleCodes.Attendance).Status.ShouldBe(TenantModuleStatus.Active));
+            s => s.Modules.Single(m => m.Code == ModuleCode.Exams).Status.ShouldBe(TenantModuleStatus.Expired),
+            s => s.Modules.Single(m => m.Code == ModuleCode.Fees).Status.ShouldBe(TenantModuleStatus.Active),
+            s => s.Modules.Single(m => m.Code == ModuleCode.Library).Status.ShouldBe(TenantModuleStatus.Active),
+            s => s.Modules.Single(m => m.Code == ModuleCode.Attendance).Status.ShouldBe(TenantModuleStatus.Active));
     }
 
     [Test]
@@ -166,24 +166,24 @@ public class SubscriptionManagementTests : TestBase
         var school = await SetUpSubscribedSchoolAsync(master);
         using var session = await SignInToSchoolAsync(school.Id, SchoolDomain, "admin@school1.local");
 
-        using var request = await session.PostAsync("/api/AddOnRequests", new { moduleCode = ModuleCodes.Library });
+        using var request = await session.PostAsync("/api/AddOnRequests", new { moduleCode = nameof(ModuleCode.Library) });
         var requestId = await request.Content.ReadFromJsonAsync<Guid>();
-        using var again = await session.PostAsync("/api/AddOnRequests", new { moduleCode = ModuleCodes.Library });
+        using var again = await session.PostAsync("/api/AddOnRequests", new { moduleCode = nameof(ModuleCode.Library) });
         var mine = await ReadMineAsync(session);
         var pending = await ListRequestsAsync(master, "Pending");
 
         request.StatusCode.ShouldBe(HttpStatusCode.OK);
         again.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        mine.Subscription!.Modules.ShouldNotContain(m => m.Code == ModuleCodes.Library);
-        mine.AvailableAddOns.ShouldContain(a => a.Code == ModuleCodes.Library && a.Price == 500m && a.Requested);
-        mine.AvailableAddOns.ShouldNotContain(a => a.Code == ModuleCodes.Exams); // the plan has it
+        mine.Subscription!.Modules.ShouldNotContain(m => m.Code == ModuleCode.Library);
+        mine.AvailableAddOns.ShouldContain(a => a.Code == ModuleCode.Library && a.Price == 500m && a.Requested);
+        mine.AvailableAddOns.ShouldNotContain(a => a.Code == ModuleCode.Exams); // the plan has it
         mine.Requests.ShouldHaveSingleItem().Status.ShouldBe(AddOnRequestStatus.Pending);
         pending.ShouldHaveSingleItem().ShouldSatisfyAllConditions(r => r.Id.ShouldBe(requestId), r => r.SchoolId.ShouldBe(school.PublicId));
 
         // Nothing changed until the master decides, and the school cannot decide for itself.
         using var selfApprove = await session.PostAsync($"/api/AddOnRequests/{requestId}/approve");
         selfApprove.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
-        (await ReadAsync(master, school.PublicId)).Modules.ShouldNotContain(m => m.Code == ModuleCodes.Library);
+        (await ReadAsync(master, school.PublicId)).Modules.ShouldNotContain(m => m.Code == ModuleCode.Library);
 
         using var approve = await master.PostAsync($"/api/AddOnRequests/{requestId}/approve");
         using var approveAgain = await master.PostAsync($"/api/AddOnRequests/{requestId}/approve");
@@ -194,11 +194,11 @@ public class SubscriptionManagementTests : TestBase
         rejectAfter.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         var subscription = await ReadAsync(master, school.PublicId);
         subscription.Amount.ShouldBe(25500m);
-        subscription.Modules.ShouldContain(m => m.Code == ModuleCodes.Library && m.Status == TenantModuleStatus.Active);
+        subscription.Modules.ShouldContain(m => m.Code == ModuleCode.Library && m.Status == TenantModuleStatus.Active);
         (await ReadMineAsync(session)).Requests.ShouldHaveSingleItem().Status.ShouldBe(AddOnRequestStatus.Approved);
 
         // A module the school already has cannot be requested again.
-        using var held = await session.PostAsync("/api/AddOnRequests", new { moduleCode = ModuleCodes.Library });
+        using var held = await session.PostAsync("/api/AddOnRequests", new { moduleCode = nameof(ModuleCode.Library) });
         held.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
@@ -209,7 +209,7 @@ public class SubscriptionManagementTests : TestBase
         using var master = await SignInAsMasterAsync();
         var school = await SetUpSubscribedSchoolAsync(master);
         using var session = await SignInToSchoolAsync(school.Id, SchoolDomain, "admin@school1.local");
-        using var request = await session.PostAsync("/api/AddOnRequests", new { moduleCode = ModuleCodes.Library });
+        using var request = await session.PostAsync("/api/AddOnRequests", new { moduleCode = nameof(ModuleCode.Library) });
         var requestId = await request.Content.ReadFromJsonAsync<Guid>();
 
         using var reject = await master.PostAsync($"/api/AddOnRequests/{requestId}/reject");
@@ -221,7 +221,7 @@ public class SubscriptionManagementTests : TestBase
         (await TestApp.FindAuditEventsAsync(masterUserId)).ShouldContain(e => e.EventType == SecurityAuditEventType.AddOnRequestDecided);
 
         // After a decision the school may ask again.
-        using var again = await session.PostAsync("/api/AddOnRequests", new { moduleCode = ModuleCodes.Library });
+        using var again = await session.PostAsync("/api/AddOnRequests", new { moduleCode = nameof(ModuleCode.Library) });
         again.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
@@ -237,12 +237,12 @@ public class SubscriptionManagementTests : TestBase
 
         var responses = new[]
         {
-            await session.PostAsync("/api/AddOnRequests", new { moduleCode = ModuleCodes.Students }), // core
+            await session.PostAsync("/api/AddOnRequests", new { moduleCode = nameof(ModuleCode.Students) }), // core
             await session.PostAsync("/api/AddOnRequests", new { moduleCode = "NOPE" }),
             await session.PostAsync("/api/AddOnRequests", new { moduleCode = "" }),
-            await session.PostAsync("/api/AddOnRequests", new { moduleCode = ModuleCodes.Exams }),    // the plan includes it
-            await otherSession.PostAsync("/api/AddOnRequests", new { moduleCode = ModuleCodes.Library }), // no subscription
-            await master.PostAsync("/api/AddOnRequests", new { moduleCode = ModuleCodes.Library }),   // the master has every module
+            await session.PostAsync("/api/AddOnRequests", new { moduleCode = nameof(ModuleCode.Exams) }),    // the plan includes it
+            await otherSession.PostAsync("/api/AddOnRequests", new { moduleCode = nameof(ModuleCode.Library) }), // no subscription
+            await master.PostAsync("/api/AddOnRequests", new { moduleCode = nameof(ModuleCode.Library) }),   // the master has every module
         };
 
         foreach (var response in responses)
@@ -263,7 +263,7 @@ public class SubscriptionManagementTests : TestBase
         var other = await TestApp.AddSchoolAsync("School Two", OtherSchoolDomain);
         using var session = await SignInToSchoolAsync(school.Id, SchoolDomain, "admin@school1.local");
         using var otherSession = await SignInToSchoolAsync(other.Id, OtherSchoolDomain, "admin@school2.local");
-        (await session.PostAsync("/api/AddOnRequests", new { moduleCode = ModuleCodes.Library })).Dispose();
+        (await session.PostAsync("/api/AddOnRequests", new { moduleCode = nameof(ModuleCode.Library) })).Dispose();
 
         var otherMine = await ReadMineAsync(otherSession);
 
@@ -295,8 +295,8 @@ public class SubscriptionManagementTests : TestBase
             await session.PostAsync($"{path}/reactivate"),
             await session.PostAsync($"{path}/extend", new { days = 5 }),
             await session.PutAsync($"{path}/plan", new { planCode = "BASIC" }),
-            await session.PostAsync($"{path}/modules", new { moduleCode = ModuleCodes.Library }),
-            await session.DeleteAsync($"{path}/modules/{ModuleCodes.Library}"),
+            await session.PostAsync($"{path}/modules", new { moduleCode = nameof(ModuleCode.Library) }),
+            await session.DeleteAsync($"{path}/modules/{ModuleCode.Library}"),
             await session.GetAsync("/api/AddOnRequests"),
             await session.PostAsync($"/api/AddOnRequests/{Guid.NewGuid()}/reject"),
         };
@@ -340,12 +340,12 @@ public class SubscriptionManagementTests : TestBase
         var country = await TestApp.AddCountryAsync("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR");
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain, country.Id);
 
-        (await master.PostAsync("/api/Plans", new { code = "BASIC", name = "Basic", description = "", modules = new[] { ModuleCodes.Attendance, ModuleCodes.Exams } })).Dispose();
+        (await master.PostAsync("/api/Plans", new { code = "BASIC", name = "Basic", description = "", modules = new[] { ModuleCode.Attendance, ModuleCode.Exams } })).Dispose();
         (await master.PostAsync("/api/Plans", new { code = "UNPRICED", name = "Unpriced", description = "", modules = Array.Empty<string>() })).Dispose();
         using var created = await master.PostAsync("/api/PriceBooks", new { countryCode = "PK", currencyCode = "PKR" });
         _bookId = await created.Content.ReadFromJsonAsync<Guid>();
         await SetPriceAsync(master, new { planCode = "BASIC", billingCycle = "Monthly", price = 25000 });
-        await SetPriceAsync(master, new { moduleCode = ModuleCodes.Library, billingCycle = "Monthly", price = 500 });
+        await SetPriceAsync(master, new { moduleCode = nameof(ModuleCode.Library), billingCycle = "Monthly", price = 500 });
 
         using var response = await master.PostAsync($"/api/Schools/{school.PublicId}/subscription", new { planCode = "BASIC", modules = Array.Empty<string>(), billingCycle = "Monthly", trialDays = 0 });
         response.StatusCode.ShouldBe(HttpStatusCode.OK, await response.Content.ReadAsStringAsync());

@@ -12,6 +12,12 @@ namespace EducationPortal.Application.FunctionalTests.Infrastructure;
 /// </summary>
 internal sealed class HttpSession(HttpClient client) : IDisposable
 {
+    // Bodies carry enum names, as the API requires (it refuses numbers).
+    private static readonly System.Text.Json.JsonSerializerOptions BodyOptions = new(System.Text.Json.JsonSerializerDefaults.Web)
+    {
+        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
+    };
+
     public const string SignInPath = "/api/Users/login";
     public const string SignOutPath = "/api/Users/logout";
     public const string CurrentUserPath = "/api/Users/me";
@@ -103,6 +109,17 @@ internal sealed class HttpSession(HttpClient client) : IDisposable
         return await SendAsync(HttpMethod.Put, path, form, withAntiforgeryToken: true);
     }
 
+    /// <summary>Sends a multipart form with POST, with the antiforgery token, as the Angular client does for uploads.</summary>
+    public async Task<HttpResponseMessage> PostFormAsync(string path, MultipartFormDataContent form)
+    {
+        if (Cookie(AntiforgeryTokenCookie.CookieName) is null)
+        {
+            (await GetAsync("/")).Dispose();
+        }
+
+        return await SendAsync(HttpMethod.Post, path, form, withAntiforgeryToken: true);
+    }
+
     public void Dispose() => client.Dispose();
 
     private async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, object? body, bool withAntiforgeryToken)
@@ -130,7 +147,7 @@ internal sealed class HttpSession(HttpClient client) : IDisposable
         }
         else if (body is not null)
         {
-            request.Content = JsonContent.Create(body);
+            request.Content = JsonContent.Create(body, options: BodyOptions);
         }
 
         var response = await client.SendAsync(request);

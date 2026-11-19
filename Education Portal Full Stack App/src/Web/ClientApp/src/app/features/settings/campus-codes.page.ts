@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { problemMessages } from '../../core/http/problem-details';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
@@ -28,7 +28,7 @@ const PREFIX_PATTERN = /^[a-z0-9]*$/i;
 export class CampusCodesPage {
   private readonly campusesClient = inject(CampusesClient);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   /** The codes as the server holds them, or null while they load. */
   protected readonly settings = signal<CampusSettingsDto | null>(null);
@@ -79,7 +79,7 @@ export class CampusCodesPage {
       .subscribe({
         next: () => {
           this.busy.set(false);
-          this.snackBar.open($localize`:@@campuses.settingsSaved:Campus codes saved.`, undefined, { duration: 3000 });
+          this.toast.success($localize`:@@campuses.settingsSaved:Campus codes saved.`);
           this.load();
         },
         error: (error: unknown) => {

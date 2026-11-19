@@ -1,0 +1,56 @@
+<app-page-header
+  title="Countries and languages"
+  i18n-title="@@countries.title"
+  subtitle="Master portal: the languages, time zone and currency of each country. Assign a school to a country on the Schools page."
+  i18n-subtitle="@@countries.subtitle"
+>
+  <button mat-flat-button type="button" (click)="add()" [disabled]="languages().length === 0">
+    <app-icon name="plus" [size]="18" />
+    <span i18n="@@countries.add">Add country</span>
+  </button>
+</app-page-header>
+
+@if (editing(); as state) {
+  <div class="mm-countries__form">
+    <app-country-form
+      [country]="state.country"
+      [languages]="languages()"
+      [saving]="saving()"
+      [errors]="errors()"
+      (save)="save(state.country, $event)"
+      (cancel)="closeForm()"
+    />
+  </div>
+}
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="Countries could not be loaded"
+        i18n-title="@@countries.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else {
+      <app-data-table
+        [data]="rows()"
+        [columns]="columns()"
+        [loading]="countries() === null"
+        searchPlaceholder="Search countries..."
+        i18n-searchPlaceholder="@@countries.search"
+        emptyTitle="No countries yet"
+        i18n-emptyTitle="@@countries.empty"
+        emptyDescription="Add a country to offer its schools more languages than English."
+        i18n-emptyDescription="@@countries.emptyDescription"
+      />
+    }
+  </mat-card-content>
+</mat-card>
+
+<ng-template #actionsCell let-row>
+  <button mat-stroked-button type="button" (click)="$event.stopPropagation(); edit(row.country)" i18n="@@common.edit">Edit</button>
+</ng-template>

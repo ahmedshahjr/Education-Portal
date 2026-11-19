@@ -34,22 +34,23 @@ public class UpdateSchoolCommandValidator : AbstractValidator<UpdateSchoolComman
             .NotEmpty()
             .MaximumLength(School.NameMaxLength);
 
+        // Optional: a blank domain removes it, and the school then signs in on the master tenant's domain.
         RuleFor(c => c.Domain)
-            .NotEmpty()
             .Must(domain => School.IsValidDomain(Normalize(domain)))
             .WithMessage(_ => ValidationMessages.SchoolDomainFormat)
+            .When(c => !string.IsNullOrWhiteSpace(c.Domain))
             .DependentRules(() =>
-            {
                 RuleFor(c => c.Domain)
                     .MustAsync(async (command, domain, cancellationToken) =>
                         !await context.Schools.AnyAsync(s => s.Domain == Normalize(domain) && s.PublicId != command.SchoolId, cancellationToken))
-                    .WithMessage(_ => ValidationMessages.SchoolDomainTaken);
+                    .WithMessage(_ => ValidationMessages.SchoolDomainTaken)
+                    .When(c => !string.IsNullOrWhiteSpace(c.Domain)));
 
-                RuleFor(c => c.Domain)
-                    .MustAsync(async (command, domain, cancellationToken) =>
-                        !await context.Schools.AnyAsync(s => s.PublicId == command.SchoolId && s.IsMaster && s.Domain != Normalize(domain), cancellationToken))
-                    .WithMessage(_ => ValidationMessages.SchoolMasterDomainLocked);
-            });
+        // The platform is reached on the master tenant's domain, so it never changes or goes away.
+        RuleFor(c => c.Domain)
+            .MustAsync(async (command, domain, cancellationToken) =>
+                !await context.Schools.AnyAsync(s => s.PublicId == command.SchoolId && s.IsMaster && s.Domain != Normalize(domain), cancellationToken))
+            .WithMessage(_ => ValidationMessages.SchoolMasterDomainLocked);
     }
 
     /// <summary>The same normalisation the entity applies, so the checks compare like with like.</summary>

@@ -15,7 +15,7 @@ namespace EducationPortal.Application.Campuses.Commands.DeleteCampus;
 /// cannot be deleted, and a campus that still has module grants must have them turned off first. Needs the Campuses module.
 /// Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.Campus)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
 public record DeleteCampusCommand : IRequest
 {
     /// <summary>The campus's public id, taken from the route (ENG-ID-02).</summary>

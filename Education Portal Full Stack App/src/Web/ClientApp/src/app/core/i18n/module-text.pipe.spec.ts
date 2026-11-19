@@ -3,8 +3,8 @@ import { moduleText } from './module-text.pipe';
 
 describe('moduleText', () => {
   it('translates a known module by its code', () => {
-    expect(moduleText({ code: 'EXAMS', name: 'server name', description: 'server description' })).toBe('Exams');
-    expect(moduleText({ code: 'EXAMS' }, 'description')).toBe('Assessments, scores and report cards.');
+    expect(moduleText({ code: 'Exams', name: 'server name', description: 'server description' })).toBe('Exams');
+    expect(moduleText({ code: 'Exams' }, 'description')).toBe('Assessments, scores and report cards.');
   });
 
   it("shows the server's text for a module this app does not know yet", () => {

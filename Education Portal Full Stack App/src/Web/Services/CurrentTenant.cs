@@ -25,4 +25,23 @@ public sealed class CurrentTenant : ICurrentTenant
         SchoolId = tenant.SchoolId;
         IsMaster = tenant.IsMaster;
     }
+
+    /// <summary>
+    /// The one allowed second change: a request on the master tenant's domain whose session belongs to a school without a
+    /// domain of its own acts as that school, and no longer as the master tenant (so no master power, and the school's own
+    /// branding, language, modules and rows). Only <see cref="Infrastructure.TenantResolution"/> calls it, after it has
+    /// checked the signed session and that the school still has no domain.
+    /// </summary>
+    public void ActAsSchoolWithoutDomain(ResolvedTenant school)
+    {
+        ArgumentNullException.ThrowIfNull(school);
+
+        if (!IsMaster || school.IsMaster)
+        {
+            throw new InvalidOperationException("Only a request on the master tenant's domain can act as a school without a domain.");
+        }
+
+        SchoolId = school.SchoolId;
+        IsMaster = false;
+    }
 }

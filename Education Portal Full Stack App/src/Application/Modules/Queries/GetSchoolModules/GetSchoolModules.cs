@@ -40,7 +40,7 @@ public class GetSchoolModulesQueryHandler : IRequestHandler<GetSchoolModulesQuer
             .Select(m => new { m.Code, m.Name, m.Description, m.IsCore, m.IsActive, m.IsDefaultEnabled })
             .ToListAsync(cancellationToken);
 
-        var enabled = (await _moduleAccess.GetEnabledCodesAsync(school.Id, cancellationToken)).ToHashSet(StringComparer.Ordinal);
+        var enabled = (await _moduleAccess.GetEnabledCodesAsync(school.Id, cancellationToken)).ToHashSet();
 
         // The master tenant is never limited by modules (AGENTS.md section 2: it oversees every school).
         return modules

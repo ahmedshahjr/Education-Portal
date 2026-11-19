@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggle, MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { LocalDatePipe } from '../../core/i18n/local-date.pipe';
@@ -62,7 +62,7 @@ export const MAX_EXTENSION_DAYS = 366;
 export class SchoolSubscriptionComponent {
   private readonly schools = inject(SchoolsClient);
   private readonly plansClient = inject(PlansClient);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
 
@@ -199,12 +199,12 @@ export class SchoolSubscriptionComponent {
     request.subscribe({
       next: () => {
         this.busy.set(false);
-        this.snackBar.open(done, undefined, { duration: 3000 });
+        this.toast.success(done);
         this.load();
       },
       error: (error: unknown) => {
         this.busy.set(false);
-        this.snackBar.open(problemMessages(error)[0], undefined, { duration: 5000 });
+        this.toast.error(error);
         this.load();
       },
     });

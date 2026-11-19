@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Campuses.Queries.GetCampuses;
 /// Lists the current school's campuses, the main campus first. The school is the one the request's host resolves to
 /// (SEC-AUTHZ-04), so a school sees only its own campuses. Needs the Campuses module (AGENTS.md section 2).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.Campus)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
 public record GetCampusesQuery : IRequest<IReadOnlyList<CampusDto>>;
 
 public class GetCampusesQueryHandler : IRequestHandler<GetCampusesQuery, IReadOnlyList<CampusDto>>

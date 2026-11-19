@@ -1,17 +1,18 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
-import { ModuleTextPipe } from '../../core/i18n/module-text.pipe';
+import { moduleText, ModuleTextPipe } from '../../core/i18n/module-text.pipe';
+import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DataTableCellContext, DataTableColumn, DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import {
   CreateRoleCommand,
@@ -26,8 +27,9 @@ import {
 type Right = 'canView' | 'canCreate' | 'canEdit' | 'canDelete';
 
 /**
- * The school's roles and what each one may do in each of its modules (View, Create, Edit, Delete). Only the modules the school
- * has are offered; the server refuses a right in a module that is off.
+ * The school's roles and what each one may do in each of its modules (View, Create, Edit, Delete), as a table with one column
+ * per module. Only the modules the school has are offered; the server refuses a right in a module that is off. The form below
+ * the table adds a role; the icon deletes one.
  */
 @Component({
   selector: 'app-roles-page',
@@ -40,7 +42,8 @@ type Right = 'canView' | 'canCreate' | 'canEdit' | 'canDelete';
     MatInputModule,
     PageHeaderComponent,
     EmptyStateComponent,
-    LoadingStateComponent,
+    AppIconComponent,
+    DataTableComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './roles.page.html',
@@ -50,7 +53,7 @@ export class RolesPage {
   private readonly rolesClient = inject(SchoolRolesClient);
   private readonly modulesClient = inject(ModulesClient);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
 
   protected readonly roles = signal<readonly SchoolRoleDto[] | null>(null);
@@ -72,6 +75,19 @@ export class RolesPage {
   protected readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
   });
+
+  private readonly actionsCell = viewChild.required<TemplateRef<DataTableCellContext<SchoolRoleDto>>>('actionsCell');
+
+  /** The name column, then one column per module of the school, then the actions. */
+  protected readonly columns = computed<DataTableColumn<SchoolRoleDto>[]>(() => [
+    { key: 'name', header: $localize`:@@roles.colName:Role`, valueFn: (r) => r.name },
+    ...this.modules().map<DataTableColumn<SchoolRoleDto>>((module) => ({
+      key: `module:${module.code}`,
+      header: moduleText(module),
+      valueFn: (role) => this.rightsOf(role, module.code),
+    })),
+    { key: 'actions', header: $localize`:@@common.actions:Actions`, sortable: false, align: 'right', cell: this.actionsCell() },
+  ]);
 
   constructor() {
     this.load();
@@ -151,7 +167,7 @@ export class RolesPage {
       });
   }
 
-  /** The rights of a role in one module, as text for the list. */
+  /** The rights of a role in one module, as text for the table. */
   protected rightsOf(role: SchoolRoleDto, module: string): string {
     const permission = role.permissions.find((p) => p.module === module);
     if (!permission) {
@@ -177,7 +193,7 @@ export class RolesPage {
       next: () => {
         this.busy.set(false);
         onSuccess?.();
-        this.snackBar.open(done, undefined, { duration: 3000 });
+        this.toast.success(done);
         this.load();
       },
       error: (error: unknown) => {

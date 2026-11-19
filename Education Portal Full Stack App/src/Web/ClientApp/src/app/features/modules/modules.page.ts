@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { MatTableModule } from '@angular/material/table';
 import { problemMessages } from '../../core/http/problem-details';
 import { moduleText, ModuleTextPipe } from '../../core/i18n/module-text.pipe';
@@ -9,7 +9,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
-import { ModuleDto, ModulesClient, UpdateModuleCommand } from '../../web-api-client';
+import { ModuleCode, ModuleDto, ModulesClient, UpdateModuleCommand } from '../../web-api-client';
 
 /**
  * Master portal: the module catalogue, what the platform sells. Core modules are in every subscription and always on;
@@ -127,7 +127,7 @@ import { ModuleDto, ModulesClient, UpdateModuleCommand } from '../../web-api-cli
 })
 export class ModulesPage {
   private readonly client = inject(ModulesClient);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   protected readonly columns = ['name', 'kind', 'requires', 'isActive'];
   protected readonly modules = signal<readonly ModuleDto[] | null>(null);
@@ -150,7 +150,7 @@ export class ModulesPage {
   }
 
   /** A required module's name in the page's language. */
-  protected nameOf(code: string): string {
+  protected nameOf(code: ModuleCode): string {
     return moduleText(this.byCode().get(code) ?? { code, name: code });
   }
 
@@ -168,12 +168,12 @@ export class ModulesPage {
       next: () => {
         this.saving.set(null);
         this.replace(new ModuleDto({ ...module, isActive }));
-        this.snackBar.open($localize`:@@modules.saved:${moduleText(module)}:MODULE: saved`, undefined, { duration: 3000 });
+        this.toast.success($localize`:@@modules.saved:${moduleText(module)}:MODULE: saved`);
       },
       error: (error: unknown) => {
         this.saving.set(null);
         this.replace(new ModuleDto({ ...module }));
-        this.snackBar.open(problemMessages(error)[0], undefined, { duration: 5000 });
+        this.toast.error(error);
       },
     });
   }

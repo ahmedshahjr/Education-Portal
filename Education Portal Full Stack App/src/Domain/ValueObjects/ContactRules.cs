@@ -13,6 +13,7 @@ public static partial class ContactRules
     public const int PhoneMaxDigits = 15;
     public const int PostalCodeMaxLength = 10;
     public const int WebsiteMaxLength = 2048;
+    public const int EmailMaxLength = 254;
 
     /// <summary>An optional leading +, then digits, spaces, hyphens and brackets. Between 7 and 15 digits (E.164).</summary>
     public static bool IsValidPhone(string value) =>
@@ -23,6 +24,12 @@ public static partial class ContactRules
     /// <summary>Letters, digits, spaces and hyphens, up to 10 characters, starting with a letter or digit.</summary>
     public static bool IsValidPostalCode(string value) =>
         value.Length <= PostalCodeMaxLength && PostalCodePattern().IsMatch(value);
+
+    /// <summary>A single address such as <c>name@example.com</c>, up to 254 characters, with no display name.</summary>
+    public static bool IsValidEmail(string value) =>
+        value.Length <= EmailMaxLength
+        && System.Net.Mail.MailAddress.TryCreate(value, out var address)
+        && address.Address == value;
 
     /// <summary>An absolute http or https address, up to 2048 characters.</summary>
     public static bool IsValidWebsite(string value) =>

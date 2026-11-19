@@ -18,7 +18,7 @@ public class SubscriptionTests
 
     private static PriceBook Book() => Saved(PriceBook.Create("PK", "PKR"), 3);
 
-    private static PortalModule Module(string code, int id) => Saved(PortalModule.Create(code, code, "", isCore: false, sortOrder: 0), id);
+    private static PortalModule Module(ModuleCode code, int id) => Saved(PortalModule.Create(code, code.ToString(), "", isCore: false, sortOrder: 0), id);
 
     [Test]
     public void ShouldStartActiveForOnePeriodAndCopyTheCurrency()
@@ -82,7 +82,7 @@ public class SubscriptionTests
     {
         var subscription = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 1m, Start, 0);
 
-        var tenantModule = subscription.AddModule(Module("FEES", 7), TestCampuses.MainCampus());
+        var tenantModule = subscription.AddModule(Module(ModuleCode.Fees, 7), TestCampuses.MainCampus());
 
         tenantModule.ShouldSatisfyAllConditions(
             m => m.SchoolId.ShouldBe(9),
@@ -93,7 +93,7 @@ public class SubscriptionTests
             m => m.ValidFrom.ShouldBe(Start),
             m => m.ValidTo.ShouldBe(subscription.EndDate));
         subscription.Modules.Count.ShouldBe(1);
-        Should.Throw<InvalidOperationException>(() => subscription.AddModule(Module("FEES", 7), TestCampuses.MainCampus()));
+        Should.Throw<InvalidOperationException>(() => subscription.AddModule(Module(ModuleCode.Fees, 7), TestCampuses.MainCampus()));
     }
 
     [Test]
@@ -103,7 +103,7 @@ public class SubscriptionTests
         var north = Campus.Create(9, "North", "0002");
         north.Id = 2;
 
-        var tenantModule = subscription.AddModule(Module("FEES", 7), north);
+        var tenantModule = subscription.AddModule(Module(ModuleCode.Fees, 7), north);
 
         tenantModule.ShouldSatisfyAllConditions(m => m.CampusId.ShouldBe(2), m => m.IsSchoolWide.ShouldBeFalse());
     }
@@ -115,7 +115,7 @@ public class SubscriptionTests
         var other = Campus.Create(4, "Other", "0003");
         other.Id = 3;
 
-        Should.Throw<ArgumentException>(() => subscription.AddModule(Module("FEES", 7), other));
+        Should.Throw<ArgumentException>(() => subscription.AddModule(Module(ModuleCode.Fees, 7), other));
     }
 
     [Test]
@@ -123,7 +123,7 @@ public class SubscriptionTests
     {
         var subscription = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 1m, Start, 0);
 
-        Should.Throw<ArgumentOutOfRangeException>(() => subscription.AddModule(Module("FEES", 0), TestCampuses.MainCampus()));
+        Should.Throw<ArgumentOutOfRangeException>(() => subscription.AddModule(Module(ModuleCode.Fees, 0), TestCampuses.MainCampus()));
     }
 
     [Test]
@@ -166,7 +166,7 @@ public class SubscriptionTests
     [Test]
     public void ShouldSuspendAndReactivateTheSubscriptionAndItsModules()
     {
-        var subscription = WithModules(Module("FEES", 7), Module("EXAMS", 8));
+        var subscription = WithModules(Module(ModuleCode.Fees, 7), Module(ModuleCode.Exams, 8));
 
         subscription.Suspend();
 
@@ -182,7 +182,7 @@ public class SubscriptionTests
     [Test]
     public void ShouldRefuseToSuspendTwiceOrAReactivationOfARunningSubscription()
     {
-        var subscription = WithModules(Module("FEES", 7));
+        var subscription = WithModules(Module(ModuleCode.Fees, 7));
 
         Should.Throw<InvalidOperationException>(() => subscription.Reactivate());
         subscription.Suspend();
@@ -193,7 +193,7 @@ public class SubscriptionTests
     public void ShouldExtendThePeriodAndEveryModuleAndTheTrialWhileOnTrial()
     {
         var trial = Subscription.Create(9, null, Book(), BillingCycle.Monthly, 100m, Start, 14);
-        trial.AddModule(Module("FEES", 7), TestCampuses.MainCampus());
+        trial.AddModule(Module(ModuleCode.Fees, 7), TestCampuses.MainCampus());
 
         trial.Extend(10);
 
@@ -202,7 +202,7 @@ public class SubscriptionTests
             s => s.TrialEndDate.ShouldBe(Start.AddDays(24)),
             s => s.Modules.Single().ValidTo.ShouldBe(Start.AddDays(24)));
 
-        var active = WithModules(Module("FEES", 7));
+        var active = WithModules(Module(ModuleCode.Fees, 7));
         var end = active.EndDate;
         active.Extend(Subscription.MaxExtensionDays);
         active.EndDate.ShouldBe(end.AddDays(Subscription.MaxExtensionDays));
@@ -218,9 +218,9 @@ public class SubscriptionTests
     [Test]
     public void ShouldEndModulesThatLeaveAndStartModulesThatJoinWhenReconfigured()
     {
-        var fees = Module("FEES", 7);
-        var exams = Module("EXAMS", 8);
-        var library = Module("LIBRARY", 9);
+        var fees = Module(ModuleCode.Fees, 7);
+        var exams = Module(ModuleCode.Exams, 8);
+        var library = Module(ModuleCode.Library, 9);
         var subscription = WithModules(fees, exams);
         var now = Start.AddDays(5);
 
@@ -247,7 +247,7 @@ public class SubscriptionTests
     [Test]
     public void ShouldRefuseAReconfigurationInAnotherCurrencyOrWithABadAmount()
     {
-        var subscription = WithModules(Module("FEES", 7));
+        var subscription = WithModules(Module(ModuleCode.Fees, 7));
         var dollars = Saved(PriceBook.Create("US", "USD"), 4);
 
         Should.Throw<ArgumentException>(() => subscription.Reconfigure(null, dollars, 1m, [], Start, TestCampuses.MainCampus()));

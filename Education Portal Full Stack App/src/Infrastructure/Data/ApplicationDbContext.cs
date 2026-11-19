@@ -56,6 +56,26 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<UserDetails> UserDetails => Set<UserDetails>();
 
+    public DbSet<StudentProfile> StudentProfiles => Set<StudentProfile>();
+
+    public DbSet<SchoolProfile> SchoolProfiles => Set<SchoolProfile>();
+
+    public DbSet<SchoolCurriculum> SchoolCurricula => Set<SchoolCurriculum>();
+
+    public DbSet<SchoolFacility> SchoolFacilities => Set<SchoolFacility>();
+
+    public DbSet<ClassOffering> ClassOfferings => Set<ClassOffering>();
+
+    public DbSet<SchoolPhoto> SchoolPhotos => Set<SchoolPhoto>();
+
+    public DbSet<AdmissionEnquiry> AdmissionEnquiries => Set<AdmissionEnquiry>();
+
+    public DbSet<EnquiryFollowUp> EnquiryFollowUps => Set<EnquiryFollowUp>();
+
+    public DbSet<CampusVisit> CampusVisits => Set<CampusVisit>();
+
+    public DbSet<SchoolReview> SchoolReviews => Set<SchoolReview>();
+
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
     public DbSet<TenantModule> TenantModules => Set<TenantModule>();
@@ -93,47 +113,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
         // Tenant isolation (SEC-AUTHZ-03): a school sees only its own rows, the master tenant sees every school's. With
         // no resolved tenant, CurrentSchoolId is null and nothing matches.
-        builder.Entity<BrandingImage>()
-            .HasQueryFilter(i => IsMasterTenant || i.SchoolId == CurrentSchoolId);
+        // Every entity that implements ITenantOwned gets the same filter, so a new school-owned entity cannot miss it. A test
+        // (TenantIsolationModelTests) fails when an entity has a SchoolId but no ITenantOwned.
+        foreach (var entityType in builder.Model.GetEntityTypes().Where(t => typeof(ITenantOwned).IsAssignableFrom(t.ClrType)).ToList())
+        {
+            entityType.SetQueryFilter(TenantFilter(entityType.ClrType));
+        }
 
-        builder.Entity<Campus>()
-            .HasQueryFilter(b => IsMasterTenant || b.SchoolId == CurrentSchoolId);
-
-        builder.Entity<CampusPhone>()
-            .HasQueryFilter(p => IsMasterTenant || p.SchoolId == CurrentSchoolId);
-
-        builder.Entity<UserDetails>()
-            .HasQueryFilter(u => IsMasterTenant || u.SchoolId == CurrentSchoolId);
-
+        // The audit trail has no school for entries the system writes, so its SchoolId is nullable and it is not ITenantOwned.
         builder.Entity<ChangeAuditEntry>()
             .HasQueryFilter(e => IsMasterTenant || e.SchoolId == CurrentSchoolId);
-
-        builder.Entity<Subscription>()
-            .HasQueryFilter(s => IsMasterTenant || s.SchoolId == CurrentSchoolId);
-
-        builder.Entity<TenantModule>()
-            .HasQueryFilter(m => IsMasterTenant || m.SchoolId == CurrentSchoolId);
-
-        builder.Entity<RenewalReminder>()
-            .HasQueryFilter(r => IsMasterTenant || r.SchoolId == CurrentSchoolId);
-
-        builder.Entity<AddOnRequest>()
-            .HasQueryFilter(r => IsMasterTenant || r.SchoolId == CurrentSchoolId);
-
-        builder.Entity<Invoice>()
-            .HasQueryFilter(i => IsMasterTenant || i.SchoolId == CurrentSchoolId);
-
-        builder.Entity<InvoiceLine>()
-            .HasQueryFilter(l => IsMasterTenant || l.SchoolId == CurrentSchoolId);
-
-        builder.Entity<Payment>()
-            .HasQueryFilter(p => IsMasterTenant || p.SchoolId == CurrentSchoolId);
-
-        builder.Entity<SchoolRole>()
-            .HasQueryFilter(r => IsMasterTenant || r.SchoolId == CurrentSchoolId);
-
-        builder.Entity<RolePermission>()
-            .HasQueryFilter(p => IsMasterTenant || p.SchoolId == CurrentSchoolId);
 
         // Every entity's Guid PublicId is an alternate key (a unique constraint), the only identity the API exposes. The
         // int Id stays the primary key for joins and foreign keys (ENG-ID-01, ENG-ID-02).
@@ -178,6 +167,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
             return result;
         }, cancellationToken);
+    }
+
+    /// <summary>The tenant filter of an <see cref="ITenantOwned"/> entity: the master tenant sees every row, a school its own.</summary>
+    private LambdaExpression TenantFilter(Type entityClrType)
+    {
+        var entity = Expression.Parameter(entityClrType, "e");
+        var self = Expression.Constant(this);
+        var isMaster = Expression.Property(self, nameof(IsMasterTenant));
+        var rowSchool = Expression.Convert(Expression.Property(entity, nameof(ITenantOwned.SchoolId)), typeof(int?));
+        var sameSchool = Expression.Equal(rowSchool, Expression.Property(self, nameof(CurrentSchoolId)));
+        return Expression.Lambda(Expression.OrElse(isMaster, sameSchool), entity);
     }
 
     /// <summary>

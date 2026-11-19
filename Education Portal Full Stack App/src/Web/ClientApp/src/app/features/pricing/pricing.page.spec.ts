@@ -6,10 +6,10 @@ import { PricingPage } from './pricing.page';
 
 const json = (body: unknown) => new Blob([JSON.stringify(body)], { type: 'application/json' });
 
-const plan = { id: 'p1', code: 'STANDARD', name: 'Standard', description: '', isActive: true, modules: ['EXAMS'] };
+const plan = { id: 'p1', code: 'STANDARD', name: 'Standard', description: '', isActive: true, modules: ['Exams'] };
 const modules = [
-  { code: 'STUDENTS', name: 'Students', description: '', isCore: true, isActive: true, isDefaultEnabled: true, sortOrder: 1 },
-  { code: 'EXAMS', name: 'Exams', description: '', isCore: false, isActive: true, isDefaultEnabled: false, sortOrder: 2 },
+  { code: 'Students', name: 'Students', description: '', isCore: true, isActive: true, isDefaultEnabled: true, sortOrder: 1 },
+  { code: 'Exams', name: 'Exams', description: '', isCore: false, isActive: true, isDefaultEnabled: false, sortOrder: 2 },
 ];
 
 /** Answers the page's start-up requests. */

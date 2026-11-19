@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using System.Net;
 using System.Net.Http.Json;
 using EducationPortal.Application.Subscriptions.Common;
@@ -81,7 +82,7 @@ public class CommercialIsolationTests : TestBase
         foreach (var (school, domain) in new[] { (one, DomainOne), (two, DomainTwo) })
         {
             using var session = await SignInToSchoolAsync(school.Id, domain, $"admin@{domain}");
-            await ExpectAsync(session.PostAsync("/api/AddOnRequests", new { moduleCode = ModuleCodes.Library }), HttpStatusCode.OK);
+            await ExpectAsync(session.PostAsync("/api/AddOnRequests", new { moduleCode = nameof(ModuleCode.Library) }), HttpStatusCode.OK);
         }
 
         var asOne = await SchoolIdsAsync(new ResolvedTenant(one.Id, IsMaster: false));

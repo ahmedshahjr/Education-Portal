@@ -12,8 +12,8 @@ public interface IModuleAccess
     /// True when the module is on for the school (and for the campus, when one is given). Without a campus, a module
     /// granted only to a campus is not on (fail closed). An unknown code is never on.
     /// </summary>
-    Task<bool> HasModuleAsync(int schoolId, string moduleCode, int? campusId, CancellationToken cancellationToken);
+    Task<bool> HasModuleAsync(int schoolId, ModuleCode moduleCode, int? campusId, CancellationToken cancellationToken);
 
     /// <summary>The codes of the modules on for the whole school, in catalogue order.</summary>
-    Task<IReadOnlyList<string>> GetEnabledCodesAsync(int schoolId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ModuleCode>> GetEnabledCodesAsync(int schoolId, CancellationToken cancellationToken);
 }

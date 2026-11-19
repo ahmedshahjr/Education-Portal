@@ -27,7 +27,7 @@ public record SetSchoolModuleCommand : IRequest
     public Guid SchoolId { get; init; }
 
     /// <summary>The module's code, taken from the route.</summary>
-    public string ModuleCode { get; init; } = string.Empty;
+    public ModuleCode ModuleCode { get; init; } = ModuleCode.None;
 
     public bool Enabled { get; init; }
 }
@@ -37,7 +37,7 @@ public class SetSchoolModuleCommandValidator : AbstractValidator<SetSchoolModule
     public SetSchoolModuleCommandValidator(IApplicationDbContext context)
     {
         RuleFor(c => c.SchoolId).NotEmpty();
-        RuleFor(c => c.ModuleCode).NotEmpty().MaximumLength(PortalModule.CodeMaxLength);
+        RuleFor(c => c.ModuleCode).IsInEnum().NotEqual(ModuleCode.None);
 
         RuleFor(c => c.SchoolId)
             .MustAsync(async (schoolId, cancellationToken) => !await context.Schools.AnyAsync(s => s.PublicId == schoolId && s.IsMaster, cancellationToken))

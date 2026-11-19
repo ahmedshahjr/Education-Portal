@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Users.Queries.GetUserDetails;
 /// Lists the current school's people, optionally only one user type (for example the principals). The school is the one the
 /// request's host resolves to (SEC-AUTHZ-04). Needs the Staff module.
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.Staff)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.Staff)]
 public record GetUserDetailsQuery : IRequest<IReadOnlyList<UserDetailsDto>>
 {
     /// <summary>When set, only the people of this type are listed.</summary>

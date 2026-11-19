@@ -15,7 +15,7 @@ public sealed record CampusMapSettingsDto(string? ApiKey);
 /// <summary>
 /// Reads the map settings for the campus form. Needs the Campuses module, so only a school that may manage campuses gets the key.
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.Campus)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
 public record GetCampusMapSettingsQuery : IRequest<CampusMapSettingsDto>;
 
 public class GetCampusMapSettingsQueryHandler : IRequestHandler<GetCampusMapSettingsQuery, CampusMapSettingsDto>

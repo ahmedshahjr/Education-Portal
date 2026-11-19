@@ -258,4 +258,46 @@
   <data name="Days" xml:space="preserve">
     <value>دن</value>
   </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>پہلا نام</value>
+  </data>
+  <data name="MiddleName" xml:space="preserve">
+    <value>درمیانی نام</value>
+  </data>
+  <data name="LastName" xml:space="preserve">
+    <value>آخری نام</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>فون نمبر</value>
+  </data>
+  <data name="DateOfBirth" xml:space="preserve">
+    <value>تاریخ پیدائش</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>جنس</value>
+  </data>
+  <data name="FatherName" xml:space="preserve">
+    <value>والد کا نام</value>
+  </data>
+  <data name="Nationality" xml:space="preserve">
+    <value>قومیت</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>پتہ</value>
+  </data>
+  <data name="City" xml:space="preserve">
+    <value>شہر</value>
+  </data>
+  <data name="ClassApplied" xml:space="preserve">
+    <value>داخلے کی جماعت</value>
+  </data>
+  <data name="PreviousSchool" xml:space="preserve">
+    <value>پچھلا اسکول</value>
+  </data>
+  <data name="GuardianPhone" xml:space="preserve">
+    <value>سرپرست کا فون نمبر</value>
+  </data>
+  <data name="AdmissionDate" xml:space="preserve">
+    <value>داخلے کی تاریخ</value>
+  </data>
 </root>

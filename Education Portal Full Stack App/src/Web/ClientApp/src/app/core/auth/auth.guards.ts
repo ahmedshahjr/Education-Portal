@@ -3,6 +3,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { BrandingService } from '../branding/branding.service';
 import { ModulesService } from '../modules/modules.service';
 import { AuthService } from './auth.service';
+import type { ModuleCode } from '../../web-api-client';
 
 /**
  * Sends visitors who are not signed in to the login page, and back here afterwards. An account that still has its
@@ -36,6 +37,6 @@ export const masterAdministratorGuard: CanActivateFn = () => {
 
 /** Only when the module is switched on for the school (use on a module's routes). The server checks it again on every request. */
 export const moduleGuard =
-  (moduleKey: string): CanActivateFn =>
+  (moduleKey: ModuleCode): CanActivateFn =>
   () =>
     inject(ModulesService).isEnabled(moduleKey) ? true : inject(Router).createUrlTree(['/']);

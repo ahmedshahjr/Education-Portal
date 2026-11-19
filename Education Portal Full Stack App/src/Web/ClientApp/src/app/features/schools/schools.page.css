@@ -1,0 +1,12 @@
+.mm-schools__section {
+  margin-bottom: var(--mm-grid-gap);
+}
+
+.mm-schools__country-filter {
+  min-width: 14rem;
+}
+
+.mm-schools__country {
+  min-width: 200px;
+  padding-block: 4px;
+}

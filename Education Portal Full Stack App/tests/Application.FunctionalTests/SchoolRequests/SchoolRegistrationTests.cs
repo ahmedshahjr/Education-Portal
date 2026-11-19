@@ -52,6 +52,38 @@ public class SchoolRegistrationTests : TestBase
     }
 
     [Test]
+    public async Task ShouldLetTheApprovedAdministratorSignInOnTheSchoolDomain()
+    {
+        var master = await SetUpPriceBookAsync();
+        var requestId = await SubmitRequestAsync("Signable School");
+        using var approve = await Approve(master, requestId, "signable.localhost", "admin@signable.local");
+        approve.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        // The administrator signs in on the school's own domain with the one-time password from the approval.
+        var school = TestHttp.CreateDevelopmentSession("signable.localhost");
+        using var signIn = await school.SignInAsync("admin@signable.local", TestApp.AdministratorPassword);
+        signIn.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        // The one-time password must be replaced first; until then the school's modules are refused (PASSWORD_CHANGE_REQUIRED).
+        using var me = await school.GetCurrentUserAsync();
+        me.StatusCode.ShouldBe(HttpStatusCode.OK);
+        using var blocked = await school.GetAsync("/api/Modules/enabled");
+        blocked.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+
+        using var changed = await school.PostAsync("/api/Users/me/password", new
+        {
+            currentPassword = TestApp.AdministratorPassword,
+            newPassword = "a brand new passphrase 2026",
+        });
+        changed.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+
+        using var modules = await school.GetAsync("/api/Modules/enabled");
+        modules.StatusCode.ShouldBe(HttpStatusCode.OK);
+        using var localization = await school.GetAsync("/api/Localization");
+        localization.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Test]
     public async Task ShouldRefuseToApproveARequestTwice()
     {
         var master = await SetUpPriceBookAsync();
@@ -148,7 +180,7 @@ public class SchoolRegistrationTests : TestBase
             signIn.StatusCode.ShouldBe(HttpStatusCode.OK);
         }
 
-        (await master.PostAsync("/api/Plans", new { code = PricingCatalog.Full, name = "Full", description = "", modules = new[] { ModuleCodes.Attendance, ModuleCodes.Exams } })).Dispose();
+        (await master.PostAsync("/api/Plans", new { code = PricingCatalog.Full, name = "Full", description = "", modules = new[] { ModuleCode.Attendance, ModuleCode.Exams } })).Dispose();
         using var book = await master.PostAsync("/api/PriceBooks", new { countryCode = "PK", currencyCode = "PKR" });
         var bookId = await book.Content.ReadFromJsonAsync<Guid>();
         using var price = await master.PutAsync($"/api/PriceBooks/{bookId}/prices", new { planCode = PricingCatalog.Full, billingCycle = "Monthly", price = 30000 });

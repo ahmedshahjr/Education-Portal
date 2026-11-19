@@ -79,6 +79,9 @@ describe('LoginPage language after sign-in', () => {
         for (const request of backend.match('/api/Modules/enabled')) {
           request.flush(new Blob([JSON.stringify([])], { type: 'application/json' }));
         }
+        for (const request of backend.match('/api/Branding')) {
+          request.flush(new Blob([JSON.stringify(schoolBranding)], { type: 'application/json' }));
+        }
         backend
           .expectOne('/api/Localization')
           .flush(new Blob([JSON.stringify({ language: saved, culture: saved, languages: [] })], { type: 'application/json' }));
@@ -94,6 +97,45 @@ describe('LoginPage language after sign-in', () => {
   }
 });
 
+describe('LoginPage branding after sign-in on the master address', () => {
+  it("shows the signed-in school's branding in place of the master's", async () => {
+    TestBed.configureTestingModule({
+      imports: [LoginPage],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: PAGE_RELOAD, useValue: vi.fn() }],
+    });
+    const branding = TestBed.inject(BrandingService);
+    branding.apply(new BrandingDto({ schoolName: 'Master', isMaster: true, accentColor: '#00a1ff', sidebarColor: undefined, logoVersion: undefined, faviconVersion: undefined }));
+
+    const fixture = TestBed.createComponent(LoginPage);
+    await fixture.whenStable();
+    const element: HTMLElement = fixture.nativeElement;
+    const backend = TestBed.inject(HttpTestingController);
+
+    setValue(element, '#email', 'admin@demo.localhost');
+    setValue(element, '#password', 'a long enough password');
+    element.querySelector<HTMLButtonElement>('button[type="submit"]')!.click();
+    backend.expectOne('/api/Users/login').flush(new Blob([JSON.stringify(true)], { type: 'application/json' }));
+
+    await vi.waitFor(() => {
+      for (const request of backend.match('/api/Users/me')) {
+        request.flush(new Blob([JSON.stringify({ userName: 'admin@demo.localhost', roles: [] })], { type: 'application/json' }));
+      }
+      for (const request of backend.match('/api/Modules/enabled')) {
+        request.flush(new Blob([JSON.stringify([])], { type: 'application/json' }));
+      }
+      for (const request of backend.match('/api/Localization')) {
+        request.flush(new Blob([JSON.stringify({ language: 'en', culture: 'en', languages: [] })], { type: 'application/json' }));
+      }
+      for (const request of backend.match('/api/Branding')) {
+        request.flush(new Blob([JSON.stringify(schoolBranding)], { type: 'application/json' }));
+      }
+      expect(branding.schoolName()).toBe('Demo School');
+    });
+
+    expect(branding.isMaster()).toBe(false);
+  });
+});
+
 describe('localReturnUrl', () => {
   it('keeps a path inside the app', () => {
     expect(localReturnUrl('/settings/branding')).toBe('/settings/branding');
@@ -105,6 +147,9 @@ describe('localReturnUrl', () => {
     expect(localReturnUrl(null)).toBe('/');
   });
 });
+
+/** The branding the server returns for a school acting on the master address once it has signed in. */
+const schoolBranding = { schoolName: 'Demo School', isMaster: false, accentColor: '#00a1ff', sidebarColor: undefined, logoVersion: undefined, faviconVersion: undefined };
 
 function setValue(root: HTMLElement, selector: string, value: string): void {
   const input = root.querySelector<HTMLInputElement>(selector)!;

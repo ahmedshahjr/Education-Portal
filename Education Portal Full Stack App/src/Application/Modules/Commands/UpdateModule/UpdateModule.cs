@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Modules.Commands.UpdateModule;
 public record UpdateModuleCommand : ModuleFields, IRequest
 {
     /// <summary>The module's code, taken from the route.</summary>
-    public string Code { get; init; } = string.Empty;
+    public ModuleCode Code { get; init; } = ModuleCode.None;
 
     public bool IsActive { get; init; }
 }
@@ -23,7 +23,7 @@ public class UpdateModuleCommandValidator : ModuleFieldsValidator<UpdateModuleCo
 {
     public UpdateModuleCommandValidator(IApplicationDbContext context)
     {
-        RuleFor(c => c.Code).NotEmpty().MaximumLength(PortalModule.CodeMaxLength);
+        RuleFor(c => c.Code).IsInEnum().NotEqual(ModuleCode.None);
 
         // A core module is in every subscription, so everything it requires must be too.
         RuleFor(c => c.IsCore)
@@ -35,14 +35,14 @@ public class UpdateModuleCommandValidator : ModuleFieldsValidator<UpdateModuleCo
             .WithMessage(_ => ValidationMessages.CoreModuleRequiresCoreOnly);
     }
 
-    private static Task<bool> RequiresPaidModuleAsync(IApplicationDbContext context, string code, CancellationToken cancellationToken) =>
+    private static Task<bool> RequiresPaidModuleAsync(IApplicationDbContext context, ModuleCode code, CancellationToken cancellationToken) =>
         (from d in context.ModuleDependencies
          join m in context.Modules on d.ModuleId equals m.Id
          join r in context.Modules on d.RequiresModuleId equals r.Id
          where m.Code == code && !r.IsCore
          select d.Id).AnyAsync(cancellationToken);
 
-    private static Task<bool> IsRequiredByCoreModuleAsync(IApplicationDbContext context, string code, CancellationToken cancellationToken) =>
+    private static Task<bool> IsRequiredByCoreModuleAsync(IApplicationDbContext context, ModuleCode code, CancellationToken cancellationToken) =>
         (from d in context.ModuleDependencies
          join m in context.Modules on d.ModuleId equals m.Id
          join r in context.Modules on d.RequiresModuleId equals r.Id
@@ -88,6 +88,6 @@ public class UpdateModuleCommandHandler : IRequestHandler<UpdateModuleCommand>
             SecurityAuditEventType.ModuleChanged,
             SecurityAuditOutcome.Success,
             targetType: nameof(PortalModule),
-            targetId: module.Code);
+            targetId: module.Code.ToString());
     }
 }

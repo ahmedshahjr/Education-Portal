@@ -10,7 +10,7 @@ namespace EducationPortal.Application.SchoolRoles.Commands.UpdateRole;
 /// Renames a role of the current school and sets its rights. A role of another school is not found (the tenant filter
 /// hides it, SEC-AUTHZ-03). Rights in modules the school does not have now are kept untouched; audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.UsersRoles)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
 public record UpdateRoleCommand(Guid Id) : SchoolRoleFields, IRequest;
 
 public class UpdateRoleCommandValidator : SchoolRoleFieldsValidator<UpdateRoleCommand>

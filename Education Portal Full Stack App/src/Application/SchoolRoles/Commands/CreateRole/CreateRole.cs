@@ -11,7 +11,7 @@ namespace EducationPortal.Application.SchoolRoles.Commands.CreateRole;
 /// Adds a role to the current school and returns its id. The school comes from the host (SEC-AUTHZ-04). Rights can
 /// only be given in modules the school has now; audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.UsersRoles)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
 public record CreateRoleCommand : SchoolRoleFields, IRequest<Guid>;
 
 public class CreateRoleCommandValidator : SchoolRoleFieldsValidator<CreateRoleCommand>
