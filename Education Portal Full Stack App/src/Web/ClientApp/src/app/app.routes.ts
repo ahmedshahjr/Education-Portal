@@ -75,6 +75,36 @@ export const routes: Routes = [
         canActivate: [masterAdministratorGuard],
         loadComponent: () => import('./features/modules/modules.page').then((m) => m.ModulesPage),
       },
+      {
+        path: 'plans',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () => import('./features/plans/plans.page').then((m) => m.PlansPage),
+      },
+      {
+        path: 'price-books',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () => import('./features/price-books/price-books.page').then((m) => m.PriceBooksPage),
+      },
+      {
+        path: 'price-books/:bookId',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () => import('./features/price-books/price-book.page').then((m) => m.PriceBookPage),
+      },
+      {
+        path: 'roles',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.usersRoles)],
+        loadComponent: () => import('./features/school-roles/roles.page').then((m) => m.RolesPage),
+      },
+      {
+        path: 'roles/new',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.usersRoles)],
+        loadComponent: () => import('./features/school-roles/role.page').then((m) => m.RolePage),
+      },
+      {
+        path: 'roles/:roleId',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.usersRoles)],
+        loadComponent: () => import('./features/school-roles/role.page').then((m) => m.RolePage),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

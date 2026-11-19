@@ -17,42 +17,59 @@ public class SignInCommandValidatorTests
         _validator = new SignInCommandValidator();
     }
 
-    [Test]
-    public void ShouldAcceptAWellFormedCommand()
+    [TestCase("jane@example.com")]
+    [TestCase("jane")]
+    [TestCase("jane.doe-01")]
+    public void ShouldAcceptAWellFormedCommand(string userName)
     {
-        var result = _validator.Validate(new SignInCommand { Email = "jane@example.com", Password = AnyPassword });
+        var result = _validator.Validate(new SignInCommand { UserName = userName, Password = AnyPassword });
 
         result.IsValid.ShouldBeTrue();
     }
 
-    [TestCase("")]
-    [TestCase("not-an-email")]
-    [TestCase("@example.com")]
-    [TestCase("jane@")]
-    [TestCase("two@@example.com")]
-    [TestCase("jane@example.com\r\nBcc: someone@example.com")]
-    public void ShouldRejectAMissingOrMalformedEmail(string email)
+    [Test]
+    public void ShouldRejectAnEmptyUserName()
     {
-        var result = _validator.Validate(new SignInCommand { Email = email, Password = AnyPassword });
+        var result = _validator.Validate(new SignInCommand { UserName = string.Empty, Password = AnyPassword });
 
         result.IsValid.ShouldBeFalse();
-        result.Errors.Select(error => error.PropertyName).ShouldContain(nameof(SignInCommand.Email));
+        result.Errors.Select(error => error.PropertyName).ShouldContain(nameof(SignInCommand.UserName));
+    }
+
+    [TestCase("jane\r\nBcc: someone")]
+    [TestCase("jane\tdoe")]
+    [TestCase("jane\0")]
+    public void ShouldRejectAUserNameWithControlCharacters(string userName)
+    {
+        var result = _validator.Validate(new SignInCommand { UserName = userName, Password = AnyPassword });
+
+        result.Errors.Select(error => error.PropertyName).ShouldContain(nameof(SignInCommand.UserName));
     }
 
     [Test]
-    public void ShouldRejectAnEmailLongerThan256Characters()
+    public void ShouldAcceptAUserNameOf256Characters()
     {
-        var email = new string('a', 250) + "@example.com";
+        var userName = new string('a', 256);
 
-        var result = _validator.Validate(new SignInCommand { Email = email, Password = AnyPassword });
+        var result = _validator.Validate(new SignInCommand { UserName = userName, Password = AnyPassword });
 
-        result.Errors.Select(error => error.PropertyName).ShouldContain(nameof(SignInCommand.Email));
+        result.IsValid.ShouldBeTrue();
+    }
+
+    [Test]
+    public void ShouldRejectAUserNameOf257Characters()
+    {
+        var userName = new string('a', 257);
+
+        var result = _validator.Validate(new SignInCommand { UserName = userName, Password = AnyPassword });
+
+        result.Errors.Select(error => error.PropertyName).ShouldContain(nameof(SignInCommand.UserName));
     }
 
     [Test]
     public void ShouldRejectAnEmptyPassword()
     {
-        var result = _validator.Validate(new SignInCommand { Email = "jane@example.com", Password = string.Empty });
+        var result = _validator.Validate(new SignInCommand { UserName = "jane", Password = string.Empty });
 
         result.Errors.Select(error => error.PropertyName).ShouldContain(nameof(SignInCommand.Password));
     }
@@ -62,7 +79,7 @@ public class SignInCommandValidatorTests
     {
         var password = new string('x', PasswordRules.MaximumLength);
 
-        var result = _validator.Validate(new SignInCommand { Email = "jane@example.com", Password = password });
+        var result = _validator.Validate(new SignInCommand { UserName = "jane", Password = password });
 
         result.IsValid.ShouldBeTrue();
     }
@@ -72,7 +89,7 @@ public class SignInCommandValidatorTests
     {
         var password = new string('x', PasswordRules.MaximumLength + 1);
 
-        var result = _validator.Validate(new SignInCommand { Email = "jane@example.com", Password = password });
+        var result = _validator.Validate(new SignInCommand { UserName = "jane", Password = password });
 
         result.Errors.Select(error => error.PropertyName).ShouldContain(nameof(SignInCommand.Password));
     }

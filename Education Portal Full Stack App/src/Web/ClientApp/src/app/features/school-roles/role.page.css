@@ -1,0 +1,44 @@
+.mm-role__name {
+  width: 100%;
+  max-width: 420px;
+}
+
+.mm-role__matrix {
+  margin-top: var(--mm-space-4);
+}
+
+.mm-role__scroll {
+  overflow-x: auto;
+}
+
+.mm-role__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mm-role__table th,
+.mm-role__table td {
+  padding-block: var(--mm-space-2);
+  border-bottom: 1px solid var(--mm-border-color);
+  text-align: start;
+}
+
+.mm-role__table td {
+  text-align: center;
+}
+
+.mm-role__module {
+  font-weight: 600;
+}
+
+.mm-role__error {
+  margin: var(--mm-space-3) 0 0;
+  color: var(--mat-sys-error);
+}
+
+.mm-role__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--mm-space-2);
+  margin-top: var(--mm-space-4);
+}

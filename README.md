@@ -169,7 +169,7 @@ The diagram is generated from the code: 7 source projects, 15 endpoint groups an
 
 **Endpoint groups** (`Web/Endpoints`): `AddOnRequests`, `Branches`, `Branding`, `Countries`, `Invoices`, `Localization`, `Locations`, `Modules`, `Plans`, `PriceBooks`, `SchoolRequests`, `SchoolRoles`, `Schools`, `Subscriptions`, `Users`.
 
-**Angular feature areas** (`src/Web/ClientApp/src/app/features`): `account`, `add-on-requests`, `auth`, `branches`, `branding`, `countries`, `home`, `modules`, `school-requests`, `schools`, `subscription`.
+**Angular feature areas** (`src/Web/ClientApp/src/app/features`): `account`, `add-on-requests`, `auth`, `branches`, `branding`, `countries`, `home`, `modules`, `plans`, `price-books`, `school-requests`, `school-roles`, `schools`, `subscription`.
 
 **Solution projects**: `src/AppHost/AppHost.csproj`, `src/ServiceDefaults/ServiceDefaults.csproj`, `src/Application/Application.csproj`, `src/Domain/Domain.csproj`, `src/Infrastructure/Infrastructure.csproj`, `src/Shared/Shared.csproj`, `src/Web/Web.csproj`, `tests/Application.FunctionalTests/Application.FunctionalTests.csproj`, `tests/TestAppHost/TestAppHost.csproj`, `tests/Application.UnitTests/Application.UnitTests.csproj`, `tests/Domain.UnitTests/Domain.UnitTests.csproj`, `tests/Infrastructure.IntegrationTests/Infrastructure.IntegrationTests.csproj`, `tests/Web.AcceptanceTests/Web.AcceptanceTests.csproj`.
 
@@ -485,6 +485,8 @@ A record from another school or branch returns 404 rather than 403, so ids can't
 
 - **Plans and price books** (decided 2026-11-13, [ADR-010](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-010-Plans-And-Regional-Price-Books.md)). The master tenant sells **plans** (named bundles of paid modules; core modules are in every plan) and single add-on modules, priced in a **price book** per country: one currency (ISO 4217), a price per billing cycle (Monthly or Yearly) for each plan and each paid module, as `numeric(18,2)`. In Development the seed adds the plans Starter, Standard and Full and price books for PK (PKR), SA (SAR), AE (AED) and US (USD) with placeholder prices to edit. API, master tenant only and audited: `GET/POST /api/Plans`, `GET/PUT/DELETE /api/Plans/{id}`, `GET/POST /api/PriceBooks`, `GET/PUT/DELETE /api/PriceBooks/{id}`, `PUT/DELETE /api/PriceBooks/{id}/prices` (a plan or module code, a billing cycle and a price). Subscriptions and invoices use the prices from the next phases.
 
+- **Free trial.** A new school created by the master tenant starts a three-month trial (90 days) on the Full plan, billed monthly afterwards, in the same save as the school and its first administrator. It needs the school's country to have an active price book and a price for the Full plan; without them the school is created with no subscription and the master starts one. The trial is `CreateSchoolCommandHandler.TrialDays`.
+- **Plans, price books and roles pages.** The master portal's **Plans** page adds and changes plans in a modal (name, description, paid modules). **Price books** lists the countries' books; opening one shows the monthly and yearly price of every plan and paid module, and a warning when a paid module has no monthly price (a school cannot be given such a module until it has one). The school's **Roles** page (module Users & Roles) lists roles; a role is edited on its own page, with View, Create, Edit and Delete per module the school has.
 - **Subscriptions** (decided 2026-11-13, [ADR-011](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-011-Subscriptions-And-Tenant-Modules.md)). The master tenant starts a school's subscription from a plan and/or add-on modules, one billing cycle and an optional trial. The school gets the plan's paid modules, the add-ons, the modules they require and every core module (`TenantModules`), priced from its country's price book; the price and currency are copied onto the subscription (`Subscriptions`), so later price edits do not change it. The subscription and its modules are saved in one transaction. A school has one subscription that is not cancelled. `Branches` is a minimal tenant-owned table and `School.DataRegion` (SouthAsia, MiddleEast, NorthAmerica) a new nullable column. API, master tenant only and audited: `GET/POST /api/Schools/{id}/subscription`, `PUT /api/Schools/{id}/data-region`. 
 
 - **Module enforcement and school roles** (decided 2026-11-13, [ADR-012](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-012-Module-Enforcement-And-School-Roles.md)). A school can use a paid module only while an Active `TenantModule` of its subscription covers the current time (core modules are always on); a grant limited to a branch counts for that branch only. Answers are cached per school for five minutes in memory and dropped when a subscription or the catalogue changes (other server instances catch up within the five minutes). The old per-school switch table `SchoolModules` and `PUT /api/Schools/{id}/modules/{code}` are removed. Each school administrator manages the school's roles with View/Create/Edit/Delete rights per module: `GET/POST /api/SchoolRoles`, `PUT/DELETE /api/SchoolRoles/{id}` (tables `SchoolRoles` and `RolePermissions`). Rights in a module the school does not have are not shown and cannot be set; they are kept and come back with the module. Assigning roles to users comes later.
@@ -641,10 +643,10 @@ sequenceDiagram
     participant I as IdentityService
     participant SM as Identity SignInManager
     participant A as SecurityAuditLog
-    UI->>E: email, password (rate limited per address)
+    UI->>E: user name, password (rate limited per address)
     E->>H: sender.Send(SignInCommand)
     H->>H: SchoolId from the host (CurrentTenant)
-    H->>I: PasswordSignInAsync(schoolId, email, password)
+    H->>I: PasswordSignInAsync(schoolId, userName, password)
     alt no user, or user belongs to another school
         I-->>H: Failed or WrongSchool
     else user of this school
@@ -662,7 +664,7 @@ sequenceDiagram
             E-->>UI: 204, other sessions ended, this cookie renewed, block lifted
         end
     else any failure
-        E-->>UI: 401 "Invalid email or password." (same message for every failure)
+        E-->>UI: 401 "Invalid user name or password." (same message for every failure)
     end
 ```
 

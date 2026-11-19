@@ -27,6 +27,7 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
       { id: 'branding', label: $localize`:@@nav.branding:Branding`, icon: 'sliders-horizontal', route: '/settings/branding', access: 'administrator' },
       { id: 'subscription', label: $localize`:@@nav.subscription:My subscription`, icon: 'layers', route: '/subscription', access: 'school-administrator' },
       { id: 'branches', label: $localize`:@@nav.branches:Campuses`, icon: 'git-branch', route: '/campuses', access: 'administrator', module: MODULE_CODES.branch },
+      { id: 'roles', label: $localize`:@@nav.roles:Roles`, icon: 'shield-check', route: '/roles', access: 'school-administrator', module: MODULE_CODES.usersRoles },
     ],
   },
   {
@@ -35,6 +36,8 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
     items: [
       { id: 'schools', label: $localize`:@@nav.schools:Schools`, icon: 'layers', route: '/schools', access: 'master-administrator' },
       { id: 'countries', label: $localize`:@@nav.countries:Countries and languages`, icon: 'globe', route: '/countries', access: 'master-administrator' },
+      { id: 'plans', label: $localize`:@@nav.plans:Plans`, icon: 'layers', route: '/plans', access: 'master-administrator' },
+      { id: 'price-books', label: $localize`:@@nav.priceBooks:Price books`, icon: 'dollar-sign', route: '/price-books', access: 'master-administrator' },
       { id: 'add-on-requests', label: $localize`:@@nav.addOnRequests:Add-on requests`, icon: 'inbox', route: '/add-on-requests', access: 'master-administrator' },
       { id: 'modules', label: $localize`:@@nav.modules:Modules`, icon: 'blocks', route: '/modules', access: 'master-administrator' },
     ],

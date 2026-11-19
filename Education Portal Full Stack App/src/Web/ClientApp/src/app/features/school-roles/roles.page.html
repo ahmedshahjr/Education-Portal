@@ -1,0 +1,64 @@
+<app-page-header
+  title="Roles"
+  i18n-title="@@roles.title"
+  subtitle="The rights each role gives in the school's modules. Staff accounts get one or more roles."
+  i18n-subtitle="@@roles.subtitle"
+>
+  <button mat-flat-button type="button" (click)="add()" [disabled]="busy()">
+    <app-icon name="plus" [size]="18" />
+    <span i18n="@@roles.add">Add role</span>
+  </button>
+</app-page-header>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="Roles could not be loaded"
+        i18n-title="@@roles.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else if (roles(); as items) {
+      @if (items.length === 0) {
+        <app-empty-state
+          icon="shield-check"
+          title="No roles yet"
+          i18n-title="@@roles.empty"
+          description="Add a role to decide what each group of staff can view, create, edit and delete."
+          i18n-description="@@roles.emptyDescription"
+        />
+      } @else {
+        <div class="mm-roles__scroll">
+          <table mat-table [dataSource]="items" class="mm-roles__table">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef i18n="@@roles.name">Role</th>
+              <td mat-cell *matCellDef="let role"><span class="mm-roles__name">{{ role.name }}</span></td>
+            </ng-container>
+
+            <ng-container matColumnDef="modules">
+              <th mat-header-cell *matHeaderCellDef i18n="@@roles.modulesColumn">Modules with rights</th>
+              <td mat-cell *matCellDef="let role">{{ modulesCount(role) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef><span class="mm-visually-hidden" i18n="@@common.actions">Actions</span></th>
+              <td mat-cell *matCellDef="let role" class="mm-roles__actions">
+                <button mat-stroked-button type="button" (click)="edit(role)" [disabled]="busy()" i18n="@@common.edit">Edit</button>
+                <button mat-button type="button" (click)="remove(role)" [disabled]="busy()" i18n="@@common.delete">Delete</button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          </table>
+        </div>
+      }
+    } @else {
+      <app-loading-state />
+    }
+  </mat-card-content>
+</mat-card>

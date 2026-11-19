@@ -147,6 +147,9 @@
   <data name="Email" xml:space="preserve">
     <value>Email</value>
   </data>
+  <data name="UserName" xml:space="preserve">
+    <value>User name</value>
+  </data>
   <data name="Password" xml:space="preserve">
     <value>Password</value>
   </data>

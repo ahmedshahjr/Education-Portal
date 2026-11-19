@@ -167,9 +167,9 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<PasswordSignInResult> PasswordSignInAsync(int schoolId, string email, string password)
+    public async Task<PasswordSignInResult> PasswordSignInAsync(int schoolId, string userName, string password)
     {
-        var user = await _userManager.FindByEmailAsync(email);
+        var user = await _userManager.FindByNameAsync(userName);
 
         if (user is null || user.SchoolId != schoolId)
         {

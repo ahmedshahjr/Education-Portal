@@ -72,7 +72,7 @@ public class HardeningTests : TestBase
 
         var response = await session.PostAsync(
             HttpSession.SignInPath,
-            new { email = TestApp.DefaultUserEmail, password = TestApp.DefaultUserPassword },
+            new { userName = TestApp.DefaultUserEmail, password = TestApp.DefaultUserPassword },
             withAntiforgeryToken: false);
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);

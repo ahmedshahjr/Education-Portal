@@ -1,0 +1,94 @@
+<app-page-header
+  [title]="header().title"
+  [subtitle]="header().subtitle"
+  [breadcrumbs]="[{ label: priceBooksLabel, route: '/price-books' }, { label: header().title }]"
+>
+  @if (book(); as current) {
+    <button mat-stroked-button type="button" (click)="editBook()" [disabled]="busy()">
+      <app-icon name="edit-3" [size]="18" />
+      <span i18n="@@priceBooks.editBook">Change currency and tax</span>
+    </button>
+  }
+</app-page-header>
+
+@if (loadError(); as message) {
+  <app-empty-state
+    icon="alert-triangle"
+    title="The price book could not be loaded"
+    i18n-title="@@priceBooks.bookLoadError"
+    [description]="message"
+    actionLabel="Try again"
+    i18n-actionLabel="@@common.tryAgain"
+    (action)="load()"
+  />
+} @else if (book(); as current) {
+  @if (unpricedModules() > 0) {
+    <p class="mm-price-book__warning" role="status">
+      <app-status-badge tone="warning" i18n="@@priceBooks.missingBadge">Prices missing</app-status-badge>
+      <span i18n="@@priceBooks.missingModules">
+        {{ unpricedModules() }} paid module(s) have no monthly price here. A school cannot be given a module that has no price.
+      </span>
+    </p>
+  }
+
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <div class="mm-price-book__scroll">
+        <table mat-table [dataSource]="rows()" class="mm-price-book__table">
+          <ng-container matColumnDef="item">
+            <th mat-header-cell *matHeaderCellDef i18n="@@priceBooks.itemColumn">Plan or module</th>
+            <td mat-cell *matCellDef="let row">
+              <span class="mm-price-book__name">{{ row.name }}</span>
+              <span class="mm-price-book__kind">
+                @if (row.kind === 'plan') {
+                  <ng-container i18n="@@priceBooks.kindPlan">Plan</ng-container>
+                } @else {
+                  <ng-container i18n="@@priceBooks.kindModule">Paid module</ng-container>
+                }
+                <bdi dir="ltr"> · {{ row.code }}</bdi>
+              </span>
+              @if (row.inactive) {
+                <app-status-badge tone="warning" i18n="@@priceBooks.inactiveItem">Inactive</app-status-badge>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="monthly">
+            <th mat-header-cell *matHeaderCellDef i18n="@@priceBooks.monthlyColumn">Monthly</th>
+            <td mat-cell *matCellDef="let row">
+              @if (priceOf(row, monthly); as price) {
+                <span class="mm-price-book__price"><bdi dir="ltr">{{ price | number: '1.0-2' }} {{ book()?.currencyCode }}</bdi></span>
+              } @else {
+                <span class="mm-price-book__unset" i18n="@@priceBooks.notSet">Not set</span>
+              }
+              <button mat-button type="button" (click)="setPrice(row, monthly)" [disabled]="busy()">
+                <span class="mm-visually-hidden">{{ row.name }} · {{ cycleName(monthly) }}</span>
+                <span i18n="@@priceBooks.set">Set price</span>
+              </button>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="yearly">
+            <th mat-header-cell *matHeaderCellDef i18n="@@priceBooks.yearlyColumn">Yearly</th>
+            <td mat-cell *matCellDef="let row">
+              @if (priceOf(row, yearly); as price) {
+                <span class="mm-price-book__price"><bdi dir="ltr">{{ price | number: '1.0-2' }} {{ book()?.currencyCode }}</bdi></span>
+              } @else {
+                <span class="mm-price-book__unset" i18n="@@priceBooks.notSet">Not set</span>
+              }
+              <button mat-button type="button" (click)="setPrice(row, yearly)" [disabled]="busy()">
+                <span class="mm-visually-hidden">{{ row.name }} · {{ cycleName(yearly) }}</span>
+                <span i18n="@@priceBooks.set">Set price</span>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+} @else {
+  <app-loading-state />
+}

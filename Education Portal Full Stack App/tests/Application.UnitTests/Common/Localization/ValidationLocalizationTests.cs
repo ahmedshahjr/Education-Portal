@@ -69,12 +69,12 @@ public partial class ValidationLocalizationTests
         UrduValidatorMessages.All.Keys.ShouldContain("EmailValidator");
     }
 
-    [TestCase("ur-PK", "'ای میل' خالی نہیں ہونا چاہیے۔")]
-    [TestCase("ar-AE", "'البريد الإلكتروني' لا يجب أن يكون فارغاً.")]
-    [TestCase("en", "'Email' must not be empty.")]
+    [TestCase("ur-PK", "'صارف کا نام' خالی نہیں ہونا چاہیے۔")]
+    [TestCase("ar-AE", "'اسم المستخدم' لا يجب أن يكون فارغاً.")]
+    [TestCase("en", "'User name' must not be empty.")]
     public async Task ShouldWriteBuiltInMessagesAndPropertyNamesInTheCurrentLanguage(string culture, string expected)
     {
-        var errors = await ValidateInAsync(culture, new SignInCommandValidator(), new SignInCommand { Email = string.Empty, Password = "x" });
+        var errors = await ValidateInAsync(culture, new SignInCommandValidator(), new SignInCommand { UserName = string.Empty, Password = "x" });
 
         errors.ShouldContain(expected);
     }

@@ -2,6 +2,7 @@ using System.Globalization;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Common.Security;
+using EducationPortal.Application.Subscriptions.Common;
 using EducationPortal.Domain.Constants;
 using FluentValidation.Results;
 
@@ -87,15 +88,20 @@ public class CreateSchoolCommandValidator : AbstractValidator<CreateSchoolComman
 
 public class CreateSchoolCommandHandler : IRequestHandler<CreateSchoolCommand, Guid>
 {
+    /// <summary>The free trial a new school starts with: three months on the full catalogue (ADR-011, the Full plan).</summary>
+    public const int TrialDays = 90;
+
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
     private readonly ISecurityAuditLog _auditLog;
+    private readonly TimeProvider _timeProvider;
 
-    public CreateSchoolCommandHandler(IApplicationDbContext context, IIdentityService identityService, ISecurityAuditLog auditLog)
+    public CreateSchoolCommandHandler(IApplicationDbContext context, IIdentityService identityService, ISecurityAuditLog auditLog, TimeProvider timeProvider)
     {
         _context = context;
         _identityService = identityService;
         _auditLog = auditLog;
+        _timeProvider = timeProvider;
     }
 
     public async Task<Guid> Handle(CreateSchoolCommand request, CancellationToken cancellationToken)
@@ -125,6 +131,9 @@ public class CreateSchoolCommandHandler : IRequestHandler<CreateSchoolCommand, G
                 throw new Common.Exceptions.ValidationException(result.Errors.Select(e => new ValidationFailure(nameof(request.AdministratorPassword), e)));
             }
 
+            // The trial is part of the same save: a school never exists without its first administrator or its trial.
+            await StartTrialAsync(school, token);
+
             return userId;
         }, cancellationToken);
 
@@ -141,5 +150,44 @@ public class CreateSchoolCommandHandler : IRequestHandler<CreateSchoolCommand, G
             targetId: administratorId);
 
         return school.PublicId;
+    }
+
+    /// <summary>
+    /// Starts the school's free trial: the Full plan for <see cref="TrialDays"/> days, billed monthly afterwards, with
+    /// every module it gives. It needs an active price book and the Full plan for the school's country; without them
+    /// the school is still created and the master tenant starts its subscription once prices exist. Audited.
+    /// </summary>
+    private async Task StartTrialAsync(School school, CancellationToken cancellationToken)
+    {
+        if (school.CountryId is not { } countryId)
+        {
+            return;
+        }
+
+        var countryCode = await _context.Countries.Where(c => c.Id == countryId).Select(c => c.Code).SingleAsync(cancellationToken);
+        var hasPrices = await _context.PriceBooks.AnyAsync(b => b.CountryCode == countryCode && b.IsActive, cancellationToken)
+            && await _context.Plans.AnyAsync(p => p.Code == PricingCatalog.Full && p.IsActive, cancellationToken);
+        if (!hasPrices)
+        {
+            return;
+        }
+
+        var quote = await SubscriptionPlanner.QuoteAsync(_context, countryCode, PricingCatalog.Full, [], BillingCycle.Monthly, cancellationToken);
+        var subscription = Subscription.Create(school.Id, quote.Plan, quote.PriceBook, BillingCycle.Monthly, quote.Amount, _timeProvider.GetUtcNow(), TrialDays);
+
+        var mainBranch = await SchoolBranches.MainAsync(_context, school.Id, cancellationToken);
+        foreach (var module in quote.Modules)
+        {
+            subscription.AddModule(module, mainBranch);
+        }
+
+        _context.Subscriptions.Add(subscription);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        await _auditLog.WriteAsync(
+            SecurityAuditEventType.SubscriptionCreated,
+            SecurityAuditOutcome.Success,
+            targetType: nameof(Subscription),
+            targetId: subscription.Id.ToString(CultureInfo.InvariantCulture));
     }
 }

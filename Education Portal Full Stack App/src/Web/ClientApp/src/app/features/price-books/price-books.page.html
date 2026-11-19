@@ -1,0 +1,84 @@
+<app-page-header
+  title="Price books"
+  i18n-title="@@priceBooks.title"
+  subtitle="Master portal: the prices of plans and paid modules, per country and billing cycle, in the country's currency."
+  i18n-subtitle="@@priceBooks.subtitle"
+>
+  <button mat-flat-button type="button" (click)="add()" [disabled]="busy()">
+    <app-icon name="plus" [size]="18" />
+    <span i18n="@@priceBooks.add">Add price book</span>
+  </button>
+</app-page-header>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="Price books could not be loaded"
+        i18n-title="@@priceBooks.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else if (books(); as items) {
+      @if (items.length === 0) {
+        <app-empty-state
+          icon="dollar-sign"
+          title="No price books yet"
+          i18n-title="@@priceBooks.empty"
+          description="Add a price book for a country before schools there can subscribe."
+          i18n-description="@@priceBooks.emptyDescription"
+        />
+      } @else {
+        <div class="mm-price-books__scroll">
+          <table mat-table [dataSource]="items" class="mm-price-books__table">
+            <ng-container matColumnDef="country">
+              <th mat-header-cell *matHeaderCellDef i18n="@@priceBooks.countryColumn">Country</th>
+              <td mat-cell *matCellDef="let book"><bdi dir="ltr">{{ book.countryCode }}</bdi></td>
+            </ng-container>
+
+            <ng-container matColumnDef="currency">
+              <th mat-header-cell *matHeaderCellDef i18n="@@priceBooks.currencyColumn">Currency</th>
+              <td mat-cell *matCellDef="let book"><bdi dir="ltr">{{ book.currencyCode }}</bdi></td>
+            </ng-container>
+
+            <ng-container matColumnDef="tax">
+              <th mat-header-cell *matHeaderCellDef i18n="@@priceBooks.taxColumn">Tax rate</th>
+              <td mat-cell *matCellDef="let book"><bdi dir="ltr">{{ book.taxRate }}%</bdi></td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef i18n="@@priceBooks.statusColumn">Status</th>
+              <td mat-cell *matCellDef="let book">
+                @if (book.isActive) {
+                  <app-status-badge tone="success" i18n="@@priceBooks.activeBadge">Active</app-status-badge>
+                } @else {
+                  <app-status-badge tone="warning" i18n="@@priceBooks.inactiveBadge">Inactive</app-status-badge>
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="prices">
+              <th mat-header-cell *matHeaderCellDef i18n="@@priceBooks.pricesColumn">Prices set</th>
+              <td mat-cell *matCellDef="let book">{{ book.prices.length }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef><span class="mm-visually-hidden" i18n="@@common.actions">Actions</span></th>
+              <td mat-cell *matCellDef="let book" class="mm-price-books__actions">
+                <a mat-stroked-button [routerLink]="['/price-books', book.id]" i18n="@@priceBooks.open">Open</a>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          </table>
+        </div>
+      }
+    } @else {
+      <app-loading-state />
+    }
+  </mat-card-content>
+</mat-card>

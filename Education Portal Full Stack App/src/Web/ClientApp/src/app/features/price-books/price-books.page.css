@@ -1,0 +1,12 @@
+.mm-price-books__scroll {
+  overflow-x: auto;
+}
+
+.mm-price-books__table {
+  width: 100%;
+}
+
+.mm-price-books__actions {
+  text-align: end;
+  white-space: nowrap;
+}

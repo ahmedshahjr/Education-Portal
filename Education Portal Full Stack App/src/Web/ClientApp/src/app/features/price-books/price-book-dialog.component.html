@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>
+  @if (book) {
+    <ng-container i18n="@@priceBooks.editTitle">Change price book</ng-container>
+  } @else {
+    <ng-container i18n="@@priceBooks.addTitle">Add a price book</ng-container>
+  }
+</h2>
+
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-dialog-content class="mm-price-book-dialog">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label i18n="@@priceBooks.country">Country code</mat-label>
+      <input matInput formControlName="countryCode" maxlength="2" autocomplete="off" dir="ltr" />
+      <mat-hint i18n="@@priceBooks.countryHint">Two letters, for example PK. The country must exist. Cannot be changed later.</mat-hint>
+      @if (form.controls.countryCode.invalid) {
+        <mat-error i18n="@@priceBooks.countryError">Enter two letters, for example PK.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label i18n="@@priceBooks.currency">Currency code</mat-label>
+      <input matInput formControlName="currencyCode" maxlength="3" autocomplete="off" dir="ltr" />
+      <mat-hint i18n="@@priceBooks.currencyHint">Three letters (ISO 4217), for example PKR.</mat-hint>
+      @if (form.controls.currencyCode.invalid) {
+        <mat-error i18n="@@priceBooks.currencyError">Enter three letters, for example PKR.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label i18n="@@priceBooks.taxRate">Tax rate (%)</mat-label>
+      <input matInput type="number" formControlName="taxRate" min="0" max="100" step="0.01" dir="ltr" />
+      <mat-hint i18n="@@priceBooks.taxHint">Added to new invoices. Use 0 for no tax.</mat-hint>
+      @if (form.controls.taxRate.invalid) {
+        <mat-error i18n="@@priceBooks.taxError">Enter a rate from 0 to 100.</mat-error>
+      }
+    </mat-form-field>
+
+    @if (book) {
+      <mat-slide-toggle formControlName="isActive" i18n="@@priceBooks.active">Active: used for new subscriptions</mat-slide-toggle>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close i18n="@@common.cancel">Cancel</button>
+    <button mat-flat-button type="submit" [disabled]="form.invalid" i18n="@@common.save">Save</button>
+  </mat-dialog-actions>
+</form>

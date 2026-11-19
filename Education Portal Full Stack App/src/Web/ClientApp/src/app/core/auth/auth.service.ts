@@ -45,8 +45,8 @@ export class AuthService {
     );
   }
 
-  signIn(email: string, password: string): Observable<void> {
-    return this.users.signIn(new SignInCommand({ email, password })).pipe(
+  signIn(userName: string, password: string): Observable<void> {
+    return this.users.signIn(new SignInCommand({ userName, password })).pipe(
       switchMap(() => this.initialize()),
       map(() => undefined)
     );
