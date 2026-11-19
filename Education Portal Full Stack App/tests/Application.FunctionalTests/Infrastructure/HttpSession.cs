@@ -43,9 +43,9 @@ internal sealed class HttpSession(HttpClient client) : IDisposable
     /// Signs in. A token issued before sign-in belongs to the anonymous visitor, so after a successful sign-in the session
     /// asks for the current user. That response carries a token for the signed-in user, as the Angular client does.
     /// </summary>
-    public async Task<HttpResponseMessage> SignInAsync(string userName, string password)
+    public async Task<HttpResponseMessage> SignInAsync(string email, string password)
     {
-        var response = await PostAsync(SignInPath, new { userName, password });
+        var response = await PostAsync(SignInPath, new { email, password });
 
         if (response.StatusCode == HttpStatusCode.OK)
         {

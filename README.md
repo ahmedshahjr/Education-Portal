@@ -643,10 +643,10 @@ sequenceDiagram
     participant I as IdentityService
     participant SM as Identity SignInManager
     participant A as SecurityAuditLog
-    UI->>E: user name, password (rate limited per address)
+    UI->>E: email, password (rate limited per address)
     E->>H: sender.Send(SignInCommand)
     H->>H: SchoolId from the host (CurrentTenant)
-    H->>I: PasswordSignInAsync(schoolId, userName, password)
+    H->>I: PasswordSignInAsync(schoolId, email, password)
     alt no user, or user belongs to another school
         I-->>H: Failed or WrongSchool
     else user of this school
@@ -664,7 +664,7 @@ sequenceDiagram
             E-->>UI: 204, other sessions ended, this cookie renewed, block lifted
         end
     else any failure
-        E-->>UI: 401 "Invalid user name or password." (same message for every failure)
+        E-->>UI: 401 "Invalid email or password." (same message for every failure)
     end
 ```
 

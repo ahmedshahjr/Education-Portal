@@ -44,12 +44,12 @@ import { LanguageMenuComponent } from '../../shared/components/language-menu/lan
 
             <form [formGroup]="form" (ngSubmit)="submit()" class="mm-auth-form" novalidate>
               <app-form-input
-                label="Username"
-                i18n-label="@@login.username"
-                type="text"
-                fieldId="username"
+                label="Email"
+                i18n-label="@@login.email"
+                type="email"
+                fieldId="email"
                 autocomplete="username"
-                [control]="form.controls.username"
+                [control]="form.controls.email"
               />
               <app-form-input
                 label="Password"
@@ -191,7 +191,7 @@ export class LoginPage {
   protected readonly branding = inject(BrandingService);
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
-    username: ['', [Validators.required, Validators.maxLength(256)]],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(256)]],
     password: ['', [Validators.required]],
   });
 
@@ -227,11 +227,11 @@ export class LoginPage {
       return;
     }
 
-    const { username, password } = this.form.getRawValue();
+    const { email, password } = this.form.getRawValue();
     this.error.set(null);
     this.busy.set(true);
 
-    this.auth.signIn(username, password).subscribe({
+    this.auth.signIn(email, password).subscribe({
       next: () => void this.openDestination(),
       error: (error: unknown) => {
         this.busy.set(false);
@@ -248,11 +248,11 @@ export function localReturnUrl(returnUrl: string | null): string {
     : '/';
 }
 
-/** A wrong password, an unknown user name, another school's account and a locked account all get the same message. */
+/** A wrong password, an unknown email, another school's account and a locked account all get the same message. */
 function messageFor(status: number | undefined): string {
   switch (status) {
     case 401:
-      return $localize`:@@login.invalid:Invalid user name or password.`;
+      return $localize`:@@login.invalid:Invalid email or password.`;
     case 429:
       return $localize`:@@login.tooMany:Too many sign-in attempts. Wait a minute and try again.`;
     default:

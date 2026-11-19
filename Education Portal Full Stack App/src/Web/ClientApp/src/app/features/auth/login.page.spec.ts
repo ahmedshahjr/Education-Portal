@@ -34,17 +34,17 @@ describe('LoginPage', () => {
     await fixture.whenStable();
     const element: HTMLElement = fixture.nativeElement;
 
-    setValue(element, '#username', 'someone@demo.localhost');
+    setValue(element, '#email', 'someone@demo.localhost');
     setValue(element, '#password', 'not the password');
     element.querySelector<HTMLButtonElement>('button[type="submit"]')!.click();
     TestBed.inject(HttpTestingController)
       .expectOne('/api/Users/login')
-      .flush(new Blob([JSON.stringify({ detail: 'Invalid user name or password.' })], { type: 'application/problem+json' }), { status: 401, statusText: 'Unauthorized' });
+      .flush(new Blob([JSON.stringify({ detail: 'Invalid email or password.' })], { type: 'application/problem+json' }), { status: 401, statusText: 'Unauthorized' });
 
     // The error body arrives as a Blob and is read asynchronously.
     await vi.waitFor(async () => {
       await fixture.whenStable();
-      expect(element.querySelector('#login-error')?.textContent).toContain('Invalid user name or password.');
+      expect(element.querySelector('#login-error')?.textContent).toContain('Invalid email or password.');
     });
   });
 });
@@ -67,7 +67,7 @@ describe('LoginPage language after sign-in', () => {
       const element: HTMLElement = fixture.nativeElement;
       const backend = TestBed.inject(HttpTestingController);
 
-      setValue(element, '#username', 'teacher@demo.localhost');
+      setValue(element, '#email', 'teacher@demo.localhost');
       setValue(element, '#password', 'a long enough password');
       element.querySelector<HTMLButtonElement>('button[type="submit"]')!.click();
       backend.expectOne('/api/Users/login').flush(new Blob([JSON.stringify(true)], { type: 'application/json' }));

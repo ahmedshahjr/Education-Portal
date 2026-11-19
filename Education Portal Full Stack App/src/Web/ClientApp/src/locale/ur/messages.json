@@ -87,7 +87,7 @@
     "login.password": "پاس ورڈ",
     "login.submit": "سائن اِن",
     "login.requestSchool": "اسکول کی درخواست کریں",
-    "login.invalid": "صارف کا نام یا پاس ورڈ غلط ہے۔",
+    "login.invalid": "ای میل یا پاس ورڈ غلط ہے۔",
     "login.tooMany": "سائن اِن کی بہت زیادہ کوششیں۔ ایک منٹ انتظار کریں اور دوبارہ کوشش کریں۔",
     "login.failed": "سائن اِن نہیں ہو سکا۔ صفحہ دوبارہ لوڈ کریں اور پھر کوشش کریں۔",
     "branches.title": "برانچز",
@@ -500,6 +500,6 @@
     "roles.title": "کردار",
     "roles.viewAria": "{$INTERPOLATION} دیکھنا",
     "roles.viewColumn": "دیکھیں",
-    "login.username": "صارف کا نام"
+    "login.email": "ای میل"
   }
 }

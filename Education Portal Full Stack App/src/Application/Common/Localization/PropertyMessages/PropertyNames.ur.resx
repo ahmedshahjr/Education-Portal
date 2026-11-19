@@ -147,9 +147,6 @@
   <data name="Email" xml:space="preserve">
     <value>ای میل</value>
   </data>
-  <data name="UserName" xml:space="preserve">
-    <value>صارف کا نام</value>
-  </data>
   <data name="Password" xml:space="preserve">
     <value>پاس ورڈ</value>
   </data>

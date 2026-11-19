@@ -147,9 +147,6 @@
   <data name="Email" xml:space="preserve">
     <value>البريد الإلكتروني</value>
   </data>
-  <data name="UserName" xml:space="preserve">
-    <value>اسم المستخدم</value>
-  </data>
   <data name="Password" xml:space="preserve">
     <value>كلمة المرور</value>
   </data>

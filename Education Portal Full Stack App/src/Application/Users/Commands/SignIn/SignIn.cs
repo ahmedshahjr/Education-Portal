@@ -6,14 +6,13 @@ using EducationPortal.Domain.Enums;
 namespace EducationPortal.Application.Users.Commands.SignIn;
 
 /// <summary>
-/// Signs a user in with their user name and password. The user name is the account's login name (accounts are created
-/// with their email address as the name, so either works). This is the one request that runs before sign-in
+/// Signs a user in with email and password. This is the one request that runs before sign-in
 /// (SEC-AUTHN-01); its endpoint is rate limited and antiforgery protected, and every outcome is audited.
 /// Only accounts of the school that owns the request's domain can sign in there (AGENTS.md section 2).
 /// </summary>
 public record SignInCommand : IRequest<bool>
 {
-    public string UserName { get; init; } = string.Empty;
+    public string Email { get; init; } = string.Empty;
 
     public string Password { get; init; } = string.Empty;
 }
@@ -22,11 +21,10 @@ public class SignInCommandValidator : AbstractValidator<SignInCommand>
 {
     public SignInCommandValidator()
     {
-        RuleFor(c => c.UserName)
+        RuleFor(c => c.Email)
             .NotEmpty()
             .MaximumLength(256)
-            // No control characters (CR and LF in particular), so a name cannot forge a line in the logs (log injection).
-            .Must(name => !name.Any(char.IsControl));
+            .EmailAddress();
 
         RuleFor(c => c.Password)
             .NotEmpty()
@@ -51,7 +49,7 @@ public class SignInCommandHandler : IRequestHandler<SignInCommand, bool>
     {
         var schoolId = _tenant.SchoolId ?? throw new UnauthorizedAccessException();
 
-        var result = await _identityService.PasswordSignInAsync(schoolId, request.UserName, request.Password);
+        var result = await _identityService.PasswordSignInAsync(schoolId, request.Email, request.Password);
         var succeeded = result.Status == PasswordSignInStatus.Succeeded;
 
         var eventType = result.Status switch

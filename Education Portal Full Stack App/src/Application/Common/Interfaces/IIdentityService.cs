@@ -35,7 +35,7 @@ public interface IIdentityService
     /// <paramref name="schoolId"/> (the school of the request's domain) is refused like a wrong password,
     /// without counting towards its lockout.
     /// </summary>
-    Task<PasswordSignInResult> PasswordSignInAsync(int schoolId, string userName, string password);
+    Task<PasswordSignInResult> PasswordSignInAsync(int schoolId, string email, string password);
 
     /// <summary>
     /// Signs the user out and ends every session they have, not only the current browser's (SEC-AUTHN-07).

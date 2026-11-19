@@ -87,7 +87,7 @@
     "login.password": "Password",
     "login.submit": "Sign in",
     "login.requestSchool": "Request a school",
-    "login.invalid": "Invalid user name or password.",
+    "login.invalid": "Invalid email or password.",
     "login.tooMany": "Too many sign-in attempts. Wait a minute and try again.",
     "login.failed": "Sign-in failed. Reload the page and try again.",
     "branches.title": "Campuses",
@@ -500,6 +500,6 @@
     "roles.title": "Roles",
     "roles.viewAria": "View {$INTERPOLATION}",
     "roles.viewColumn": "View",
-    "login.username": "Username"
+    "login.email": "Email"
   }
 }

@@ -110,15 +110,6 @@ namespace EducationPortal.Application.Common.Localization {
                 return ResourceManager.GetString("AdministratorEmail", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to User name.
-        /// </summary>
-        internal static string UserName {
-            get {
-                return ResourceManager.GetString("UserName", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to One-time password.
