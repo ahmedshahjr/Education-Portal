@@ -9,14 +9,14 @@ namespace EducationPortal.Application.Modules.Commands.RemoveModuleDependency;
 /// administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record RemoveModuleDependencyCommand(string Code, string RequiresCode) : IRequest;
+public record RemoveModuleDependencyCommand(ModuleCode Code, ModuleCode RequiresCode) : IRequest;
 
 public class RemoveModuleDependencyCommandValidator : AbstractValidator<RemoveModuleDependencyCommand>
 {
     public RemoveModuleDependencyCommandValidator()
     {
-        RuleFor(c => c.Code).NotEmpty().MaximumLength(PortalModule.CodeMaxLength);
-        RuleFor(c => c.RequiresCode).NotEmpty().MaximumLength(PortalModule.CodeMaxLength);
+        RuleFor(c => c.Code).IsInEnum().NotEqual(ModuleCode.None);
+        RuleFor(c => c.RequiresCode).IsInEnum().NotEqual(ModuleCode.None);
     }
 }
 

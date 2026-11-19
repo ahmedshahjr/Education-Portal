@@ -18,7 +18,7 @@ public record SetPriceCommand : IRequest
 
     public string? PlanCode { get; init; }
 
-    public string? ModuleCode { get; init; }
+    public ModuleCode? ModuleCode { get; init; }
 
     public BillingCycle BillingCycle { get; init; }
 
@@ -34,7 +34,7 @@ public class SetPriceCommandValidator : AbstractValidator<SetPriceCommand>
         RuleFor(c => c.Price).Must(PriceBookItem.IsValidPrice).WithMessage(_ => ValidationMessages.PriceInvalid);
 
         RuleFor(c => c)
-            .Must(c => string.IsNullOrWhiteSpace(c.PlanCode) != string.IsNullOrWhiteSpace(c.ModuleCode))
+            .Must(c => string.IsNullOrWhiteSpace(c.PlanCode) != c.ModuleCode is null)
             .WithMessage(_ => ValidationMessages.PriceTargetRequired)
             .OverridePropertyName(nameof(SetPriceCommand.PlanCode));
 
@@ -44,7 +44,7 @@ public class SetPriceCommandValidator : AbstractValidator<SetPriceCommand>
             .WithMessage(_ => ValidationMessages.ModuleNotFound)
             .MustAsync(async (code, cancellationToken) => !await context.Modules.AnyAsync(m => m.Code == code && m.IsCore, cancellationToken))
             .WithMessage(_ => ValidationMessages.CoreModuleNotSold)
-            .When(c => !string.IsNullOrWhiteSpace(c.ModuleCode));
+            .When(c => c.ModuleCode is not null);
 
         RuleFor(c => c.PlanCode)
             .MustAsync(async (code, cancellationToken) => await context.Plans.AnyAsync(p => p.Code == code, cancellationToken))

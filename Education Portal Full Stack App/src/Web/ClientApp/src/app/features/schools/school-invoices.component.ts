@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { LocalDatePipe } from '../../core/i18n/local-date.pipe';
@@ -36,7 +36,7 @@ import {
 })
 export class SchoolInvoicesComponent {
   private readonly invoicesClient = inject(InvoicesClient);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly formBuilder = inject(FormBuilder);
 
   readonly school = input.required<SchoolSummaryDto>();
@@ -135,12 +135,12 @@ export class SchoolInvoicesComponent {
     request.subscribe({
       next: () => {
         this.busy.set(false);
-        this.snackBar.open(done, undefined, { duration: 3000 });
+        this.toast.success(done);
         this.load();
       },
       error: (error: unknown) => {
         this.busy.set(false);
-        this.snackBar.open(problemMessages(error)[0], undefined, { duration: 5000 });
+        this.toast.error(error);
       },
     });
   }

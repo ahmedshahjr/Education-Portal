@@ -98,8 +98,9 @@ button {
   background-color: var(--mm-bg-surface);
   border-radius: var(--mm-radius-card);
   box-shadow: var(--mm-shadow-card);
-  transition: transform var(--mm-duration) var(--mm-ease),
-              box-shadow var(--mm-duration) var(--mm-ease);
+  transition:
+    transform var(--mm-duration) var(--mm-ease),
+    box-shadow var(--mm-duration) var(--mm-ease);
 
   &--flat {
     box-shadow: none !important;

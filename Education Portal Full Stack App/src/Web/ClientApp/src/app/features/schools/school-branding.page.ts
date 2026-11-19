@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { BrandingService } from '../../core/branding/branding.service';
 import { problemMessages } from '../../core/http/problem-details';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
@@ -60,7 +60,7 @@ export class SchoolBrandingPage {
   private readonly route = inject(ActivatedRoute);
   private readonly schools = inject(SchoolsClient);
   private readonly brandingService = inject(BrandingService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   protected readonly school = signal<SchoolSummaryDto | null>(null);
   protected readonly branding = signal<BrandingDto | null>(null);
@@ -103,7 +103,7 @@ export class SchoolBrandingPage {
       .subscribe({
         next: () => {
           this.saving.set(false);
-          this.snackBar.open($localize`:@@schools.brandingSaved:Branding of ${school.name}:SCHOOL: saved`, undefined, { duration: 3000 });
+          this.toast.success($localize`:@@schools.brandingSaved:Branding of ${school.name}:SCHOOL: saved`);
           this.load();
           if (school.isMaster) {
             this.brandingService.load().subscribe();

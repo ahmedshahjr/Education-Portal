@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.FunctionalTests.Infrastructure;
-using EducationPortal.Application.Schools.Commands.CreateSchool;
+using EducationPortal.Application.Schools.Registration;
 using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
@@ -15,9 +15,8 @@ using Shouldly;
 namespace EducationPortal.Application.FunctionalTests.Schools;
 
 /// <summary>
-/// A new school starts a free trial of three months on the Full plan when its country has prices, in the same save as the
-/// school and its first administrator (ADR-015 lifecycle, ADR-011 subscriptions). Without prices the school is still
-/// created with no subscription (SEC-AUTHZ-07, SEC-LOG-03).
+/// A new school starts a free trial of three months (90 days) on the Full plan, priced from its country's price book, in the
+/// same save as the school and its first administrator (ADR-011 subscriptions, SEC-AUTHZ-07, SEC-LOG-03).
 /// </summary>
 public class SchoolTrialTests : TestBase
 {
@@ -58,35 +57,8 @@ public class SchoolTrialTests : TestBase
         subscription.PlanId.ShouldBe(fullPlanId);
         subscription.BillingCycle.ShouldBe(BillingCycle.Monthly);
         subscription.TrialEndDate.ShouldNotBeNull();
-        subscription.TrialEndDate!.Value.ShouldBeGreaterThanOrEqualTo(before.AddDays(CreateSchoolCommandHandler.TrialDays));
-        subscription.TrialEndDate.Value.ShouldBeLessThanOrEqualTo(DateTimeOffset.UtcNow.AddDays(CreateSchoolCommandHandler.TrialDays));
-    }
-
-    [Test]
-    public async Task ShouldCreateTheSchoolWithoutATrialWhenItsCountryHasNoPrices()
-    {
-        var countryId = await TestApp.AddCountryAsync("NO", "Norway", ["en"], "en", "Europe/Oslo", "NOK");
-        await TestApp.RunAsAdministratorAsync();
-
-        using var master = await SignInAsMasterAsync();
-        using var response = await master.PostAsync("/api/Schools", new
-        {
-            name = "Unpriced School",
-            domain = "unpriced-school.localhost",
-            countryId = countryId.PublicId,
-            dataRegion = "SouthAsia",
-            administratorEmail = "head@unpriced-school.local",
-            administratorPassword = OneTimePassword,
-        });
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
-
-        var schoolId = await TestApp.FindIdAsync<School>(await response.Content.ReadFromJsonAsync<Guid>());
-
-        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        (await context.Subscriptions.AnyAsync(s => s.SchoolId == schoolId)).ShouldBeFalse();
+        subscription.TrialEndDate!.Value.ShouldBeGreaterThanOrEqualTo(before.AddDays(SchoolRegistration.TrialDays));
+        subscription.TrialEndDate.Value.ShouldBeLessThanOrEqualTo(DateTimeOffset.UtcNow.AddDays(SchoolRegistration.TrialDays));
     }
 
     /// <summary>Makes sure the Full plan exists and has a monthly price in the test country's price book.</summary>

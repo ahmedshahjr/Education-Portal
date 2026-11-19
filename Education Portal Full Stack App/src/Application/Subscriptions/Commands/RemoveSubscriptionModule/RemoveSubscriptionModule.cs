@@ -16,7 +16,7 @@ public record RemoveSubscriptionModuleCommand : IRequest
     /// <summary>The school's public id, taken from the route (ENG-ID-02).</summary>
     public Guid SchoolId { get; init; }
 
-    public string ModuleCode { get; init; } = string.Empty;
+    public ModuleCode ModuleCode { get; init; } = ModuleCode.None;
 }
 
 public class RemoveSubscriptionModuleCommandValidator : AbstractValidator<RemoveSubscriptionModuleCommand>
@@ -24,7 +24,7 @@ public class RemoveSubscriptionModuleCommandValidator : AbstractValidator<Remove
     public RemoveSubscriptionModuleCommandValidator()
     {
         RuleFor(c => c.SchoolId).NotEmpty();
-        RuleFor(c => c.ModuleCode).NotEmpty().MaximumLength(PortalModule.CodeMaxLength);
+        RuleFor(c => c.ModuleCode).IsInEnum().NotEqual(ModuleCode.None);
     }
 }
 

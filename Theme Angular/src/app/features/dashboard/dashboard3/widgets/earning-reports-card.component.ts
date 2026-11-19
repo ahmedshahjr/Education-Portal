@@ -10,7 +10,13 @@ import { StatusBadgeComponent } from '../../../../shared/components/status-badge
 @Component({
   selector: 'app-earning-reports-card',
   standalone: true,
-  imports: [RouterLink, MatTooltipModule, ChartCardComponent, AppIconComponent, StatusBadgeComponent],
+  imports: [
+    RouterLink,
+    MatTooltipModule,
+    ChartCardComponent,
+    AppIconComponent,
+    StatusBadgeComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-chart-card title="Earning Reports" (menuAction)="onMenuAction($event)">

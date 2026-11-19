@@ -4,8 +4,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
 import { DashboardDataService } from '../../core/services/dashboard-data.service';
-import { DataTableColumn, DataTableComponent } from '../../shared/components/data-table/data-table.component';
-import { FilterOption, FilterPanelComponent } from '../../shared/components/filter-panel/filter-panel.component';
+import {
+  DataTableColumn,
+  DataTableComponent,
+} from '../../shared/components/data-table/data-table.component';
+import {
+  FilterOption,
+  FilterPanelComponent,
+} from '../../shared/components/filter-panel/filter-panel.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { TransactionItem, TransactionStatus } from '../../shared/models/dashboard.models';
 import { BreadcrumbItem } from '../../shared/models/navigation.models';
@@ -41,7 +47,8 @@ type TxStatusFilter = 'All' | TransactionStatus;
             <mat-card-content class="mm-tx-card-summary">
               <div>
                 <div class="mm-tx-card-eyebrow">
-                  {{ card.brand === 'visa' ? 'VISA Corporate' : 'Mastercard Business' }} · **** {{ card.last4 }}
+                  {{ card.brand === 'visa' ? 'VISA Corporate' : 'Mastercard Business' }} · ****
+                  {{ card.last4 }}
                 </div>
                 <div class="mm-tx-card-bal">{{ card.balance | currency }}</div>
               </div>

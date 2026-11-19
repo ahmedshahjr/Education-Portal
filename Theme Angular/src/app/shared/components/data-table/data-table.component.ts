@@ -97,7 +97,11 @@ export interface DataTableColumn<T> {
         </div>
 
         @if (paginated()) {
-          <mat-paginator [pageSize]="pageSize()" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons />
+          <mat-paginator
+            [pageSize]="pageSize()"
+            [pageSizeOptions]="[5, 10, 25]"
+            showFirstLastButtons
+          />
         }
       }
     </div>
@@ -168,7 +172,7 @@ export interface DataTableColumn<T> {
     }
   `,
 })
-export class DataTableComponent<T extends Record<string, any>> implements AfterViewInit {
+export class DataTableComponent<T extends object> implements AfterViewInit {
   readonly data = input.required<readonly T[]>();
   readonly columns = input.required<readonly DataTableColumn<T>[]>();
   readonly searchable = input<boolean>(true);

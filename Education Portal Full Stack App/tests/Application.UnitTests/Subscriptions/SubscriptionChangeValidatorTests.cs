@@ -37,20 +37,20 @@ public class SubscriptionChangeValidatorTests
         new ChangeSubscriptionPlanCommandValidator()
             .Validate(new ChangeSubscriptionPlanCommand { SchoolId = School, PlanCode = new string('A', Plan.CodeMaxLength + 1) }).IsValid.ShouldBeFalse();
 
-    [TestCase("FEES", true)]
-    [TestCase("", false)]
-    public void ShouldRequireAModuleCodeToAdd(string code, bool valid) =>
+    [TestCase(ModuleCode.Fees, true)]
+    [TestCase(ModuleCode.None, false)]
+    public void ShouldRequireAModuleCodeToAdd(ModuleCode code, bool valid) =>
         new AddSubscriptionModuleCommandValidator().Validate(new AddSubscriptionModuleCommand { SchoolId = School, ModuleCode = code }).IsValid.ShouldBe(valid);
 
-    [TestCase("FEES", true)]
-    [TestCase("", false)]
-    public void ShouldRequireAModuleCodeToRemove(string code, bool valid) =>
+    [TestCase(ModuleCode.Fees, true)]
+    [TestCase(ModuleCode.None, false)]
+    public void ShouldRequireAModuleCodeToRemove(ModuleCode code, bool valid) =>
         new RemoveSubscriptionModuleCommandValidator().Validate(new RemoveSubscriptionModuleCommand { SchoolId = School, ModuleCode = code }).IsValid.ShouldBe(valid);
 
     [Test]
-    public void ShouldRefuseAModuleCodeThatIsTooLong()
+    public void ShouldRefuseAModuleCodeThatIsNotKnown()
     {
-        var code = new string('A', PortalModule.CodeMaxLength + 1);
+        var code = (ModuleCode)99;
 
         new AddSubscriptionModuleCommandValidator().Validate(new AddSubscriptionModuleCommand { SchoolId = School, ModuleCode = code }).IsValid.ShouldBeFalse();
         new RemoveSubscriptionModuleCommandValidator().Validate(new RemoveSubscriptionModuleCommand { SchoolId = School, ModuleCode = code }).IsValid.ShouldBeFalse();

@@ -6,7 +6,7 @@ namespace EducationPortal.Domain.Entities;
 /// (<c>SchoolId</c>) and covered by the tenant query filter (SEC-AUTHZ-03). A school has at most one pending request
 /// per module.
 /// </summary>
-public class AddOnRequest : BaseAuditableEntity
+public class AddOnRequest : BaseAuditableEntity, ITenantOwned
 {
     private AddOnRequest()
     {

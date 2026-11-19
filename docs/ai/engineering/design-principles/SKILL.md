@@ -30,6 +30,7 @@ These principles are applied **strictly but pragmatically**: they exist to keep 
 | ENG-DESIGN-10 | **Composition over inheritance.** Inherit only from the template base types (`BaseEntity`, `BaseAuditableEntity`, `ValueObject`, `BaseEvent`) or framework types. No new inheritance hierarchies deeper than one level without an ADR. |
 | ENG-DESIGN-11 | **Tell, don't ask.** Business rules that protect an entity's invariants live in the entity (methods such as `Enrol(...)`, `Archive()`), not in handlers that read and set its properties. Handlers orchestrate; entities decide. |
 | ENG-DESIGN-12 | Keep methods short and flat: one level of abstraction per method, early returns instead of deep nesting, no boolean flag parameters that switch behaviour (make two methods). |
+| ENG-DESIGN-13 | **No constants for a fixed set of choices.** A group of named choices (roles, statuses, kinds, languages, plan or module codes) is an `enum` with explicit numbers (ENG-ENUM-02, identifiers-enums skill), not a set of `const` strings or ints. `const` is for single values only: numeric limits, paths, image tags, format strings and names that attribute arguments need. A choice that is stored as a code (module codes, plan codes) changes its stored format and API contract, so it moves to an enum only with an ADR and a migration. |
 
 ## Review questions
 

@@ -13,32 +13,28 @@ describe('visibleNavSections', () => {
     expect(ids(true, false)).toEqual(['dashboard', 'branding', 'subscription']);
   });
 
+  it('shows class offerings to a school administrator only when the School module is on', () => {
+    const schoolItems = (enabled: string[]) =>
+      visibleNavSections(APP_NAV_SECTIONS, true, false, new Set(enabled))
+        .flatMap((s) => s.items.map((i) => i.id))
+        .filter((id) => id === 'class-offerings');
+    expect(schoolItems(['School'])).toEqual(['class-offerings']);
+    expect(schoolItems([])).toEqual([]);
+  });
+
   it('shows the master portal to master tenant administrators', () => {
     expect(ids(true, true)).toEqual([
       'dashboard',
       'branding',
       'schools',
       'countries',
-      'plans',
-      'price-books',
       'add-on-requests',
       'modules',
+      'school-requests',
+      'pricing',
+      'invoices',
+      'development-data',
     ]);
-  });
-
-  it('shows Roles to a school administrator only while the Users & Roles module is on', () => {
-    const schoolRoles = (enabled: string[]) =>
-      visibleNavSections(APP_NAV_SECTIONS, true, false, new Set(enabled))
-        .flatMap((s) => s.items.map((i) => i.id))
-        .includes('roles');
-
-    expect(schoolRoles(['USERS_ROLES'])).toBe(true);
-    expect(schoolRoles([])).toBe(false);
-    expect(
-      visibleNavSections(APP_NAV_SECTIONS, true, true, new Set(['USERS_ROLES']))
-        .flatMap((s) => s.items.map((i) => i.id))
-        .includes('roles')
-    ).toBe(false);
   });
 
   it('shows an item of a module only when the module is on for the school', () => {

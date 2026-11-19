@@ -5,7 +5,7 @@ import { Directive, ElementRef, HostListener, inject, output } from '@angular/co
   standalone: true,
 })
 export class ClickOutsideDirective {
-  private readonly elementRef = inject(ElementRef<HTMLElement>);
+  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   readonly appClickOutside = output<void>();
 
   @HostListener('document:click', ['$event.target'])

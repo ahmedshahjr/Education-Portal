@@ -1,0 +1,7 @@
+{
+  "enabledPlugins": {
+    "ruflo-mods@ruflo": true,
+    "ruflo-swarm@ruflo": true,
+    "ruflo-console@ruflo": true
+  }
+}

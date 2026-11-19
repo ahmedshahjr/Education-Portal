@@ -1,0 +1,32 @@
+.mm-location {
+  display: grid;
+  gap: var(--mm-space-3);
+}
+
+.mm-location__map {
+  block-size: 20rem;
+  inline-size: 100%;
+  border-radius: var(--mm-radius-md);
+  overflow: hidden;
+  background: var(--mm-surface-container-high);
+}
+
+.mm-location__hint {
+  margin: 0;
+  color: var(--mm-text-muted);
+}
+
+.mm-location__coordinates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mm-space-3);
+}
+
+.mm-location__coordinates mat-form-field {
+  flex: 1 1 12rem;
+}
+
+.mm-location__error {
+  margin: 0;
+  color: var(--mm-error);
+}

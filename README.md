@@ -3,17 +3,16 @@
 A multi-tenant education portal for schools, built as an MVP.
 
 - **Master tenant** (the platform owner) oversees every school and manages the module catalogue it sells: core modules every school gets, and paid modules a school gets only when it buys them.
-- **School owners** manage their own school, its branches, roles and staff. Each school is reached on its own domain, such as `school1.com`.
-- **Branches** hold the day-to-day data: students, teachers, parents, courses, enrolments and grades.
-- Staff access = modules enabled for their school ∩ their role's rights per module (View/Create/Edit/Delete) ∩ the branches assigned to them.
+- **School owners** manage their own school, its campuses, roles and staff. Each school is reached on its own domain, such as `school1.com`.
+- **Campuses** hold the day-to-day data: students, teachers, parents, courses, enrolments and grades.
+- Staff access = modules enabled for their school ∩ their role's rights per module (View/Create/Edit/Delete) ∩ the campuses assigned to them.
 
-> **Status (2026-11-09):** step 1 of 4 (baseline) is done. Step 2 (schools, branches and permissions) is in progress. See the [roadmap](#roadmap).
+> **Status (2026-11-09):** step 1 of 4 (baseline) is done. Step 2 (schools, campuses and permissions) is in progress. See the [roadmap](#roadmap).
 
 ## Contents
 
 - [Tech stack](#tech-stack) and [repository layout](#repository-layout)
 - [Run it locally](#run-it-locally)
-- [System flow](#system-flow): the whole project in one diagram, generated from the code
 - [Architecture overview](#architecture-overview), starting with the end-to-end [architecture flow diagram](#architecture-flow-diagram) and its step-by-step walkthrough, then a [flow diagram for each technology](#technology-flows) (all listed in the [diagram index](#diagram-index), kept current by [CI](#keeping-the-diagrams-current))
 - [Development process](#development-process), including the [security and compliance rules](#security-and-compliance-rules) and the [engineering rules](#engineering-rules)
 - [Configuration and ports](#configuration-and-ports)
@@ -32,10 +31,11 @@ Every technology the portal uses, what it does here, and where its flow diagram 
 | API docs | OpenAPI + Scalar | Scalar 2.19 | OpenAPI document at `/openapi/v1.json` and the Scalar UI at `/scalar`, Development only | [NSwag client](#nswag-api-client-generation-flow) |
 | Use cases | MediatR | 14 | Every endpoint sends a command or query; pipeline behaviours log, authorize, validate and time it | [How a request flows](#how-a-request-flows), [authorization](#authorization-and-module-check-flow) |
 | Validation | FluentValidation | 12 | One validator per request, run by `ValidationBehaviour`; failures become 400 | [How a request flows](#how-a-request-flows) |
-| Mapping | AutoMapper | 16 | Entity to DTO maps in the Application layer | [How a request flows](#how-a-request-flows) |
+| Mapping | Hand-written mapping in handlers | n/a | No mapping library: DTOs are built by hand in the Application layer | [How a request flows](#how-a-request-flows) |
 | Guards | Ardalis.GuardClauses | 5 | Argument and lookup checks in handlers and start-up code; `Guard.Against.NotFound` becomes 404 | [How a request flows](#how-a-request-flows) |
 | Scheduling | Quartz.NET (`Quartz`) | 4.7 | Runs the daily subscription lifecycle job inside the API, on a UTC cron schedule kept in memory | [Subscription lifecycle job](#subscription-lifecycle-job-flow) |
 | Data access | EF Core with Npgsql | EF Core 10, Npgsql provider 10 | `ApplicationDbContext`, entity configurations, query filters for tenants and soft delete, save interceptors | [EF Core](#ef-core-and-postgresql-flow) |
+| Development data | Bogus | Bogus 35.6.5 | `Infrastructure/Data/DevelopmentData/DevelopmentDataGenerator.cs`, Development only | [Development data](#repository-layout) |
 | Database | PostgreSQL | Aspire container (Azure Database for PostgreSQL on publish) | One shared database, `EducationPortalDb`, for every school | [EF Core](#ef-core-and-postgresql-flow) |
 | Sign-in | ASP.NET Core Identity with cookies | 10 | Accounts, password check, lockout, `SchoolId` claim, 15 minute sliding and 12 hour absolute session | [Sign-in](#sign-in-flow-aspnet-core-identity) |
 | Multi-tenancy | Host-based tenant resolution (own code) | n/a | Maps the request host to a school before any endpoint runs; unknown hosts get 404 | [Tenant resolution](#tenant-resolution-flow) |
@@ -120,9 +120,7 @@ Then:
 2. Click the **webfrontend** URL to open the Angular app.
 3. Sign in. The address picks the school, so the login page already shows that school's name, logo and colours:
    - `http://localhost:<port>` is the **master tenant** (the platform owner). Account: `administrator@localhost`.
-   - `http://demo.localhost:<port>` (same port) is the **Demo School**, in Pakistan (English and Urdu). Account: `administrator@demo.localhost`.
-   - `http://uae.localhost:<port>` (same port) is the **Demo School UAE** (English and Arabic). Account: `administrator@uae.localhost`.
-   - `http://usa.localhost:<port>` (same port) is the **Demo School USA**, in the United States (English, US date and number formats, US dollars, `America/New_York` as the fallback time zone). Account: `administrator@usa.localhost`.
+   - Schools are not seeded any more. Create them through the API, or generate fake ones with `POST /api/DevelopmentData/generate` (Development only, master administrator, Bogus-based; limits in the endpoint description: at most 500 schools, 50 campuses per school, 5000 people per campus and 1,000,000 people per call).
 
    All use the Development-only password `Local-Dev-Only-2026!`. They exist only in your local database, and only in Development. `*.localhost` names point to your own machine in every current browser, so no hosts-file change is needed. An account only works on its own school's address.
 4. API docs (Scalar) are at `/scalar` on the **webapi** URL.
@@ -137,43 +135,6 @@ dotnet test
 ```
 
 Functional and acceptance tests start PostgreSQL through Aspire, so Docker must be running. Acceptance tests also need the Playwright browsers, installed once (see the [command cheat sheet](#command-cheat-sheet)).
-
-## System flow
-
-How the project fits together, from a visitor opening the repository to a pull request being checked. The diagram and the lists under it are generated from the code by `docs/ai/readme-flow.py`: a Claude Code hook runs it after each edit, and the pre-commit hook fails a commit whose block is out of date. Do not edit the block by hand.
-
-<!-- flow:begin (generated by docs/ai/readme-flow.py; edit the code, not this block) -->
-
-```mermaid
-flowchart LR
-    visitor(["Visitor opens the repository"]) --> has{"Has README.md?"}
-    has -- Yes --> render["GitHub parses the Markdown and the Mermaid diagrams"]
-    render --> page["Renders the project page"]
-    has -- No --> files["Displays the file list only"]
-
-    developer(["Developer clones the repository"]) --> prereq["Prerequisites: .NET 10, Node.js, Docker"]
-    prereq --> aspire["aspire run (src/AppHost)"]
-    aspire --> api["API: 15 endpoint groups"]
-    aspire --> web["Angular app: 11 feature areas"]
-    aspire --> db[("PostgreSQL")]
-    web --> api
-    api --> db
-
-    developer --> tests["dotnet test: 6 test projects"]
-    tests --> guards["Compliance and README guards (docs/ai)"]
-    guards --> pr["Pull request into development"]
-    pr --> ci{{CI runs the same guards}}
-```
-
-The diagram is generated from the code: 7 source projects, 15 endpoint groups and 11 Angular feature areas. Each list below is read from the folder it names.
-
-**Endpoint groups** (`Web/Endpoints`): `AddOnRequests`, `Branches`, `Branding`, `Countries`, `Invoices`, `Localization`, `Locations`, `Modules`, `Plans`, `PriceBooks`, `SchoolRequests`, `SchoolRoles`, `Schools`, `Subscriptions`, `Users`.
-
-**Angular feature areas** (`src/Web/ClientApp/src/app/features`): `account`, `add-on-requests`, `auth`, `branches`, `branding`, `countries`, `home`, `modules`, `plans`, `price-books`, `school-requests`, `school-roles`, `schools`, `subscription`.
-
-**Solution projects**: `src/AppHost/AppHost.csproj`, `src/ServiceDefaults/ServiceDefaults.csproj`, `src/Application/Application.csproj`, `src/Domain/Domain.csproj`, `src/Infrastructure/Infrastructure.csproj`, `src/Shared/Shared.csproj`, `src/Web/Web.csproj`, `tests/Application.FunctionalTests/Application.FunctionalTests.csproj`, `tests/TestAppHost/TestAppHost.csproj`, `tests/Application.UnitTests/Application.UnitTests.csproj`, `tests/Domain.UnitTests/Domain.UnitTests.csproj`, `tests/Infrastructure.IntegrationTests/Infrastructure.IntegrationTests.csproj`, `tests/Web.AcceptanceTests/Web.AcceptanceTests.csproj`.
-
-<!-- flow:end -->
 
 ## Architecture overview
 
@@ -207,7 +168,7 @@ flowchart TB
     end
 
     subgraph infra["Infrastructure layer, src/Infrastructure"]
-        ctx["11. ApplicationDbContext<br/>query filters: SchoolId, BranchId, soft delete"]
+        ctx["11. ApplicationDbContext<br/>query filters: SchoolId, CampusId, soft delete"]
         save["12. Save interceptors<br/>audit fields, domain events"]
         secrets["ISecretProvider<br/>Vault / Key Vault / AWS / GCP"]
         otel["OpenTelemetry<br/>logs, metrics, traces"]
@@ -243,7 +204,7 @@ flowchart TB
 8. **Endpoint.** One thin endpoint group per feature turns the HTTP request into a MediatR command or query. No business logic lives here.
 9. **MediatR pipeline.** Logging, unhandled exceptions, `AuthorizationBehaviour` (role, policy and the module switch for the school, 403 when the module is off), FluentValidation (400 with errors per field) and a slow-request warning. See [How a request flows](#how-a-request-flows) and [Authorization and module check flow](#authorization-and-module-check-flow).
 10. **Handler.** The use case itself. It turns public `Guid` ids into internal `int` ids first (`ResolveIdAsync`), so another school's id is simply not found (404).
-11. **Database access.** `ApplicationDbContext` (EF Core + Npgsql) applies the global query filters, so every query is limited to the current school (and branch) and hides soft-deleted rows. Master-tenant users bypass the school filter. See [EF Core and PostgreSQL flow](#ef-core-and-postgresql-flow).
+11. **Database access.** `ApplicationDbContext` (EF Core + Npgsql) applies the global query filters, so every query is limited to the current school (and campus) and hides soft-deleted rows. Master-tenant users bypass the school filter. See [EF Core and PostgreSQL flow](#ef-core-and-postgresql-flow).
 12. **Saving.** Interceptors fill the audit fields (`Created`, `CreatedBy`, `LastModified`, `LastModifiedBy`), dispatch domain events and record old and new values of commercial rows in `ChangeAuditEntries` on `SaveChangesAsync`, all in one transaction.
 
 Alongside the request path, the database connection string and other platform secrets come from `ISecretProvider` at start-up ([Secrets flow](#secrets-flow)), and every step reports logs, metrics and traces, tagged with `tenant.id`, to one OTLP endpoint ([Observability flow](#observability-flow-opentelemetry)). Locally, the Aspire AppHost starts all of it ([The system at runtime](#the-system-at-runtime), [Aspire orchestration flow](#aspire-orchestration-flow)).
@@ -258,7 +219,8 @@ Every diagram in this README, what it shows, and the code it is drawn from. When
 | [The system at runtime](#the-system-at-runtime) | Aspire resources, containers and how they connect | `src/AppHost/` |
 | [Clean Architecture layers](#clean-architecture-layers) | Projects and which references which | a `.csproj` added or removed, or its `<ProjectReference>` lines |
 | [How a request flows](#how-a-request-flows) | Endpoint to MediatR pipeline to handler to database | pipeline behaviours added or removed, `AddOpenBehavior` order in `src/Application/DependencyInjection.cs` |
-| [Multi-tenancy and permissions](#multi-tenancy-and-permissions-step-2-in-progress) | Master, schools and branches, and the checks on every request | `TenantResolution.cs`, `TenantResolver.cs`, query filters in `ApplicationDbContext.cs`, module/role/branch checks in `AuthorizationBehaviour.cs` |
+| [Multi-tenancy and permissions](#multi-tenancy-and-permissions-step-2-in-progress) | Master, schools and campuses, and the checks on every request | `TenantResolution.cs`, `TenantResolver.cs`, query filters in `ApplicationDbContext.cs`, module/role/campus checks in `AuthorizationBehaviour.cs` |
+| [User map](#user-map) | Who uses the portal (master, school administrator, school users, students and parents), what each sees and changes | `src/Web/Endpoints/Overview.cs`, `src/Application/Overview/`, role and right checks in `src/Application/Common/Behaviours/AuthorizationBehaviour.cs` |
 | [Aspire orchestration flow](#aspire-orchestration-flow) | Run mode and publish mode, start order | `src/AppHost/` |
 | [ASP.NET Core middleware pipeline](#aspnet-core-middleware-pipeline) | Middleware order | `app.Use…` / `app.Map…` / `builder.…` lines in `src/Web/Program.cs` |
 | [Tenant resolution flow](#tenant-resolution-flow) | Host to school, unknown host 404, session check | `src/Web/Infrastructure/TenantResolution.cs`, `src/Infrastructure/Identity/TenantResolver.cs` |
@@ -351,7 +313,7 @@ flowchart TB
 | Project | Contains | References |
 |---|---|---|
 | `Domain` | Entities, value objects, enums, domain events, constants | nothing |
-| `Application` | Use cases as MediatR commands and queries, FluentValidation validators, DTOs and AutoMapper maps, pipeline behaviours, interfaces | `Domain` |
+| `Application` | Use cases as MediatR commands and queries, FluentValidation validators, DTOs (mapped by hand), pipeline behaviours, interfaces | `Domain` |
 | `Infrastructure` | `ApplicationDbContext` (EF Core + Identity), entity configurations, save interceptors, `IdentityService`, database initialiser and seed data, the secrets layer, OpenTelemetry setup (`AddObservability`) | `Application`, `Shared` |
 | `Web` | The ASP.NET Core host: endpoint groups in `Endpoints/`, `CurrentUser`, `ProblemDetailsExceptionHandler`, OpenAPI and Scalar, the Angular app | `Application`, `Infrastructure`, `ServiceDefaults` |
 | `ServiceDefaults` | Health checks, HTTP resilience, service discovery | nothing |
@@ -394,7 +356,7 @@ The MediatR pipeline (`src/Application/DependencyInjection.cs`) runs in this ord
 | 4 | `ValidationBehaviour` | Runs the request's FluentValidation validators. |
 | 5 | `PerformanceBehaviour` | Logs a warning when a request takes longer than 500 ms. |
 
-Step 2 adds a permission check after authorization: the module is switched on for the school, the user's role allows the action, and the user is assigned to the branch.
+Step 2 adds a permission check after authorization: the module is switched on for the school, the user's role allows the action, and the user is assigned to the campus.
 
 `ProblemDetailsExceptionHandler` turns exceptions into standard error responses:
 
@@ -428,7 +390,7 @@ Step 2 adds a permission check after authorization: the module is switched on fo
 
 ### Multi-tenancy and permissions (step 2, in progress)
 
-Built so far: schools with their own domains, exactly one master tenant, tenant resolution from the host, sign-in scoped to the school, per-school branding, and the sellable module catalogue (core and paid modules with dependencies) with paid modules switched on per school. Branches and roles come next.
+Built so far: schools with their own domains, exactly one master tenant, tenant resolution from the host, sign-in scoped to the school, per-school branding, the sellable module catalogue (core and paid modules with dependencies) with paid modules switched on per school, and campuses with contact and registration details, their principal chosen from the school's people (UserDetails, with a user type). A school request is approved by the master tenant, which registers the school with a 30-day free trial of the Full plan and the modules that are on by default (ADR-017). Roles come next.
 
 The rules live in [AGENTS.md, section 2](AGENTS.md#2-multi-tenancy-and-permissions). This is how they fit together.
 
@@ -437,23 +399,23 @@ flowchart TB
     master["Master tenant<br/>platform owner, own domain"]
     school1["School 1<br/>school1.com"]
     school2["School 2<br/>school2.com"]
-    branch1["Main campus"]
-    branch2["North campus"]
-    branch3["City branch"]
+    campus1["Main campus"]
+    campus2["North campus"]
+    campus3["City campus"]
     master --> school1
     master --> school2
-    school1 --> branch1
-    school1 --> branch2
-    school2 --> branch3
+    school1 --> campus1
+    school1 --> campus2
+    school2 --> campus3
 ```
 
-- **One shared database.** Rows owned by a school have a `SchoolId`, and branch data also has a `BranchId`. EF Core global query filters add those conditions to every query, so handlers never filter by tenant by hand. Only explicitly authorized and audited master-tenant use cases read across schools.
-- **The domain picks the school.** Each school has its own domain. Before any endpoint runs, the API looks up the request's host in a domain table, and an unknown domain gets 404 with nothing served. The master portal has its own domain. The school is never taken from the request body, query string or a header. For local development, `localhost` is the master tenant and `demo.localhost` is the Demo School.
+- **One shared database.** Rows owned by a school have a `SchoolId`, and campus data also has a `CampusId`. EF Core global query filters add those conditions to every query, so handlers never filter by tenant by hand. Only explicitly authorized and audited master-tenant use cases read across schools.
+- **The domain picks the school.** Each school has its own domain. Before any endpoint runs, the API looks up the request's host in a domain table, and an unknown domain gets 404 with nothing served. The master portal has its own domain. The school is never taken from the request body, query string or a header. For local development, `localhost` is the master tenant; other schools are created through the API or the development data endpoint.
 - **The user must belong to that school.** The school in the user's sign-in must match the domain's school on every request; a mismatch is rejected and audited. Sign-in cookies are host-only, so a session from `school1.com` is never sent to `school2.com`.
-- **The branch is picked inside the app.** Branches never get their own domain. Staff, students and parents can belong to several branches and switch between them in the app, with the branch in the route (for example `/branches/12/students`). The server checks that branch against the user on every request.
+- **The campus is picked inside the app.** Campuses never get their own domain. Staff, students and parents can belong to several campuses and switch between them in the app, with the campus in the route (for example `/campuses/12/students`). The server checks that campus against the user on every request.
 - **Languages come from the school's country.** The master tenant manages countries (languages offered, default language, time zone, currency) on the **Countries and languages** page and assigns each school to one on the **Schools** page. ASP.NET Core request localization, with a culture provider that knows the school, answers each request in one of that school's languages only: the visitor's choice, then the browser's, then the country's default. Server messages come from `.resx` files: error titles in `src/Web/Resources`, validation messages and the property names inside them in `src/Application/Common/Localization` (Arabic and Urdu next to English; FluentValidation's built-in messages ship in Arabic, and the portal adds Urdu) ([ADR-005](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-005-Localization-Per-Country.md)).
 - **Location data for address dropdowns.** Countries, states and cities for Saudi Arabia, the UAE, Qatar, Kuwait, Bahrain, Oman, the United States, Japan and Pakistan come from the [Countries States Cities Database](https://github.com/dr5hn/countries-states-cities-database) (see [Data sources and licences](#data-sources-and-licences)). A filtered copy is committed as `src/Infrastructure/Data/Locations/locations.json` and `LocationDataImporter` loads it on every start-up, in every environment. It is safe to run again: countries match on their ISO 3166-1 code, states on their ISO 3166-2 code (or name in the country), cities on their name in the state, and rows administrators add (`IsCustom`) are never changed. A country the master tenant already has keeps its own name, languages, time zone and currency; only `Iso3`, `PhoneCode` and `NativeName` come from the data. Two Pakistan names are overridden by ISO code: `PK-IS` is "Islamabad Capital Territory" and `PK-JK` is "Azad Jammu and Kashmir". The three US military postal regions are left out. Any signed-in user reads the cascading dropdowns: `GET /api/Locations/countries`, `GET /api/Locations/countries/{countryId}/states` and `GET /api/Locations/states/{stateId}/cities` (active rows only, by name; `State.Type` travels by name, e.g. `"Province"`). To update the data, run `dotnet run scripts/update-location-data.cs -- <commit-sha>` from `Education Portal Full Stack App` and open a PR with the diff. Responses are not cached yet.
-- **Permissions are checked on the server.** Effective access = modules the master switched on for the school ∩ the rights the user's role gives per module (View, Create, Edit, Delete) ∩ the user's branches. The check runs in the MediatR pipeline, so hiding a button in Angular is never the only protection.
+- **Permissions are checked on the server.** Effective access = modules the master switched on for the school ∩ the rights the user's role gives per module (View, Create, Edit, Delete) ∩ the user's campuses. The check runs in the MediatR pipeline, so hiding a button in Angular is never the only protection.
 
 Every request to a school's domain passes these checks:
 
@@ -467,12 +429,12 @@ flowchart TB
     sameSchool -- no --> rejected["Rejected and audited"]
     sameSchool -- yes --> rights{"Module on and<br/>role allows it?"}
     rights -- no --> forbidden["403"]
-    rights -- yes --> branch{"Branch assigned<br/>to the user?"}
-    branch -- no --> hidden["404"]
-    branch -- yes --> handler["Handler runs, and query filters<br/>limit rows to the school and branches"]
+    rights -- yes --> campus{"Campus assigned<br/>to the user?"}
+    campus -- no --> hidden["404"]
+    campus -- yes --> handler["Handler runs, and query filters<br/>limit rows to the school and campuses"]
 ```
 
-A record from another school or branch returns 404 rather than 403, so ids can't be used to probe other tenants.
+A record from another school or campus returns 404 rather than 403, so ids can't be used to probe other tenants.
 
 **Ids on the API** (decided 2026-11-11, [ADR-008](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-008-Guid-Public-Ids-And-Numeric-Enums.md), [identifiers-enums skill](docs/ai/engineering/identifiers-enums/SKILL.md)). Every entity has an internal `int Id` (PostgreSQL `integer`) for keys, joins and query filters, and a `Guid PublicId` (version 7, an alternate key). The API only ever shows the `Guid`: routes are `{id:guid}`, DTOs carry `Guid` ids, and an internal number in a route or query string is refused. Handlers turn the `Guid` into the `int` before any business logic (`ResolveIdAsync`), through the tenant query filters, so another school's id is simply not found. Enums travel by name (`"Logo"`, never `2`), are stored as their number, and each enum column has a seeded lookup table (for example `SchoolRequestStatuses`, `SecurityAuditEventTypes`) so SQL reports can read the names.
 
@@ -485,17 +447,44 @@ A record from another school or branch returns 404 rather than 403, so ids can't
 
 - **Plans and price books** (decided 2026-11-13, [ADR-010](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-010-Plans-And-Regional-Price-Books.md)). The master tenant sells **plans** (named bundles of paid modules; core modules are in every plan) and single add-on modules, priced in a **price book** per country: one currency (ISO 4217), a price per billing cycle (Monthly or Yearly) for each plan and each paid module, as `numeric(18,2)`. In Development the seed adds the plans Starter, Standard and Full and price books for PK (PKR), SA (SAR), AE (AED) and US (USD) with placeholder prices to edit. API, master tenant only and audited: `GET/POST /api/Plans`, `GET/PUT/DELETE /api/Plans/{id}`, `GET/POST /api/PriceBooks`, `GET/PUT/DELETE /api/PriceBooks/{id}`, `PUT/DELETE /api/PriceBooks/{id}/prices` (a plan or module code, a billing cycle and a price). Subscriptions and invoices use the prices from the next phases.
 
-- **Free trial.** A new school created by the master tenant starts a three-month trial (90 days) on the Full plan, billed monthly afterwards, in the same save as the school and its first administrator. It needs the school's country to have an active price book and a price for the Full plan; without them the school is created with no subscription and the master starts one. The trial is `CreateSchoolCommandHandler.TrialDays`.
-- **Plans, price books and roles pages.** The master portal's **Plans** page adds and changes plans in a modal (name, description, paid modules). **Price books** lists the countries' books; opening one shows the monthly and yearly price of every plan and paid module, and a warning when a paid module has no monthly price (a school cannot be given such a module until it has one). The school's **Roles** page (module Users & Roles) lists roles; a role is edited on its own page, with View, Create, Edit and Delete per module the school has.
-- **Subscriptions** (decided 2026-11-13, [ADR-011](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-011-Subscriptions-And-Tenant-Modules.md)). The master tenant starts a school's subscription from a plan and/or add-on modules, one billing cycle and an optional trial. The school gets the plan's paid modules, the add-ons, the modules they require and every core module (`TenantModules`), priced from its country's price book; the price and currency are copied onto the subscription (`Subscriptions`), so later price edits do not change it. The subscription and its modules are saved in one transaction. A school has one subscription that is not cancelled. `Branches` is a minimal tenant-owned table and `School.DataRegion` (SouthAsia, MiddleEast, NorthAmerica) a new nullable column. API, master tenant only and audited: `GET/POST /api/Schools/{id}/subscription`, `PUT /api/Schools/{id}/data-region`. 
+- **Subscriptions** (decided 2026-11-13, [ADR-011](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-011-Subscriptions-And-Tenant-Modules.md)). The master tenant starts a school's subscription from a plan and/or add-on modules, one billing cycle and an optional trial. The school gets the plan's paid modules, the add-ons, the modules they require and every core module (`TenantModules`), priced from its country's price book; the price and currency are copied onto the subscription (`Subscriptions`), so later price edits do not change it. The subscription and its modules are saved in one transaction. A school has one subscription that is not cancelled. `Campuses` is a minimal tenant-owned table and `School.DataRegion` (SouthAsia, MiddleEast, NorthAmerica) a new nullable column. API, master tenant only and audited: `GET/POST /api/Schools/{id}/subscription`, `PUT /api/Schools/{id}/data-region`. 
 
-- **Module enforcement and school roles** (decided 2026-11-13, [ADR-012](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-012-Module-Enforcement-And-School-Roles.md)). A school can use a paid module only while an Active `TenantModule` of its subscription covers the current time (core modules are always on); a grant limited to a branch counts for that branch only. Answers are cached per school for five minutes in memory and dropped when a subscription or the catalogue changes (other server instances catch up within the five minutes). The old per-school switch table `SchoolModules` and `PUT /api/Schools/{id}/modules/{code}` are removed. Each school administrator manages the school's roles with View/Create/Edit/Delete rights per module: `GET/POST /api/SchoolRoles`, `PUT/DELETE /api/SchoolRoles/{id}` (tables `SchoolRoles` and `RolePermissions`). Rights in a module the school does not have are not shown and cannot be set; they are kept and come back with the module. Assigning roles to users comes later.
+- **Module enforcement and school roles** (decided 2026-11-13, [ADR-012](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-012-Module-Enforcement-And-School-Roles.md)). A school can use a paid module only while an Active `TenantModule` of its subscription covers the current time (core modules are always on); a grant limited to a campus counts for that campus only. Answers are cached per school for five minutes in memory and dropped when a subscription or the catalogue changes (other server instances catch up within the five minutes). The old per-school switch table `SchoolModules` and `PUT /api/Schools/{id}/modules/{code}` are removed. Each school administrator manages the school's roles with View/Create/Edit/Delete rights per module: `GET/POST /api/SchoolRoles`, `PUT/DELETE /api/SchoolRoles/{id}` (tables `SchoolRoles` and `RolePermissions`). Rights in a module the school does not have are not shown and cannot be set; they are kept and come back with the module. Assigning roles to users comes later.
 
 - **Invoices and manual payments** (decided 2026-11-13, [ADR-013](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-013-Invoices-And-Manual-Payments.md)). The master tenant issues an invoice for a school's subscription period (`Invoices`, `InvoiceLines`): the amount, currency and the tax rate (the school's own `Schools.TaxRateOverride` if set, else the country's `PriceBooks.TaxRate`, percent) are copied onto it, it is due in 30 days and numbered `INV-000123` from a database sequence. A subscription has one open invoice at a time and a period is invoiced once; the first paid period of a trial is invoiced with `nextPeriod`. The master records a manual payment (`Payments`: bank transfer, cash, cheque or wallet, with a reference) for the whole total through `IPaymentProvider` (only the manual provider exists; no card gateway, so no card data touches our servers). Paying marks the invoice Paid and activates or extends the school's subscription and its modules in one transaction. API, master tenant only and audited: `GET/POST /api/Invoices`, `GET /api/Invoices/{id}`, `POST /api/Invoices/{id}/payments`, `POST /api/Invoices/{id}/void`; the country's tax rate is set with `PUT /api/PriceBooks/{id}` and a school's own with `PUT /api/Schools/{id}/tax-rate`. Part payments, refunds and credit notes are not supported.
 - **Subscription lifecycle job** (decided 2026-11-13, [ADR-015](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-015-Subscription-Lifecycle-Job.md)). Every day at 01:00 UTC (Quartz.NET, `SubscriptionLifecycle:Schedule`) the API runs the lifecycle as the master tenant: trials past their end become past due, open invoices past their due date are marked overdue (`OverdueSince`, still payable) and their subscription past due, active subscriptions past their end become past due, past-due subscriptions are suspended after the grace period (`GracePeriodDays`, 30; modules off, no data deleted) and renewal reminders are queued (`RenewalReminders`, for the nearest of `ReminderDays` 30, 7 and 1; texts in `NotificationMessages` in English, Arabic and Urdu; nothing sends them yet). Running it twice on the same day changes nothing. Paying an invoice brings a suspended school back at once; a renewal of a subscription whose end has passed starts on the invoice date, so lapsed days are not billed. See the [flow](#subscription-lifecycle-job-flow).
 - **Change audit** (decided 2026-11-13, [ADR-016](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-016-Change-Audit-For-Commercial-Records.md)). Every change to a subscription, its modules, an invoice, a payment, an add-on request, the module catalogue, a plan or a price is recorded in `ChangeAuditEntries` with who made it (or the system, for the lifecycle job), when, and each old and new value, in the same save as the change. A school can only ever see entries about its own rows; no screen reads them yet.
 
 - **Subscription management and add-on requests** (decided 2026-11-13, [ADR-014](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-014-Subscription-Management-And-Add-On-Requests.md)). The master tenant suspends, reactivates and extends a school's subscription, changes its plan and adds or removes add-on modules (`/api/Schools/{id}/subscription/suspend`, `reactivate`, `extend`, `plan`, `modules`). Plan, add and remove share one engine that re-quotes from the subscription's price book; changes take effect at once with no credit or charge for the current period, and modules that leave expire but keep their data. A school administrator sees its own subscription, the add-ons it could take with prices and its requests on **My subscription** (`GET /api/Subscriptions/mine`) and asks for a module with `POST /api/AddOnRequests`; the master approves (the module is added in the same save) or rejects on the **Add-on requests** page. The Schools page gets a Subscription panel for the master (start, actions, invoices, record payment, void).
+
+### User map
+
+Who uses the portal, what each one sees and what each one can change. The rules behind it are in [AGENTS.md, section 2](AGENTS.md#2-multi-tenancy-and-permissions); the checks run on the server for every request.
+
+```mermaid
+flowchart LR
+    master["Master administrator<br/>administrator@localhost<br/>the software seller, owns no school"]
+    sadmin["School administrator<br/>administrator@&lt;school&gt;.localhost"]
+    staff["School users<br/>principals, teachers, other staff"]
+    campus["Campuses of one school<br/>chosen in the top bar when there are several"]
+    family["Students and parents<br/>planned, MVP step 3"]
+
+    master -->|"adds and approves schools, sets modules, prices, invoices"| sadmin
+    master -->|"dashboard: every school and its campuses"| campus
+    sadmin -->|"campuses, campus codes, branding, roles"| campus
+    sadmin -->|"adds, edits and deletes users"| staff
+    staff -->|"campus data, within the role's rights"| campus
+    family -.->|"read only, own children only (planned)"| campus
+```
+
+| User | Sees | Changes | Limited by |
+|---|---|---|---|
+| Master administrator | Every school and its campuses (the dashboard), the master portal menus | Schools, modules per school, plans and prices, invoices, approvals | Nothing in a school's modules; it has no school menus of its own |
+| School administrator | Its own school only, on its own domain | Its campuses, campus codes, users, roles, branding | The school's modules and the campuses it is assigned to |
+| School user (principal, teacher, staff) | Its school's data for the modules its role allows | Within its role's View, Create, Edit and Delete rights | Role rights per module; campus assignment (planned) |
+| Student and parent | Their own record and their children (planned) | Read only | Fixed rules: parents see only their children (AGENTS.md section 2) |
+
+A campus switcher in the top bar appears to a school administrator when the school has more than one campus. It narrows the campus list to the chosen campus. Users are not yet linked to campuses, so the switcher does not narrow them.
 
 ### Data and database
 
@@ -505,7 +494,7 @@ A record from another school or branch returns 404 rather than 403, so ids can't
 - Entities raise domain events instead of calling services. `DispatchDomainEventsInterceptor` publishes them through MediatR just before the changes are saved.
 - `ChangeAuditInterceptor` runs last and adds a `ChangeAuditEntry` to the same save for every added, changed or removed subscription, tenant module, invoice, invoice line, payment, add-on request, module, module dependency, plan, plan module, price book and price: who (or the system), when, which row, and each changed value before and after, as jsonb ([ADR-016](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-016-Change-Audit-For-Commercial-Records.md)). The table is append-only and filtered by school.
 - Aspire passes the connection string (`ConnectionStrings__EducationPortalDb`) to the API, so there is nothing to configure locally.
-- In Development the database is dropped and recreated on every start (`ApplicationDbContextInitialiser`: `EnsureDeleted`, then `EnsureCreated`) and then seeded. There are no EF Core migrations yet. They are required before any shared environment exists.
+- In Development the EF Core migrations are applied on every start (`MigrateAsync`, nothing is dropped), then the location data is imported and the start-up data is seeded (`DevelopmentDataSeeder`, idempotent: modules, plans, price books, the master tenant and its administrator; no schools or people). The first migration is `InitialCreate`. Tables live in one PostgreSQL schema per feature (`identity`, `access`, `schools`, `modules`, `billing`, `audit`, `lookups`, `admissions`; see `Data/DatabaseSchemas.cs`). Every school-owned entity implements `ITenantOwned`, and `ApplicationDbContext` gives all of them the tenant filter in one loop; two tests fail the build when an entity has a `SchoolId` without it. Modules are the fixed `ModuleCode` enum, so the master edits modules but cannot create or delete one. Outside Development the schema must be migrated by a reviewed migration script before the app starts.
 - Location reference data (`Countries`, `States`, `Cities`, and the `StateTypes` lookup) has no `SchoolId`: it is shared by every school. `States` and `Cities` have `IsActive` and `IsCustom` flags; the ISO codes (`Countries.Code`, `Countries.Iso3`, `States.IsoCode`) are unique, and a city name is unique within its state.
 - Student data is treated with the most care: personal fields are labelled by data class, never logged, and only ever synthetic in development and tests ([student-data-privacy skill](docs/ai/secure-compliance/student-data-privacy/SKILL.md)).
 
@@ -542,13 +531,13 @@ The API sends OpenTelemetry logs, metrics and traces over OTLP to one endpoint, 
 | Project | What it covers | Needs |
 |---|---|---|
 | `tests/Domain.UnitTests` | Entities and value objects | nothing |
-| `tests/Application.UnitTests` | Pipeline behaviours, exceptions, AutoMapper configuration | nothing |
+| `tests/Application.UnitTests` | Pipeline behaviours, exceptions, validators, handlers | nothing |
 | `tests/Infrastructure.IntegrationTests` | Empty for now; meant for EF Core and Identity tests | nothing |
 | `tests/Application.FunctionalTests` | Use cases end to end through MediatR, against a real PostgreSQL started by `tests/TestAppHost`. Respawn clears the data between tests. | Docker |
 | `tests/Web.AcceptanceTests` | Browser tests written as Reqnroll `.feature` files and run by Playwright against the whole app started by the AppHost | Docker and the Playwright browsers |
 | `src/Web/ClientApp` | Angular unit tests with Vitest | Node.js |
 
-Every new use case gets functional tests proving that an unauthenticated call gets 401, another school 404, another branch 404, a switched-off module 403 and a missing role right 403.
+Every new use case gets functional tests proving that an unauthenticated call gets 401, another school 404, another campus 404, a switched-off module 403 and a missing role right 403.
 
 ## Technology flows
 
@@ -693,11 +682,11 @@ flowchart TB
     policy -- no --> next
 ```
 
-Role rights per module (View, Create, Edit, Delete) and branch checks are added here as step 2 continues.
+Role rights per module (View, Create, Edit, Delete) and campus checks are added here as step 2 continues.
 
 ### EF Core and PostgreSQL flow
 
-`src/Infrastructure/Data/ApplicationDbContext.cs`, `Data/Interceptors/` and `ApplicationDbContextInitialiser.cs`.
+`src/Infrastructure/Data/ApplicationDbContext.cs`, `Data/Interceptors/`, `Data/DatabaseSchemas.cs` (one PostgreSQL schema per feature), `Data/DatabaseStartup.cs` (migrations at start-up in Development) and `Data/DevelopmentDataSeeder.cs`.
 
 ```mermaid
 flowchart TB
@@ -715,10 +704,10 @@ flowchart TB
     end
     npgsqlR --> pg[("PostgreSQL<br/>EducationPortalDb")]
     npgsqlW --> pg
-    init["Development start-up:<br/>EnsureDeleted, EnsureCreated, seed"] --> pg
+    init["Development start-up:<br/>apply migrations, import locations, seed (nothing dropped)"] --> pg
 ```
 
-The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Branch`, `Invoice`, `InvoiceLine`, `Payment`, `AddOnRequest`, `RenewalReminder`, `ChangeAuditEntry`, `SchoolRole` and `RolePermission` today. Every new school-owned entity is added to them (AGENTS.md section 2).
+The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Campus`, `Invoice`, `InvoiceLine`, `Payment`, `AddOnRequest`, `RenewalReminder`, `ChangeAuditEntry`, `SchoolRole`, `RolePermission` and `UserDetails` today. Every new school-owned entity is added to them (AGENTS.md section 2).
 
 ### Secrets flow
 
@@ -894,8 +883,8 @@ flowchart TB
 Every change, by a person or an AI assistant, follows [docs/ai/secure-compliance/SKILL.md](docs/ai/secure-compliance/SKILL.md), an overview that links to one skill per topic and one per standard (FedRAMP, GovRAMP, SOC 2, ISO 27001, OWASP, EU, PCI DSS). Together they hold numbered rules (such as `SEC-AUTHZ-03`) mapped to FedRAMP Moderate Rev 5 / NIST SP 800-53, GovRAMP, SOC 2, ISO/IEC 27001:2022 and the OWASP Top 10, plus EU rules (GDPR and related law) and PCI DSS v4.0.1 rules for card payments (when fees are added). CI guards on every pull request enforce the rules that can be checked automatically. If a request would break a rule, stop and name the rule. The ones that shape everyday work:
 
 - Every endpoint needs a signed-in user, and every MediatR request declares the module and right it needs (deny by default).
-- The school comes only from the domain. A branch id from the route is always checked against the user.
-- Records from another school or branch return 404; a switched-off module or missing right returns 403.
+- The school comes only from the domain. A campus id from the route is always checked against the user.
+- Records from another school or campus return 404; a switched-off module or missing right returns 403.
 - No secrets and no real personal data in code, tests, logs, commits or pull requests. Test and demo data is synthetic.
 - Never log personal data such as names, emails or grades; log ids instead.
 - Every pull request fills in the security checklist from the pull request template.
@@ -966,13 +955,13 @@ All engineering skills in the repository (generated from `docs/ai/engineering/` 
 | Step | Scope | Status |
 |---|---|---|
 | 1. Baseline | Turn the template into the `EducationPortal` solution: Angular and PostgreSQL only, samples removed, build and tests green | Done (PR #1) |
-| 2. Schools, branches and permissions | Schools and their domains, module switches in the master portal, branches, roles and staff, plus tests that schools and branches can't see each other's data | In progress |
-| 3. Academics | Students, teachers, parents, courses, enrolments and grades (several scored assessments per enrolment), all respecting modules and branches | Next |
+| 2. Schools, campuses and permissions | Schools and their domains, module switches in the master portal, campuses, roles and staff, plus tests that schools and campuses can't see each other's data | In progress |
+| 3. Academics | Students, teachers, parents, courses, enrolments and grades (several scored assessments per enrolment), all respecting modules and campuses | Next |
 | 4. Master overview and polish | Cross-school dashboard, demo data, smoke tests per role | Planned |
 
 Out of scope for the MVP: fees, attendance, timetables, billing schools, microservices and database-per-school.
 
-### Branches and pull requests
+### Campuses and pull requests
 
 `main` holds released work. `development` is the integration branch, so check it out for the latest code. Nobody pushes to `main` or `development` directly.
 
@@ -994,7 +983,7 @@ Record new or changed decisions in `AGENTS.md` in the same pull request, and wri
 
 Work from the inside out. Using a `Courses` feature as the example:
 
-1. **Domain:** add `src/Domain/Entities/Course.cs`, inheriting `BaseAuditableEntity` (which brings the `int Id` and the `Guid PublicId`). Give tenant-owned entities an `int SchoolId`, and also a `BranchId` if they belong to a branch. Label personal data fields with their data class.
+1. **Domain:** add `src/Domain/Entities/Course.cs`, inheriting `BaseAuditableEntity` (which brings the `int Id` and the `Guid PublicId`). Give tenant-owned entities an `int SchoolId`, and also a `CampusId` if they belong to a campus. Label personal data fields with their data class.
 2. **Application:** scaffold the use cases from the `src/Application` folder:
 
    ```cmd
@@ -1034,7 +1023,7 @@ Work from the inside out. Using a `Courses` feature as the example:
    ```
 
 5. **Angular:** run `dotnet build`, then restart the app (or run `npm run generate-api`) so `web-api-client.ts` gets a `CoursesClient`. Then add the component and its route.
-6. **Tests:** functional tests for each use case with the five denial cases (401, other school 404, other branch 404, switched-off module 403, missing right 403), validator tests with boundary and malicious input, unit tests for domain logic, and an acceptance test for important screens.
+6. **Tests:** functional tests for each use case with the five denial cases (401, other school 404, other campus 404, switched-off module 403, missing right 403), validator tests with boundary and malicious input, unit tests for domain logic, and an acceptance test for important screens.
 
 ### Definition of done
 
@@ -1045,7 +1034,7 @@ Before you open a pull request:
 - [ ] If you changed the Angular app, `npm run build`, `npx ng test --watch=false` and `npm audit --audit-level=high` are clean in `src/Web/ClientApp`.
 - [ ] The six review questions in the pull request's Review checklist are answered and ticked (AGENTS.md section 7, rule 9; `python3 docs/ai/review-checklist-guard.py --pr-body-file body.md` runs the same check as CI).
 - [ ] The security checklist in the pull request is filled in ([overview, section 5](docs/ai/secure-compliance/SKILL.md#5-pr-security-checklist)).
-- [ ] New use cases have the five denial tests, and new school or branch data has `SchoolId`/`BranchId` and query filters.
+- [ ] New use cases have the five denial tests, and new school or campus data has `SchoolId`/`CampusId` and query filters.
 - [ ] Any new NuGet or npm package is justified in the pull request (why, licence, maintenance). NuGet versions live only in `Directory.Packages.props`.
 - [ ] No secrets, real personal data, `artifacts/`, `bin/`, `obj/` or `node_modules/` are committed.
 - [ ] `README.md` is updated in the same pull request for any change to technologies, flows and their diagrams, features, setup or configuration, so it stays an accurate overview (`python3 docs/ai/sync-ai-wrappers.py` refreshes the skills tables). `python3 docs/ai/readme-guard.py --base origin/development` runs the same check as CI.
@@ -1081,9 +1070,9 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | Aspire dashboard | `https://educationportal.dev.localhost:17080` (the console prints a sign-in link) |
 | API (`webapi`) | `https://localhost:7052` and `http://localhost:5132` |
 | API reference and health (in Development) | Scalar at `/scalar`, the OpenAPI document at `/openapi/v1.json`, health at `/health` and `/alive` |
-| Angular app (`webfrontend`) | `http://localhost:14200` (master tenant) or `http://demo.localhost:14200` (Demo School) |
+| Angular app (`webfrontend`) | `http://localhost:14200` (master tenant) |
 | Database connection | Passed in by Aspire as `ConnectionStrings__EducationPortalDb` |
-| Development seed accounts | `administrator@localhost` (master tenant, on `localhost`), `administrator@demo.localhost` (Demo School, Pakistan, on `demo.localhost`), `administrator@uae.localhost` (Demo School UAE, on `uae.localhost`) and `administrator@usa.localhost` (Demo School USA, on `usa.localhost`), password `Local-Dev-Only-2026!` (local database, Development only) |
+| Development seed account | `administrator@localhost` (master tenant, on `localhost`), password `Local-Dev-Only-2026!` (local database, Development only) |
 | Allowed hosts | `localhost` and `*.localhost` in Development (`AllowedHosts`); each school's domain is added when it is deployed |
 | Observability | `Observability:OtlpEndpoint` (set to the local Collector by Aspire), `TraceSampleRatio` (1.0 in Development, 0.1 elsewhere), `TenantIdAsMetricLabel` (off), `Enabled`. Grafana `http://localhost:13000`, Prometheus `http://localhost:9090`, Jaeger `http://localhost:16686`, Loki `http://localhost:3100`, Collector `localhost:4317`/`4318` ([docs/observability.md](Education%20Portal%20Full%20Stack%20App/docs/observability.md)) |
 | Subscription lifecycle | `SubscriptionLifecycle:Enabled` (true), `Schedule` (Quartz cron in UTC, `0 0 1 * * ?`), `GracePeriodDays` (30, 0 to 90), `ReminderDays` (`[30, 7, 1]`, each 1 to 365). Checked at start-up; bad values stop the app |

@@ -1,0 +1,4 @@
+[    3895ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://webfrontend-educationportal.dev.localhost:14200/api/Localization:1
+[    5597ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://webfrontend-educationportal.dev.localhost:14200/api/Users/me:1
+[    5809ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://webfrontend-educationportal.dev.localhost:14200/api/Branding:1
+[    5836ms] [LOG] Angular is running in development mode. @ http://webfrontend-educationportal.dev.localhost:14200/@fs/C:/Users/ahmed/source/repos/Education-Portal/Education%20Portal%20Full%20Stack%20App/src/Web/ClientApp/.angular/cache/22.2.6/EducationPortal.Web/vite/deps/core-mMOcrJt4.js?v=11a21682:9385

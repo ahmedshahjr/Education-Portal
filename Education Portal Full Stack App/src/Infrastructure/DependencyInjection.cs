@@ -1,6 +1,8 @@
 ﻿using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.DevelopmentData.Common;
 using EducationPortal.Application.Common.Security;
 using EducationPortal.Infrastructure.Data;
+using EducationPortal.Infrastructure.Data.DevelopmentData;
 using EducationPortal.Infrastructure.Data.Locations;
 using EducationPortal.Infrastructure.Data.Interceptors;
 using EducationPortal.Infrastructure.Identity;
@@ -40,8 +42,9 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
-        builder.Services.AddScoped<ApplicationDbContextInitialiser>();
+        builder.Services.AddScoped<DevelopmentDataSeeder>();
         builder.Services.AddScoped<LocationDataImporter>();
+        builder.Services.AddScoped<IDevelopmentDataGenerator, DevelopmentDataGenerator>();
 
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddMemoryCache();
@@ -106,6 +109,21 @@ public static class DependencyInjection
             // Check the stamp on every request, so a signed-out or disabled user is rejected on the next request
             // (SEC-AUTHN-07, SEC-AUTHN-08).
             options.ValidationInterval = TimeSpan.Zero;
+
+            // The stamp check rebuilds the session's principal on every request. The mark of a school that signed in on the master
+            // tenant's domain is not in the account, so it is carried over from the signed cookie. The tenant session check
+            // then still decides, on every request, whether the school may be used there.
+            options.OnRefreshingPrincipal = context =>
+            {
+                var hosted = context.CurrentPrincipal?.FindFirst(TenantClaimTypes.HostedOnMaster);
+
+                if (hosted is not null && context.NewPrincipal?.Identities.FirstOrDefault() is { } identity)
+                {
+                    identity.AddClaim(new System.Security.Claims.Claim(hosted.Type, hosted.Value));
+                }
+
+                return Task.CompletedTask;
+            };
         });
 
         services.PostConfigureAll<CookieAuthenticationOptions>(options =>

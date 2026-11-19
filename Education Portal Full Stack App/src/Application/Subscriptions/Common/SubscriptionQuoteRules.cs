@@ -20,7 +20,7 @@ public static class SubscriptionQuoteRules
         IReadOnlyList<PortalModule> catalogue,
         IReadOnlyCollection<(int ModuleId, int RequiresModuleId)> dependencies,
         IReadOnlySet<int> planModuleIds,
-        IReadOnlyCollection<string> addOnCodes)
+        IReadOnlyCollection<ModuleCode> addOnCodes)
     {
         ArgumentNullException.ThrowIfNull(catalogue);
         ArgumentNullException.ThrowIfNull(dependencies);

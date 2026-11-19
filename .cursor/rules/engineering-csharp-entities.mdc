@@ -1,5 +1,5 @@
 ---
-description: C# entity and domain model design rules following Microsoft's official guidance (encapsulated entities, private setters, factory methods and guard clauses, value objects, domain events, nullable reference types, UTC DateTimeOffset, SchoolId/BranchId). Use when adding or changing a class in src/Domain (entity, value object, enum, domain event). Part of the mandatory Education Portal engineering rules.
+description: C# entity and domain model design rules following Microsoft's official guidance (encapsulated entities, private setters, factory methods and guard clauses, value objects, domain events, nullable reference types, UTC DateTimeOffset, SchoolId/CampusId). Use when adding or changing a class in src/Domain (entity, value object, enum, domain event). Part of the mandatory Education Portal engineering rules.
 globs:
 alwaysApply: false
 ---

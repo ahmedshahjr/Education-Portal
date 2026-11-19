@@ -75,7 +75,7 @@ public class ProblemDetailsExceptionHandler(
                 Extensions =
                 {
                     ["code"] = ModuleNotEnabledException.ErrorCode,
-                    ["module"] = notEnabled.ModuleCode,
+                    ["module"] = notEnabled.ModuleCode.ToString(),
                 },
             }),
             PasswordChangeRequiredException => (StatusCodes.Status403Forbidden, new ProblemDetails

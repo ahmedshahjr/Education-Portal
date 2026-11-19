@@ -1,0 +1,66 @@
+<app-page-header
+  title="Invoices"
+  i18n-title="@@invoices.title"
+  subtitle="Invoices issued to schools for their subscription periods."
+  i18n-subtitle="@@invoices.subtitle"
+></app-page-header>
+
+@if (loadError(); as message) {
+  <app-empty-state
+    icon="alert-triangle"
+    title="Invoices could not be loaded"
+    i18n-title="@@invoices.loadError"
+    [description]="message"
+    actionLabel="Try again"
+    i18n-actionLabel="@@common.tryAgain"
+    (action)="load()"
+  />
+} @else {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <app-data-table
+        [data]="invoices() ?? []"
+        [columns]="columns()"
+        [loading]="invoices() === null"
+        searchPlaceholder="Search invoices..."
+        i18n-searchPlaceholder="@@invoices.search"
+        emptyTitle="No invoices"
+        i18n-emptyTitle="@@invoices.empty"
+        emptyDescription="Invoices appear here once a school's period is billed."
+        i18n-emptyDescription="@@invoices.emptyDescription"
+      >
+        <div table-actions>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label i18n="@@invoices.school">School</mat-label>
+            <mat-select [value]="schoolFilter()" (selectionChange)="setSchool($event.value)">
+              <mat-option value="" i18n="@@invoices.allSchools">All schools</mat-option>
+              @for (school of schools(); track school.id) {
+                <mat-option [value]="school.id">{{ school.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </app-data-table>
+    </mat-card-content>
+  </mat-card>
+}
+
+<ng-template #statusCell let-invoice>
+  @if (invoice.status === statuses.Paid) {
+    <app-status-badge tone="success" i18n="@@invoices.paid">Paid</app-status-badge>
+  } @else if (invoice.status === statuses.Void) {
+    <app-status-badge tone="error" i18n="@@invoices.void">Void</app-status-badge>
+  } @else if (invoice.overdueSince) {
+    <app-status-badge tone="error" i18n="@@invoices.overdue">Overdue</app-status-badge>
+  } @else {
+    <app-status-badge tone="warning" i18n="@@invoices.open">Open</app-status-badge>
+  }
+</ng-template>
+
+<ng-template #periodCell let-invoice>
+  {{ invoice.periodStart | localDate }} – {{ invoice.periodEnd | localDate }}
+</ng-template>
+
+<ng-template #dueCell let-invoice>
+  {{ invoice.dueDate | localDate }}
+</ng-template>

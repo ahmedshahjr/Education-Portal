@@ -205,7 +205,7 @@ export class SearchDialogComponent {
     const q = this.query().trim().toLowerCase();
     if (!q) return this.entries().slice(0, 8);
     return this.entries().filter(
-      (e) => e.title.toLowerCase().includes(q) || e.subtitle.toLowerCase().includes(q)
+      (e) => e.title.toLowerCase().includes(q) || e.subtitle.toLowerCase().includes(q),
     );
   });
 

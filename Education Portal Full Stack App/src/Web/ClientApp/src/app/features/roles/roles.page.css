@@ -1,0 +1,70 @@
+:host {
+  display: block;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+h2,
+h3 {
+  margin-block: var(--mm-space-4) var(--mm-space-2);
+}
+
+.mm-error,
+[role='alert'] {
+  color: var(--mm-error);
+}
+.mm-roles__hint {
+  color: var(--mm-text-muted);
+}
+
+.mm-roles__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mm-space-3);
+  padding-block: var(--mm-space-3);
+  border-bottom: 1px solid var(--mm-border-color);
+}
+
+.mm-roles__name {
+  font-weight: 600;
+  min-width: 160px;
+}
+
+.mm-roles__rights {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  font-size: var(--mm-text-sm);
+}
+
+.mm-roles__module {
+  font-weight: 600;
+}
+
+.mm-roles__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-space-3);
+}
+
+.mm-roles__matrix {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 640px;
+}
+
+.mm-roles__matrix th,
+.mm-roles__matrix td {
+  padding: var(--mm-space-2);
+  border-bottom: 1px solid var(--mm-border-color);
+  text-align: center;
+}
+
+.mm-roles__matrix th[scope='row'] {
+  text-align: start;
+}

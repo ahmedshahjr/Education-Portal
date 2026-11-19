@@ -11,13 +11,16 @@ import {
   ConfirmationDialogData,
 } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { FilterOption, FilterPanelComponent } from '../../shared/components/filter-panel/filter-panel.component';
+import {
+  FilterOption,
+  FilterPanelComponent,
+} from '../../shared/components/filter-panel/filter-panel.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { SearchInputComponent } from '../../shared/components/search-input/search-input.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { ProjectCategory, ProjectItem } from '../../shared/models/dashboard.models';
 import { BreadcrumbItem } from '../../shared/models/navigation.models';
-import { ProjectFormDialogComponent } from './project-form-dialog.component';
+import { ProjectFormDialogComponent, ProjectFormResult } from './project-form-dialog.component';
 
 type CategoryFilter = 'All' | ProjectCategory;
 
@@ -110,11 +113,20 @@ type CategoryFilter = 'All' | ProjectCategory;
                     <td>
                       <app-status-badge
                         [label]="item.status"
-                        [tone]="item.status === 'Active' ? 'success' : item.status === 'In Review' ? 'warning' : 'primary'"
+                        [tone]="
+                          item.status === 'Active'
+                            ? 'success'
+                            : item.status === 'In Review'
+                              ? 'warning'
+                              : 'primary'
+                        "
                       />
                     </td>
                     <td class="text-right font-medium">
-                      {{ item.budget | currency : 'USD' : 'symbol' : item.budget < 10 ? '1.3-4' : '1.2-2' }}
+                      {{
+                        item.budget
+                          | currency: 'USD' : 'symbol' : (item.budget < 10 ? '1.3-4' : '1.2-2')
+                      }}
                     </td>
                     <td class="text-right">
                       <div class="mm-crud-actions">
@@ -270,10 +282,13 @@ export class ProjectsPageComponent {
   }
 
   protected openCreateModal(): void {
-    const ref = this.dialog.open(ProjectFormDialogComponent, {
-      data: {},
-      maxWidth: '94vw',
-    });
+    const ref = this.dialog.open<ProjectFormDialogComponent, unknown, ProjectFormResult>(
+      ProjectFormDialogComponent,
+      {
+        data: {},
+        maxWidth: '94vw',
+      },
+    );
 
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
@@ -295,10 +310,13 @@ export class ProjectsPageComponent {
   }
 
   protected openEditModal(project: ProjectItem): void {
-    const ref = this.dialog.open(ProjectFormDialogComponent, {
-      data: { project },
-      maxWidth: '94vw',
-    });
+    const ref = this.dialog.open<ProjectFormDialogComponent, unknown, ProjectFormResult>(
+      ProjectFormDialogComponent,
+      {
+        data: { project },
+        maxWidth: '94vw',
+      },
+    );
 
     ref.afterClosed().subscribe((result) => {
       if (!result) return;

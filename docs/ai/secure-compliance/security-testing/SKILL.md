@@ -1,6 +1,6 @@
 ---
 name: security-testing
-description: Security testing rules (tenant/branch/module denial tests, architecture tests, hardening tests, validator tests, DAST). Use when writing or reviewing tests for any change. Part of the mandatory Education Portal compliance rules.
+description: Security testing rules (tenant/campus/module denial tests, architecture tests, hardening tests, validator tests, DAST). Use when writing or reviewing tests for any change. Part of the mandatory Education Portal compliance rules.
 ---
 
 # Security testing (MUST follow)
@@ -11,7 +11,7 @@ Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP Moderate Rev
 
 | ID | Rule |
 |---|---|
-| SEC-TEST-01 | Tenant/branch/module denial tests for every use case (SEC-AUTHZ-09). |
+| SEC-TEST-01 | Tenant/campus/module denial tests for every use case (SEC-AUTHZ-09). |
 | SEC-TEST-02 | Architecture tests: Domain/Application do not reference Infrastructure; every MediatR request has an authorization declaration; every tenant-owned entity has `SchoolId` and a query filter. |
 | SEC-TEST-03 | Tests for the hardening rules: security headers present, antiforgery required on unsafe methods, Scalar/OpenAPI not reachable outside Development, lockout after failed sign-ins, cookie flags. |
 | SEC-TEST-04 | Validators have unit tests for boundary and malicious input (overlong strings, script tags, SQL metacharacters, Unicode edge cases). |

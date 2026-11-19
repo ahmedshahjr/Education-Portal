@@ -117,18 +117,60 @@ public enum SecurityAuditEventType
     /// <summary>The master tenant changed a school's name or domain.</summary>
     SchoolProfileChanged = 40,
 
-    /// <summary>The master tenant added a branch to a school.</summary>
-    BranchCreated = 41,
+    /// <summary>The master tenant added a campus to a school.</summary>
+    CampusCreated = 41,
 
-    /// <summary>The master tenant changed a branch's name or code.</summary>
-    BranchUpdated = 42,
+    /// <summary>The master tenant changed a campus's name or code.</summary>
+    CampusUpdated = 42,
 
-    /// <summary>The master tenant deleted a branch (it is kept in the table).</summary>
-    BranchDeleted = 43,
+    /// <summary>The master tenant deleted a campus (it is kept in the table).</summary>
+    CampusDeleted = 43,
 
     /// <summary>The master tenant deleted a school (it is kept in the table and hidden everywhere).</summary>
     SchoolDeleted = 44,
 
     /// <summary>The school administrator changed the campus code prefix settings.</summary>
     CampusSettingsChanged = 45,
+
+    /// <summary>The school administrator added a person (principal, teacher or staff) to the school.</summary>
+    UserDetailsCreated = 46,
+
+    /// <summary>The master tenant approved a school request, which created the school.</summary>
+    SchoolRequestApproved = 47,
+
+    /// <summary>The master tenant rejected a school request.</summary>
+    SchoolRequestRejected = 48,
+
+    /// <summary>The school administrator changed a person (principal, teacher or staff) of the school.</summary>
+    UserDetailsUpdated = 49,
+
+    /// <summary>The school administrator deleted a person of the school.</summary>
+    UserDetailsDeleted = 50,
+
+    /// <summary>The school's public page text was saved (by its administrator or the master tenant).</summary>
+    PublicPageProfileChanged = 51,
+
+    /// <summary>The school's public page was published.</summary>
+    PublicPagePublished = 52,
+
+    /// <summary>The school's public page was unpublished.</summary>
+    PublicPageUnpublished = 53,
+
+    /// <summary>The school's curricula on its public page were replaced.</summary>
+    SchoolCurriculaChanged = 54,
+
+    /// <summary>A facility on the school's public page was added, changed or removed.</summary>
+    SchoolFacilityChanged = 55,
+
+    /// <summary>A photo was added to the school's gallery.</summary>
+    SchoolPhotoUploaded = 56,
+
+    /// <summary>A gallery photo's caption, order or image was changed.</summary>
+    SchoolPhotoChanged = 57,
+
+    /// <summary>A gallery photo was deleted (kept in the table).</summary>
+    SchoolPhotoDeleted = 58,
+
+    /// <summary>A class offering was added, changed or deleted.</summary>
+    ClassOfferingChanged = 59,
 }

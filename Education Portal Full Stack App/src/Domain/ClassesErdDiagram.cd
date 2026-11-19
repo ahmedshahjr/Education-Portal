@@ -1,0 +1,418 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" GroupingSetting="Access">
+  <Class Name="EducationPortal.Domain.Common.BaseAuditableEntity">
+    <Position X="27.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAAAAAAAAAAAAAAAACAAAAAAQAAAAAAAAAAAE=</HashCode>
+      <FileName>Common\BaseAuditableEntity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Common.BaseEntity">
+    <Position X="30" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAACAAgAAAAAAAAAAAAAAAAAAAAAAAEEAAABAAICAAA=</HashCode>
+      <FileName>Common\BaseEntity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Common.BaseEvent" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="59.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Common\BaseEvent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Common.BaseSoftDeletableEntity">
+    <Position X="23.25" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAABAAABAEAAAAAAAAAEAAgAAAAAAAQIAAAA=</HashCode>
+      <FileName>Common\BaseSoftDeletableEntity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Common.EnumNames" Collapsed="true">
+    <Position X="59.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Common\EnumNames.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Common.ValueObject">
+    <Position X="0.5" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAEAAoAAAAAAAAAAAAIAAAAAAAACAAiA=</HashCode>
+      <FileName>Common\ValueObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Constants.ModuleCodes" Collapsed="true">
+    <Position X="63" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIDAECoAAEBAAAACAAAAAQAACAAAAAEUAAAAAAgAAA=</HashCode>
+      <FileName>Constants\ModuleCodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Constants.Roles" Collapsed="true">
+    <Position X="61.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Constants\Roles.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.AddOnRequest" Collapsed="true">
+    <Position X="3" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAEAAAAgAAAAAAAAAQAAAAAAEAAAAAAADAAAIA=</HashCode>
+      <FileName>Entities\AddOnRequest.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.BrandingImage" Collapsed="true">
+    <Position X="9.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAEAAAAAgBAgAAAAAAAAAAAAAAAAAAAAAAQAEAAACA=</HashCode>
+      <FileName>Entities\BrandingImage.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.BrandingImageRules" Collapsed="true">
+    <Position X="61.25" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAgAAAgAAAAAAAAAAAAAAAAAIEAAgAQAEAEEA=</HashCode>
+      <FileName>Entities\BrandingImageRules.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.Campus">
+    <Position X="21" Y="10" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAEhQEBAgQAIIBAoAAQAAAAAQMSCEAQAJAIAgCI=</HashCode>
+      <FileName>Entities\Campus.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.CampusPhone">
+    <Position X="54.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAgAAgAEgAAAAAAAAAAAAAAAEAAAAAAAA=</HashCode>
+      <FileName>Entities\CampusPhone.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.ChangeAuditEntry" Collapsed="true">
+    <Position X="63" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAIAgAkAAAAAAAAAQAAAAAAABAAABEIAAAQ=</HashCode>
+      <FileName>Entities\ChangeAuditEntry.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.City">
+    <Position X="48" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAQEBAAQBAEACIAAQAAAABAAAAACEAQAgAIAA=</HashCode>
+      <FileName>Entities\City.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.Country">
+    <Position X="31.25" Y="10.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>QAQABDAACUAQAQkAAQQgAARAgAAJAEAAAIQAAAABAAI=</HashCode>
+      <FileName>Entities\Country.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.Invoice" Collapsed="true">
+    <Position X="5.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAUAAAAEEBBkgCCAAUIBgQIAAAAAQEACBAAAARACAEA=</HashCode>
+      <FileName>Entities\Invoice.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.InvoiceLine">
+    <Position X="57" Y="3.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAggAAAAAAAAACAAAAAAEAAAAAAAAAAAQg=</HashCode>
+      <FileName>Entities\InvoiceLine.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.ModuleCatalog" Collapsed="true">
+    <Position X="61.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAABAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\ModuleCatalog.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.ModuleDependency">
+    <Position X="32.25" Y="6.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAEAAgAAAAAAAAAA=</HashCode>
+      <FileName>Entities\ModuleDependency.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.ModuleDependencyGraph" Collapsed="true">
+    <Position X="64.75" Y="1.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAACAAAAA=</HashCode>
+      <FileName>Entities\ModuleDependencyGraph.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.Payment">
+    <Position X="41.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIACAAAAGgAAAASAhAACAAAAAAEAAAAAAAAAAAQA=</HashCode>
+      <FileName>Entities\Payment.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.Plan">
+    <Position X="23" Y="10" Width="2" />
+    <TypeIdentifier>
+      <HashCode>4AQAAAAAAAAgAAAAAAAgAAQAAAAAAEAAAAAAAAAAAAo=</HashCode>
+      <FileName>Entities\Plan.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.PlanModule">
+    <Position X="50.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAEAAAAAAACAAAAA=</HashCode>
+      <FileName>Entities\PlanModule.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.PortalModule">
+    <Position X="16.5" Y="10" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>4AwABAAAAAAgAAAAAAAgAAQAAAAAAEAAAAAAAAIAgAo=</HashCode>
+      <FileName>Entities\PortalModule.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.PriceBook">
+    <Position X="18.75" Y="10" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAQAIAAAAAGAAQACAAAAAAgABEAAQAAAAAAAAAA=</HashCode>
+      <FileName>Entities\PriceBook.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.PriceBookItem" Collapsed="true">
+    <Position X="12" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIBCQAAAAAJAIAAAAQACAAAAAAAAAAABCAAAAA=</HashCode>
+      <FileName>Entities\PriceBookItem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.PricingCatalog" Collapsed="true">
+    <Position X="59.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAAAAIAAAAAAAAAAAAAIAAgAABAgAAAAAAAAA=</HashCode>
+      <FileName>Entities\PricingCatalog.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.RenewalReminder">
+    <Position X="37.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAEBAAgAAAIAAAAAAAQACAAAAQAAAAAAAAAEA=</HashCode>
+      <FileName>Entities\RenewalReminder.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.RolePermission">
+    <Position X="43.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAABAAAAAhAAAAAAAAAQAAAAAAEABgACBAAAAAAA=</HashCode>
+      <FileName>Entities\RolePermission.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.School">
+    <Position X="25.5" Y="10" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>SABgOBEAQCAgAAAiAAiAAg4AAgAQAEAAIQAAAQIAQAA=</HashCode>
+      <FileName>Entities\School.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.SchoolRequest">
+    <Position X="52.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAgAAAAEAAAAAAQAAAAiAAAAEAAABAAAAAAAAQAAAoA=</HashCode>
+      <FileName>Entities\SchoolRequest.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.SchoolRole" Collapsed="true">
+    <Position X="7.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAAAgAAAAAAAAAQAAAAAAEAAAAAAAAAAgAA=</HashCode>
+      <FileName>Entities\SchoolRole.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.SecurityAuditEvent" Collapsed="true">
+    <Position X="63" Y="2.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAQAAkAAAAAAAAEAAIAAEAABAAIhAIBAAA=</HashCode>
+      <FileName>Entities\SecurityAuditEvent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.State" Collapsed="true">
+    <Position X="14.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QBAAAAAIAABAAQBAEAAAAAQAAACRAAAAASCCQAgAIAA=</HashCode>
+      <FileName>Entities\State.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.StudentProfile">
+    <Position X="34.5" Y="6.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAAAAeIgAiIAAgAAAIAAAiVAkACAAIAIjAACAA=</HashCode>
+      <FileName>Entities\StudentProfile.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.Subscription">
+    <Position X="39" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ECAAAAIEAAAAgADARQAIgACwCQBEBGAAAAAAAGAIAEA=</HashCode>
+      <FileName>Entities\Subscription.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.TenantModule">
+    <Position X="45.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEEIAAgAAAAACSAAwIAQAAACAAASEAAAAAAAA=</HashCode>
+      <FileName>Entities\TenantModule.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.Entities.UserDetails">
+    <Position X="28.25" Y="10.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>QAQAAEAAAACAgAAAAAAQAAAAAAAACEAAAAAAIAAAAAg=</HashCode>
+      <FileName>Entities\UserDetails.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EducationPortal.Domain.ValueObjects.ContactRules" Collapsed="true">
+    <Position X="64.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAgIAAACAABABAAAAAAAAAACAADADCAAAAA=</HashCode>
+      <FileName>ValueObjects\ContactRules.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EducationPortal.Domain.ValueObjects.HexColor">
+    <Position X="0.5" Y="3.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAAEIAgAAABQAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>ValueObjects\HexColor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="EducationPortal.Domain.Enums.ChangeAuditAction" Collapsed="true">
+    <Position X="59.5" Y="4.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAEAAABAAAEAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Enums\ChangeAuditAction.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.AddOnRequestStatus" Collapsed="true">
+    <Position X="59.5" Y="3.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAQAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Enums\AddOnRequestStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.BillingCycle" Collapsed="true">
+    <Position X="61.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>Enums\BillingCycle.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.BrandingImageKind" Collapsed="true">
+    <Position X="63" Y="3.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Enums\BrandingImageKind.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.CampusKind" Collapsed="true">
+    <Position X="64.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Enums\CampusKind.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.DataRegion" Collapsed="true">
+    <Position X="61.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAEAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Enums\DataRegion.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.Gender" Collapsed="true">
+    <Position X="63" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>Enums\Gender.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.InvoiceStatus" Collapsed="true">
+    <Position X="64.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgIAAAAAAAAAAAAAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>Enums\InvoiceStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.PaymentMethod" Collapsed="true">
+    <Position X="59.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAEAQAAAAAAAAAAAAEAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Enums\PaymentMethod.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.SchoolRequestStatus" Collapsed="true">
+    <Position X="61.25" Y="5.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAQAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Enums\SchoolRequestStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.SecurityAuditEventType" Collapsed="true">
+    <Position X="63" Y="5.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>QCEQBDgAIAAgAFSWCEUAQCAIBAEoCAAsgIIhiIQJBII=</HashCode>
+      <FileName>Enums\SecurityAuditEventType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.SecurityAuditOutcome" Collapsed="true">
+    <Position X="64.75" Y="5.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAgAAAACAAAAAAAAAAAA=</HashCode>
+      <FileName>Enums\SecurityAuditOutcome.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.StateType" Collapsed="true">
+    <Position X="59.5" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAARAAgAIABAAAEAAAAAChAAAAAAAAAAAABgAAAAg=</HashCode>
+      <FileName>Enums\StateType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.SubscriptionStatus" Collapsed="true">
+    <Position X="61.25" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAACAAAAAAAAAAAAAAABAAAAAgAACAAAAAAAA=</HashCode>
+      <FileName>Enums\SubscriptionStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.TenantModuleStatus" Collapsed="true">
+    <Position X="63" Y="6" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAAAAAAAAAAAAAAAAAAAAAAAhAAAAAAAAAAA=</HashCode>
+      <FileName>Enums\TenantModuleStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="EducationPortal.Domain.Enums.UserType" Collapsed="true">
+    <Position X="64.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEQAAAAQAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Enums\UserType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Calibri" Size="10" />
+</ClassDiagram>

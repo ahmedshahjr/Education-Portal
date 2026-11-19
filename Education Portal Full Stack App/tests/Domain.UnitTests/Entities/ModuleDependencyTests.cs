@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using EducationPortal.Domain.Entities;
 using NUnit.Framework;
 using Shouldly;
@@ -10,7 +11,7 @@ public class ModuleDependencyTests
     [Test]
     public void ShouldLinkTwoModules()
     {
-        var dependency = ModuleDependency.Create(Module("FEES", 2), Module("STUDENTS", 1));
+        var dependency = ModuleDependency.Create(Module(ModuleCode.Fees, 2), Module(ModuleCode.Students, 1));
 
         dependency.ModuleId.ShouldBe(2);
         dependency.RequiresModuleId.ShouldBe(1);
@@ -19,7 +20,7 @@ public class ModuleDependencyTests
     [Test]
     public void ShouldRefuseAModuleRequiringItself()
     {
-        var fees = Module("FEES", 2);
+        var fees = Module(ModuleCode.Fees, 2);
 
         Should.Throw<ArgumentException>(() => ModuleDependency.Create(fees, fees));
     }
@@ -27,7 +28,7 @@ public class ModuleDependencyTests
     [Test]
     public void ShouldRefuseAnUnsavedModule()
     {
-        Should.Throw<ArgumentOutOfRangeException>(() => ModuleDependency.Create(Module("FEES", 0), Module("STUDENTS", 1)));
+        Should.Throw<ArgumentOutOfRangeException>(() => ModuleDependency.Create(Module(ModuleCode.Fees, 0), Module(ModuleCode.Students, 1)));
     }
 
     // Two edges: A -> B (A requires B) and B -> C.
@@ -61,9 +62,9 @@ public class ModuleDependencyTests
         ModuleDependencyGraph.RequiredBy(looped, []).ShouldBeEmpty();
     }
 
-    private static PortalModule Module(string code, int id)
+    private static PortalModule Module(ModuleCode code, int id)
     {
-        var module = PortalModule.Create(code, code, "", isCore: false, sortOrder: 0);
+        var module = PortalModule.Create(code, code.ToString(), "", isCore: false, sortOrder: 0);
         module.Id = id;
         return module;
     }

@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ModuleCode } from '../../web-api-client';
 import { ModulesService } from './modules.service';
 
 describe('ModulesService', () => {
@@ -20,11 +21,11 @@ describe('ModulesService', () => {
     let done = false;
     service.load().subscribe(() => (done = true));
     // The generated client reads every response as a Blob, as the browser would deliver it.
-    http.expectOne('/api/Modules/enabled').flush(new Blob([JSON.stringify(['Branches', 'Students'])], { type: 'application/json' }));
+    http.expectOne('/api/Modules/enabled').flush(new Blob([JSON.stringify(['Campus', 'Students'])], { type: 'application/json' }));
 
     await vi.waitFor(() => expect(done).toBe(true));
-    expect(service.isEnabled('Students')).toBe(true);
-    expect(service.isEnabled('Grades')).toBe(false);
+    expect(service.isEnabled(ModuleCode.Students)).toBe(true);
+    expect(service.isEnabled(ModuleCode.Fees)).toBe(false);
   });
 
   it('shows no module when the list cannot be loaded', async () => {

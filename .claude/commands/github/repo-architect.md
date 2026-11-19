@@ -63,7 +63,7 @@ mcp__github__create_repository {
 mcp__github__push_files {
   owner: "ruvnet",
   repo: "claude-project-template",
-  branch: "main",
+  campus: "main",
   files: [
     {
       path: ".claude/commands/github/github-modes.md",
@@ -158,7 +158,7 @@ jobs:
         with: { node-version: '20' }
       - run: npm install && npm test`,
     message: "ci: Standardize integration workflow across repositories",
-    branch: "structure/standardization"
+    campus: "structure/standardization"
   })
 })
 ```
@@ -191,7 +191,7 @@ jobs:
   
   // Create optimized structure files
   mcp__github__push_files {
-    branch: "architecture/optimization",
+    campus: "architecture/optimization",
     files: [
       {
         path: "claude-code-flow/claude-code-flow/.github/ISSUE_TEMPLATE/integration.yml",

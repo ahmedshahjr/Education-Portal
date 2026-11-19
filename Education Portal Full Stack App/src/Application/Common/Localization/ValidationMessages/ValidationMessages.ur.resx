@@ -312,10 +312,10 @@
   <data name="CampusCodesExhausted" xml:space="preserve">
     <value>اس اسکول کا کوئی کیمپس کوڈ خالی نہیں بچا۔</value>
   </data>
-  <data name="BranchMainNotDeletable" xml:space="preserve">
+  <data name="CampusMainNotDeletable" xml:space="preserve">
     <value>مرکزی برانچ حذف نہیں ہو سکتی: ہر اسکول اسے رکھتا ہے۔</value>
   </data>
-  <data name="BranchHasModules" xml:space="preserve">
+  <data name="CampusHasModules" xml:space="preserve">
     <value>اس برانچ کے ماڈیولز ابھی تک فعال ہیں۔ پہلے انہیں بند کریں۔</value>
   </data>
   <data name="SchoolMasterNotDeletable" xml:space="preserve">
@@ -354,34 +354,67 @@
   <data name="AddOnRequestNotPending" xml:space="preserve">
     <value>صرف زیر التوا درخواست منظور یا مسترد کی جا سکتی ہے۔</value>
   </data>
-  <data name="CampusCityNeedsState" xml:space="preserve">
-    <value>پہلے صوبہ منتخب کریں، پھر شہر۔</value>
+  <data name="CampusStateNotInCountry" xml:space="preserve">
+    <value>ریاست اس اسکول کے ملک میں ہونی چاہیے۔</value>
   </data>
-  <data name="CampusCoordinatesTogether" xml:space="preserve">
-    <value>عرض بلد اور طول بلد ایک ساتھ دیں۔</value>
+  <data name="CampusCityNeedsState" xml:space="preserve">
+    <value>شہر منتخب کرنے سے پہلے ریاست منتخب کریں۔</value>
   </data>
   <data name="CampusCityNotInState" xml:space="preserve">
-    <value>یہ شہر منتخب صوبے میں نہیں ہے۔</value>
+    <value>منتخب شہر منتخب ریاست میں ہونا چاہیے۔</value>
   </data>
-  <data name="CampusGoogleMapsUrlFormat" xml:space="preserve">
-    <value>گوگل میپس کا لنک https پتہ ہونا چاہیے۔</value>
+  <data name="CampusPrincipalNotFound" xml:space="preserve">
+    <value>پرنسپل اسی اسکول کا فرد ہونا چاہیے۔</value>
   </data>
-  <data name="CampusAddressTooLong" xml:space="preserve">
-    <value>پتہ زیادہ سے زیادہ 300 حروف کا ہو سکتا ہے۔</value>
+  <data name="CampusPrincipalNotPrincipal" xml:space="preserve">
+    <value>منتخب شخص پرنسپل نہیں ہے۔</value>
   </data>
-  <data name="CampusShiftLimit" xml:space="preserve">
-    <value>کیمپس میں زیادہ سے زیادہ چار شفٹیں ہو سکتی ہیں۔</value>
+  <data name="PostalCodeInvalid" xml:space="preserve">
+    <value>پوسٹل کوڈ میں صرف حروف، ہندسے، خالی جگہ اور ہائفن ہو سکتے ہیں، زیادہ سے زیادہ 10 حروف۔</value>
   </data>
-  <data name="CampusShiftNameRequired" xml:space="preserve">
-    <value>ہر شفٹ کا نام لکھیں۔</value>
+  <data name="CampusLocationRequired" xml:space="preserve">
+    <value>کیمپس کو نقشے پر رکھیں۔</value>
   </data>
-  <data name="CampusShiftNameTooLong" xml:space="preserve">
-    <value>شفٹ کا نام زیادہ سے زیادہ 50 حروف کا ہو سکتا ہے۔</value>
+  <data name="LatitudeInvalid" xml:space="preserve">
+    <value>عرض البلد -90 اور 90 کے درمیان ہونا چاہیے۔</value>
   </data>
-  <data name="CampusShiftNamesDistinct" xml:space="preserve">
-    <value>کیمپس کی ہر شفٹ کا نام مختلف ہونا چاہیے۔</value>
+  <data name="UserDetailsIsPrincipal" xml:space="preserve">
+    <value>یہ شخص ایک کیمپس کا پرنسپل ہے۔ پہلے اس کیمپس کے لیے دوسرا پرنسپل منتخب کریں۔</value>
   </data>
-  <data name="CampusShiftEndAfterStart" xml:space="preserve">
-    <value>شفٹ اسی دن شروع ہو کر بعد میں ختم ہونی چاہیے۔</value>
+  <data name="LongitudeInvalid" xml:space="preserve">
+    <value>طول البلد -180 اور 180 کے درمیان ہونا چاہیے۔</value>
+  </data>
+  <data name="PhoneInvalid" xml:space="preserve">
+    <value>فون نمبر میں 7 سے 15 ہندسے ہوں اور آغاز میں + ہو سکتا ہے۔</value>
+  </data>
+  <data name="WebsiteInvalid" xml:space="preserve">
+    <value>ویب سائٹ ایک مکمل http یا https پتہ ہونا چاہیے۔</value>
+  </data>
+  <data name="CountryHasNoPriceBook" xml:space="preserve">
+    <value>اس ملک کی ابھی قیمتوں کی فہرست نہیں ہے۔ اسکول رجسٹر کرنے سے پہلے ماسٹر ٹیننٹ کو قیمتیں مقرر کرنی ہوں گی۔</value>
+  </data>
+  <data name="SchoolRequestNotPending" xml:space="preserve">
+    <value>صرف زیر التوا اسکول درخواست منظور یا مسترد کی جا سکتی ہے۔</value>
+  </data>
+  <data name="ModuleSwitchedOff" xml:space="preserve">
+    <value>یہ ماڈیول تمام اسکولوں کے لیے بند ہے، اس لیے اس اسکول کے لیے آن نہیں ہو سکتا۔</value>
+  </data>
+  <data name="CampusPhonesRequired" xml:space="preserve">
+    <value>کیمپس کے لیے کم از کم ایک فون نمبر شامل کریں۔</value>
+  </data>
+  <data name="CampusPhonesTooMany" xml:space="preserve">
+    <value>کیمپس میں زیادہ سے زیادہ پانچ فون نمبر ہو سکتے ہیں۔</value>
+  </data>
+  <data name="StudentAgeOutOfRange" xml:space="preserve">
+    <value>طالب علم کی عمر داخلے کی تاریخ پر {0} سے {1} سال ہونی چاہیے۔</value>
+  </data>
+  <data name="StudentBirthDateInFuture" xml:space="preserve">
+    <value>تاریخ پیدائش مستقبل میں نہیں ہو سکتی۔</value>
+  </data>
+  <data name="StudentAdmissionBeforeBirth" xml:space="preserve">
+    <value>داخلے کی تاریخ تاریخ پیدائش سے پہلے نہیں ہو سکتی۔</value>
+  </data>
+  <data name="StudentAdmissionTooFarAhead" xml:space="preserve">
+    <value>داخلے کی تاریخ آج سے {0} دن سے زیادہ آگے نہیں ہو سکتی۔</value>
   </data>
 </root>

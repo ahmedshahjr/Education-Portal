@@ -1,0 +1,88 @@
+<app-page-header
+  title="Roles"
+  i18n-title="@@roles.title"
+  subtitle="What each role of the school may do in each module: view, create, edit and delete."
+  i18n-subtitle="@@roles.subtitle"
+></app-page-header>
+
+@if (loadError(); as message) {
+  <app-empty-state
+    icon="alert-triangle"
+    title="Roles could not be loaded"
+    i18n-title="@@roles.loadError"
+    [description]="message"
+    actionLabel="Try again"
+    i18n-actionLabel="@@common.tryAgain"
+    (action)="load()"
+  />
+} @else {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <app-data-table
+        [data]="roles() ?? []"
+        [columns]="columns()"
+        [loading]="roles() === null"
+        searchPlaceholder="Search roles..."
+        i18n-searchPlaceholder="@@roles.search"
+        emptyTitle="No roles yet"
+        i18n-emptyTitle="@@roles.none"
+        emptyDescription="Add a role below: choose what it may do in each module."
+        i18n-emptyDescription="@@roles.noneDescription"
+      />
+    </mat-card-content>
+  </mat-card>
+
+  @if (roles() !== null) {
+    <mat-card class="mm-card mm-elevated">
+      <mat-card-content>
+        <h2 class="mm-roles__heading" i18n="@@roles.addHeading">Add a role</h2>
+        <form class="mm-roles__form" [formGroup]="form" (ngSubmit)="add()" novalidate>
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@roles.name">Role name</mat-label>
+            <input matInput formControlName="name" maxlength="100" autocomplete="off" />
+            @if (form.controls.name.hasError('required')) {
+              <mat-error i18n="@@roles.required">This field is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <table class="mm-roles__matrix" aria-label="Rights per module" i18n-aria-label="@@roles.matrixLabel">
+            <thead>
+              <tr>
+                <th scope="col" i18n="@@roles.module">Module</th>
+                @for (right of rights; track right.key) {
+                  <th scope="col">{{ right.label }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (module of modules(); track module.code) {
+                <tr>
+                  <th scope="row">{{ module | moduleText }}</th>
+                  @for (right of rights; track right.key) {
+                    <td>
+                      <input type="checkbox" [formControl]="grant(module.code, right.key)" [attr.aria-label]="(module | moduleText) + ' ' + right.label" />
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@roles.add">Add role</button>
+        </form>
+
+        @for (message of errors(); track message) {
+          <p class="mm-roles__error" role="alert">{{ message }}</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+}
+
+<ng-template #actionsCell let-role>
+  <span class="mm-crud-actions">
+    <button mat-icon-button type="button" class="mm-delete-btn" [disabled]="busy()" [attr.aria-label]="'Delete ' + role.name" i18n-aria-label="@@roles.deleteRole" (click)="$event.stopPropagation(); confirmDelete(role)">
+      <app-icon name="trash-2" [size]="16" />
+    </button>
+  </span>
+</ng-template>

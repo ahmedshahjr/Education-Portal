@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { LocalDatePipe } from '../../core/i18n/local-date.pipe';
@@ -24,7 +24,7 @@ import { AddOnRequestDto, AddOnRequestsClient, AddOnRequestStatus } from '../../
 })
 export class AddOnRequestsPage {
   private readonly client = inject(AddOnRequestsClient);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   protected readonly requests = signal<readonly AddOnRequestDto[] | null>(null);
   protected readonly loadError = signal<string | null>(null);
@@ -56,12 +56,12 @@ export class AddOnRequestsPage {
     request.subscribe({
       next: () => {
         this.busy.set(false);
-        this.snackBar.open(done, undefined, { duration: 3000 });
+        this.toast.success(done);
         this.load();
       },
       error: (error: unknown) => {
         this.busy.set(false);
-        this.snackBar.open(problemMessages(error)[0], undefined, { duration: 5000 });
+        this.toast.error(error);
       },
     });
   }

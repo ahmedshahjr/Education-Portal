@@ -9,7 +9,7 @@ const pending = {
   id: '0190f3a0-0000-7000-8000-000000000001',
   schoolId: '0190f3a0-0000-7000-8000-000000000005',
   schoolName: 'School One',
-  moduleCode: 'LIBRARY',
+  moduleCode: 'Library',
   moduleName: 'Library',
   status: 'Pending',
   created: '2026-11-13T09:00:00Z',

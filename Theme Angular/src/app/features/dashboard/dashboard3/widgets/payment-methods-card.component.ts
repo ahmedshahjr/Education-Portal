@@ -30,12 +30,7 @@ import { StatusBadgeComponent } from '../../../../shared/components/status-badge
             (click)="toggleCardFilter(card.id)"
           >
             <!-- Subtle geometric circle motif matching MaterialM reference -->
-            <svg
-              class="mm-bank-card__motif"
-              viewBox="0 0 120 120"
-              fill="none"
-              aria-hidden="true"
-            >
+            <svg class="mm-bank-card__motif" viewBox="0 0 120 120" fill="none" aria-hidden="true">
               <circle cx="95" cy="95" r="56" fill="currentColor" opacity="0.08" />
               <circle cx="95" cy="95" r="34" fill="currentColor" opacity="0.1" />
             </svg>
@@ -82,7 +77,13 @@ import { StatusBadgeComponent } from '../../../../shared/components/status-badge
             <div class="mm-tx-row__status">
               <app-status-badge
                 [label]="tx.status"
-                [tone]="tx.status === 'Approved' ? 'success' : tx.status === 'Pending' ? 'warning' : 'error'"
+                [tone]="
+                  tx.status === 'Approved'
+                    ? 'success'
+                    : tx.status === 'Pending'
+                      ? 'warning'
+                      : 'error'
+                "
               />
             </div>
 
@@ -124,8 +125,9 @@ import { StatusBadgeComponent } from '../../../../shared/components/status-badge
       justify-content: space-between;
       text-align: left;
       cursor: pointer;
-      transition: transform var(--mm-duration) var(--mm-ease),
-                  border-color var(--mm-duration) var(--mm-ease);
+      transition:
+        transform var(--mm-duration) var(--mm-ease),
+        border-color var(--mm-duration) var(--mm-ease);
 
       &:hover {
         transform: translateY(-2px);

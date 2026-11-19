@@ -209,7 +209,7 @@ export class KpiTrioRowComponent {
   ]);
 
   protected readonly balanceSeries = computed<ApexNonAxisChartSeries>(() =>
-    this.quarterMode() ? [32, 68] : [45, 55]
+    this.quarterMode() ? [32, 68] : [45, 55],
   );
 
   protected onCardAction(cardName: string, actionId: string): void {
@@ -217,7 +217,7 @@ export class KpiTrioRowComponent {
       this.quarterMode.update((q) => !q);
       this.notifications.notify(
         `${cardName}: switched to ${this.quarterMode() ? 'Last Quarter' : 'Last Month'}`,
-        'primary'
+        'primary',
       );
       return;
     }

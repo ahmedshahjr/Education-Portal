@@ -27,7 +27,7 @@ public record GetSchoolsQuery : IRequest<PaginatedList<SchoolSummaryDto>>
 }
 
 /// <param name="CountryId">The school's country, or <c>null</c> for the platform defaults.</param>
-public sealed record SchoolSummaryDto(Guid Id, string Name, string Domain, bool IsMaster, Guid? CountryId);
+public sealed record SchoolSummaryDto(Guid Id, string Name, string? Domain, bool IsMaster, Guid? CountryId);
 
 public class GetSchoolsQueryValidator : AbstractValidator<GetSchoolsQuery>
 {

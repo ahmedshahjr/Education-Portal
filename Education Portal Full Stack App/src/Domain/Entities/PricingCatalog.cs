@@ -1,4 +1,4 @@
-using EducationPortal.Domain.Constants;
+using EducationPortal.Domain.Enums;
 
 namespace EducationPortal.Domain.Entities;
 
@@ -12,16 +12,16 @@ public static class PricingCatalog
     public const string Standard = "STANDARD";
     public const string Full = "FULL";
 
-    /// <summary>The plans with the codes of their paid modules.</summary>
-    public static IReadOnlyList<(string Code, string Name, string Description, IReadOnlyList<string> Modules)> Plans { get; } =
+    /// <summary>The plans with their paid modules. A plan's own code stays data: the master can add plans, and a school can have its own.</summary>
+    public static IReadOnlyList<(string Code, string Name, string Description, IReadOnlyList<ModuleCode> Modules)> Plans { get; } =
     [
         (Starter, "Starter", "Core modules with attendance and exams.",
-            [ModuleCodes.Attendance, ModuleCodes.Exams]),
+            [ModuleCode.Attendance, ModuleCode.Exams]),
         (Standard, "Standard", "Starter plus admissions, fees, parent communication and timetable.",
-            [ModuleCodes.Attendance, ModuleCodes.Exams, ModuleCodes.Admissions, ModuleCodes.Fees, ModuleCodes.ParentCommunication, ModuleCodes.Timetable]),
+            [ModuleCode.Attendance, ModuleCode.Exams, ModuleCode.Admissions, ModuleCode.Fees, ModuleCode.ParentCommunication, ModuleCode.Timetable]),
         (Full, "Full", "Every module.",
-            [ModuleCodes.Attendance, ModuleCodes.Exams, ModuleCodes.Admissions, ModuleCodes.Fees, ModuleCodes.ParentCommunication, ModuleCodes.Timetable,
-             ModuleCodes.HrPayroll, ModuleCodes.Transport, ModuleCodes.Library, ModuleCodes.Lms, ModuleCodes.Hostel]),
+            [ModuleCode.Attendance, ModuleCode.Exams, ModuleCode.Admissions, ModuleCode.Fees, ModuleCode.ParentCommunication, ModuleCode.Timetable,
+             ModuleCode.HrPayroll, ModuleCode.Transport, ModuleCode.Library, ModuleCode.Lms, ModuleCode.Hostel]),
     ];
 
     /// <summary>

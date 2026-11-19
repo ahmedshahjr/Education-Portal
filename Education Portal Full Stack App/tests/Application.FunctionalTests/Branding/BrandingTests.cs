@@ -310,7 +310,7 @@ public class BrandingTests : TestBase
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<EducationPortal.Infrastructure.Data.ApplicationDbContext>();
         // A scope without a request has no tenant, so the query filter would hide every row; count the table directly.
-        return await context.Database.SqlQuery<int>($"SELECT COUNT(*)::int AS \"Value\" FROM \"BrandingImages\"").SingleAsync();
+        return await context.Database.SqlQuery<int>($"SELECT COUNT(*)::int AS \"Value\" FROM \"schools\".\"BrandingImages\"").SingleAsync();
     }
 
     private static MultipartFormDataContent Form(

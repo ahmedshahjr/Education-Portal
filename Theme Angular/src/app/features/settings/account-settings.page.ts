@@ -12,7 +12,13 @@ import { BreadcrumbItem } from '../../shared/models/navigation.models';
 @Component({
   selector: 'app-account-settings-page',
   standalone: true,
-  imports: [ReactiveFormsModule, MatCardModule, MatButtonModule, PageHeaderComponent, FormInputComponent],
+  imports: [
+    ReactiveFormsModule,
+    MatCardModule,
+    MatButtonModule,
+    PageHeaderComponent,
+    FormInputComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-page-header
@@ -33,7 +39,11 @@ import { BreadcrumbItem } from '../../shared/models/navigation.models';
             <form [formGroup]="form" (ngSubmit)="saveProfile()" class="mm-set-form">
               <div class="mm-set-row">
                 <app-form-input label="Full Name" [control]="form.controls.name" />
-                <app-form-input label="Email Address" type="email" [control]="form.controls.email" />
+                <app-form-input
+                  label="Email Address"
+                  type="email"
+                  [control]="form.controls.email"
+                />
               </div>
               <div class="mm-set-row">
                 <app-form-input label="Role Title" [control]="form.controls.role" />

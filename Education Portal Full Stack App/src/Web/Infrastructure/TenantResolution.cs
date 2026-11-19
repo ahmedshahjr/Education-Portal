@@ -60,6 +60,20 @@ public static class TenantResolution
                 var sessionSchoolId = context.User.FindFirstValue(TenantClaimTypes.SchoolId);
                 var hostSchoolId = tenant.SchoolId?.ToString(CultureInfo.InvariantCulture);
 
+                // A school without a domain signs in on the master tenant's domain. Its session is valid there only while the
+                // school still has no domain and is active, and the request then acts as that school, not as the master.
+                if (hostSchoolId is not null
+                    && sessionSchoolId != hostSchoolId
+                    && tenant.IsMaster
+                    && context.User.FindFirstValue(TenantClaimTypes.HostedOnMaster) == "true"
+                    && int.TryParse(sessionSchoolId, NumberStyles.None, CultureInfo.InvariantCulture, out var hostedSchoolId)
+                    && await context.RequestServices.GetRequiredService<ITenantResolver>().ResolveSchoolWithoutDomainAsync(hostedSchoolId, context.RequestAborted) is { } hostedSchool)
+                {
+                    context.RequestServices.GetRequiredService<CurrentTenant>().ActAsSchoolWithoutDomain(hostedSchool);
+                    await next();
+                    return;
+                }
+
                 if (hostSchoolId is null || sessionSchoolId != hostSchoolId)
                 {
                     await context.RequestServices.GetRequiredService<ISecurityAuditLog>().WriteAsync(

@@ -1,6 +1,6 @@
 ---
 name: csharp-entities
-description: C# entity and domain model design rules following Microsoft's official guidance (encapsulated entities, private setters, factory methods and guard clauses, value objects, domain events, nullable reference types, UTC DateTimeOffset, SchoolId/BranchId). Use when adding or changing a class in src/Domain (entity, value object, enum, domain event). Part of the mandatory Education Portal engineering rules.
+description: C# entity and domain model design rules following Microsoft's official guidance (encapsulated entities, private setters, factory methods and guard clauses, value objects, domain events, nullable reference types, UTC DateTimeOffset, SchoolId/CampusId). Use when adding or changing a class in src/Domain (entity, value object, enum, domain event). Part of the mandatory Education Portal engineering rules.
 ---
 
 # C# entity design (MUST follow)
@@ -17,7 +17,7 @@ Based on Microsoft's guidance for [domain model entities](https://learn.microsof
 | ENG-ENTITY-04 | **Collections are read-only to the outside.** Expose `IReadOnlyCollection<T>` backed by a private `List<T>` field (`private readonly List<Assessment> _assessments = [];`) and change them through methods. EF Core maps the backing field. |
 | ENG-ENTITY-05 | **Value objects** for concepts defined by their values, not identity (email address, score, school domain name, date range). Inherit the template's `ValueObject` or use a `record`/`readonly record struct`, make them immutable and validate in the constructor. Map them as owned or complex types (ENG-EF-09). |
 | ENG-ENTITY-06 | **Nullable reference types reflect the model.** Required strings are non-nullable and initialised; optional ones are `string?`. Use `required` members or constructor parameters, not `= null!`, except for EF Core navigation properties that are always loaded with the entity. |
-| ENG-ENTITY-07 | **Tenant ownership.** Every school-owned entity has `int SchoolId`; branch-scoped entities also have `int BranchId` (AGENTS.md section 2, SEC-AUTHZ-03). Both are set once at creation (no public setter) and are never taken from client input. |
+| ENG-ENTITY-07 | **Tenant ownership.** Every school-owned entity has `int SchoolId`; campus-scoped entities also have `int CampusId` (AGENTS.md section 2, SEC-AUTHZ-03). Both are set once at creation (no public setter) and are never taken from client input. |
 | ENG-ENTITY-08 | **Time** is `DateTimeOffset` in UTC, obtained from an injected `TimeProvider` in the caller and passed into the entity method. Entities and services never call `DateTime.Now`, `DateTime.UtcNow` or `DateTimeOffset.Now`. Dates without time (birth date) use `DateOnly`. |
 | ENG-ENTITY-09 | **Domain events** for side effects other parts of the system react to (`StudentEnrolledEvent`). Name them in the past tense, inherit `BaseEvent`, raise them with `AddDomainEvent` inside the entity method, and keep them small (ids and the values that changed). Entities never call services directly. |
 | ENG-ENTITY-10 | **Enums** are singular (`EnrolmentStatus`) and follow the [identifiers-enums skill](../identifiers-enums/SKILL.md): an explicit number for every member (ENG-ENUM-02), stored as that number (ENG-ENUM-03), sent over the API by name (ENG-ENUM-01). `[Flags]` enums are plural and powers of two. |
@@ -34,10 +34,10 @@ public class Enrolment : BaseAuditableEntity
 
     private Enrolment() { } // EF Core
 
-    public Enrolment(int schoolId, int branchId, int courseId, int studentId, DateTimeOffset enrolledAt)
+    public Enrolment(int schoolId, int campusId, int courseId, int studentId, DateTimeOffset enrolledAt)
     {
         SchoolId = Guard.Against.NegativeOrZero(schoolId);
-        BranchId = Guard.Against.NegativeOrZero(branchId);
+        CampusId = Guard.Against.NegativeOrZero(campusId);
         CourseId = Guard.Against.NegativeOrZero(courseId);
         StudentId = Guard.Against.NegativeOrZero(studentId);
         EnrolledAt = enrolledAt;
@@ -46,7 +46,7 @@ public class Enrolment : BaseAuditableEntity
     }
 
     public int SchoolId { get; private set; }
-    public int BranchId { get; private set; }
+    public int CampusId { get; private set; }
     public int CourseId { get; private set; }
     public int StudentId { get; private set; }
     public DateTimeOffset EnrolledAt { get; private set; }

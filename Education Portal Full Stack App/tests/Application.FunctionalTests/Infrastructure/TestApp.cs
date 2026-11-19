@@ -3,6 +3,7 @@ using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
 using EducationPortal.Infrastructure.Data;
 using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Modules.Common;
 using EducationPortal.Infrastructure.Identity;
 using EducationPortal.Web.Services;
 using MediatR;
@@ -60,11 +61,21 @@ public static class TestApp
     public static void UseTenant(int schoolId, bool isMaster = false) => _tenant = new ResolvedTenant(schoolId, isMaster);
 
     /// <summary>Adds a school with its own domain and returns its id.</summary>
-    public static async Task<EntityIds> AddSchoolAsync(string name, string domain)
+    public static async Task<EntityIds> AddSchoolAsync(string name, string? domain)
     {
         var school = School.Create(name, domain);
         await AddAsync(school);
+        await GrantDefaultModulesAsync(school.Id);
         return new EntityIds(school.Id, school.PublicId);
+    }
+
+    /// <summary>Gives a school the modules that are on by default, as a registering school gets them (CreateSchool).</summary>
+    private static async Task GrantDefaultModulesAsync(int schoolId)
+    {
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+        await SchoolDefaultModules.GrantAsync(context, schoolId, DateTimeOffset.UtcNow, CancellationToken.None);
+        await context.SaveChangesAsync(CancellationToken.None);
     }
 
     /// <summary>Adds a country with its regional settings and returns its id.</summary>
@@ -76,11 +87,12 @@ public static class TestApp
     }
 
     /// <summary>Adds a school with its own domain in a country and returns its id.</summary>
-    public static async Task<EntityIds> AddSchoolAsync(string name, string domain, int countryId)
+    public static async Task<EntityIds> AddSchoolAsync(string name, string? domain, int countryId)
     {
         var school = School.Create(name, domain);
         school.AssignCountry(countryId);
         await AddAsync(school);
+        await GrantDefaultModulesAsync(school.Id);
         return new EntityIds(school.Id, school.PublicId);
     }
 
@@ -173,10 +185,10 @@ public static class TestApp
     /// <summary>
     /// Gives a school a subscription that grants the paid modules, without going through plans and pricing (those have
     /// their own tests). The subscription starts at <paramref name="start"/> (now by default) and runs one month, or is a
-    /// trial of <paramref name="trialDays"/> days, at <paramref name="amount"/> a month; with a branch, the modules are for that branch only. The school's cached
+    /// trial of <paramref name="trialDays"/> days, at <paramref name="amount"/> a month; with a campus, the modules are for that campus only. The school's cached
     /// entitlements are dropped, as after a real change.
     /// </summary>
-    public static async Task<Subscription> SubscribeAsync(int schoolId, string[] moduleCodes, DateTimeOffset? start = null, int? branchId = null, int trialDays = 0, decimal amount = 0m)
+    public static async Task<Subscription> SubscribeAsync(int schoolId, ModuleCode[] moduleCodes, DateTimeOffset? start = null, int? campusId = null, int trialDays = 0, decimal amount = 0m)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
 
@@ -191,14 +203,14 @@ public static class TestApp
             await context.SaveChangesAsync();
         }
 
-        // Without a branch the modules are for the whole school: they go on its main branch.
-        var branch = branchId is null
-            ? await context.Branches.SingleAsync(b => b.SchoolId == schoolId && b.Kind == EducationPortal.Domain.Enums.BranchKind.Main)
-            : await context.Branches.FirstAsync(b => b.Id == branchId);
+        // Without a campus the modules are for the whole school: they go on its main campus.
+        var campus = campusId is null
+            ? await context.Campuses.SingleAsync(b => b.SchoolId == schoolId && b.Kind == EducationPortal.Domain.Enums.CampusKind.Main)
+            : await context.Campuses.FirstAsync(b => b.Id == campusId);
         var subscription = Subscription.Create(schoolId, null, book, BillingCycle.Monthly, amount, start ?? DateTimeOffset.UtcNow, trialDays);
         foreach (var module in await context.Modules.Where(m => moduleCodes.Contains(m.Code)).ToListAsync())
         {
-            subscription.AddModule(module, branch);
+            subscription.AddModule(module, campus);
         }
 
         context.Subscriptions.Add(subscription);

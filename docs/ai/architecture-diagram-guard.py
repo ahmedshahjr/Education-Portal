@@ -58,6 +58,7 @@ NSWAG = "NSwag API client generation flow"
 TESTS = "Test flow"
 LIFECYCLE = "Subscription lifecycle job flow"
 GUARDS = "Compliance guards flow"
+USER_MAP = "User map"
 ANY_DIAGRAM = ("Architecture overview", "Technology flows")
 
 
@@ -88,6 +89,8 @@ RULES: tuple[Rule, ...] = (
          "MediatR pipeline behaviour added or removed", added_or_removed=True),
     Rule(rf"{S}src/Application/DependencyInjection\.cs", (REQUEST, OVERVIEW),
          "MediatR pipeline order", diff=r"AddOpenBehavior|AddBehavior"),
+    Rule(rf"{S}src/Web/Endpoints/Overview\.cs|{S}src/Application/Overview/.+", (USER_MAP, TENANCY),
+         "who sees the master overview and what each user can change"),
     Rule(rf"{S}src/Application/Common/Behaviours/AuthorizationBehaviour\.cs", (AUTHZ, TENANCY),
          "module, role or branch checks", diff=r"Module|Role|Policy|Branch|Forbidden|Unauthorized"),
     Rule(rf"{S}src/Infrastructure/Data/ApplicationDbContext\.cs", (EFCORE, TENANCY),

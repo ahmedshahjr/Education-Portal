@@ -10,7 +10,7 @@ public abstract record PlanFields
     public string Description { get; init; } = string.Empty;
 
     /// <summary>The codes of the paid modules in the plan. Core modules are always included and are not listed.</summary>
-    public IReadOnlyList<string> Modules { get; init; } = [];
+    public IReadOnlyList<ModuleCode> Modules { get; init; } = [];
 }
 
 /// <summary>The rules every plan's fields follow (SEC-INPUT-01).</summary>
@@ -24,8 +24,8 @@ public abstract class PlanFieldsValidator<T> : AbstractValidator<T>
 
         RuleFor(p => p.Modules)
             .NotNull()
-            .Must(modules => modules.Count <= PortalModule.CodeMaxLength * 10)
-            .Must(modules => modules.Distinct(StringComparer.Ordinal).Count() == modules.Count)
+            .Must(modules => modules.Count <= Enum.GetValues<ModuleCode>().Length)
+            .Must(modules => modules.Distinct().Count() == modules.Count)
             .WithMessage(_ => ValidationMessages.ModuleListedTwice)
             .CustomAsync(async (codes, validation, cancellationToken) =>
             {
@@ -40,7 +40,7 @@ public abstract class PlanFieldsValidator<T> : AbstractValidator<T>
                     .Select(m => new { m.Code, m.IsCore })
                     .ToListAsync(cancellationToken);
 
-                if (modules.Count != codes.Distinct(StringComparer.Ordinal).Count())
+                if (modules.Count != codes.Distinct().Count())
                 {
                     validation.AddFailure(ValidationMessages.UnknownModules);
                 }
@@ -55,7 +55,7 @@ public abstract class PlanFieldsValidator<T> : AbstractValidator<T>
 internal static class PlanModuleSync
 {
     /// <summary>Makes the plan's modules exactly the given codes: adds the missing ones, removes the rest.</summary>
-    public static async Task SetModulesAsync(IApplicationDbContext context, Plan plan, IReadOnlyList<string> codes, CancellationToken cancellationToken)
+    public static async Task SetModulesAsync(IApplicationDbContext context, Plan plan, IReadOnlyList<ModuleCode> codes, CancellationToken cancellationToken)
     {
         var wanted = await context.Modules.Where(m => codes.Contains(m.Code)).ToListAsync(cancellationToken);
         var current = await context.PlanModules.Where(m => m.PlanId == plan.Id).ToListAsync(cancellationToken);

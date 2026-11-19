@@ -20,7 +20,7 @@ internal static class SubscriptionPlanner
         IApplicationDbContext context,
         string countryCode,
         string? planCode,
-        IReadOnlyCollection<string> addOnCodes,
+        IReadOnlyCollection<ModuleCode> addOnCodes,
         BillingCycle billingCycle,
         CancellationToken cancellationToken)
     {

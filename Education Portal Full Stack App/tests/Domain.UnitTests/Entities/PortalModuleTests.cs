@@ -1,20 +1,21 @@
-﻿using EducationPortal.Domain.Constants;
+using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.Enums;
 using NUnit.Framework;
 using Shouldly;
 
 namespace EducationPortal.Domain.UnitTests.Entities;
 
 /// <summary>
-/// A module is core (in every subscription, always on) or paid (on for a school only when given to it), and an inactive
-/// module is off for every school.
+/// Every module can be switched off by the master, core ones included: an inactive module is off for every school. A
+/// registering school gets the modules that are on by default. Core modules are part of every subscription.
 /// </summary>
 public class PortalModuleTests
 {
     [Test]
     public void ShouldTurnAModuleInactive()
     {
-        var module = PortalModule.Create(ModuleCodes.Fees, "Fees", "", isCore: false, sortOrder: 120);
+        var module = PortalModule.Create(ModuleCode.Fees, "Fees", "", isCore: false, sortOrder: 120);
 
         module.Deactivate();
 
@@ -22,30 +23,55 @@ public class PortalModuleTests
     }
 
     [Test]
-    public void ShouldNeverDeactivateOrDeleteACoreModule()
+    public void ShouldLetTheMasterSwitchACoreModuleOffAndBackOn()
     {
-        var module = PortalModule.Create(ModuleCodes.Students, "Students", "", isCore: true, sortOrder: 50);
+        var module = PortalModule.Create(ModuleCode.Students, "Students", "", isCore: true, sortOrder: 50, isDefaultEnabled: true);
 
-        Should.Throw<InvalidOperationException>(module.Deactivate);
-        Should.Throw<InvalidOperationException>(() => module.Delete(DateTimeOffset.UtcNow, "user"));
+        module.Deactivate();
+        module.IsActive.ShouldBeFalse();
+
+        module.Activate();
         module.IsActive.ShouldBeTrue();
-        module.IsDeleted.ShouldBeFalse();
     }
 
     [Test]
-    public void ShouldRefuseToMakeAnInactiveModuleCore()
+    public void ShouldStillNotDeleteAModuleWithoutKeepingItsRow()
     {
-        var module = PortalModule.Create(ModuleCodes.Fees, "Fees", "", isCore: false, sortOrder: 120);
+        var module = PortalModule.Create(ModuleCode.Students, "Students", "", isCore: true, sortOrder: 50);
+
+        module.Delete(DateTimeOffset.UtcNow, "user");
+
+        module.IsDeleted.ShouldBeTrue();
+        module.IsActive.ShouldBeFalse();
+    }
+
+    [Test]
+    public void ShouldKeepTheDefaultFlagAndLetTheMasterChangeIt()
+    {
+        var module = PortalModule.Create(ModuleCode.Fees, "Fees", "", isCore: false, sortOrder: 120);
+        module.IsDefaultEnabled.ShouldBeFalse();
+
+        module.Update("Fees", "", isCore: false, sortOrder: 120, isDefaultEnabled: true);
+
+        module.IsDefaultEnabled.ShouldBeTrue();
+    }
+
+    [Test]
+    public void ShouldAllowAnInactiveModuleToBecomeCore()
+    {
+        var module = PortalModule.Create(ModuleCode.Fees, "Fees", "", isCore: false, sortOrder: 120);
         module.Deactivate();
 
-        Should.Throw<InvalidOperationException>(() => module.Update("Fees", "", isCore: true, sortOrder: 120));
-        module.IsCore.ShouldBeFalse();
+        module.Update("Fees", "", isCore: true, sortOrder: 120);
+
+        module.IsCore.ShouldBeTrue();
+        module.IsActive.ShouldBeFalse();
     }
 
     [Test]
     public void ShouldLetAPaidModuleBecomeCoreAndBack()
     {
-        var module = PortalModule.Create(ModuleCodes.Fees, "Fees", "", isCore: false, sortOrder: 120);
+        var module = PortalModule.Create(ModuleCode.Fees, "Fees", "", isCore: false, sortOrder: 120);
 
         module.Update(" Fees and dues ", " Fee collection. ", isCore: true, sortOrder: 5);
         module.ShouldSatisfyAllConditions(
@@ -59,54 +85,40 @@ public class PortalModuleTests
         module.IsActive.ShouldBeFalse();
     }
 
-    [TestCase("FEES")]
-    [TestCase("HR_PAYROLL")]
-    [TestCase("A")]
-    [TestCase("L2")]
-    public void ShouldAcceptACode(string code)
+    [TestCase(ModuleCode.Fees)]
+    [TestCase(ModuleCode.HrPayroll)]
+    [TestCase(ModuleCode.School)]
+    public void ShouldAcceptAModuleCode(ModuleCode code)
     {
         PortalModule.Create(code, "Module", "", isCore: false, sortOrder: 0).Code.ShouldBe(code);
     }
 
-    [TestCase("")]
-    [TestCase("fees")]
-    [TestCase("Fees")]
-    [TestCase("2FA")]
-    [TestCase("_FEES")]
-    [TestCase("FEES-2")]
-    [TestCase("FEES ")]
-    public void ShouldRefuseABadCode(string code)
+    [TestCase(ModuleCode.None)]
+    [TestCase((ModuleCode)99)]
+    public void ShouldRefuseAnUnknownModuleCode(ModuleCode code)
     {
-        PortalModule.IsValidCode(code).ShouldBeFalse();
-        Should.Throw<ArgumentException>(() => PortalModule.Create(code, "Module", "", isCore: false, sortOrder: 0));
-    }
-
-    [TestCase(PortalModule.CodeMaxLength, true)]
-    [TestCase(PortalModule.CodeMaxLength + 1, false)]
-    public void ShouldLimitTheCodeLength(int length, bool valid)
-    {
-        PortalModule.IsValidCode(new string('A', length)).ShouldBe(valid);
+        Should.Throw<ArgumentOutOfRangeException>(() => PortalModule.Create(code, "Module", "", isCore: false, sortOrder: 0));
     }
 
     [Test]
     public void ShouldRefuseANegativeSortOrderAndAnEmptyName()
     {
-        Should.Throw<ArgumentOutOfRangeException>(() => PortalModule.Create("FEES", "Fees", "", isCore: false, sortOrder: -1));
-        Should.Throw<ArgumentException>(() => PortalModule.Create("FEES", " ", "", isCore: false, sortOrder: 0));
+        Should.Throw<ArgumentOutOfRangeException>(() => PortalModule.Create(ModuleCode.Fees, "Fees", "", isCore: false, sortOrder: -1));
+        Should.Throw<ArgumentException>(() => PortalModule.Create(ModuleCode.Fees, " ", "", isCore: false, sortOrder: 0));
         Should.Throw<ArgumentOutOfRangeException>(() =>
-            PortalModule.Create("FEES", new string('a', PortalModule.NameMaxLength + 1), "", isCore: false, sortOrder: 0));
+            PortalModule.Create(ModuleCode.Fees, new string('a', PortalModule.NameMaxLength + 1), "", isCore: false, sortOrder: 0));
     }
 
     [Test]
     public void ShouldSeedEveryModuleCodeOnceWithTheAgreedCoreSet()
     {
-        var codes = typeof(ModuleCodes).GetFields().Select(f => (string)f.GetValue(null)!).ToList();
+        var codes = Enum.GetValues<ModuleCode>().Where(c => c != ModuleCode.None).ToList();
         var modules = ModuleCatalog.CreateModules();
 
         modules.Select(m => m.Code).ShouldBe(codes, ignoreOrder: true);
         modules.ShouldAllBe(m => m.IsActive);
         modules.Where(m => m.IsCore).Select(m => m.Code).ShouldBe(
-            [ModuleCodes.School, ModuleCodes.Branch, ModuleCodes.AcademicSetup, ModuleCodes.UsersRoles, ModuleCodes.Students, ModuleCodes.Staff],
+            [ModuleCode.School, ModuleCode.Campus, ModuleCode.AcademicSetup, ModuleCode.UsersRoles, ModuleCode.Students, ModuleCode.Staff],
             ignoreOrder: true);
         modules.Select(m => m.SortOrder).ShouldBeUnique();
     }
@@ -115,11 +127,11 @@ public class PortalModuleTests
     public void ShouldSeedDependenciesBetweenKnownModulesWithoutLoopsOrCoreToPaid()
     {
         var modules = ModuleCatalog.CreateModules().Select((m, index) => (Module: m, Id: index + 1)).ToDictionary(x => x.Module.Code);
-        var pairs = ModuleCatalog.Dependencies.Select(d => (modules[d.ModuleCode].Id, modules[d.RequiresCode].Id)).ToList();
+        var pairs = ModuleCatalog.Dependencies.Select(d => (modules[d.Module].Id, modules[d.Requires].Id)).ToList();
 
         pairs.ShouldBeUnique();
-        ModuleCatalog.Dependencies.ShouldNotContain(d => modules[d.ModuleCode].Module.IsCore && !modules[d.RequiresCode].Module.IsCore);
-        ModuleCatalog.Dependencies.ShouldContain((ModuleCodes.Fees, ModuleCodes.Students));
+        ModuleCatalog.Dependencies.ShouldNotContain(d => modules[d.Module].Module.IsCore && !modules[d.Requires].Module.IsCore);
+        ModuleCatalog.Dependencies.ShouldContain((ModuleCode.Fees, ModuleCode.Students));
 
         for (var i = 0; i < pairs.Count; i++)
         {

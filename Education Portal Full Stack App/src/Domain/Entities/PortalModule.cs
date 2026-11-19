@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+using EducationPortal.Domain.Enums;
 
 namespace EducationPortal.Domain.Entities;
 
@@ -6,47 +6,47 @@ namespace EducationPortal.Domain.Entities;
 /// A module of the portal that the master tenant sells, such as FEES or EXAMS (AGENTS.md section 2). Modules are
 /// platform reference data that only the master tenant changes, so they have no <c>SchoolId</c>.
 /// <list type="bullet">
-/// <item><see cref="IsCore"/> modules are part of every subscription and are never sold on their own. A core module is
-/// always on: it cannot be switched off, made inactive or deleted.</item>
-/// <item>Other modules are paid: a school gets one only through its subscription (until subscriptions exist, through
-/// the master's per-school switch, <see cref="SchoolModule"/>).</item>
-/// <item><c>IsActive</c> is the master's switch for the module itself: an inactive module is off for every school.</item>
+/// <item><see cref="IsCore"/> modules are part of every subscription and are never sold on their own.</item>
+/// <item>A school gets a module through a grant: a registering school gets every <see cref="IsDefaultEnabled"/> module free of
+/// charge, and any module through its subscription.</item>
+/// <item><c>IsActive</c> is the master's switch for the module itself: an inactive module is off for every school. Every
+/// module can be switched off this way, core ones included.</item>
 /// </list>
 /// A module can require others (<see cref="ModuleDependency"/>), for example FEES requires STUDENTS.
 /// </summary>
-public partial class PortalModule : BaseSoftDeletableEntity
+public class PortalModule : BaseSoftDeletableEntity
 {
-    public const int CodeMaxLength = 50;
     public const int NameMaxLength = 100;
     public const int DescriptionMaxLength = 300;
 
     private PortalModule()
     {
         // For EF Core.
-        Code = string.Empty;
+        Code = ModuleCode.None;
         Name = string.Empty;
         Description = string.Empty;
     }
 
-    private PortalModule(string code) : this()
+    private PortalModule(ModuleCode code) : this()
     {
-        if (!IsValidCode(code))
+        // A closed set (ModuleCode): an unknown value cannot get here through the API, which binds the enum by name.
+        if (!Enum.IsDefined(code) || code == ModuleCode.None)
         {
-            throw new ArgumentException("A module code is upper-case letters, digits and underscores, starting with a letter, for example FEES.", nameof(code));
+            throw new ArgumentOutOfRangeException(nameof(code));
         }
 
         Code = code;
     }
 
-    public static PortalModule Create(string code, string name, string description, bool isCore, int sortOrder)
+    public static PortalModule Create(ModuleCode code, string name, string description, bool isCore, int sortOrder, bool isDefaultEnabled = false)
     {
         var module = new PortalModule(code);
-        module.Update(name, description, isCore, sortOrder);
+        module.Update(name, description, isCore, sortOrder, isDefaultEnabled);
         return module;
     }
 
-    /// <summary>The stable code, for example <c>FEES</c> (see <see cref="Constants.ModuleCodes"/>). Set once.</summary>
-    public string Code { get; private set; }
+    /// <summary>The stable code, for example <c>ModuleCode.Fees</c>. Set once.</summary>
+    public ModuleCode Code { get; private set; }
 
     public string Name { get; private set; }
 
@@ -58,11 +58,20 @@ public partial class PortalModule : BaseSoftDeletableEntity
     /// <summary>Where the module appears in lists and menus, lowest first.</summary>
     public int SortOrder { get; private set; }
 
-    /// <summary>A core module is always on, so it can never be made inactive or deleted.</summary>
-    protected override bool CanBeDeactivated => !IsCore;
+    /// <summary>
+    /// True when a school that registers gets the module automatically, free of charge (<see cref="TenantModule.CreateDefault"/>).
+    /// It changes nothing for schools that already exist.
+    /// </summary>
+    public bool IsDefaultEnabled { get; private set; }
 
-    /// <summary>Changes the module. Making it core needs it active, because a core module is always on.</summary>
-    public void Update(string name, string description, bool isCore, int sortOrder)
+    /// <summary>
+    /// Every module can be switched off by the master (<see cref="IsActive"/>), core ones included: an inactive module is off
+    /// for every school, and it comes back as it was once reactivated.
+    /// </summary>
+    protected override bool CanBeDeactivated => true;
+
+    /// <summary>Changes the module.</summary>
+    public void Update(string name, string description, bool isCore, int sortOrder, bool isDefaultEnabled = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(name.Trim().Length, NameMaxLength, nameof(name));
@@ -70,21 +79,11 @@ public partial class PortalModule : BaseSoftDeletableEntity
         ArgumentOutOfRangeException.ThrowIfGreaterThan(description.Trim().Length, DescriptionMaxLength, nameof(description));
         ArgumentOutOfRangeException.ThrowIfNegative(sortOrder);
 
-        if (isCore && !IsActive)
-        {
-            throw new InvalidOperationException("An inactive module cannot be core: core modules are always on.");
-        }
-
         Name = name.Trim();
         Description = description.Trim();
         IsCore = isCore;
         SortOrder = sortOrder;
+        IsDefaultEnabled = isDefaultEnabled;
     }
 
-    /// <summary>True for a code of upper-case letters, digits and underscores that starts with a letter and fits the column.</summary>
-    public static bool IsValidCode(string? code) =>
-        code is not null && code.Length <= CodeMaxLength && CodePattern().IsMatch(code);
-
-    [GeneratedRegex("^[A-Z][A-Z0-9_]*$")]
-    private static partial Regex CodePattern();
 }

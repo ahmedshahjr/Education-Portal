@@ -461,7 +461,7 @@ mcp__claude-flow__quality_assess({
   "target": "test-coverage",
   "criteria": [
     "line-coverage",
-    "branch-coverage",
+    "campus-coverage",
     "function-coverage",
     "edge-cases"
   ]

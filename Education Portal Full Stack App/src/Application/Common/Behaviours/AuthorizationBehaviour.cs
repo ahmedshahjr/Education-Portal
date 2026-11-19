@@ -1,11 +1,12 @@
-﻿using System.Reflection;
+using System.Reflection;
 using EducationPortal.Application.Common.Exceptions;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Security;
+using EducationPortal.Domain.Enums;
 
 namespace EducationPortal.Application.Common.Behaviours;
 
-public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> 
+public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly IUser _user;
@@ -53,8 +54,8 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
             // everyone in it, with the code MODULE_NOT_ENABLED. The master tenant oversees every school, so modules never limit it.
             var modules = authorizeAttributes
                 .Select(a => a.Module)
-                .Where(m => !string.IsNullOrWhiteSpace(m))
-                .Distinct(StringComparer.Ordinal)
+                .Where(m => m != ModuleCode.None)
+                .Distinct()
                 .ToList();
 
             if (modules.Count > 0 && !_tenant.IsMaster)
@@ -63,8 +64,8 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
 
                 foreach (var module in modules)
                 {
-                    // No branch is known here yet, so a module granted to one branch only does not count (fail closed).
-                    if (!await _moduleAccess.HasModuleAsync(schoolId, module, branchId: null, cancellationToken))
+                    // No campus is known here yet, so a module granted to one campus only does not count (fail closed).
+                    if (!await _moduleAccess.HasModuleAsync(schoolId, module, campusId: null, cancellationToken))
                     {
                         throw new ModuleNotEnabledException(module);
                     }
@@ -82,7 +83,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
                 {
                     foreach (var role in roles)
                     {
-                        var isInRole = _user.Roles?.Any(x => role == x)??false;
+                        var isInRole = _user.Roles?.Any(x => role == x) ?? false;
                         if (isInRole)
                         {
                             authorized = true;

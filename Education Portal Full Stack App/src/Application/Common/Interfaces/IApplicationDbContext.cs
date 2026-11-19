@@ -41,9 +41,23 @@ public interface IApplicationDbContext
     /// <summary>The prices of plans and add-on modules in each price book.</summary>
     DbSet<PriceBookItem> PriceBookItems { get; }
 
-    DbSet<Branch> Branches { get; }
-
-    DbSet<CampusShift> CampusShifts { get; }
+    DbSet<Campus> Campuses { get; }
+    /// <summary>The phone numbers of each campus, in order.</summary>
+    DbSet<CampusPhone> CampusPhones { get; }
+    /// <summary>The people of each school (principals, teachers, staff). Owned by the school and filtered by it.</summary>
+    DbSet<UserDetails> UserDetails { get; }
+    /// <summary>The admission form of each student, one per student person. Owned by the school and filtered by it.</summary>
+    DbSet<StudentProfile> StudentProfiles { get; }
+    // The public page of a school and its admission enquiries. Owned by the school and filtered by it.
+    DbSet<SchoolProfile> SchoolProfiles { get; }
+    DbSet<SchoolCurriculum> SchoolCurricula { get; }
+    DbSet<SchoolFacility> SchoolFacilities { get; }
+    DbSet<ClassOffering> ClassOfferings { get; }
+    DbSet<SchoolPhoto> SchoolPhotos { get; }
+    DbSet<AdmissionEnquiry> AdmissionEnquiries { get; }
+    DbSet<EnquiryFollowUp> EnquiryFollowUps { get; }
+    DbSet<CampusVisit> CampusVisits { get; }
+    DbSet<SchoolReview> SchoolReviews { get; }
 
     DbSet<Subscription> Subscriptions { get; }
 

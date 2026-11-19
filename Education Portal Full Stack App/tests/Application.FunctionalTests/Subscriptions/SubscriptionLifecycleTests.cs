@@ -30,7 +30,7 @@ public class SubscriptionLifecycleTests : TestBase
     public async Task ShouldEndATrialAfterItsEndDateWithoutSuspendingItsModules()
     {
         var school = await TestApp.AddSchoolAsync("Trial School", "trial.localhost");
-        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], Start, trialDays: 14);
+        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees], Start, trialDays: 14);
 
         (await RunAsync(Start.AddDays(13))).TrialsEnded.ShouldBe(0);
         (await LoadAsync(subscription.Id)).Status.ShouldBe(SubscriptionStatus.Trial);
@@ -48,7 +48,7 @@ public class SubscriptionLifecycleTests : TestBase
     public async Task ShouldMarkAnUnpaidInvoiceOverdueAndItsSubscriptionPastDue()
     {
         var school = await TestApp.AddSchoolAsync("Billed School", "billed.localhost");
-        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], Start);
+        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees], Start);
         var invoice = await IssueInvoiceAsync(subscription.Id, Start);
 
         (await RunAsync(invoice.DueDate.AddMinutes(-1))).InvoicesMarkedOverdue.ShouldBe(0);
@@ -69,7 +69,7 @@ public class SubscriptionLifecycleTests : TestBase
     public async Task ShouldMarkAnActiveSubscriptionPastDueWhenItsPeriodEndsUnpaid()
     {
         var school = await TestApp.AddSchoolAsync("Lapsing School", "lapsing.localhost");
-        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], Start);
+        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees], Start);
         var end = subscription.EndDate;
 
         (await RunAsync(end.AddMinutes(-1))).MarkedPastDue.ShouldBe(0);
@@ -84,10 +84,10 @@ public class SubscriptionLifecycleTests : TestBase
     public async Task ShouldSuspendAfterTheGracePeriodAndKeepTheSchoolsData()
     {
         var school = await TestApp.AddSchoolAsync("Late School", "late.localhost");
-        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], Start);
+        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees], Start);
         var lapsed = subscription.EndDate;
         await RunAsync(lapsed);
-        (await HasModuleAsync(school.Id, ModuleCodes.Fees)).ShouldBeTrue();
+        (await HasModuleAsync(school.Id, ModuleCode.Fees)).ShouldBeTrue();
 
         (await RunAsync(lapsed.AddDays(GraceDays).AddMinutes(-1))).Suspended.ShouldBe(0);
         (await RunAsync(lapsed.AddDays(GraceDays))).Suspended.ShouldBe(1);
@@ -99,7 +99,7 @@ public class SubscriptionLifecycleTests : TestBase
             s => s.Modules.ShouldAllBe(m => m.Status == TenantModuleStatus.Suspended));
 
         // Access is blocked at once (the cached entitlements were dropped); nothing was deleted.
-        (await HasModuleAsync(school.Id, ModuleCodes.Fees)).ShouldBeFalse();
+        (await HasModuleAsync(school.Id, ModuleCode.Fees)).ShouldBeFalse();
         (await TestApp.FindAsync<School>(school.Id)).ShouldNotBeNull();
         (await TestApp.FindAuditEventsAsync(SubscriptionLifecycle.SystemActor)).ShouldContain(e =>
             e.EventType == SecurityAuditEventType.SubscriptionChanged && e.TargetId == subscription.Id.ToString());
@@ -109,7 +109,7 @@ public class SubscriptionLifecycleTests : TestBase
     public async Task ShouldQueueOneReminderForTheNearestConfiguredDay()
     {
         var school = await TestApp.AddSchoolAsync("Renewing School", "renewing.localhost");
-        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], Start);
+        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees], Start);
         var end = subscription.EndDate;
 
         (await RunAsync(end.AddDays(-31))).RemindersQueued.ShouldBe(0);
@@ -133,11 +133,11 @@ public class SubscriptionLifecycleTests : TestBase
         var renewing = await TestApp.AddSchoolAsync("Renewing School", "renewing.localhost");
 
         var now = Start.AddDays(60);
-        var trialSubscription = await TestApp.SubscribeAsync(trial.Id, [ModuleCodes.Fees], now.AddDays(-15), trialDays: 14);
-        var billedSubscription = await TestApp.SubscribeAsync(billed.Id, [ModuleCodes.Fees], now.AddDays(-25));
+        var trialSubscription = await TestApp.SubscribeAsync(trial.Id, [ModuleCode.Fees], now.AddDays(-15), trialDays: 14);
+        var billedSubscription = await TestApp.SubscribeAsync(billed.Id, [ModuleCode.Fees], now.AddDays(-25));
         var invoice = await IssueInvoiceAsync(billedSubscription.Id, now.AddDays(-Invoice.PaymentTermDays - 1));
-        var lateSubscription = await TestApp.SubscribeAsync(late.Id, [ModuleCodes.Fees], now.AddMonths(-1).AddDays(-GraceDays - 5));
-        await TestApp.SubscribeAsync(renewing.Id, [ModuleCodes.Fees], now.AddDays(-25));
+        var lateSubscription = await TestApp.SubscribeAsync(late.Id, [ModuleCode.Fees], now.AddMonths(-1).AddDays(-GraceDays - 5));
+        await TestApp.SubscribeAsync(renewing.Id, [ModuleCode.Fees], now.AddDays(-25));
 
         var first = await RunAsync(now);
         var auditCount = (await TestApp.FindAuditEventsAsync(SubscriptionLifecycle.SystemActor)).Count;
@@ -165,7 +165,7 @@ public class SubscriptionLifecycleTests : TestBase
     public async Task ShouldNotMarkAPaidInvoiceOrItsSubscriptionOverdue()
     {
         var school = await TestApp.AddSchoolAsync("Good School", "good.localhost");
-        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], Start, amount: 100m);
+        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees], Start, amount: 100m);
         // Issued a few days ahead, so it falls due well before the period ends.
         var invoice = await IssueInvoiceAsync(subscription.Id, Start.AddDays(-3));
         await PayAsync(invoice.Id, invoice.Total, Start.AddDays(1));
@@ -182,7 +182,7 @@ public class SubscriptionLifecycleTests : TestBase
     {
         await TestApp.RunAsAdministratorAsync();
         var school = await TestApp.AddSchoolAsync("Returning School", "returning.localhost");
-        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], DateTimeOffset.UtcNow.AddMonths(-2), amount: 100m);
+        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees], DateTimeOffset.UtcNow.AddMonths(-2), amount: 100m);
         await RunAsync(DateTimeOffset.UtcNow);
         (await LoadAsync(subscription.Id)).Status.ShouldBe(SubscriptionStatus.Suspended);
 
@@ -197,7 +197,7 @@ public class SubscriptionLifecycleTests : TestBase
             s => s.PastDueSince.ShouldBeNull(),
             s => s.EndDate.ShouldBe(Subscription.PeriodEnd(invoice.PeriodStart, BillingCycle.Monthly)),
             s => s.Modules.ShouldAllBe(m => m.Status == TenantModuleStatus.Active));
-        (await HasModuleAsync(school.Id, ModuleCodes.Fees)).ShouldBeTrue();
+        (await HasModuleAsync(school.Id, ModuleCode.Fees)).ShouldBeTrue();
     }
 
     [Test]
@@ -277,7 +277,7 @@ public class SubscriptionLifecycleTests : TestBase
         return string.Join('|', subscriptions.Concat(modules).Concat(invoices).Concat(reminders));
     }
 
-    private static async Task<bool> HasModuleAsync(int schoolId, string code)
+    private static async Task<bool> HasModuleAsync(int schoolId, ModuleCode code)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
         scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(schoolId, IsMaster: false));

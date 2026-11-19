@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { problemMessages } from '../../core/http/problem-details';
 import { SchoolsClient, SchoolSummaryDto, UpdateSchoolCommand } from '../../web-api-client';
 
@@ -24,7 +24,7 @@ const HOST_NAME = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])
 export class SchoolProfileComponent {
   private readonly schools = inject(SchoolsClient);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   readonly school = input.required<SchoolSummaryDto>();
 
@@ -65,7 +65,7 @@ export class SchoolProfileComponent {
       next: () => {
         this.busy.set(false);
         const updated = new SchoolSummaryDto({ ...this.school(), name, domain });
-        this.snackBar.open($localize`:@@profile.saved:School saved.`, undefined, { duration: 3000 });
+        this.toast.success($localize`:@@profile.saved:School saved.`);
         this.saved.emit(updated);
       },
       error: (error: unknown) => {

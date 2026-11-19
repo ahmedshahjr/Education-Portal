@@ -48,7 +48,10 @@ export class TopbarComponent {
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
 
-  protected readonly selectedLanguage = signal<LanguageOption>({ code: 'EN', label: 'English (UK)' });
+  protected readonly selectedLanguage = signal<LanguageOption>({
+    code: 'EN',
+    label: 'English (UK)',
+  });
 
   protected readonly languages: readonly LanguageOption[] = [
     { code: 'EN', label: 'English (UK)' },

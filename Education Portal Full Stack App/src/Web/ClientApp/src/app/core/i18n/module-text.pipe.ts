@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { ModuleCode } from '../../web-api-client';
 
 interface ModuleText {
   readonly name: string;
@@ -6,76 +7,76 @@ interface ModuleText {
 }
 
 /**
- * Module names and descriptions in the page's language, by module code (Domain/Constants/ModuleCodes.cs). The server
+ * Module names and descriptions in the page's language, by module code (the ModuleCode enum). The server
  * stores them in English only (seeded from ModuleCatalog.cs), so the translations live here, next to the rest of the
  * app's text. A module the master adds or renames in the catalogue shows the server's text until it is added here.
  */
-const MODULE_TEXT: Readonly<Record<string, ModuleText>> = {
-  SCHOOL: {
+const MODULE_TEXT: Readonly<Partial<Record<ModuleCode, ModuleText>>> = {
+  School: {
     name: $localize`:@@module.school.name:School`,
     description: $localize`:@@module.school.description:School profile, settings and the school overview dashboard.`,
   },
-  BRANCH: {
-    name: $localize`:@@module.branch.name:Campuses`,
-    description: $localize`:@@module.branch.description:Create and edit the school's campuses.`,
+  Campus: {
+    name: $localize`:@@module.campus.name:Campuses`,
+    description: $localize`:@@module.campus.description:Create and edit the school's campuses.`,
   },
-  ACADEMIC_SETUP: {
+  AcademicSetup: {
     name: $localize`:@@module.academicSetup.name:Academic setup`,
     description: $localize`:@@module.academicSetup.description:Academic years, classes, courses and enrolments.`,
   },
-  USERS_ROLES: {
+  UsersRoles: {
     name: $localize`:@@module.usersRoles.name:Users & Roles`,
-    description: $localize`:@@module.usersRoles.description:Staff accounts, roles with rights per module, branch assignment.`,
+    description: $localize`:@@module.usersRoles.description:Staff accounts, roles with rights per module, campus assignment.`,
   },
-  STUDENTS: {
+  Students: {
     name: $localize`:@@module.students.name:Students`,
-    description: $localize`:@@module.students.description:Student records and branch membership.`,
+    description: $localize`:@@module.students.description:Student records and campus membership.`,
   },
-  STAFF: {
+  Staff: {
     name: $localize`:@@module.staff.name:Staff`,
-    description: $localize`:@@module.staff.description:Teacher and staff records and branch membership.`,
+    description: $localize`:@@module.staff.description:Teacher and staff records and campus membership.`,
   },
-  ADMISSIONS: {
+  Admissions: {
     name: $localize`:@@module.admissions.name:Admissions`,
     description: $localize`:@@module.admissions.description:Enquiries, applications and admission decisions.`,
   },
-  ATTENDANCE: {
+  Attendance: {
     name: $localize`:@@module.attendance.name:Attendance`,
     description: $localize`:@@module.attendance.description:Daily and per-lesson attendance for students and staff.`,
   },
-  FEES: {
+  Fees: {
     name: $localize`:@@module.fees.name:Fees`,
     description: $localize`:@@module.fees.description:Fee structures, student invoices and fee collection.`,
   },
-  PARENT_COMMUNICATION: {
+  ParentCommunication: {
     name: $localize`:@@module.parentCommunication.name:Parent communication`,
     description: $localize`:@@module.parentCommunication.description:Parent records, links to children and messages to parents.`,
   },
-  EXAMS: {
+  Exams: {
     name: $localize`:@@module.exams.name:Exams`,
     description: $localize`:@@module.exams.description:Assessments, scores and report cards.`,
   },
-  TIMETABLE: {
+  Timetable: {
     name: $localize`:@@module.timetable.name:Timetable`,
     description: $localize`:@@module.timetable.description:Class and teacher timetables.`,
   },
-  HR_PAYROLL: {
+  HrPayroll: {
     name: $localize`:@@module.hrPayroll.name:HR & Payroll`,
     description: $localize`:@@module.hrPayroll.description:Staff contracts, leave and payroll.`,
   },
-  TRANSPORT: {
+  Transport: {
     name: $localize`:@@module.transport.name:Transport`,
     description: $localize`:@@module.transport.description:Routes, vehicles and student transport.`,
   },
-  LIBRARY: {
+  Library: {
     name: $localize`:@@module.library.name:Library`,
     description: $localize`:@@module.library.description:Library catalogue, loans and returns.`,
   },
-  LMS: {
+  Lms: {
     name: $localize`:@@module.lms.name:LMS`,
     description: $localize`:@@module.lms.description:Online lessons, assignments and course material.`,
   },
-  HOSTEL: {
+  Hostel: {
     name: $localize`:@@module.hostel.name:Hostel`,
     description: $localize`:@@module.hostel.description:Hostel rooms, allocations and boarders.`,
   },

@@ -55,7 +55,7 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class FormInputComponent {
   readonly label = input.required<string>();
-  readonly control = input.required<FormControl<any>>();
+  readonly control = input.required<FormControl<unknown>>();
   readonly type = input<'text' | 'email' | 'number' | 'password' | 'tel'>('text');
   readonly placeholder = input<string>('');
   readonly hint = input<string>('');

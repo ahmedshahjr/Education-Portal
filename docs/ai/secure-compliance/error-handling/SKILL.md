@@ -11,7 +11,7 @@ Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP Moderate Rev
 
 | ID | Rule |
 |---|---|
-| SEC-ERR-01 | Fail closed: if a tenant, branch, module or permission cannot be resolved, deny. Never default to "allow" or to "no filter". |
+| SEC-ERR-01 | Fail closed: if a tenant, campus, module or permission cannot be resolved, deny. Never default to "allow" or to "no filter". |
 | SEC-ERR-02 | Do not swallow exceptions. Catch only what you can handle, log with a correlation ID (without sensitive data), and return a generic ProblemDetails. |
 | SEC-ERR-03 | Transactions: multi-step writes use a single `SaveChangesAsync` or an explicit transaction so failures don't leave partial state. |
 | SEC-ERR-04 | Timeouts and cancellation tokens are passed through to EF Core and HTTP calls; external calls use the resilience handlers from ServiceDefaults. |

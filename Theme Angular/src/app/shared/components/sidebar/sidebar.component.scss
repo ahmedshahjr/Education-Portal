@@ -119,8 +119,9 @@
   font-weight: 400;
   cursor: pointer;
   text-align: left;
-  transition: background-color var(--mm-duration) var(--mm-ease),
-              color var(--mm-duration) var(--mm-ease);
+  transition:
+    background-color var(--mm-duration) var(--mm-ease),
+    color var(--mm-duration) var(--mm-ease);
 
   &:hover:not(.is-active) {
     background-color: var(--mm-bg-hover);

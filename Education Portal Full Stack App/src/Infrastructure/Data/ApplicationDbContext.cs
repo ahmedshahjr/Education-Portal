@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Linq.Expressions;
+using System.Reflection;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Domain.Common;
 using EducationPortal.Domain.Entities;
@@ -6,6 +7,7 @@ using EducationPortal.Infrastructure.Data.Lookups;
 using EducationPortal.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EducationPortal.Infrastructure.Data;
 
@@ -48,9 +50,31 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<PriceBookItem> PriceBookItems => Set<PriceBookItem>();
 
-    public DbSet<Branch> Branches => Set<Branch>();
+    public DbSet<Campus> Campuses => Set<Campus>();
 
-    public DbSet<CampusShift> CampusShifts => Set<CampusShift>();
+    public DbSet<CampusPhone> CampusPhones => Set<CampusPhone>();
+
+    public DbSet<UserDetails> UserDetails => Set<UserDetails>();
+
+    public DbSet<StudentProfile> StudentProfiles => Set<StudentProfile>();
+
+    public DbSet<SchoolProfile> SchoolProfiles => Set<SchoolProfile>();
+
+    public DbSet<SchoolCurriculum> SchoolCurricula => Set<SchoolCurriculum>();
+
+    public DbSet<SchoolFacility> SchoolFacilities => Set<SchoolFacility>();
+
+    public DbSet<ClassOffering> ClassOfferings => Set<ClassOffering>();
+
+    public DbSet<SchoolPhoto> SchoolPhotos => Set<SchoolPhoto>();
+
+    public DbSet<AdmissionEnquiry> AdmissionEnquiries => Set<AdmissionEnquiry>();
+
+    public DbSet<EnquiryFollowUp> EnquiryFollowUps => Set<EnquiryFollowUp>();
+
+    public DbSet<CampusVisit> CampusVisits => Set<CampusVisit>();
+
+    public DbSet<SchoolReview> SchoolReviews => Set<SchoolReview>();
 
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
@@ -79,51 +103,26 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        builder.HasSequence<int>(Configurations.InvoiceConfiguration.NumberSequence);
+        builder.HasSequence<int>(Configurations.InvoiceConfiguration.NumberSequence, DatabaseSchemas.Billing);
 
         // Enum columns hold numbers; a seeded lookup table per enum names them for reports (ENG-ENUM-04).
         EnumLookupTables.Configure(builder);
 
+        // Last, so every entity type of the model, the lookup tables included, is in its feature schema.
+        builder.ApplyFeatureSchemas();
+
         // Tenant isolation (SEC-AUTHZ-03): a school sees only its own rows, the master tenant sees every school's. With
         // no resolved tenant, CurrentSchoolId is null and nothing matches.
-        builder.Entity<BrandingImage>()
-            .HasQueryFilter(i => IsMasterTenant || i.SchoolId == CurrentSchoolId);
+        // Every entity that implements ITenantOwned gets the same filter, so a new school-owned entity cannot miss it. A test
+        // (TenantIsolationModelTests) fails when an entity has a SchoolId but no ITenantOwned.
+        foreach (var entityType in builder.Model.GetEntityTypes().Where(t => typeof(ITenantOwned).IsAssignableFrom(t.ClrType)).ToList())
+        {
+            entityType.SetQueryFilter(TenantFilter(entityType.ClrType));
+        }
 
-        builder.Entity<Branch>()
-            .HasQueryFilter(b => IsMasterTenant || b.SchoolId == CurrentSchoolId);
-
-        builder.Entity<CampusShift>()
-            .HasQueryFilter(s => IsMasterTenant || s.SchoolId == CurrentSchoolId);
-
+        // The audit trail has no school for entries the system writes, so its SchoolId is nullable and it is not ITenantOwned.
         builder.Entity<ChangeAuditEntry>()
             .HasQueryFilter(e => IsMasterTenant || e.SchoolId == CurrentSchoolId);
-
-        builder.Entity<Subscription>()
-            .HasQueryFilter(s => IsMasterTenant || s.SchoolId == CurrentSchoolId);
-
-        builder.Entity<TenantModule>()
-            .HasQueryFilter(m => IsMasterTenant || m.SchoolId == CurrentSchoolId);
-
-        builder.Entity<RenewalReminder>()
-            .HasQueryFilter(r => IsMasterTenant || r.SchoolId == CurrentSchoolId);
-
-        builder.Entity<AddOnRequest>()
-            .HasQueryFilter(r => IsMasterTenant || r.SchoolId == CurrentSchoolId);
-
-        builder.Entity<Invoice>()
-            .HasQueryFilter(i => IsMasterTenant || i.SchoolId == CurrentSchoolId);
-
-        builder.Entity<InvoiceLine>()
-            .HasQueryFilter(l => IsMasterTenant || l.SchoolId == CurrentSchoolId);
-
-        builder.Entity<Payment>()
-            .HasQueryFilter(p => IsMasterTenant || p.SchoolId == CurrentSchoolId);
-
-        builder.Entity<SchoolRole>()
-            .HasQueryFilter(r => IsMasterTenant || r.SchoolId == CurrentSchoolId);
-
-        builder.Entity<RolePermission>()
-            .HasQueryFilter(p => IsMasterTenant || p.SchoolId == CurrentSchoolId);
 
         // Every entity's Guid PublicId is an alternate key (a unique constraint), the only identity the API exposes. The
         // int Id stays the primary key for joins and foreign keys (ENG-ID-01, ENG-ID-02).
@@ -136,12 +135,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         }
 
         // Soft delete: every soft-deletable entity hides its deleted rows from every query, the master
-        // tenant included. Rows stay in the table for audit.
+        // tenant included. Rows stay in the table for audit. Added to the tenant filter, not in place of it.
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             if (typeof(BaseSoftDeletableEntity).IsAssignableFrom(entityType.ClrType))
             {
-                ApplySoftDeleteFilter(builder, entityType.ClrType);
+                ApplySoftDeleteFilter(entityType);
             }
         }
     }
@@ -170,14 +169,40 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         }, cancellationToken);
     }
 
-    private static void ApplySoftDeleteFilter(ModelBuilder builder, Type entityClrType)
+    /// <summary>The tenant filter of an <see cref="ITenantOwned"/> entity: the master tenant sees every row, a school its own.</summary>
+    private LambdaExpression TenantFilter(Type entityClrType)
     {
-        var method = typeof(ApplicationDbContext)
-            .GetMethod(nameof(SoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)!
-            .MakeGenericMethod(entityClrType);
-        method.Invoke(null, new object[] { builder });
+        var entity = Expression.Parameter(entityClrType, "e");
+        var self = Expression.Constant(this);
+        var isMaster = Expression.Property(self, nameof(IsMasterTenant));
+        var rowSchool = Expression.Convert(Expression.Property(entity, nameof(ITenantOwned.SchoolId)), typeof(int?));
+        var sameSchool = Expression.Equal(rowSchool, Expression.Property(self, nameof(CurrentSchoolId)));
+        return Expression.Lambda(Expression.OrElse(isMaster, sameSchool), entity);
     }
 
-    private static void SoftDeleteFilter<TEntity>(ModelBuilder builder) where TEntity : BaseSoftDeletableEntity =>
-        builder.Entity<TEntity>().HasQueryFilter(e => !e.IsDeleted);
+    /// <summary>
+    /// Adds "not deleted" to the query filter the entity type already has. EF Core keeps one filter per entity type, so a
+    /// new filter would replace the tenant filter (SEC-AUTHZ-03) that the school's rows are scoped by.
+    /// </summary>
+    private static void ApplySoftDeleteFilter(IMutableEntityType entityType)
+    {
+        var entity = Expression.Parameter(entityType.ClrType, "e");
+        Expression notDeleted = Expression.Not(Expression.Property(entity, nameof(BaseSoftDeletableEntity.IsDeleted)));
+
+        // The tenant filter is the only declared filter of these entity types, so it is combined with "not deleted".
+        foreach (var filter in entityType.GetDeclaredQueryFilters())
+        {
+            var tenantFilter = filter.Expression ?? throw new InvalidOperationException($"The query filter of {entityType.ClrType.Name} has no expression.");
+            var existingBody = new ParameterReplacer(tenantFilter.Parameters[0], entity).Visit(tenantFilter.Body);
+            notDeleted = Expression.AndAlso(existingBody, notDeleted);
+        }
+
+        entityType.SetQueryFilter(Expression.Lambda(notDeleted, entity));
+    }
+
+    /// <summary>Points a filter's parameter at the parameter of the combined filter.</summary>
+    private sealed class ParameterReplacer(ParameterExpression from, ParameterExpression to) : ExpressionVisitor
+    {
+        protected override Expression VisitParameter(ParameterExpression node) => node == from ? to : base.VisitParameter(node);
+    }
 }

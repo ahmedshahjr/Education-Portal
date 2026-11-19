@@ -1,0 +1,33 @@
+<app-page-header
+  title="Schools and campuses"
+  i18n-title="@@overview.title"
+  [subtitle]="subtitle()"
+></app-page-header>
+
+@if (loadError(); as message) {
+  <app-empty-state
+    icon="alert-triangle"
+    title="Schools could not be loaded"
+    i18n-title="@@overview.loadError"
+    [description]="message"
+    actionLabel="Try again"
+    i18n-actionLabel="@@common.tryAgain"
+    (action)="load()"
+  />
+} @else {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <app-data-table
+        [data]="rows()"
+        [columns]="columns"
+        [loading]="schools() === null"
+        searchPlaceholder="Search a school or a campus..."
+        i18n-searchPlaceholder="@@overview.search"
+        emptyTitle="No schools yet"
+        i18n-emptyTitle="@@overview.empty"
+        emptyDescription="Schools appear here once they are added or their requests are approved."
+        i18n-emptyDescription="@@overview.emptyDescription"
+      />
+    </mat-card-content>
+  </mat-card>
+}

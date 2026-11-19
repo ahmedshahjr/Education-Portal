@@ -3,21 +3,29 @@ import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '../../core/auth/auth.service';
 import { BrandingService } from '../../core/branding/branding.service';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { MasterOverviewComponent } from '../overview/master-overview.component';
 
-/** The start page after sign-in. Real dashboards come with the academic modules (MVP step 3). */
+/**
+ * The start page after sign-in. The master tenant (the software seller, which owns no school) sees every school and its
+ * campuses; a school sees its own welcome until its academic dashboards come with the academic modules (MVP step 3).
+ */
 @Component({
   selector: 'app-home-page',
-  imports: [MatCardModule, PageHeaderComponent],
+  imports: [MatCardModule, PageHeaderComponent, MasterOverviewComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <app-page-header [title]="branding.schoolName()" subtitle="Dashboard" i18n-subtitle="@@home.subtitle" />
+    @if (branding.isMaster()) {
+      <app-master-overview />
+    } @else {
+      <app-page-header [title]="branding.schoolName()" subtitle="Dashboard" i18n-subtitle="@@home.subtitle" />
 
-    <mat-card class="mm-card mm-elevated">
-      <mat-card-content>
-        <h2 class="mm-home-title" i18n="@@home.welcome">Welcome back</h2>
-        <p class="mm-home-text" i18n="@@home.signedInAs">You are signed in as <bdi>{{ auth.currentUser()?.email }}</bdi>.</p>
-      </mat-card-content>
-    </mat-card>
+      <mat-card class="mm-card mm-elevated">
+        <mat-card-content>
+          <h2 class="mm-home-title" i18n="@@home.welcome">Welcome back</h2>
+          <p class="mm-home-text" i18n="@@home.signedInAs">You are signed in as <bdi>{{ auth.currentUser()?.email }}</bdi>.</p>
+        </mat-card-content>
+      </mat-card>
+    }
   `,
   styles: `
     .mm-home-title {

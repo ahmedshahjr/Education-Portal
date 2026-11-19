@@ -103,7 +103,7 @@ public class IdentifierAndEnumTests : TestBase
 
         // The lookup table's foreign key stops a value no member has, even from outside the application.
         await Should.ThrowAsync<PostgresException>(() =>
-            context.Database.ExecuteSqlAsync($"UPDATE \"SchoolRequests\" SET \"Status\" = {99} WHERE \"Id\" = {request.Id}"));
+            context.Database.ExecuteSqlAsync($"UPDATE \"schools\".\"SchoolRequests\" SET \"Status\" = {99} WHERE \"Id\" = {request.Id}"));
     }
 
     [Test]
@@ -112,7 +112,7 @@ public class IdentifierAndEnumTests : TestBase
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        foreach (var type in new[] { typeof(School), typeof(Country), typeof(PortalModule), typeof(ModuleDependency), typeof(Subscription), typeof(TenantModule), typeof(Branch), typeof(Invoice), typeof(InvoiceLine), typeof(Payment), typeof(Plan), typeof(PriceBook), typeof(BrandingImage), typeof(SchoolRequest) })
+        foreach (var type in new[] { typeof(School), typeof(Country), typeof(PortalModule), typeof(ModuleDependency), typeof(Subscription), typeof(TenantModule), typeof(Campus), typeof(Invoice), typeof(InvoiceLine), typeof(Payment), typeof(Plan), typeof(PriceBook), typeof(BrandingImage), typeof(SchoolRequest) })
         {
             var entity = context.Model.FindEntityType(type)!;
             entity.FindPrimaryKey()!.Properties.Single().ClrType.ShouldBe(typeof(int), type.Name);

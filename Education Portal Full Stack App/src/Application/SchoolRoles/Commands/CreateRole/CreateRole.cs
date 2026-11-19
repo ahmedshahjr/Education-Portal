@@ -11,7 +11,7 @@ namespace EducationPortal.Application.SchoolRoles.Commands.CreateRole;
 /// Adds a role to the current school and returns its id. The school comes from the host (SEC-AUTHZ-04). Rights can
 /// only be given in modules the school has now; audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.UsersRoles)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
 public record CreateRoleCommand : SchoolRoleFields, IRequest<Guid>;
 
 public class CreateRoleCommandValidator : SchoolRoleFieldsValidator<CreateRoleCommand>
@@ -49,11 +49,18 @@ public class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommand, Guid>
         var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
 
         var role = SchoolRole.Create(schoolId, request.Name);
-        _context.SchoolRoles.Add(role);
-        await _context.SaveChangesAsync(cancellationToken);
 
-        await SchoolRoleStore.SetPermissionsAsync(_context, _moduleAccess, role, request.Permissions, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        // The role and its rights are saved together, or not at all: a role without its rights is never left behind.
+        await _context.ExecuteInTransactionAsync(async token =>
+        {
+            _context.SchoolRoles.Add(role);
+            await _context.SaveChangesAsync(token);
+
+            await SchoolRoleStore.SetPermissionsAsync(_context, _moduleAccess, role, request.Permissions, token);
+            await _context.SaveChangesAsync(token);
+
+            return role.Id;
+        }, cancellationToken);
 
         await _auditLog.WriteAsync(
             SecurityAuditEventType.RoleCreated,

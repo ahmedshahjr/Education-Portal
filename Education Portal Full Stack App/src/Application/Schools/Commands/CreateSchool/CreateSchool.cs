@@ -1,18 +1,20 @@
-using System.Globalization;
+﻿using System.Globalization;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Common.Security;
-using EducationPortal.Application.Subscriptions.Common;
+using EducationPortal.Application.Modules.Common;
+using EducationPortal.Application.Schools.Registration;
 using EducationPortal.Domain.Constants;
 using FluentValidation.Results;
 
 namespace EducationPortal.Application.Schools.Commands.CreateSchool;
 
 /// <summary>
-/// Adds a school tenant on its own domain, optionally with its country (languages, time zone, currency and price book)
+/// Adds a school tenant on its own domain, with its country (languages, time zone, currency and price book, which must exist)
 /// and data region, together with its first administrator. The administrator gets a one-time password from the master
 /// and must replace it on first sign-in. School and account are saved in one transaction, so neither exists without the
-/// other. The school starts with the default branding and no subscription. Master tenant administrators only
+/// other. The school starts with the default branding, the modules that are on by default, and a three-month (90-day) free trial of the Full
+/// plan when it has a country. Master tenant administrators only
 /// (SEC-AUTHZ-07); the master tenant itself is only ever created by seeding. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
@@ -20,11 +22,11 @@ public record CreateSchoolCommand : IRequest<Guid>
 {
     public string Name { get; init; } = string.Empty;
 
-    /// <summary>The host name the school is reached on, for example <c>school1.com</c>. Stored in lower case.</summary>
+    /// <summary>The host name the school is reached on, for example <c>school1.com</c>. Stored in lower case. Blank: the school has none and signs in on the master tenant's domain.</summary>
     public string Domain { get; init; } = string.Empty;
 
-    /// <summary>The country's public id, or <c>null</c> for the platform defaults (English only, UTC).</summary>
-    public Guid? CountryId { get; init; }
+    /// <summary>The country's public id. Required: it sets the school's languages, time zone, currency and price book, and prices its trial.</summary>
+    public Guid CountryId { get; init; }
 
     /// <summary>Where the school's data is kept, or <c>null</c> when not decided yet.</summary>
     public DataRegion? DataRegion { get; init; }
@@ -46,10 +48,11 @@ public class CreateSchoolCommandValidator : AbstractValidator<CreateSchoolComman
             .NotEmpty()
             .MaximumLength(School.NameMaxLength);
 
+        // Optional: a school without a domain signs in on the master tenant's domain.
         RuleFor(c => c.Domain)
-            .NotEmpty()
             .Must(domain => School.IsValidDomain(Normalize(domain)))
             .WithMessage(_ => ValidationMessages.SchoolDomainFormat)
+            .When(c => !string.IsNullOrWhiteSpace(c.Domain))
             .DependentRules(() =>
                 RuleFor(c => c.Domain)
                     .MustAsync(async (domain, cancellationToken) =>
@@ -57,12 +60,21 @@ public class CreateSchoolCommandValidator : AbstractValidator<CreateSchoolComman
                         var normalized = Normalize(domain);
                         return !await context.Schools.AnyAsync(s => s.Domain == normalized, cancellationToken);
                     })
-                    .WithMessage(_ => ValidationMessages.SchoolDomainTaken));
+                    .WithMessage(_ => ValidationMessages.SchoolDomainTaken)
+                    .When(c => !string.IsNullOrWhiteSpace(c.Domain)));
 
         RuleFor(c => c.CountryId)
+            .NotEmpty()
             .MustAsync(async (countryId, cancellationToken) => await context.Countries.AnyAsync(c => c.PublicId == countryId, cancellationToken))
-            .When(c => c.CountryId is not null)
-            .WithMessage(_ => ValidationMessages.CountryNotFound);
+            .WithMessage(_ => ValidationMessages.CountryNotFound)
+            .DependentRules(() =>
+                RuleFor(c => c.CountryId)
+                    .MustAsync(async (countryId, cancellationToken) => await (
+                            from c in context.Countries
+                            join b in context.PriceBooks on c.Code equals b.CountryCode
+                            where c.PublicId == countryId
+                            select b.Id).AnyAsync(cancellationToken))
+                    .WithMessage(_ => ValidationMessages.CountryHasNoPriceBook));
 
         RuleFor(c => c.DataRegion).IsInEnum();
 
@@ -88,9 +100,6 @@ public class CreateSchoolCommandValidator : AbstractValidator<CreateSchoolComman
 
 public class CreateSchoolCommandHandler : IRequestHandler<CreateSchoolCommand, Guid>
 {
-    /// <summary>The free trial a new school starts with: three months on the full catalogue (ADR-011, the Full plan).</summary>
-    public const int TrialDays = 90;
-
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
     private readonly ISecurityAuditLog _auditLog;
@@ -106,88 +115,33 @@ public class CreateSchoolCommandHandler : IRequestHandler<CreateSchoolCommand, G
 
     public async Task<Guid> Handle(CreateSchoolCommand request, CancellationToken cancellationToken)
     {
-        var school = School.Create(request.Name, request.Domain);
+        // One transaction: the school, its grants, its trial and its administrator are saved together or not at all.
+        var registered = await _context.ExecuteInTransactionAsync(token => SchoolRegistration.RegisterAsync(
+            _context,
+            _identityService,
+            _timeProvider,
+            new SchoolRegistrationRequest(
+                request.Name,
+                request.Domain,
+                request.CountryId,
+                request.DataRegion,
+                request.AdministratorEmail,
+                request.AdministratorPassword),
+            token), cancellationToken);
 
-        if (request.CountryId is { } countryPublicId)
-        {
-            school.AssignCountry(await _context.Countries.ResolveIdAsync(countryPublicId, cancellationToken));
-        }
-
-        school.AssignDataRegion(request.DataRegion);
-
-        var administratorId = await _context.ExecuteInTransactionAsync(async token =>
-        {
-            _context.Schools.Add(school);
-            await _context.SaveChangesAsync(token);
-
-            var (result, userId) = await _identityService.CreateSchoolAdministratorAsync(
-                school.Id,
-                request.AdministratorEmail.Trim(),
-                request.AdministratorPassword);
-
-            if (!result.Succeeded)
-            {
-                // Throwing rolls the school back too. The policy messages say what to change in the password.
-                throw new Common.Exceptions.ValidationException(result.Errors.Select(e => new ValidationFailure(nameof(request.AdministratorPassword), e)));
-            }
-
-            // The trial is part of the same save: a school never exists without its first administrator or its trial.
-            await StartTrialAsync(school, token);
-
-            return userId;
-        }, cancellationToken);
-
+        // The audit records are written after the commit, so they never describe a school that was rolled back.
         await _auditLog.WriteAsync(
             SecurityAuditEventType.SchoolCreated,
             SecurityAuditOutcome.Success,
             targetType: nameof(School),
-            targetId: school.Id.ToString(CultureInfo.InvariantCulture));
+            targetId: registered.Id.ToString(CultureInfo.InvariantCulture));
 
         await _auditLog.WriteAsync(
             SecurityAuditEventType.UserCreated,
             SecurityAuditOutcome.Success,
             targetType: "User",
-            targetId: administratorId);
+            targetId: registered.AdministratorId);
 
-        return school.PublicId;
-    }
-
-    /// <summary>
-    /// Starts the school's free trial: the Full plan for <see cref="TrialDays"/> days, billed monthly afterwards, with
-    /// every module it gives. It needs an active price book and the Full plan for the school's country; without them
-    /// the school is still created and the master tenant starts its subscription once prices exist. Audited.
-    /// </summary>
-    private async Task StartTrialAsync(School school, CancellationToken cancellationToken)
-    {
-        if (school.CountryId is not { } countryId)
-        {
-            return;
-        }
-
-        var countryCode = await _context.Countries.Where(c => c.Id == countryId).Select(c => c.Code).SingleAsync(cancellationToken);
-        var hasPrices = await _context.PriceBooks.AnyAsync(b => b.CountryCode == countryCode && b.IsActive, cancellationToken)
-            && await _context.Plans.AnyAsync(p => p.Code == PricingCatalog.Full && p.IsActive, cancellationToken);
-        if (!hasPrices)
-        {
-            return;
-        }
-
-        var quote = await SubscriptionPlanner.QuoteAsync(_context, countryCode, PricingCatalog.Full, [], BillingCycle.Monthly, cancellationToken);
-        var subscription = Subscription.Create(school.Id, quote.Plan, quote.PriceBook, BillingCycle.Monthly, quote.Amount, _timeProvider.GetUtcNow(), TrialDays);
-
-        var mainBranch = await SchoolBranches.MainAsync(_context, school.Id, cancellationToken);
-        foreach (var module in quote.Modules)
-        {
-            subscription.AddModule(module, mainBranch);
-        }
-
-        _context.Subscriptions.Add(subscription);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        await _auditLog.WriteAsync(
-            SecurityAuditEventType.SubscriptionCreated,
-            SecurityAuditOutcome.Success,
-            targetType: nameof(Subscription),
-            targetId: subscription.Id.ToString(CultureInfo.InvariantCulture));
+        return registered.PublicId;
     }
 }

@@ -30,7 +30,8 @@ import { FormInputComponent } from '../../shared/components/form-input/form-inpu
 
         <h1 class="mm-auth-hero">Welcome to MaterialM Dashboard 3</h1>
         <p class="mm-auth-copy">
-          Monitor revenue velocity, ROI performance, payment settlements, and delivery telemetry in one cohesive Angular 22 workspace.
+          Monitor revenue velocity, ROI performance, payment settlements, and delivery telemetry in
+          one cohesive Angular 22 workspace.
         </p>
       </div>
 
@@ -48,7 +49,11 @@ import { FormInputComponent } from '../../shared/components/form-input/form-inpu
               <app-form-input label="Email Address" type="email" [control]="form.controls.email" />
 
               @if (mode() !== 'forgot') {
-                <app-form-input label="Password" type="password" [control]="form.controls.password" />
+                <app-form-input
+                  label="Password"
+                  type="password"
+                  [control]="form.controls.password"
+                />
               }
 
               <button mat-flat-button color="primary" type="submit" class="mm-auth-submit">

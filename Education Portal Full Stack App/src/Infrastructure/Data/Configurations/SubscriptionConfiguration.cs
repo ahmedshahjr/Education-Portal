@@ -1,58 +1,76 @@
-using EducationPortal.Domain.Entities;
+﻿using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace EducationPortal.Infrastructure.Data.Configurations;
 
-public class BranchConfiguration : IEntityTypeConfiguration<Branch>
+public class CampusConfiguration : IEntityTypeConfiguration<Campus>
 {
-    public void Configure(EntityTypeBuilder<Branch> builder)
+    public void Configure(EntityTypeBuilder<Campus> builder)
     {
-        builder.HasOne<School>().WithMany(s => s.Branches).HasForeignKey(b => b.SchoolId).OnDelete(DeleteBehavior.Cascade);
-        builder.Property(b => b.Name).IsRequired().HasMaxLength(Branch.NameMaxLength);
-        builder.Property(b => b.Code).IsRequired().HasMaxLength(Branch.CodeLength);
+        builder.HasOne<School>().WithMany(s => s.Campuses).HasForeignKey(b => b.SchoolId).OnDelete(DeleteBehavior.Cascade);
+        builder.Property(b => b.Name).IsRequired().HasMaxLength(Campus.NameMaxLength);
+        builder.Property(b => b.Code).IsRequired().HasMaxLength(Campus.CodeLength);
 
         // Codes are unique within a school. This index also serves the SchoolId foreign key (ENG-EF-09).
-        // Deleted branches keep their rows but free their code.
+        // Deleted campuses keep their rows but free their code.
         builder.HasIndex(b => new { b.SchoolId, b.Code }).IsUnique().HasFilter("\"IsDeleted\" = false");
 
-        // Every school has exactly one main branch, its registration branch (the Kind value 1 is BranchKind.Main).
+        // Every school has exactly one main campus, its registration campus (the Kind value 1 is CampusKind.Main).
         builder.HasIndex(b => b.SchoolId)
             .IsUnique()
             .HasFilter("\"Kind\" = 1")
-            .HasDatabaseName("IX_Branches_SingleMainPerSchool");
+            .HasDatabaseName("IX_Campuses_SingleMainPerSchool");
 
-        // Where the campus is: the province and city come from the location data, and a deleted row is never a reference.
-        builder.HasOne<State>().WithMany().HasForeignKey(b => b.StateId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne<City>().WithMany().HasForeignKey(b => b.CityId).OnDelete(DeleteBehavior.Restrict);
-        builder.Property(b => b.AddressLine).HasMaxLength(Branch.AddressMaxLength);
-        builder.Property(b => b.GooglePlaceId).HasMaxLength(Branch.GooglePlaceIdMaxLength);
-        builder.Property(b => b.GoogleMapsUrl).HasMaxLength(Branch.GoogleMapsUrlMaxLength);
+        // Contact and registration details (CampusDetails). Lengths match the domain limits.
+        builder.Property(b => b.Address).HasMaxLength(CampusDetails.AddressMaxLength);
+        builder.Property(b => b.PostalCode).HasMaxLength(ContactRules.PostalCodeMaxLength);
+        builder.Property(b => b.Website).HasMaxLength(ContactRules.WebsiteMaxLength);
 
-        // Coordinates in decimal degrees: 9 digits in total, 6 after the point (about 0.1 m).
-        builder.Property(b => b.Latitude).HasPrecision(9, 6);
-        builder.Property(b => b.Longitude).HasPrecision(9, 6);
-        builder.ToTable(t => t.HasCheckConstraint("CK_Branches_LatitudeAndLongitudeTogether", "(\"Latitude\" IS NULL) = (\"Longitude\" IS NULL)"));
+        // The phone numbers are rows of their own (CampusPhone), read and written through the campus's field.
+        builder.HasMany(b => b.Phones).WithOne(p => p.Campus).HasForeignKey(p => p.CampusId).OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(b => b.Phones).UsePropertyAccessMode(PropertyAccessMode.Field).HasField("_phones");
+        builder.Property(b => b.SchoolNumber).HasMaxLength(CampusDetails.SchoolNumberMaxLength);
+        builder.Property(b => b.ShortName).HasMaxLength(CampusDetails.ShortNameMaxLength);
+        builder.Property(b => b.Latitude).HasPrecision(9, CampusDetails.CoordinateDecimals);
+        builder.Property(b => b.Longitude).HasPrecision(9, CampusDetails.CoordinateDecimals);
 
-        // The shifts are kept in a field: the handlers change them through Branch.ReplaceShifts only.
-        builder.HasMany(b => b.Shifts).WithOne().HasForeignKey(s => s.BranchId).OnDelete(DeleteBehavior.Cascade);
-        builder.Navigation(b => b.Shifts).UsePropertyAccessMode(PropertyAccessMode.Field);
+        // A city belongs to a state, so a city is never stored without one.
+        builder.ToTable(t => t.HasCheckConstraint("CK_Campuses_CityNeedsState", "\"CityId\" IS NULL OR \"StateId\" IS NOT NULL"));
+
+        builder.HasOne(b => b.State).WithMany().HasForeignKey(b => b.StateId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(b => b.City).WithMany().HasForeignKey(b => b.CityId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(b => b.PrincipalUserDetails).WithMany().HasForeignKey(b => b.PrincipalUserDetailsId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(b => b.PrincipalUserDetailsId);
     }
 }
 
-public class CampusShiftConfiguration : IEntityTypeConfiguration<CampusShift>
+public class CampusPhoneConfiguration : IEntityTypeConfiguration<CampusPhone>
 {
-    public void Configure(EntityTypeBuilder<CampusShift> builder)
+    public void Configure(EntityTypeBuilder<CampusPhone> builder)
     {
-        builder.HasOne<School>().WithMany().HasForeignKey(s => s.SchoolId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<School>().WithMany().HasForeignKey(p => p.SchoolId).OnDelete(DeleteBehavior.Cascade);
+        builder.Property(p => p.Number).IsRequired().HasMaxLength(ContactRules.PhoneMaxLength);
 
-        builder.Property(s => s.Name).IsRequired().HasMaxLength(CampusShift.NameMaxLength);
+        // Each campus lists its numbers in order, one per position (CampusDetails keeps them in the order given).
+        builder.HasIndex(p => new { p.CampusId, p.Position }).IsUnique();
+    }
+}
 
-        // A campus has at most one active shift with a given name. Replaced shifts keep their rows and free their name.
-        builder.HasIndex(s => new { s.BranchId, s.Name }).IsUnique().HasFilter("\"IsDeleted\" = false");
-        builder.HasIndex(s => s.SchoolId);
+public class UserDetailsConfiguration : IEntityTypeConfiguration<UserDetails>
+{
+    public void Configure(EntityTypeBuilder<UserDetails> builder)
+    {
+        builder.HasOne<School>().WithMany().HasForeignKey(u => u.SchoolId).OnDelete(DeleteBehavior.Cascade);
+        builder.Property(u => u.FirstName).IsRequired().HasMaxLength(UserDetails.NameMaxLength);
+        builder.Property(u => u.MiddleName).HasMaxLength(UserDetails.NameMaxLength);
+        builder.Property(u => u.LastName).IsRequired().HasMaxLength(UserDetails.NameMaxLength);
+        builder.Property(u => u.Phone).HasMaxLength(ContactRules.PhoneMaxLength);
 
-        builder.ToTable(t => t.HasCheckConstraint("CK_CampusShifts_EndAfterStart", "\"EndTime\" > \"StartTime\""));
+        // The school's people are listed and filtered by school (ENG-EF-09).
+        builder.HasIndex(u => new { u.SchoolId, u.UserType });
     }
 }
 
@@ -87,12 +105,19 @@ public class TenantModuleConfiguration : IEntityTypeConfiguration<TenantModule>
     {
         builder.HasOne<School>().WithMany().HasForeignKey(m => m.SchoolId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<PortalModule>().WithMany().HasForeignKey(m => m.ModuleId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne<Branch>().WithMany().HasForeignKey(m => m.BranchId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Campus>().WithMany().HasForeignKey(m => m.CampusId).OnDelete(DeleteBehavior.Restrict);
 
-        // A subscription gives a module to each branch once. The main branch's grant is the whole school's.
-        builder.HasIndex(m => new { m.SubscriptionId, m.ModuleId, m.BranchId }).IsUnique();
+        // A subscription gives a module to each campus once. The main campus's grant is the whole school's.
+        builder.HasIndex(m => new { m.SubscriptionId, m.ModuleId, m.CampusId }).IsUnique();
+
+        // A school has at most one default grant of a module on a campus: nulls are distinct in a unique index, so the
+        // subscription index above does not cover the default grants (SubscriptionId null).
+        builder.HasIndex(m => new { m.SchoolId, m.ModuleId, m.CampusId })
+            .IsUnique()
+            .HasFilter("\"SubscriptionId\" IS NULL")
+            .HasDatabaseName("IX_TenantModules_DefaultGrantOnce");
         builder.HasIndex(m => new { m.SchoolId, m.ModuleId });
-        builder.HasIndex(m => m.BranchId);
+        builder.HasIndex(m => m.CampusId);
     }
 }
 

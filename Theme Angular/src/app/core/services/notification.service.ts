@@ -94,16 +94,16 @@ export class NotificationService {
   readonly messages = this.messagesSignal.asReadonly();
 
   readonly unreadNotificationCount = computed(
-    () => this.notificationsSignal().filter((n) => n.unread).length
+    () => this.notificationsSignal().filter((n) => n.unread).length,
   );
 
   readonly unreadMessageCount = computed(
-    () => this.messagesSignal().filter((m) => m.unread).length
+    () => this.messagesSignal().filter((m) => m.unread).length,
   );
 
   markNotificationRead(id: string): void {
     this.notificationsSignal.update((list) =>
-      list.map((item) => (item.id === id ? { ...item, unread: false } : item))
+      list.map((item) => (item.id === id ? { ...item, unread: false } : item)),
     );
   }
 
@@ -114,7 +114,7 @@ export class NotificationService {
 
   markMessageRead(id: string): void {
     this.messagesSignal.update((list) =>
-      list.map((item) => (item.id === id ? { ...item, unread: false } : item))
+      list.map((item) => (item.id === id ? { ...item, unread: false } : item)),
     );
   }
 

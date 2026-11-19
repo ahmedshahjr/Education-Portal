@@ -33,9 +33,11 @@ public interface IIdentityService
     /// Checks the password and, when it matches, signs the user in with the session cookie. Failed
     /// attempts count towards lockout (SEC-AUTHN-05). An account of another school than
     /// <paramref name="schoolId"/> (the school of the request's domain) is refused like a wrong password,
-    /// without counting towards its lockout.
+    /// without counting towards its lockout. The one exception is a request on the master tenant's domain
+    /// (<paramref name="hostIsMaster"/>): an account of an active school that has no domain of its own may sign in there, and its
+    /// session is marked so that it acts as its own school.
     /// </summary>
-    Task<PasswordSignInResult> PasswordSignInAsync(int schoolId, string email, string password);
+    Task<PasswordSignInResult> PasswordSignInAsync(int schoolId, bool hostIsMaster, string email, string password);
 
     /// <summary>
     /// Signs the user out and ends every session they have, not only the current browser's (SEC-AUTHN-07).
