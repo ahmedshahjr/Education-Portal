@@ -1,6 +1,7 @@
 using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Countries.Commands.CreateCountry;
 using EducationPortal.Application.Countries.Commands.UpdateCountry;
+using EducationPortal.Application.Countries.Commands.UpdateCountryRegionalSettings;
 using EducationPortal.Application.Countries.Common;
 using EducationPortal.Application.Countries.Queries.GetCountries;
 using EducationPortal.Application.Countries.Queries.GetLanguages;
@@ -30,6 +31,10 @@ public class Countries : IEndpointGroup
         groupBuilder.MapPut(UpdateCountry, "{id:guid}")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapPut(UpdateCountryRegionalSettings, "{id:guid}/regional-settings")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
     }
 
     [EndpointSummary("List countries")]
@@ -56,6 +61,16 @@ public class Countries : IEndpointGroup
     [EndpointSummary("Change a country")]
     [EndpointDescription("Changes a country's name, languages, default language, time zone and currency. Its schools follow from their next request. The code cannot change. Master tenant only.")]
     public static async Task<NoContent> UpdateCountry(ISender sender, Guid id, UpdateCountryCommand command)
+    {
+        // The route names the country; an id in the body is ignored.
+        await sender.Send(command with { Id = id });
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Change a country's regional settings")]
+    [EndpointDescription("Changes a country's currency decimals, phone number pattern, first day of the week and weekend days. Master tenant only.")]
+    public static async Task<NoContent> UpdateCountryRegionalSettings(ISender sender, Guid id, UpdateCountryRegionalSettingsCommand command)
     {
         // The route names the country; an id in the body is ignored.
         await sender.Send(command with { Id = id });

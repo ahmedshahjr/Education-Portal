@@ -98,6 +98,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 
+    public DbSet<AcademicYear> AcademicYears => Set<AcademicYear>();
+
+    public DbSet<Term> Terms => Set<Term>();
+
+    public DbSet<Shift> Shifts => Set<Shift>();
+
+    public DbSet<Holiday> Holidays => Set<Holiday>();
+
+    public DbSet<CalendarEvent> CalendarEvents => Set<CalendarEvent>();
+
     // Read by the query filters on every query, so each request sees its own tenant (ENG-EF-10).
     private int? CurrentSchoolId => _tenant.SchoolId;
 

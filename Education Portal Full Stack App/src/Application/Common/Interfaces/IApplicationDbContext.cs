@@ -85,6 +85,21 @@ public interface IApplicationDbContext
 
     DbSet<RolePermission> RolePermissions { get; }
 
+    /// <summary>The academic years of each school.</summary>
+    DbSet<AcademicYear> AcademicYears { get; }
+
+    /// <summary>The terms of each academic year.</summary>
+    DbSet<Term> Terms { get; }
+
+    /// <summary>The shifts of each campus.</summary>
+    DbSet<Shift> Shifts { get; }
+
+    /// <summary>Holidays on each school's calendar.</summary>
+    DbSet<Holiday> Holidays { get; }
+
+    /// <summary>Events on each school's calendar.</summary>
+    DbSet<CalendarEvent> CalendarEvents { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 
     /// <summary>

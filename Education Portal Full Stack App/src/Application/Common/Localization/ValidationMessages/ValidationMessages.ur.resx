@@ -432,4 +432,55 @@
   <data name="RoleNotInSchool" xml:space="preserve">
     <value>ایک کردار اس مدرسے کا نہیں ہے۔</value>
   </data>
+  <data name="DateRangeInvalid" xml:space="preserve">
+    <value>اختتامی تاریخ آغاز کی تاریخ کے دن یا اس کے بعد ہونی چاہیے۔</value>
+  </data>
+  <data name="TimeRangeInvalid" xml:space="preserve">
+    <value>اختتامی وقت آغاز کے وقت کے بعد ہونا چاہیے۔</value>
+  </data>
+  <data name="EndTimeNeedsStartTime" xml:space="preserve">
+    <value>اختتامی وقت کے لیے آغاز کا وقت ضروری ہے۔</value>
+  </data>
+  <data name="AcademicYearTooLong" xml:space="preserve">
+    <value>تعلیمی سال زیادہ سے زیادہ دو سال کا ہوتا ہے۔</value>
+  </data>
+  <data name="AcademicYearNameTaken" xml:space="preserve">
+    <value>اسکول میں اس نام کا تعلیمی سال پہلے سے موجود ہے۔</value>
+  </data>
+  <data name="AcademicYearOverlaps" xml:space="preserve">
+    <value>یہ تاریخیں اسکول کے کسی دوسرے تعلیمی سال سے ٹکراتی ہیں۔</value>
+  </data>
+  <data name="AcademicYearClosed" xml:space="preserve">
+    <value>بند تعلیمی سال میں تبدیلی نہیں ہو سکتی۔</value>
+  </data>
+  <data name="AcademicYearHasTerms" xml:space="preserve">
+    <value>پہلے اس سال کی ٹرمز حذف کریں۔</value>
+  </data>
+  <data name="TermOutsideYear" xml:space="preserve">
+    <value>ٹرم کی تاریخیں اس کے تعلیمی سال کے اندر ہونی چاہئیں۔</value>
+  </data>
+  <data name="TermSequenceTaken" xml:space="preserve">
+    <value>اس سال میں اس نمبر کی ٹرم پہلے سے موجود ہے۔</value>
+  </data>
+  <data name="TermOverlaps" xml:space="preserve">
+    <value>یہ تاریخیں اسی سال کی کسی دوسری ٹرم سے ٹکراتی ہیں۔</value>
+  </data>
+  <data name="ShiftNameTaken" xml:space="preserve">
+    <value>اس برانچ میں اس نام کی شفٹ پہلے سے موجود ہے۔</value>
+  </data>
+  <data name="HolidayTooLong" xml:space="preserve">
+    <value>چھٹی زیادہ سے زیادہ 120 دن کی ہوتی ہے۔</value>
+  </data>
+  <data name="PhonePatternInvalid" xml:space="preserve">
+    <value>فون پیٹرن زیادہ سے زیادہ 200 حروف کا درست ریگولر ایکسپریشن ہونا چاہیے۔</value>
+  </data>
+  <data name="WeekendDaysInvalid" xml:space="preserve">
+    <value>زیادہ سے زیادہ تین مختلف ہفتہ وار چھٹی کے دن منتخب کریں۔</value>
+  </data>
+  <data name="CityNotInSchoolCountry" xml:space="preserve">
+    <value>شہر اسکول کے ملک میں ہونا چاہیے۔</value>
+  </data>
+  <data name="EmailInvalid" xml:space="preserve">
+    <value>ای میل پتہ درست نہیں ہے۔</value>
+  </data>
 </root>

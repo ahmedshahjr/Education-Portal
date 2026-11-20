@@ -300,4 +300,70 @@
   <data name="AdmissionDate" xml:space="preserve">
     <value>Admission date</value>
   </data>
+  <data name="Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>Start date</value>
+  </data>
+  <data name="EndDate" xml:space="preserve">
+    <value>End date</value>
+  </data>
+  <data name="StartTime" xml:space="preserve">
+    <value>Start time</value>
+  </data>
+  <data name="EndTime" xml:space="preserve">
+    <value>End time</value>
+  </data>
+  <data name="EventDate" xml:space="preserve">
+    <value>Event date</value>
+  </data>
+  <data name="Sequence" xml:space="preserve">
+    <value>Number</value>
+  </data>
+  <data name="LocalName" xml:space="preserve">
+    <value>Local name</value>
+  </data>
+  <data name="RegistrationNumber" xml:space="preserve">
+    <value>Registration number</value>
+  </data>
+  <data name="RegistrationAuthority" xml:space="preserve">
+    <value>Registration authority</value>
+  </data>
+  <data name="TaxNumber" xml:space="preserve">
+    <value>Tax number</value>
+  </data>
+  <data name="Website" xml:space="preserve">
+    <value>Website</value>
+  </data>
+  <data name="CurrencyDecimals" xml:space="preserve">
+    <value>Currency decimals</value>
+  </data>
+  <data name="PhonePattern" xml:space="preserve">
+    <value>Phone pattern</value>
+  </data>
+  <data name="WeekStartDay" xml:space="preserve">
+    <value>First day of the week</value>
+  </data>
+  <data name="WeekendDays" xml:space="preserve">
+    <value>Weekend days</value>
+  </data>
+  <data name="AcademicYearStartMonth" xml:space="preserve">
+    <value>Academic year start month</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="AppliesTo" xml:space="preserve">
+    <value>Applies to</value>
+  </data>
+  <data name="Audience" xml:space="preserve">
+    <value>Audience</value>
+  </data>
+  <data name="GenderPolicy" xml:space="preserve">
+    <value>Students</value>
+  </data>
 </root>

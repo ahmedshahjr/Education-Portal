@@ -1001,5 +1001,158 @@ namespace EducationPortal.Application.Common.Localization {
             }
         }
         
-}
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The end date must be on or after the start date..
+        /// </summary>
+        internal static string DateRangeInvalid {
+            get {
+                return ResourceManager.GetString("DateRangeInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The end time must be after the start time..
+        /// </summary>
+        internal static string TimeRangeInvalid {
+            get {
+                return ResourceManager.GetString("TimeRangeInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An end time needs a start time..
+        /// </summary>
+        internal static string EndTimeNeedsStartTime {
+            get {
+                return ResourceManager.GetString("EndTimeNeedsStartTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An academic year runs at most two years..
+        /// </summary>
+        internal static string AcademicYearTooLong {
+            get {
+                return ResourceManager.GetString("AcademicYearTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The school already has an academic year with this name..
+        /// </summary>
+        internal static string AcademicYearNameTaken {
+            get {
+                return ResourceManager.GetString("AcademicYearNameTaken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The dates overlap another academic year of the school..
+        /// </summary>
+        internal static string AcademicYearOverlaps {
+            get {
+                return ResourceManager.GetString("AcademicYearOverlaps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A closed academic year cannot be changed..
+        /// </summary>
+        internal static string AcademicYearClosed {
+            get {
+                return ResourceManager.GetString("AcademicYearClosed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the year's terms first..
+        /// </summary>
+        internal static string AcademicYearHasTerms {
+            get {
+                return ResourceManager.GetString("AcademicYearHasTerms", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A term's dates must fall inside its academic year..
+        /// </summary>
+        internal static string TermOutsideYear {
+            get {
+                return ResourceManager.GetString("TermOutsideYear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The year already has a term with this number..
+        /// </summary>
+        internal static string TermSequenceTaken {
+            get {
+                return ResourceManager.GetString("TermSequenceTaken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The dates overlap another term of the year..
+        /// </summary>
+        internal static string TermOverlaps {
+            get {
+                return ResourceManager.GetString("TermOverlaps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The campus already has a shift with this name..
+        /// </summary>
+        internal static string ShiftNameTaken {
+            get {
+                return ResourceManager.GetString("ShiftNameTaken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A holiday runs at most 120 days..
+        /// </summary>
+        internal static string HolidayTooLong {
+            get {
+                return ResourceManager.GetString("HolidayTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The phone pattern must be a valid regular expression of at most 200 characters..
+        /// </summary>
+        internal static string PhonePatternInvalid {
+            get {
+                return ResourceManager.GetString("PhonePatternInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose at most three different weekend days..
+        /// </summary>
+        internal static string WeekendDaysInvalid {
+            get {
+                return ResourceManager.GetString("WeekendDaysInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The city must be in the school's country..
+        /// </summary>
+        internal static string CityNotInSchoolCountry {
+            get {
+                return ResourceManager.GetString("CityNotInSchoolCountry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The email address is not valid..
+        /// </summary>
+        internal static string EmailInvalid {
+            get {
+                return ResourceManager.GetString("EmailInvalid", resourceCulture);
+            }
+        }
+    }
 }
