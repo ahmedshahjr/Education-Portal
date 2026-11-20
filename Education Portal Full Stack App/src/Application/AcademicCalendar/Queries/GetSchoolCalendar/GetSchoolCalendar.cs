@@ -1,4 +1,5 @@
 using EducationPortal.Application.AcademicCalendar.Common;
+using EducationPortal.Application.Calendar.Common;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Common.Security;
@@ -26,6 +27,12 @@ public record GetSchoolCalendarQuery : IRequest<SchoolCalendarDto>
 
     /// <summary>Only this campus and the whole school, or every campus when left out.</summary>
     public Guid? CampusId { get; init; }
+
+    /// <summary>
+    /// Whether the school's timed events (the Calendar feature's school events) are in the answer. They are for the whole
+    /// school, so a campus filter never hides them. True when left out.
+    /// </summary>
+    public bool IncludeSchoolEvents { get; init; } = true;
 }
 
 public class GetSchoolCalendarQueryValidator : AbstractValidator<GetSchoolCalendarQuery>
@@ -91,8 +98,22 @@ public class GetSchoolCalendarQueryHandler : IRequestHandler<GetSchoolCalendarQu
             .ToDictionaryAsync(c => c.Id, c => c.PublicId, cancellationToken);
         Guid? Campus(int? id) => id is { } value && campusIds.TryGetValue(value, out var publicId) ? publicId : null;
 
+        // The range is whole UTC days: a school event overlapping any part of [from, to] is included.
+        var schoolEvents = request.IncludeSchoolEvents
+            ? await _context.SchoolEvents
+                .AsNoTracking()
+                .Where(e => e.SchoolId == schoolId
+                    && e.StartsAt < new DateTimeOffset(to.AddDays(1).ToDateTime(TimeOnly.MinValue), TimeSpan.Zero)
+                    && e.EndsAt > new DateTimeOffset(from.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero))
+                .OrderBy(e => e.StartsAt)
+                .ThenBy(e => e.Id)
+                .Select(e => new SchoolEventDto(e.PublicId, e.Title, e.Description, e.StartsAt, e.EndsAt, e.Audience))
+                .ToListAsync(cancellationToken)
+            : [];
+
         return new SchoolCalendarDto(
             holidays.Select(h => new HolidayDto(h.PublicId, Campus(h.CampusId), h.Title, h.StartDate, h.EndDate, h.Type, h.AppliesTo, h.IsTentative)).ToList(),
-            events.Select(e => new CalendarEventDto(e.PublicId, Campus(e.CampusId), e.Title, e.Description, e.EventDate, e.StartTime, e.EndTime, e.Type, e.Audience)).ToList());
+            events.Select(e => new CalendarEventDto(e.PublicId, Campus(e.CampusId), e.Title, e.Description, e.EventDate, e.StartTime, e.EndTime, e.Type, e.Audience)).ToList(),
+            schoolEvents);
     }
 }

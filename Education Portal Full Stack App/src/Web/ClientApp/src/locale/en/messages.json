@@ -824,6 +824,8 @@
     "roles.builtIn": "Built-in",
     "roles.right.approve": "Approve",
     "roles.right.export": "Export",
-    "roles.saved": "Role saved."
+    "roles.saved": "Role saved.",
+    "academicCalendar.schoolEvent": "School event",
+    "academicCalendar.showSchoolEvents": "Show school events"
   }
 }

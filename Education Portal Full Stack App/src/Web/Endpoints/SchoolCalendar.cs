@@ -47,10 +47,10 @@ public class SchoolCalendar : IEndpointGroup
     }
 
     [EndpointSummary("Read the school calendar")]
-    [EndpointDescription("Returns the holidays and events between two dates (both included, at most 400 days), optionally for one campus and the whole school. Needs the Academic setup module.")]
-    public static async Task<Ok<SchoolCalendarDto>> GetSchoolCalendar(ISender sender, DateOnly from, DateOnly to, Guid? schoolId, Guid? campusId)
+    [EndpointDescription("Returns the holidays, calendar events and school events between two dates (both included, at most 400 days), optionally for one campus and the whole school. includeSchoolEvents false leaves out the school events. Needs the Academic setup module.")]
+    public static async Task<Ok<SchoolCalendarDto>> GetSchoolCalendar(ISender sender, DateOnly from, DateOnly to, Guid? schoolId, Guid? campusId, bool includeSchoolEvents = true)
     {
-        return TypedResults.Ok(await sender.Send(new GetSchoolCalendarQuery { SchoolId = schoolId, From = from, To = to, CampusId = campusId }));
+        return TypedResults.Ok(await sender.Send(new GetSchoolCalendarQuery { SchoolId = schoolId, From = from, To = to, CampusId = campusId, IncludeSchoolEvents = includeSchoolEvents }));
     }
 
     [EndpointSummary("Add a holiday")]

@@ -826,6 +826,8 @@
     "roles.builtIn": "مدمج",
     "roles.right.approve": "اعتماد",
     "roles.right.export": "تصدير",
-    "roles.saved": "تم حفظ الدور."
+    "roles.saved": "تم حفظ الدور.",
+    "academicCalendar.schoolEvent": "حدث المدرسة",
+    "academicCalendar.showSchoolEvents": "عرض أحداث المدرسة"
   }
 }
