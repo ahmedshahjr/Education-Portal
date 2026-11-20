@@ -1,4 +1,5 @@
 using EducationPortal.Domain.Entities;
+using NUnit.Framework;
 using Shouldly;
 
 namespace EducationPortal.Domain.UnitTests.Entities;

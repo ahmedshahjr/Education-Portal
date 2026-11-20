@@ -1,4 +1,5 @@
 using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Common.Security;
 using EducationPortal.Application.Parents.Common;
 using EducationPortal.Application.Users.Dtos;
