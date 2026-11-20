@@ -380,7 +380,7 @@
     "pricing.priceSaved": "Price saved.",
     "pricing.delete": "Delete",
     "roles.title": "Roles",
-    "roles.subtitle": "What each role of the school may do in each module: view, create, edit and delete.",
+    "roles.subtitle": "What each role of the school may do in each module: view, create, edit, delete, approve and export.",
     "roles.loadError": "Roles could not be loaded",
     "roles.search": "Search roles...",
     "roles.none": "No roles yet",
@@ -811,6 +811,19 @@
     "schoolDetails.emailInvalid": "Enter a valid email address.",
     "schoolDetails.website": "Website",
     "schoolDetails.save": "Save",
-    "schoolDetails.saved": "School details saved."
+    "schoolDetails.saved": "School details saved.",
+    "people.campusesHeading": "Campuses",
+    "people.campusesLabel": "Campuses",
+    "people.campusesHint": "The user works only with these campuses' data. Administrators see every campus.",
+    "roles.editHeading": "Edit {$INTERPOLATION}",
+    "roles.systemNameHint": "A built-in role keeps its name.",
+    "roles.description": "Description",
+    "roles.descriptionHint": "Optional. What the role is for.",
+    "roles.viewNote": "Every right includes View. A user's campuses decide where the rights apply.",
+    "roles.save": "Save role",
+    "roles.builtIn": "Built-in",
+    "roles.right.approve": "Approve",
+    "roles.right.export": "Export",
+    "roles.saved": "Role saved."
   }
 }

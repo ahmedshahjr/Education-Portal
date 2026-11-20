@@ -14,6 +14,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/componen
 import { DataTableCellContext, DataTableColumn, DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import {
   CreateRoleCommand,
   ModuleDto,
@@ -21,15 +22,15 @@ import {
   RolePermissionDto,
   SchoolRoleDto,
   SchoolRolesClient,
+  UpdateRoleCommand,
 } from '../../web-api-client';
-
-/** The four rights a role gives per module. */
-type Right = 'canView' | 'canCreate' | 'canEdit' | 'canDelete';
+import { RIGHT_KEYS, Right, rolePermissions } from './role-rights';
 
 /**
- * The school's roles and what each one may do in each of its modules (View, Create, Edit, Delete), as a table with one column
- * per module. Only the modules the school has are offered; the server refuses a right in a module that is off. The form below
- * the table adds a role; the icon deletes one.
+ * The school's roles and what each one may do in each of its modules (View, Create, Edit, Delete, Approve, Export), as a
+ * table with one column per module. Only the modules the school has are offered; the server refuses a right in a module
+ * that is off. The form below the table adds a role or changes the one being edited. A built-in role keeps its name and
+ * cannot be deleted, so its name field is locked and it has no delete button.
  */
 @Component({
   selector: 'app-roles-page',
@@ -44,6 +45,7 @@ type Right = 'canView' | 'canCreate' | 'canEdit' | 'canDelete';
     EmptyStateComponent,
     AppIconComponent,
     DataTableComponent,
+    StatusBadgeComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './roles.page.html',
@@ -62,25 +64,34 @@ export class RolesPage {
   protected readonly busy = signal(false);
   protected readonly errors = signal<readonly string[]>([]);
 
-  protected readonly rights: readonly { key: Right; label: string }[] = [
-    { key: 'canView', label: $localize`:@@roles.right.view:View` },
-    { key: 'canCreate', label: $localize`:@@roles.right.create:Create` },
-    { key: 'canEdit', label: $localize`:@@roles.right.edit:Edit` },
-    { key: 'canDelete', label: $localize`:@@roles.right.delete:Delete` },
-  ];
+  /** The role whose rights are in the form, or null while a new role is being added. */
+  protected readonly editing = signal<SchoolRoleDto | null>(null);
+
+  private readonly rightLabels: Record<Right, string> = {
+    canView: $localize`:@@roles.right.view:View`,
+    canCreate: $localize`:@@roles.right.create:Create`,
+    canEdit: $localize`:@@roles.right.edit:Edit`,
+    canDelete: $localize`:@@roles.right.delete:Delete`,
+    canApprove: $localize`:@@roles.right.approve:Approve`,
+    canExport: $localize`:@@roles.right.export:Export`,
+  };
+
+  protected readonly rights: readonly { key: Right; label: string }[] = RIGHT_KEYS.map((key) => ({ key, label: this.rightLabels[key] }));
 
   /** One checkbox per (module, right) of the new role. */
   protected readonly grants = new Map<string, FormControl<boolean>>();
 
   protected readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
+    description: ['', [Validators.maxLength(500)]],
   });
 
   private readonly actionsCell = viewChild.required<TemplateRef<DataTableCellContext<SchoolRoleDto>>>('actionsCell');
+  private readonly nameCell = viewChild.required<TemplateRef<DataTableCellContext<SchoolRoleDto>>>('nameCell');
 
   /** The name column, then one column per module of the school, then the actions. */
   protected readonly columns = computed<DataTableColumn<SchoolRoleDto>[]>(() => [
-    { key: 'name', header: $localize`:@@roles.colName:Role`, valueFn: (r) => r.name },
+    { key: 'name', header: $localize`:@@roles.colName:Role`, valueFn: (r) => r.name, cell: this.nameCell() },
     ...this.modules().map<DataTableColumn<SchoolRoleDto>>((module) => ({
       key: `module:${module.code}`,
       header: moduleText(module),
@@ -123,32 +134,54 @@ export class RolesPage {
     return control;
   }
 
-  protected add(): void {
+  /** Adds the role in the form, or saves the role being edited. */
+  protected save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const permissions = this.modules()
-      .map((m) =>
-        new RolePermissionDto({
-          module: m.code,
-          canView: this.grant(m.code, 'canView').value,
-          canCreate: this.grant(m.code, 'canCreate').value,
-          canEdit: this.grant(m.code, 'canEdit').value,
-          canDelete: this.grant(m.code, 'canDelete').value,
-        })
-      )
-      .filter((p) => p.canView || p.canCreate || p.canEdit || p.canDelete);
+    const value = this.form.getRawValue();
+    const permissions = rolePermissions(
+      this.modules().map((m) => m.code),
+      (module, right) => this.grant(module, right).value
+    ).map((p) => new RolePermissionDto(p));
+    const fields = { name: value.name.trim(), description: value.description.trim() || undefined, permissions };
+    const editing = this.editing();
 
     this.run(
-      this.rolesClient.createRole(new CreateRoleCommand({ name: this.form.getRawValue().name.trim(), permissions })),
-      $localize`:@@roles.added:Role added.`,
-      () => {
-        this.form.reset({ name: '' });
-        this.resetGrants();
-      }
+      editing
+        ? this.rolesClient.updateRole(editing.id, new UpdateRoleCommand({ ...fields, id: editing.id }))
+        : this.rolesClient.createRole(new CreateRoleCommand(fields)),
+      editing ? $localize`:@@roles.saved:Role saved.` : $localize`:@@roles.added:Role added.`,
+      () => this.cancelEdit()
     );
+  }
+
+  /** Puts a role's name, description and rights into the form to change them. A built-in role's name is locked. */
+  protected startEdit(role: SchoolRoleDto): void {
+    this.editing.set(role);
+    this.errors.set([]);
+    this.form.reset({ name: role.name, description: role.description ?? '' });
+    if (role.isSystem) {
+      this.form.controls.name.disable();
+    } else {
+      this.form.controls.name.enable();
+    }
+    for (const module of this.modules()) {
+      const permission = role.permissions.find((p) => p.module === module.code);
+      for (const right of RIGHT_KEYS) {
+        this.grant(module.code, right).setValue(permission?.[right] ?? false);
+      }
+    }
+  }
+
+  /** Leaves editing: the form adds a new role again. */
+  protected cancelEdit(): void {
+    this.editing.set(null);
+    this.form.controls.name.enable();
+    this.form.reset({ name: '', description: '' });
+    this.resetGrants();
   }
 
   protected confirmDelete(role: SchoolRoleDto): void {

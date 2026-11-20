@@ -424,7 +424,7 @@
     "roles.right.delete": "حذف کرنا",
     "roles.right.edit": "بدلنا",
     "roles.right.view": "دیکھنا",
-    "roles.subtitle": "اسکول کا ہر کردار ہر ماڈیول میں کیا کر سکتا ہے: دیکھنا، بنانا، بدلنا اور حذف کرنا۔",
+    "roles.subtitle": "اسکول کا ہر کردار ہر ماڈیول میں کیا کر سکتا ہے: دیکھنا، بنانا، ترمیم، حذف، منظوری اور برآمد۔",
     "roles.title": "کردار",
     "schoolEdit.invoicesTab": "انوائسز",
     "schoolEdit.planTab": "پلان اور ماڈیولز",
@@ -813,6 +813,19 @@
     "schoolDetails.emailInvalid": "درست ای میل پتہ درج کریں۔",
     "schoolDetails.website": "ویب سائٹ",
     "schoolDetails.save": "محفوظ کریں",
-    "schoolDetails.saved": "اسکول کی تفصیلات محفوظ ہو گئیں۔"
+    "schoolDetails.saved": "اسکول کی تفصیلات محفوظ ہو گئیں۔",
+    "people.campusesHeading": "کیمپس",
+    "people.campusesLabel": "کیمپس",
+    "people.campusesHint": "صارف صرف ان کیمپس کے ڈیٹا پر کام کرتا ہے۔ منتظمین تمام کیمپس دیکھتے ہیں۔",
+    "roles.editHeading": "{$INTERPOLATION} میں ترمیم",
+    "roles.systemNameHint": "پہلے سے موجود کردار کا نام نہیں بدلتا۔",
+    "roles.description": "تفصیل",
+    "roles.descriptionHint": "اختیاری۔ یہ کردار کس لیے ہے۔",
+    "roles.viewNote": "ہر اختیار میں دیکھنا شامل ہے۔ صارف کے کیمپس طے کرتے ہیں کہ اختیارات کہاں لاگو ہوں۔",
+    "roles.save": "کردار محفوظ کریں",
+    "roles.builtIn": "پہلے سے موجود",
+    "roles.right.approve": "منظوری",
+    "roles.right.export": "برآمد",
+    "roles.saved": "کردار محفوظ ہو گیا۔"
   }
 }
