@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it } from 'vitest';
-import { CountryDto, LanguageDto } from '../../web-api-client';
+import { CountryDto, DayOfWeek, LanguageDto } from '../../web-api-client';
 import { CountryChanges, CountryFormComponent } from './country-form.component';
 
 const languages = [
@@ -20,7 +20,7 @@ function create(country: CountryDto | null) {
 describe('CountryFormComponent', () => {
   it('sends a changed country with its fixed code', async () => {
     const { fixture, saved } = create(
-      new CountryDto({ id: '0190f3a0-0000-7000-8000-000000000004', code: 'AE', name: 'UAE', languages: ['en', 'ar'], defaultLanguage: 'ar', timeZoneId: 'Asia/Dubai', currencyCode: 'AED' })
+      new CountryDto({ id: '0190f3a0-0000-7000-8000-000000000004', code: 'AE', name: 'UAE', languages: ['en', 'ar'], defaultLanguage: 'ar', timeZoneId: 'Asia/Dubai', currencyCode: 'AED', currencyDecimals: 2, phonePattern: undefined, weekStartDay: DayOfWeek.Monday, weekendDays: [DayOfWeek.Saturday, DayOfWeek.Sunday] })
     );
     await fixture.whenStable();
     const element: HTMLElement = fixture.nativeElement;

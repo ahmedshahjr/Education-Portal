@@ -20,6 +20,9 @@
       (save)="save(state.country, $event)"
       (cancel)="closeForm()"
     />
+    @if (state.country; as existing) {
+      <app-country-regional-settings [country]="existing" (saved)="closeForm(); load()" />
+    }
   </div>
 }
 

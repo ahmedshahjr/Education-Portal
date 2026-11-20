@@ -129,6 +129,21 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.localNameLabel">Name in the local language</mat-label>
+      <input matInput formControlName="localName" maxlength="200" autocomplete="off" dir="auto" />
+      <mat-hint i18n="@@campuses.optional">Optional.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@campuses.genderPolicyLabel">Students</mat-label>
+      <mat-select formControlName="genderPolicy">
+        @for (policy of genderPolicies; track policy.value) {
+          <mat-option [value]="policy.value">{{ policy.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
       <mat-label i18n="@@campuses.addressLabel">Address</mat-label>
       <input matInput formControlName="address" maxlength="300" autocomplete="off" />
       @if (form.controls.address.hasError('required')) {

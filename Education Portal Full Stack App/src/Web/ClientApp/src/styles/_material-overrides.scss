@@ -88,6 +88,29 @@ html.dark-theme {
   --mat-button-outlined-container-shape: var(--mm-radius-md);
   --mat-button-protected-container-shape: var(--mm-radius-md);
   --mat-button-text-container-shape: var(--mm-radius-md);
+
+  // Datepicker and calendar: the theme has no calendar of its own, so Material's is drawn in the theme's tokens.
+  --mat-datepicker-calendar-container-background-color: var(--mm-bg-surface);
+  --mat-datepicker-calendar-container-text-color: var(--mm-text-body);
+  --mat-datepicker-calendar-container-shape: var(--mm-radius-md);
+  --mat-datepicker-calendar-container-touch-shape: var(--mm-radius-lg);
+  --mat-datepicker-calendar-container-elevation-shadow: var(--mm-shadow-lg);
+  --mat-datepicker-calendar-date-selected-state-background-color: var(--mm-primary);
+  --mat-datepicker-calendar-date-selected-state-text-color: var(--mm-text-inverse);
+  --mat-datepicker-calendar-date-today-outline-color: var(--mm-primary);
+  --mat-datepicker-calendar-date-hover-state-background-color: var(--mm-bg-hover);
+  --mat-datepicker-calendar-date-focus-state-background-color: var(--mm-light-primary);
+  --mat-datepicker-calendar-date-in-range-state-background-color: var(--mm-light-primary);
+  --mat-datepicker-calendar-header-text-color: var(--mm-text-muted);
+  --mat-datepicker-calendar-period-button-text-color: var(--mm-text-primary);
+  --mat-datepicker-calendar-navigation-button-icon-color: var(--mm-text-muted);
+  --mat-datepicker-toggle-icon-color: var(--mm-text-muted);
+  --mat-datepicker-toggle-active-state-icon-color: var(--mm-primary);
+
+  --mat-tab-active-indicator-color: var(--mm-primary);
+  --mat-tab-active-label-text-color: var(--mm-primary);
+  --mat-tab-active-focus-label-text-color: var(--mm-primary);
+  --mat-tab-active-hover-label-text-color: var(--mm-primary);
 }
 
 // Card & Border Mode Overrides
@@ -114,4 +137,32 @@ html.card-bordered .mat-mdc-card.mm-elevated {
   box-shadow: var(--mm-shadow-lg) !important;
   border: 1px solid var(--mm-border-color);
   background-color: var(--mm-bg-surface) !important;
+}
+
+// School calendar marks (academic calendar page): a dot under each day with a holiday (error colour) or an event (primary).
+// The classes come from the calendar's dateClass, which draws inside Material's own component, so they live here.
+.mat-calendar-body-cell.mm-calendar-day--holiday .mat-calendar-body-cell-content,
+.mat-calendar-body-cell.mm-calendar-day--event .mat-calendar-body-cell-content {
+  font-weight: 600;
+}
+
+.mat-calendar-body-cell.mm-calendar-day--holiday::after,
+.mat-calendar-body-cell.mm-calendar-day--event::after {
+  content: '';
+  position: absolute;
+  inset-block-end: 12%;
+  inset-inline: 0;
+  margin-inline: auto;
+  inline-size: 5px;
+  block-size: 5px;
+  border-radius: 50%;
+  background: var(--mm-primary);
+}
+
+.mat-calendar-body-cell.mm-calendar-day--holiday::after {
+  background: var(--mm-error);
+}
+
+.mat-calendar-body-cell.mm-calendar-day--holiday .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+  color: var(--mm-error);
 }

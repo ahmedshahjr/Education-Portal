@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CampusesPage } from './campuses.page';
+import { SchoolGenderPolicy } from '../../web-api-client';
 
 const json = (body: unknown) => new Blob([JSON.stringify(body)], { type: 'application/json' });
 
@@ -17,6 +18,8 @@ const campus = {
   code: '0002',
   displayCode: 'KHI0002',
   kind: 'Other',
+  localName: undefined,
+  genderPolicy: 'CoEducation',
   details: {
     address: '12 Main Road',
     stateId: STATE,
@@ -41,6 +44,8 @@ const lahore = {
   code: '0003',
   displayCode: 'LHR0003',
   kind: 'Other',
+  localName: undefined,
+  genderPolicy: 'CoEducation',
   details: {
     address: '9 Canal Road',
     stateId: OTHER_STATE,
@@ -81,9 +86,8 @@ async function render(list: unknown[] = [campus]) {
   const fixture = TestBed.createComponent(CampusesPage);
   fixture.detectChanges();
 
-  // The page loads its campuses, code settings, locations and principals when it opens.
+  // The page loads its campuses, locations and principals when it opens.
   http.expectOne('/api/Campuses').flush(json(list));
-  http.expectOne('/api/Campuses/settings').flush(json({ prefixEnabled: false, prefix: undefined }));
   http.expectOne('/api/Campuses/locations').flush(json(locations));
   http.match((request) => request.url.startsWith('/api/UserDetails')).forEach((request) => request.flush(json([])));
 
@@ -179,6 +183,7 @@ describe('CampusesPage', () => {
     const request = http.expectOne({ method: 'POST', url: '/api/Campuses' });
     expect(JSON.parse(request.request.body as string)).toEqual({
       name: 'Hyderabad',
+      genderPolicy: 'CoEducation',
       details: {
         address: '4 Lake Road',
         stateId: STATE,
@@ -194,6 +199,24 @@ describe('CampusesPage', () => {
     request.flush(json(CITY), { status: 200, statusText: 'OK' });
 
     // After a save the page reloads the campus list (the generated client reads the response asynchronously).
+    await vi.waitFor(() => http.expectOne('/api/Campuses').flush(json([campus])));
+  });
+
+  it('sends the local name and the gender policy chosen for the campus', async () => {
+    const { fixture, http } = await render();
+    const page = fixture.componentInstance;
+
+    page.startEdit(campus as unknown as Parameters<typeof page.startEdit>[0]);
+    fixture.detectChanges();
+    answerMapSettings(http);
+    page.form.patchValue({ localName: '  کراچی  ', genderPolicy: SchoolGenderPolicy.GirlsOnly });
+    page.save();
+
+    const request = http.expectOne({ method: 'PUT', url: `/api/Campuses/${campus.id}` });
+    const body = JSON.parse(request.request.body as string) as Record<string, unknown>;
+    expect(body['localName']).toBe('کراچی');
+    expect(body['genderPolicy']).toBe('GirlsOnly');
+    request.flush(null, { status: 204, statusText: 'No Content' });
     await vi.waitFor(() => http.expectOne('/api/Campuses').flush(json([campus])));
   });
 });

@@ -22,6 +22,16 @@ describe('visibleNavSections', () => {
     expect(schoolItems([])).toEqual([]);
   });
 
+  it('shows the academic calendar to a school administrator only when Academic setup is on', () => {
+    const items = (enabled: string[]) =>
+      visibleNavSections(APP_NAV_SECTIONS, true, false, new Set(enabled))
+        .flatMap((s) => s.items.map((i) => i.id))
+        .filter((id) => id === 'academic-calendar');
+    expect(items(['AcademicSetup'])).toEqual(['academic-calendar']);
+    expect(items(['School'])).toEqual([]);
+    expect(visibleNavSections(APP_NAV_SECTIONS, true, true, new Set(['AcademicSetup'])).flatMap((s) => s.items.map((i) => i.id))).not.toContain('academic-calendar');
+  });
+
   it('shows the master portal to master tenant administrators', () => {
     expect(ids(true, true)).toEqual([
       'dashboard',

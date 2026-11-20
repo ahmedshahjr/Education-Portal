@@ -77,6 +77,27 @@ public class CampusDetailsTests : TestBase
         create.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
+    [Test]
+    public async Task ShouldSaveTheLocalNameAndGenderPolicyOfANewCampus()
+    {
+        var (session, country) = await SetUpSchoolAsync("Profile School", SchoolDomain);
+        var state = await AddStateAsync(country.Id, "Sindh");
+        var city = await AddCityAsync(state.Id, "Karachi");
+
+        using var create = await session.PostAsync("/api/Campuses", new
+        {
+            name = "Girls campus",
+            localName = "  گرلز کیمپس  ",
+            genderPolicy = "GirlsOnly",
+            details = Details(state.PublicId, city.PublicId),
+        });
+        create.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        var campus = (await ReadAsync(session)).Single(c => c.Name == "Girls campus");
+        campus.LocalName.ShouldBe("گرلز کیمپس");
+        campus.GenderPolicy.ShouldBe(SchoolGenderPolicy.GirlsOnly);
+    }
+
     [TestCase("address")]
     [TestCase("postalCode")]
     [TestCase("schoolNumber")]
@@ -332,7 +353,7 @@ public class CampusDetailsTests : TestBase
     // The API sends enums by name (ENG-ENUM-01).
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
 
-    private sealed record CampusReadModel(Guid Id, string Name, CampusDetailsReadModel Details);
+    private sealed record CampusReadModel(Guid Id, string Name, CampusDetailsReadModel Details, string? LocalName = null, SchoolGenderPolicy GenderPolicy = SchoolGenderPolicy.CoEducation);
 
     private sealed record LocationsReadModel(string? CountryName, List<StateReadModel> States);
 

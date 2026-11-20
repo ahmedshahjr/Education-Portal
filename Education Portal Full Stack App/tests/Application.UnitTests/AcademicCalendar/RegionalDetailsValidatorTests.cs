@@ -1,3 +1,4 @@
+using EducationPortal.Application.Campuses.Commands.CreateCampus;
 using EducationPortal.Application.Campuses.Commands.UpdateCampus;
 using EducationPortal.Application.Countries.Commands.UpdateCountryRegionalSettings;
 using EducationPortal.Application.Schools.Commands.UpdateSchoolDetails;
@@ -97,5 +98,17 @@ public class UpdateCampusProfileValidatorTests
         validator.Validate(command).IsValid.ShouldBeTrue();
         validator.Validate(command with { GenderPolicy = (SchoolGenderPolicy)0 }).IsValid.ShouldBeFalse();
         validator.Validate(command with { LocalName = new string('a', Campus.LocalNameMaxLength + 1) }).IsValid.ShouldBeFalse();
+    }
+
+    [Test]
+    public void ShouldCheckTheLocalNameAndGenderPolicyOfANewCampus()
+    {
+        var validator = new CreateCampusCommandValidator();
+        var command = new CreateCampusCommand { Name = "North", LocalName = "شمالی", GenderPolicy = SchoolGenderPolicy.GirlsOnly };
+
+        validator.Validate(command).Errors.ShouldNotContain(e => e.PropertyName == nameof(CreateCampusCommand.LocalName) || e.PropertyName == nameof(CreateCampusCommand.GenderPolicy));
+        validator.Validate(command with { GenderPolicy = (SchoolGenderPolicy)0 }).Errors.ShouldContain(e => e.PropertyName == nameof(CreateCampusCommand.GenderPolicy));
+        validator.Validate(command with { LocalName = new string('a', Campus.LocalNameMaxLength) }).Errors.ShouldNotContain(e => e.PropertyName == nameof(CreateCampusCommand.LocalName));
+        validator.Validate(command with { LocalName = new string('a', Campus.LocalNameMaxLength + 1) }).Errors.ShouldContain(e => e.PropertyName == nameof(CreateCampusCommand.LocalName));
     }
 }

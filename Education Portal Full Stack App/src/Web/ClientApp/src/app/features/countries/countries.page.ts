@@ -17,6 +17,7 @@ import {
 } from '../../web-api-client';
 import { formatPreview } from './country-format';
 import { CountryChanges, CountryFormComponent } from './country-form.component';
+import { CountryRegionalSettingsComponent } from './country-regional-settings.component';
 
 /** The countries are listed in one page: the table pages and searches them. */
 const ALL_COUNTRIES = 100;
@@ -36,7 +37,7 @@ interface CountryRow {
  */
 @Component({
   selector: 'app-countries-page',
-  imports: [MatCardModule, MatButtonModule, AppIconComponent, PageHeaderComponent, EmptyStateComponent, CountryFormComponent, DataTableComponent],
+  imports: [MatCardModule, MatButtonModule, AppIconComponent, PageHeaderComponent, EmptyStateComponent, CountryFormComponent, CountryRegionalSettingsComponent, DataTableComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './countries.page.html',
   styleUrl: './countries.page.css',
