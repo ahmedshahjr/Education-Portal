@@ -10,7 +10,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.DeleteCalendarEv
 /// Deletes an event from the school calendar. The row is kept (soft delete) and hidden everywhere. Needs the Academic setup
 /// module. Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Delete)]
 public record DeleteCalendarEventCommand : IRequest
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
@@ -30,14 +30,16 @@ public class DeleteCalendarEventCommandValidator : AbstractValidator<DeleteCalen
 
 public class DeleteCalendarEventCommandHandler : IRequestHandler<DeleteCalendarEventCommand>
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
     private readonly ICurrentTenant _tenant;
     private readonly IUser _user;
     private readonly TimeProvider _timeProvider;
 
-    public DeleteCalendarEventCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant, IUser user, TimeProvider timeProvider)
+    public DeleteCalendarEventCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant, IUser user, TimeProvider timeProvider, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _auditLog = auditLog;
         _tenant = tenant;
@@ -52,6 +54,7 @@ public class DeleteCalendarEventCommandHandler : IRequestHandler<DeleteCalendarE
         var item = await _context.CalendarEvents.FirstOrDefaultAsync(h => h.SchoolId == schoolId && h.PublicId == request.EventId, cancellationToken);
         Guard.Against.NotFound(request.EventId, item);
 
+        await _campusAccess.EnsureCampusAsync(item.CampusId, cancellationToken);
         item.Delete(_timeProvider.GetUtcNow(), _user.Id);
         await _context.SaveChangesAsync(cancellationToken);
 

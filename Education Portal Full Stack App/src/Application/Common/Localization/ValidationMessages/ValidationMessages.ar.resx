@@ -522,4 +522,16 @@
   <data name="CalendarRangeTooLong" xml:space="preserve">
     <value>لا يغطي نطاق التقويم أكثر من 366 يوماً.</value>
   </data>
+  <data name="SystemRoleKeepsName" xml:space="preserve">
+    <value>يحتفظ الدور المدمج باسمه.</value>
+  </data>
+  <data name="SystemRoleNotDeletable" xml:space="preserve">
+    <value>لا يمكن حذف دور مدمج.</value>
+  </data>
+  <data name="CampusNotInSchool" xml:space="preserve">
+    <value>أحد الفروع ليس من فروع هذه المدرسة.</value>
+  </data>
+  <data name="CampusListedTwice" xml:space="preserve">
+    <value>يمكن ذكر كل فرع مرة واحدة فقط.</value>
+  </data>
 </root>

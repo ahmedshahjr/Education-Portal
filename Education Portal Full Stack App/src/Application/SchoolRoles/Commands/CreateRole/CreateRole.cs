@@ -48,7 +48,7 @@ public class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommand, Guid>
     {
         var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
 
-        var role = SchoolRole.Create(schoolId, request.Name);
+        var role = SchoolRole.Create(schoolId, request.Name, request.Description);
 
         // The role and its rights are saved together, or not at all: a role without its rights is never left behind.
         await _context.ExecuteInTransactionAsync(async token =>

@@ -8,7 +8,7 @@ using EducationPortal.Domain.Constants;
 namespace EducationPortal.Application.AcademicCalendar.Commands.UpdateCalendarEvent;
 
 /// <summary>Changes an event on the school calendar. Needs the Academic setup module. Audited (SEC-LOG-03).</summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Edit)]
 public record UpdateCalendarEventCommand : IRequest, ICalendarEventInput
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
@@ -46,12 +46,14 @@ public class UpdateCalendarEventCommandValidator : AbstractValidator<UpdateCalen
 
 public class UpdateCalendarEventCommandHandler : IRequestHandler<UpdateCalendarEventCommand>
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
     private readonly ICurrentTenant _tenant;
 
-    public UpdateCalendarEventCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant)
+    public UpdateCalendarEventCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _auditLog = auditLog;
         _tenant = tenant;
@@ -64,7 +66,9 @@ public class UpdateCalendarEventCommandHandler : IRequestHandler<UpdateCalendarE
         var item = await _context.CalendarEvents.FirstOrDefaultAsync(h => h.SchoolId == schoolId && h.PublicId == request.EventId, cancellationToken);
         Guard.Against.NotFound(request.EventId, item);
 
+        await _campusAccess.EnsureCampusAsync(item.CampusId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, cancellationToken);
         item.Change(campusId, request.Title, request.Description, request.EventDate, request.StartTime, request.EndTime, request.Type, request.Audience);
         await _context.SaveChangesAsync(cancellationToken);
 

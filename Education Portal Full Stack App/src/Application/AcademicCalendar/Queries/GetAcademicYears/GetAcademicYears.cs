@@ -7,7 +7,7 @@ using EducationPortal.Domain.Constants;
 namespace EducationPortal.Application.AcademicCalendar.Queries.GetAcademicYears;
 
 /// <summary>Lists a school's academic years, newest first, each with its terms in order. Needs the Academic setup module.</summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.View)]
 public record GetAcademicYearsQuery : IRequest<IReadOnlyList<AcademicYearDto>>
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>

@@ -7,7 +7,7 @@ using EducationPortal.Domain.Constants;
 namespace EducationPortal.Application.AcademicCalendar.Queries.GetShifts;
 
 /// <summary>Lists the shifts of the school's campuses, or of one campus, by start time. Needs the Academic setup module.</summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.View)]
 public record GetShiftsQuery : IRequest<IReadOnlyList<ShiftDto>>
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
@@ -19,11 +19,13 @@ public record GetShiftsQuery : IRequest<IReadOnlyList<ShiftDto>>
 
 public class GetShiftsQueryHandler : IRequestHandler<GetShiftsQuery, IReadOnlyList<ShiftDto>>
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;
 
-    public GetShiftsQueryHandler(IApplicationDbContext context, ICurrentTenant tenant)
+    public GetShiftsQueryHandler(IApplicationDbContext context, ICurrentTenant tenant, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _tenant = tenant;
     }
@@ -32,10 +34,15 @@ public class GetShiftsQueryHandler : IRequestHandler<GetShiftsQuery, IReadOnlyLi
     {
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, cancellationToken);
+
+        // A user limited to some campuses sees only their shifts (AGENTS.md section 2, "Campuses per user").
+        var allowed = await _campusAccess.GetAllowedCampusIdsAsync(cancellationToken);
 
         return await _context.Shifts
             .AsNoTracking()
             .Where(s => s.SchoolId == schoolId && (campusId == null || s.CampusId == campusId))
+            .Where(s => allowed == null || allowed.Contains(s.CampusId))
             .Join(_context.Campuses, s => s.CampusId, c => c.Id, (s, c) => new { Shift = s, CampusPublicId = c.PublicId })
             .OrderBy(x => x.Shift.StartTime)
             .ThenBy(x => x.Shift.Name)

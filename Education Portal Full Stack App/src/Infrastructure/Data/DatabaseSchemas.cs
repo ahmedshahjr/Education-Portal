@@ -31,6 +31,7 @@ public static class DatabaseSchemas
         [typeof(SchoolRole)] = Access,
         [typeof(RolePermission)] = Access,
         [typeof(AccountRole)] = Access,
+        [typeof(UserCampus)] = Access,
 
         [typeof(School)] = Schools,
         [typeof(Campus)] = Schools,

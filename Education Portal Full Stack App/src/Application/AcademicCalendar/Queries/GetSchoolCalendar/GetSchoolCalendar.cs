@@ -8,9 +8,10 @@ namespace EducationPortal.Application.AcademicCalendar.Queries.GetSchoolCalendar
 
 /// <summary>
 /// The school calendar between two dates (both included): the holidays that touch the range and the events in it. With a
-/// campus, only what is for that campus or for every campus. The range is at most about a year. Needs the Academic setup module.
+/// campus, only what is for that campus or for every campus. A user limited to some campuses sees only theirs and the
+/// whole school's. The range is at most about a year. Needs the Academic setup module.
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.View)]
 public record GetSchoolCalendarQuery : IRequest<SchoolCalendarDto>
 {
     /// <summary>The longest range one request can read.</summary>
@@ -42,11 +43,13 @@ public class GetSchoolCalendarQueryValidator : AbstractValidator<GetSchoolCalend
 
 public class GetSchoolCalendarQueryHandler : IRequestHandler<GetSchoolCalendarQuery, SchoolCalendarDto>
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;
 
-    public GetSchoolCalendarQueryHandler(IApplicationDbContext context, ICurrentTenant tenant)
+    public GetSchoolCalendarQueryHandler(IApplicationDbContext context, ICurrentTenant tenant, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _tenant = tenant;
     }
@@ -55,12 +58,17 @@ public class GetSchoolCalendarQueryHandler : IRequestHandler<GetSchoolCalendarQu
     {
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, cancellationToken);
         var (from, to) = (request.From, request.To);
+
+        // A user limited to some campuses sees the whole school's entries and their own campuses' (AGENTS.md section 2).
+        var allowed = await _campusAccess.GetAllowedCampusIdsAsync(cancellationToken);
 
         var holidays = await _context.Holidays
             .AsNoTracking()
             .Where(h => h.SchoolId == schoolId && h.StartDate <= to && h.EndDate >= from)
             .Where(h => campusId == null || h.CampusId == null || h.CampusId == campusId)
+            .Where(h => allowed == null || h.CampusId == null || allowed.Contains(h.CampusId.Value))
             .OrderBy(h => h.StartDate)
             .ThenBy(h => h.Id)
             .Select(h => new { h.PublicId, h.CampusId, h.Title, h.StartDate, h.EndDate, h.Type, h.AppliesTo, h.IsTentative })
@@ -70,6 +78,7 @@ public class GetSchoolCalendarQueryHandler : IRequestHandler<GetSchoolCalendarQu
             .AsNoTracking()
             .Where(e => e.SchoolId == schoolId && e.EventDate >= from && e.EventDate <= to)
             .Where(e => campusId == null || e.CampusId == null || e.CampusId == campusId)
+            .Where(e => allowed == null || e.CampusId == null || allowed.Contains(e.CampusId.Value))
             .OrderBy(e => e.EventDate)
             .ThenBy(e => e.StartTime)
             .ThenBy(e => e.Id)

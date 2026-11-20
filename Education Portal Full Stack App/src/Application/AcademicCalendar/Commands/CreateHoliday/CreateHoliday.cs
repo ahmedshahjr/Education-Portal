@@ -11,7 +11,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.CreateHoliday;
 /// Adds a holiday to the school calendar, for the whole school or one campus (CampusId). Needs the Academic setup module.
 /// Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Create)]
 public record CreateHolidayCommand : IRequest<Guid>, IHolidayInput
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
@@ -42,12 +42,14 @@ public class CreateHolidayCommandValidator : AbstractValidator<CreateHolidayComm
 
 public class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayCommand, Guid>
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
     private readonly ICurrentTenant _tenant;
 
-    public CreateHolidayCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant)
+    public CreateHolidayCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _auditLog = auditLog;
         _tenant = tenant;
@@ -58,6 +60,7 @@ public class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayCommand,
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
 
+        await _campusAccess.EnsureCampusAsync(campusId, cancellationToken);
         var item = Holiday.Create(schoolId, campusId, request.Title, request.StartDate, request.EndDate, request.Type, request.AppliesTo, request.IsTentative);
         _context.Holidays.Add(item);
         await _context.SaveChangesAsync(cancellationToken);

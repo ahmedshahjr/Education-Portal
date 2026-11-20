@@ -11,7 +11,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.CreateTerm;
 /// Adds a term to an academic year that is not closed. Its dates fall inside the year, and its number and dates do not
 /// clash with the year's other terms. Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Create)]
 public record CreateTermCommand : IRequest<Guid>
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>

@@ -36,6 +36,7 @@ public sealed class ChangeAuditInterceptor : SaveChangesInterceptor
         typeof(PriceBookItem),
         typeof(ParentStudent),
         typeof(AccountRole),
+        typeof(UserCampus),
         typeof(Course),
         typeof(Enrolment),
         typeof(Assessment),

@@ -4,9 +4,11 @@ using EducationPortal.Application.Parents.Queries.GetChildren;
 using EducationPortal.Application.Users.Commands.CreateUserDetails;
 using EducationPortal.Application.Users.Commands.DeleteUserDetails;
 using EducationPortal.Application.Users.Commands.SetAccountRoles;
+using EducationPortal.Application.Users.Commands.SetPersonCampuses;
 using EducationPortal.Application.Users.Commands.UpdateUserDetails;
 using EducationPortal.Application.Users.Dtos;
 using EducationPortal.Application.Users.Queries.GetAccountRoles;
+using EducationPortal.Application.Users.Queries.GetPersonCampuses;
 using EducationPortal.Application.Users.Queries.GetUserDetails;
 using EducationPortal.Domain.Enums;
 using EducationPortal.Web.Infrastructure;
@@ -50,6 +52,13 @@ public class UserDetails : IEndpointGroup
             .RequireAuthorization();
 
         groupBuilder.MapPut(SetAccountRoles, "{id:guid}/roles")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapGet(GetPersonCampuses, "{id:guid}/campuses")
+            .RequireAuthorization();
+
+        groupBuilder.MapPut(SetPersonCampuses, "{id:guid}/campuses")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
@@ -127,6 +136,23 @@ public class UserDetails : IEndpointGroup
     [EndpointSummary("Set a person's roles")]
     [EndpointDescription("Sets exactly the school roles (roleIds) the person's login account holds. The person must have an account. Needs the Users & Roles module.")]
     public static async Task<NoContent> SetAccountRoles(ISender sender, Guid id, SetAccountRolesCommand command)
+    {
+        // The route names the person; an id in the body is ignored.
+        await sender.Send(command with { PersonId = id });
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Get a person's campuses")]
+    [EndpointDescription("Returns the public ids of the campuses the person is assigned to. Someone who is not an administrator acts only on these campuses. Needs the Users & Roles module.")]
+    public static async Task<Ok<IReadOnlyList<Guid>>> GetPersonCampuses(ISender sender, Guid id)
+    {
+        return TypedResults.Ok(await sender.Send(new GetPersonCampusesQuery { PersonId = id }));
+    }
+
+    [EndpointSummary("Set a person's campuses")]
+    [EndpointDescription("Sets exactly the campuses (campusIds) the person is assigned to. Needs the Users & Roles module.")]
+    public static async Task<NoContent> SetPersonCampuses(ISender sender, Guid id, SetPersonCampusesCommand command)
     {
         // The route names the person; an id in the body is ignored.
         await sender.Send(command with { PersonId = id });

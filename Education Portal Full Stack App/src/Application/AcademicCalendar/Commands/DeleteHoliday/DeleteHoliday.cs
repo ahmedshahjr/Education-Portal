@@ -10,7 +10,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.DeleteHoliday;
 /// Deletes a holiday from the school calendar. The row is kept (soft delete) and hidden everywhere. Needs the Academic setup
 /// module. Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Delete)]
 public record DeleteHolidayCommand : IRequest
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
@@ -30,14 +30,16 @@ public class DeleteHolidayCommandValidator : AbstractValidator<DeleteHolidayComm
 
 public class DeleteHolidayCommandHandler : IRequestHandler<DeleteHolidayCommand>
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
     private readonly ICurrentTenant _tenant;
     private readonly IUser _user;
     private readonly TimeProvider _timeProvider;
 
-    public DeleteHolidayCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant, IUser user, TimeProvider timeProvider)
+    public DeleteHolidayCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant, IUser user, TimeProvider timeProvider, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _auditLog = auditLog;
         _tenant = tenant;
@@ -52,6 +54,7 @@ public class DeleteHolidayCommandHandler : IRequestHandler<DeleteHolidayCommand>
         var item = await _context.Holidays.FirstOrDefaultAsync(h => h.SchoolId == schoolId && h.PublicId == request.HolidayId, cancellationToken);
         Guard.Against.NotFound(request.HolidayId, item);
 
+        await _campusAccess.EnsureCampusAsync(item.CampusId, cancellationToken);
         item.Delete(_timeProvider.GetUtcNow(), _user.Id);
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -11,7 +11,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.DeleteTerm;
 /// Deletes a term of a year that is not closed. The row is kept (soft delete) and hidden everywhere. Needs the Academic
 /// setup module. Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Delete)]
 public record DeleteTermCommand : IRequest
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>

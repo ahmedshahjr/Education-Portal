@@ -11,7 +11,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.UpdateTerm;
 /// Changes a term's name, number and dates. Its year must not be closed, and the same rules as for a new term apply.
 /// Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Edit)]
 public record UpdateTermCommand : IRequest
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>

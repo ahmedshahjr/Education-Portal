@@ -11,7 +11,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.CreateCalendarEv
 /// Adds an event to the school calendar, for the whole school or one campus (CampusId). Needs the Academic setup module.
 /// Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Create)]
 public record CreateCalendarEventCommand : IRequest<Guid>, ICalendarEventInput
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
@@ -45,12 +45,14 @@ public class CreateCalendarEventCommandValidator : AbstractValidator<CreateCalen
 
 public class CreateCalendarEventCommandHandler : IRequestHandler<CreateCalendarEventCommand, Guid>
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
     private readonly ICurrentTenant _tenant;
 
-    public CreateCalendarEventCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant)
+    public CreateCalendarEventCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _auditLog = auditLog;
         _tenant = tenant;
@@ -61,6 +63,7 @@ public class CreateCalendarEventCommandHandler : IRequestHandler<CreateCalendarE
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
 
+        await _campusAccess.EnsureCampusAsync(campusId, cancellationToken);
         var item = CalendarEvent.Create(schoolId, campusId, request.Title, request.Description, request.EventDate, request.StartTime, request.EndTime, request.Type, request.Audience);
         _context.CalendarEvents.Add(item);
         await _context.SaveChangesAsync(cancellationToken);

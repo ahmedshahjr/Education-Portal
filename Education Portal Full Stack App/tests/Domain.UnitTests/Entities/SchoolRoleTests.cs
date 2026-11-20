@@ -50,7 +50,7 @@ public class SchoolRoleTests
     [Test]
     public void ShouldGivePermissionsTheRolesSchoolAndIds()
     {
-        var permission = RolePermission.Create(Role(), Module(), true, true, false, false);
+        var permission = RolePermission.Create(Role(), Module(), true, true, false, false, true, false);
 
         permission.ShouldSatisfyAllConditions(
             p => p.SchoolId.ShouldBe(4),
@@ -59,29 +59,71 @@ public class SchoolRoleTests
             p => p.CanView.ShouldBeTrue(),
             p => p.CanCreate.ShouldBeTrue(),
             p => p.CanEdit.ShouldBeFalse(),
-            p => p.CanDelete.ShouldBeFalse());
+            p => p.CanDelete.ShouldBeFalse(),
+            p => p.CanApprove.ShouldBeTrue(),
+            p => p.CanExport.ShouldBeFalse());
     }
 
-    [TestCase(true, false, false)]
-    [TestCase(false, true, false)]
-    [TestCase(false, false, true)]
-    public void ShouldRefuseRightsWithoutView(bool create, bool edit, bool delete) =>
-        Should.Throw<ArgumentException>(() => RolePermission.Create(Role(), Module(), false, create, edit, delete));
+    [TestCase(true, false, false, false, false)]
+    [TestCase(false, true, false, false, false)]
+    [TestCase(false, false, true, false, false)]
+    [TestCase(false, false, false, true, false)]
+    [TestCase(false, false, false, false, true)]
+    public void ShouldRefuseRightsWithoutView(bool create, bool edit, bool delete, bool approve, bool export) =>
+        Should.Throw<ArgumentException>(() => RolePermission.Create(Role(), Module(), false, create, edit, delete, approve, export));
 
     [Test]
     public void ShouldBeEmptyOnlyWithoutView()
     {
-        var permission = RolePermission.Create(Role(), Module(), false, false, false, false);
+        var permission = RolePermission.Create(Role(), Module(), false, false, false, false, false, false);
         permission.IsEmpty.ShouldBeTrue();
 
-        permission.Set(true, false, false, true);
+        permission.Set(true, false, false, true, false, true);
         permission.IsEmpty.ShouldBeFalse();
     }
 
     [Test]
     public void ShouldRefuseAnUnsavedRoleOrModule()
     {
-        Should.Throw<ArgumentOutOfRangeException>(() => RolePermission.Create(SchoolRole.Create(4, "A"), Module(), true, false, false, false));
-        Should.Throw<ArgumentOutOfRangeException>(() => RolePermission.Create(Role(), PortalModule.Create(ModuleCode.Fees, "Fees", "", false, 0), true, false, false, false));
+        Should.Throw<ArgumentOutOfRangeException>(() => RolePermission.Create(SchoolRole.Create(4, "A"), Module(), true, false, false, false, false, false));
+        Should.Throw<ArgumentOutOfRangeException>(() => RolePermission.Create(Role(), PortalModule.Create(ModuleCode.Fees, "Fees", "", false, 0), true, false, false, false, false, false));
+    }
+
+    [Test]
+    public void ShouldStoreATrimmedDescriptionAndBlankAsNull()
+    {
+        var role = SchoolRole.Create(4, "Registrar", "  Keeps the records ");
+        role.Description.ShouldBe("Keeps the records");
+        role.IsSystem.ShouldBeFalse();
+
+        role.Describe("   ");
+        role.Description.ShouldBeNull();
+    }
+
+    [TestCase(SchoolRole.DescriptionMaxLength, true)]
+    [TestCase(SchoolRole.DescriptionMaxLength + 1, false)]
+    public void ShouldLimitTheDescriptionLength(int length, bool valid)
+    {
+        var act = () => SchoolRole.Create(4, "Registrar", new string('a', length));
+
+        if (valid) { act().Description!.Length.ShouldBe(length); } else { Should.Throw<ArgumentOutOfRangeException>(act); }
+    }
+
+    [Test]
+    public void ShouldKeepTheNameOfASystemRole()
+    {
+        var role = SchoolRole.CreateSystem(4, "Teacher");
+
+        role.IsSystem.ShouldBeTrue();
+        Should.Throw<InvalidOperationException>(() => role.Rename("Tutor"));
+        role.Rename(" Teacher ");
+        role.Name.ShouldBe("Teacher");
+    }
+
+    [Test]
+    public void ShouldRefuseToDeleteOnlyASystemRole()
+    {
+        Should.NotThrow(() => SchoolRole.Create(4, "Registrar").EnsureCanBeDeleted());
+        Should.Throw<InvalidOperationException>(() => SchoolRole.CreateSystem(4, "Parent").EnsureCanBeDeleted());
     }
 }

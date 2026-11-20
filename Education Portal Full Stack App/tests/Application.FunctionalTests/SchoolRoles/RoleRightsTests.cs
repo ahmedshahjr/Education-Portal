@@ -31,6 +31,19 @@ public class RoleRightsTests : TestBase
     }
 
     [Test]
+    public async Task ShouldGiveApproveAndExportOnlyWhenTheRoleHoldsThem()
+    {
+        await TestApp.RunAsAdministratorAsync();
+        var school = await TestApp.AddSchoolAsync("Approve School", "role-approve.localhost");
+        await TestApp.SubscribeAsync(school.Id, [ModuleCode.Exams]);
+        var approver = await TestApp.RunAsUserAsync(school.Id, "approver@role-approve.local", TestApp.AdministratorPassword, []);
+        await GiveRoleAsync(school.Id, approver, canView: true, canEdit: false, canDelete: false, canApprove: true);
+
+        (await CheckAsync(school.Id, approver, AccessRight.Approve)).ShouldBeTrue();
+        (await CheckAsync(school.Id, approver, AccessRight.Export)).ShouldBeFalse();
+    }
+
+    [Test]
     public async Task ShouldRefuseAUserWithNoRole()
     {
         await TestApp.RunAsAdministratorAsync();
@@ -56,7 +69,7 @@ public class RoleRightsTests : TestBase
     }
 
     /// <summary>Gives the user a role of the school that holds the given rights in Exams.</summary>
-    private static async Task GiveRoleAsync(int schoolId, string userId, bool canView, bool canEdit, bool canDelete)
+    private static async Task GiveRoleAsync(int schoolId, string userId, bool canView, bool canEdit, bool canDelete, bool canApprove = false, bool canExport = false)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
         scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
@@ -67,7 +80,7 @@ public class RoleRightsTests : TestBase
         await context.SaveChangesAsync();
 
         var module = await context.Modules.SingleAsync(m => m.Code == ModuleCode.Exams);
-        context.RolePermissions.Add(RolePermission.Create(role, module, canView, canCreate: false, canEdit, canDelete));
+        context.RolePermissions.Add(RolePermission.Create(role, module, canView, canCreate: false, canEdit, canDelete, canApprove, canExport));
         context.AccountRoles.Add(AccountRole.Create(schoolId, userId, role.Id));
         await context.SaveChangesAsync();
     }

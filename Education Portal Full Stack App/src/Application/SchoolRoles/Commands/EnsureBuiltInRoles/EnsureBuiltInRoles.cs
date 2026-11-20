@@ -38,7 +38,7 @@ public class EnsureBuiltInRolesCommandHandler : IRequestHandler<EnsureBuiltInRol
 
         foreach (var (name, permissions) in BuiltInRoles.All.Where(b => !existing.Contains(b.Name)))
         {
-            var role = SchoolRole.Create(schoolId, name);
+            var role = SchoolRole.CreateSystem(schoolId, name);
             _context.SchoolRoles.Add(role);
 
             // The role needs its id before its rights are saved against it.

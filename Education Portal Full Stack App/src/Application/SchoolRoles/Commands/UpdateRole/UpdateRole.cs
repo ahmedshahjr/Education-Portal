@@ -7,7 +7,7 @@ using EducationPortal.Domain.Constants;
 namespace EducationPortal.Application.SchoolRoles.Commands.UpdateRole;
 
 /// <summary>
-/// Renames a role of the current school and sets its rights. A role of another school is not found (the tenant filter
+/// Renames a role of the current school and sets its description and rights. A built-in role keeps its name. A role of another school is not found (the tenant filter
 /// hides it, SEC-AUTHZ-03). Rights in modules the school does not have now are kept untouched; audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
@@ -27,6 +27,17 @@ public class UpdateRoleCommandValidator : SchoolRoleFieldsValidator<UpdateRoleCo
             .When(r => !string.IsNullOrWhiteSpace(r.Name))
             .WithName(_ => PropertyNames.Name)
             .WithMessage(_ => ValidationMessages.RoleNameTaken);
+
+        // A built-in role keeps its name (its rights and description can still change).
+        RuleFor(r => r)
+            .MustAsync(async (command, cancellationToken) =>
+            {
+                var trimmed = command.Name.Trim();
+                return !await context.SchoolRoles.AnyAsync(r => r.PublicId == command.Id && r.IsSystem && r.Name != trimmed, cancellationToken);
+            })
+            .When(r => !string.IsNullOrWhiteSpace(r.Name))
+            .WithName(_ => PropertyNames.Name)
+            .WithMessage(_ => ValidationMessages.SystemRoleKeepsName);
     }
 }
 
@@ -49,6 +60,7 @@ public class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand>
         Guard.Against.NotFound(request.Id, role);
 
         role.Rename(request.Name);
+        role.Describe(request.Description);
         await SchoolRoleStore.SetPermissionsAsync(_context, _moduleAccess, role, request.Permissions, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -11,7 +11,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.SetCurrentAcadem
 /// Makes an academic year the school's current year; the previous current year stops being current in the same save. A
 /// closed year cannot be made current. Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Edit)]
 public record SetCurrentAcademicYearCommand : IRequest
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>

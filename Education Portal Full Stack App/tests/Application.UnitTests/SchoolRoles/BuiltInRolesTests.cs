@@ -20,7 +20,7 @@ public class BuiltInRolesTests
         var principal = BuiltInRoles.All.Single(r => r.Name == BuiltInRoles.Principal).Permissions;
 
         principal.Select(p => p.Module).ShouldBe(Enum.GetValues<ModuleCode>().Where(m => m != ModuleCode.None), ignoreOrder: true);
-        principal.ShouldAllBe(p => p.CanView && p.CanCreate && p.CanEdit && p.CanDelete);
+        principal.ShouldAllBe(p => p.CanView && p.CanCreate && p.CanEdit && p.CanDelete && p.CanApprove && p.CanExport);
     }
 
     [Test]
@@ -38,6 +38,6 @@ public class BuiltInRolesTests
         var parent = BuiltInRoles.All.Single(r => r.Name == BuiltInRoles.Parent).Permissions;
 
         parent.ShouldNotBeEmpty();
-        parent.ShouldAllBe(p => p.CanView && !p.CanCreate && !p.CanEdit && !p.CanDelete);
+        parent.ShouldAllBe(p => p.CanView && !p.CanCreate && !p.CanEdit && !p.CanDelete && !p.CanApprove && !p.CanExport);
     }
 }
