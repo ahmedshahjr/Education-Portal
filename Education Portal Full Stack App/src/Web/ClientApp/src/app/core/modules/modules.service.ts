@@ -1,27 +1,27 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { ModulesClient } from '../../web-api-client';
+import { ModuleCode, ModulesClient } from '../../web-api-client';
 
-/** Codes of the portal's modules, as the server names them (`ModuleCodes` in the Domain project). */
+/** Codes of the portal's modules: the generated `ModuleCode` enum, which holds the names the server sends. */
 export const MODULE_CODES = {
-  school: 'SCHOOL',
-  branch: 'BRANCH',
-  academicSetup: 'ACADEMIC_SETUP',
-  usersRoles: 'USERS_ROLES',
-  students: 'STUDENTS',
-  staff: 'STAFF',
-  admissions: 'ADMISSIONS',
-  attendance: 'ATTENDANCE',
-  fees: 'FEES',
-  parentCommunication: 'PARENT_COMMUNICATION',
-  exams: 'EXAMS',
-  timetable: 'TIMETABLE',
-  hrPayroll: 'HR_PAYROLL',
-  transport: 'TRANSPORT',
-  library: 'LIBRARY',
-  lms: 'LMS',
-  hostel: 'HOSTEL',
+  school: ModuleCode.School,
+  campus: ModuleCode.Campus,
+  academicSetup: ModuleCode.AcademicSetup,
+  usersRoles: ModuleCode.UsersRoles,
+  students: ModuleCode.Students,
+  staff: ModuleCode.Staff,
+  admissions: ModuleCode.Admissions,
+  attendance: ModuleCode.Attendance,
+  fees: ModuleCode.Fees,
+  parentCommunication: ModuleCode.ParentCommunication,
+  exams: ModuleCode.Exams,
+  timetable: ModuleCode.Timetable,
+  hrPayroll: ModuleCode.HrPayroll,
+  transport: ModuleCode.Transport,
+  library: ModuleCode.Library,
+  lms: ModuleCode.Lms,
+  hostel: ModuleCode.Hostel,
 } as const;
 
 /**
@@ -31,12 +31,12 @@ export const MODULE_CODES = {
 @Injectable({ providedIn: 'root' })
 export class ModulesService {
   private readonly client = inject(ModulesClient);
-  private readonly keys = signal<ReadonlySet<string>>(new Set());
+  private readonly keys = signal<ReadonlySet<ModuleCode>>(new Set());
 
   readonly enabled = this.keys.asReadonly();
   readonly count = computed(() => this.keys().size);
 
-  isEnabled(code: string): boolean {
+  isEnabled(code: ModuleCode): boolean {
     return this.keys().has(code);
   }
 
@@ -50,6 +50,11 @@ export class ModulesService {
       }),
       map(() => undefined)
     );
+  }
+
+  /** Sets the list from a sign-in answer, so the menu needs no second request (the server checks every call anyway). */
+  set(codes: readonly ModuleCode[]): void {
+    this.keys.set(new Set(codes));
   }
 
   clear(): void {

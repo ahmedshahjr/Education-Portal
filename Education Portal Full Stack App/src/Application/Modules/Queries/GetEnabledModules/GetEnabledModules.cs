@@ -1,5 +1,6 @@
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Security;
+using EducationPortal.Application.Modules.Common;
 
 namespace EducationPortal.Application.Modules.Queries.GetEnabledModules;
 
@@ -9,9 +10,9 @@ namespace EducationPortal.Application.Modules.Queries.GetEnabledModules;
 /// module on every request (SEC-AUTHZ-01); this list is only for the menu.
 /// </summary>
 [Authorize]
-public record GetEnabledModulesQuery : IRequest<IReadOnlyList<string>>;
+public record GetEnabledModulesQuery : IRequest<IReadOnlyList<ModuleCode>>;
 
-public class GetEnabledModulesQueryHandler : IRequestHandler<GetEnabledModulesQuery, IReadOnlyList<string>>
+public class GetEnabledModulesQueryHandler : IRequestHandler<GetEnabledModulesQuery, IReadOnlyList<ModuleCode>>
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;
@@ -24,21 +25,10 @@ public class GetEnabledModulesQueryHandler : IRequestHandler<GetEnabledModulesQu
         _moduleAccess = moduleAccess;
     }
 
-    public async Task<IReadOnlyList<string>> Handle(GetEnabledModulesQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ModuleCode>> Handle(GetEnabledModulesQuery request, CancellationToken cancellationToken)
     {
         var schoolId = _tenant.SchoolId ?? throw new UnauthorizedAccessException();
 
-        if (_tenant.IsMaster)
-        {
-            // The master tenant oversees everything, so every module is on for it.
-            return await _context.Modules
-                .AsNoTracking()
-                .OrderBy(m => m.SortOrder)
-                .ThenBy(m => m.Code)
-                .Select(m => m.Code)
-                .ToListAsync(cancellationToken);
-        }
-
-        return await _moduleAccess.GetEnabledCodesAsync(schoolId, cancellationToken);
+        return await EnabledModules.ForTenantAsync(_context, _moduleAccess, schoolId, _tenant.IsMaster, cancellationToken);
     }
 }

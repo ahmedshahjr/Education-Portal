@@ -61,13 +61,13 @@ This document describes all GitHub integration modes available in Claude-Flow wi
 - **Usage**: `/github code-reviewer <review task>`
 - **Best For**: Code quality, security reviews, performance analysis
 
-### branch-manager
-**Branch management and workflow coordination**
-- **Branch Strategy**: GitFlow
+### campus-manager
+**Campus management and workflow coordination**
+- **Campus Strategy**: GitFlow
 - **Merge Strategy**: Intelligent
 - **Conflict Prevention**: Proactive
 - **Tools**: gh api (for branch operations), git commands, Bash
-- **Usage**: `/github branch-manager <branch management task>`
+- **Usage**: `/github campus-manager <campus management task>`
 - **Best For**: Branch coordination, merge strategies, workflow management
 
 ## Integration Commands

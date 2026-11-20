@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Net;
 using System.Net.Http.Json;
 using EducationPortal.Application.SchoolRoles.Common;
@@ -16,6 +18,8 @@ namespace EducationPortal.Application.FunctionalTests.SchoolRoles;
 /// </summary>
 public class SchoolRoleTests : TestBase
 {
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
+
     private const string SchoolDomain = "school1.localhost";
     private const string OtherSchoolDomain = "school2.localhost";
 
@@ -25,19 +29,19 @@ public class SchoolRoleTests : TestBase
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
 
-        var id = await CreateAsync(session, "Registrar", [new(ModuleCodes.Students, true, true, true, false)]);
+        var id = await CreateAsync(session, "Registrar", [new(ModuleCode.Students, true, true, true, false)]);
 
         var roles = await ListAsync(session);
         roles.ShouldHaveSingleItem().ShouldSatisfyAllConditions(
             r => r.Id.ShouldBe(id),
             r => r.Name.ShouldBe("Registrar"),
-            r => r.Permissions.ShouldBe([new RolePermissionDto(ModuleCodes.Students, true, true, true, false)]));
+            r => r.Permissions.ShouldBe([new RolePermissionDto(ModuleCode.Students, true, true, true, false)]));
 
-        using var update = await session.PutAsync($"/api/SchoolRoles/{id}", Body("Admissions officer", [new(ModuleCodes.Students, true, false, false, false), new(ModuleCodes.Staff, true, false, false, false)]));
+        using var update = await session.PutAsync($"/api/SchoolRoles/{id}", Body("Admissions officer", [new(ModuleCode.Students, true, false, false, false), new(ModuleCode.Staff, true, false, false, false)]));
         update.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         var changed = (await ListAsync(session)).Single();
         changed.Name.ShouldBe("Admissions officer");
-        changed.Permissions.Select(p => p.Module).ShouldBe([ModuleCodes.Staff, ModuleCodes.Students], ignoreOrder: true);
+        changed.Permissions.Select(p => p.Module).ShouldBe([ModuleCode.Staff, ModuleCode.Students], ignoreOrder: true);
 
         using var delete = await session.DeleteAsync($"/api/SchoolRoles/{id}");
         delete.StatusCode.ShouldBe(HttpStatusCode.NoContent);
@@ -66,8 +70,8 @@ public class SchoolRoleTests : TestBase
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
 
-        using var noView = await session.PostAsync("/api/SchoolRoles", Body("A", [new(ModuleCodes.Students, false, true, false, false)]));
-        using var twice = await session.PostAsync("/api/SchoolRoles", Body("B", [new(ModuleCodes.Students, true, false, false, false), new(ModuleCodes.Students, true, true, false, false)]));
+        using var noView = await session.PostAsync("/api/SchoolRoles", Body("A", [new(ModuleCode.Students, false, true, false, false)]));
+        using var twice = await session.PostAsync("/api/SchoolRoles", Body("B", [new(ModuleCode.Students, true, false, false, false), new(ModuleCode.Students, true, true, false, false)]));
 
         noView.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         twice.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -80,8 +84,8 @@ public class SchoolRoleTests : TestBase
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
 
-        using var unsold = await session.PostAsync("/api/SchoolRoles", Body("Cashier", [new(ModuleCodes.Fees, true, true, false, false)]));
-        using var unknown = await session.PostAsync("/api/SchoolRoles", Body("Ghost", [new("NOPE", true, false, false, false)]));
+        using var unsold = await session.PostAsync("/api/SchoolRoles", Body("Cashier", [new(ModuleCode.Fees, true, true, false, false)]));
+        using var unknown = await session.PostAsync("/api/SchoolRoles", Body("Ghost", [new((ModuleCode)99, true, false, false, false)]));
 
         unsold.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         unknown.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -91,23 +95,23 @@ public class SchoolRoleTests : TestBase
     public async Task ShouldHideRightsInAModuleWhileItIsOffAndKeepThemForWhenItComesBack()
     {
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], start: DateTimeOffset.UtcNow.AddDays(-1));
+        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees], start: DateTimeOffset.UtcNow.AddDays(-1));
         using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
-        var id = await CreateAsync(session, "Cashier", [new(ModuleCodes.Fees, true, true, false, false), new(ModuleCodes.Students, true, false, false, false)]);
+        var id = await CreateAsync(session, "Cashier", [new(ModuleCode.Fees, true, true, false, false), new(ModuleCode.Students, true, false, false, false)]);
 
         await ChangeGrantsAsync(subscription.Id, school.Id, grant => grant.Suspend());
         var hidden = (await ListAsync(session)).Single();
-        hidden.Permissions.Select(p => p.Module).ShouldBe([ModuleCodes.Students]);
+        hidden.Permissions.Select(p => p.Module).ShouldBe([ModuleCode.Students]);
 
         // Saving while Fees is off must not lose the Fees rights.
-        using var update = await session.PutAsync($"/api/SchoolRoles/{id}", Body("Cashier", [new(ModuleCodes.Students, true, true, false, false)]));
+        using var update = await session.PutAsync($"/api/SchoolRoles/{id}", Body("Cashier", [new(ModuleCode.Students, true, true, false, false)]));
         update.StatusCode.ShouldBe(HttpStatusCode.NoContent);
 
         await ChangeGrantsAsync(subscription.Id, school.Id, grant => grant.Reactivate());
         (await ListAsync(session)).Single().Permissions.ShouldBe(
         [
-            new RolePermissionDto(ModuleCodes.Students, true, true, false, false),
-            new RolePermissionDto(ModuleCodes.Fees, true, true, false, false),
+            new RolePermissionDto(ModuleCode.Students, true, true, false, false),
+            new RolePermissionDto(ModuleCode.Fees, true, true, false, false),
         ], ignoreOrder: true);
     }
 
@@ -168,14 +172,14 @@ public class SchoolRoleTests : TestBase
     {
         using var response = await session.PostAsync("/api/SchoolRoles", Body(name, permissions));
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return await response.Content.ReadFromJsonAsync<Guid>();
+        return await response.Content.ReadFromJsonAsync<Guid>(Json);
     }
 
     private static async Task<List<SchoolRoleDto>> ListAsync(HttpSession session)
     {
         using var response = await session.GetAsync("/api/SchoolRoles");
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return (await response.Content.ReadFromJsonAsync<List<SchoolRoleDto>>())!;
+        return (await response.Content.ReadFromJsonAsync<List<SchoolRoleDto>>(Json))!;
     }
 
     private static async Task<HttpSession> SignInAsync(int schoolId, string domain, string email)

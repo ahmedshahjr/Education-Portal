@@ -1,0 +1,16 @@
+namespace EducationPortal.Domain.Enums;
+
+/// <summary>
+/// What a person in a school is for: the campus principal, a teacher, other staff, or a student. Stored as its number and
+/// sent over the API by name (ENG-ENUM-01..03): never change or reuse a number, and never rename a member.
+/// </summary>
+public enum UserType
+{
+    Principal = 1,
+    Teacher = 2,
+    Staff = 3,
+    Student = 4,
+
+    /// <summary>A parent of one or more students, linked to them (ParentStudent). Sees only their own children.</summary>
+    Parent = 5,
+}

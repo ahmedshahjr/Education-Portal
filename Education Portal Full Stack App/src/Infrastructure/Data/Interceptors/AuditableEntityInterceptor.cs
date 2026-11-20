@@ -1,6 +1,5 @@
 ﻿using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Domain.Common;
-using EducationPortal.Domain.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -43,14 +42,12 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
             if (entry.State is EntityState.Added or EntityState.Modified || entry.HasChangedOwnedEntities())
             {
                 var utcNow = _dateTime.GetUtcNow();
-                // With no signed-in user (the seed, background jobs) the system account is the actor, so the audit fields are never null.
-                var actor = _user.Id ?? SystemUser.Id;
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.CreatedBy = actor;
+                    entry.Entity.CreatedBy = _user.Id;
                     entry.Entity.Created = utcNow;
-                }
-                entry.Entity.LastModifiedBy = actor;
+                } 
+                entry.Entity.LastModifiedBy = _user.Id;
                 entry.Entity.LastModified = utcNow;
             }
         }

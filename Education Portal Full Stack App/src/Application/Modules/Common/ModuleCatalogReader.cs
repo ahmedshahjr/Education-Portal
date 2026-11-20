@@ -22,13 +22,13 @@ internal static class ModuleCatalogReader
     }
 
     /// <summary>The modules in catalogue order (sort order, then code), optionally only the one with the code, with what each requires.</summary>
-    public static async Task<List<ModuleDto>> LoadAsync(IApplicationDbContext context, string? code, CancellationToken cancellationToken)
+    public static async Task<List<ModuleDto>> LoadAsync(IApplicationDbContext context, ModuleCode? code, CancellationToken cancellationToken)
     {
         var modules = await context.Modules
             .AsNoTracking()
             .OrderBy(m => m.SortOrder)
             .ThenBy(m => m.Code)
-            .Select(m => new { m.Id, m.Code, m.Name, m.Description, m.IsCore, m.IsActive, m.SortOrder })
+            .Select(m => new { m.Id, m.Code, m.Name, m.Description, m.IsCore, m.IsActive, m.IsDefaultEnabled, m.SortOrder })
             .ToListAsync(cancellationToken);
 
         var dependencies = await LoadDependenciesAsync(context, cancellationToken);
@@ -44,6 +44,7 @@ internal static class ModuleCatalogReader
                 m.Description,
                 m.IsCore,
                 m.IsActive,
+                m.IsDefaultEnabled,
                 m.SortOrder,
                 requires[m.Id].OrderBy(id => order[id]).Select(id => codes[id]).ToList()))
             .ToList();

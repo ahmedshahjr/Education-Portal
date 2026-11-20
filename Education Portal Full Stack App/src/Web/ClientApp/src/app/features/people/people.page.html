@@ -1,0 +1,71 @@
+<app-page-header
+  title="Users"
+  i18n-title="@@people.title"
+  subtitle="The school's users: principals, teachers and other staff. A campus names its principal from this list."
+  i18n-subtitle="@@people.subtitle"
+></app-page-header>
+
+@if (loadError(); as message) {
+  <app-empty-state
+    icon="alert-triangle"
+    title="Users could not be loaded"
+    i18n-title="@@people.loadError"
+    [description]="message"
+    actionLabel="Try again"
+    i18n-actionLabel="@@common.tryAgain"
+    (action)="load()"
+  />
+} @else {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <app-data-table
+        [data]="visiblePeople()"
+        [columns]="columns()"
+        [loading]="people() === null"
+        searchPlaceholder="Search users..."
+        i18n-searchPlaceholder="@@people.search"
+        emptyTitle="No users yet"
+        i18n-emptyTitle="@@people.empty"
+        emptyDescription="Use Add user to add the school's principals, teachers, staff and students."
+        i18n-emptyDescription="@@people.emptyDescription"
+      >
+        <div table-actions class="mm-people__toolbar">
+          <app-filter-panel
+            [options]="typeTabs"
+            [selected]="selectedType()"
+            (selectedChange)="selectedType.set($event)"
+            ariaLabel="Show"
+            i18n-ariaLabel="@@people.filterLabel"
+          />
+          <button mat-flat-button type="button" (click)="openDialog(null)" [disabled]="busy()" i18n="@@people.addButton">Add user</button>
+        </div>
+      </app-data-table>
+    </mat-card-content>
+  </mat-card>
+
+  @for (message of errors(); track message) {
+    <p class="mm-people__error" role="alert">{{ message }}</p>
+  }
+}
+
+<ng-template #nameCell let-person>
+  <span class="mm-crud-name">
+    <span class="mm-crud-badge" aria-hidden="true">{{ person.firstName.charAt(0) }}</span>
+    <span class="mm-crud-title">{{ fullName(person) }}</span>
+  </span>
+</ng-template>
+
+<ng-template #typeCell let-person>
+  <app-status-badge tone="primary">{{ person.userType }}</app-status-badge>
+</ng-template>
+
+<ng-template #actionsCell let-person>
+  <span class="mm-crud-actions">
+    <button mat-icon-button type="button" [disabled]="busy()" [attr.aria-label]="'Edit ' + fullName(person)" i18n-aria-label="@@people.editUser" (click)="$event.stopPropagation(); openDialog(person)">
+      <app-icon name="edit-3" [size]="16" />
+    </button>
+    <button mat-icon-button type="button" class="mm-delete-btn" [disabled]="busy()" [attr.aria-label]="'Delete ' + fullName(person)" i18n-aria-label="@@people.deleteUser" (click)="$event.stopPropagation(); confirmDelete(person)">
+      <app-icon name="trash-2" [size]="16" />
+    </button>
+  </span>
+</ng-template>

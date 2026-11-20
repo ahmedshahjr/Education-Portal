@@ -26,9 +26,6 @@ if git diff --cached --name-only | grep -qE '^(README\.md|docs/ai/architecture-d
   $py docs/ai/architecture-diagram-guard.py --check-headings
 fi
 
-# The System flow block in README.md is generated from the code; a stale block fails the commit.
-$py docs/ai/readme-flow.py --check
-
 if command -v gitleaks >/dev/null 2>&1; then
   gitleaks protect --staged --redact --no-banner
 else

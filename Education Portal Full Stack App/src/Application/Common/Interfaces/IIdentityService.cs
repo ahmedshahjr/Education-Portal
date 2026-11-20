@@ -24,6 +24,18 @@ public interface IIdentityService
     Task<(Result Result, string UserId)> CreateSchoolAdministratorAsync(int schoolId, string email, string oneTimePassword);
 
     /// <summary>
+    /// Creates the login account of a person of the school, linked to the person's record, with a one-time password the
+    /// person must replace on first sign-in. The account gets no role here; roles are assigned separately.
+    /// </summary>
+    Task<(Result Result, string UserId)> CreatePersonAccountAsync(int schoolId, int userDetailsId, string email, string oneTimePassword);
+
+    /// <summary>The login account of a person of the school, or null when the person has none.</summary>
+    Task<string?> FindAccountIdOfPersonAsync(int schoolId, int userDetailsId);
+
+    /// <summary>The person a login account belongs to, or null when the account is not a person's.</summary>
+    Task<int?> FindPersonIdOfAccountAsync(string userId);
+
+    /// <summary>
     /// Replaces the user's password after checking the current one, ends the one-time-password block, ends their other
     /// sessions (new security stamp) and renews the current one (SEC-AUTHN-07).
     /// </summary>
@@ -33,9 +45,11 @@ public interface IIdentityService
     /// Checks the password and, when it matches, signs the user in with the session cookie. Failed
     /// attempts count towards lockout (SEC-AUTHN-05). An account of another school than
     /// <paramref name="schoolId"/> (the school of the request's domain) is refused like a wrong password,
-    /// without counting towards its lockout.
+    /// without counting towards its lockout. The one exception is a request on the master tenant's domain
+    /// (<paramref name="hostIsMaster"/>): an account of an active school that has no domain of its own may sign in there, and its
+    /// session is marked so that it acts as its own school.
     /// </summary>
-    Task<PasswordSignInResult> PasswordSignInAsync(int schoolId, string email, string password);
+    Task<PasswordSignInResult> PasswordSignInAsync(int schoolId, bool hostIsMaster, string email, string password);
 
     /// <summary>
     /// Signs the user out and ends every session they have, not only the current browser's (SEC-AUTHN-07).

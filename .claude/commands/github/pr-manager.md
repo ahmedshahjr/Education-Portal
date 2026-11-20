@@ -8,7 +8,7 @@ Comprehensive pull request management with ruv-swarm coordination for automated 
 - **Automated conflict resolution** and merge strategies
 - **Comprehensive testing** integration and validation
 - **Real-time progress tracking** with GitHub issue coordination
-- **Intelligent branch management** and synchronization
+- **Intelligent campus management** and synchronization
 
 ## Tools Available
 - `mcp__github__create_pull_request`
@@ -18,7 +18,7 @@ Comprehensive pull request management with ruv-swarm coordination for automated 
 - `mcp__github__merge_pull_request`
 - `mcp__github__get_pull_request_files`
 - `mcp__github__get_pull_request_status`
-- `mcp__github__update_pull_request_branch`
+- `mcp__github__update_pull_request_campus`
 - `mcp__github__get_pull_request_comments`
 - `mcp__github__get_pull_request_reviews`
 - `mcp__claude-flow__*` (all swarm coordination tools)
@@ -150,7 +150,7 @@ mcp__claude-flow__memory_usage {
 
 ### Works seamlessly with:
 - `/github issue-tracker` - For project coordination
-- `/github branch-manager` - For branch strategy
+- `/github campus-manager` - For campus strategy
 - `/github ci-orchestrator` - For CI/CD integration
 - `/sparc reviewer` - For detailed code analysis
 - `/sparc tester` - For comprehensive testing

@@ -9,7 +9,7 @@ namespace EducationPortal.Application.SchoolRoles.Commands.DeleteRole;
 /// Deletes a role of the current school together with its rights. A role of another school is not found (SEC-AUTHZ-03);
 /// audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.UsersRoles)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
 public record DeleteRoleCommand(Guid Id) : IRequest;
 
 public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand>

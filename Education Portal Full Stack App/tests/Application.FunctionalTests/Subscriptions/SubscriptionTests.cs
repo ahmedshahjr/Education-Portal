@@ -32,7 +32,7 @@ public class SubscriptionTests : TestBase
         await SetUpPricesAsync(master);
 
         var before = DateTimeOffset.UtcNow;
-        var id = await SubscribeAsync(master, schoolId.PublicId, new { planCode = "BASIC", modules = new[] { ModuleCodes.Fees }, billingCycle = "Monthly", trialDays = 0 });
+        var id = await SubscribeAsync(master, schoolId.PublicId, new { planCode = "BASIC", modules = new[] { nameof(ModuleCode.Fees) }, billingCycle = "Monthly", trialDays = 0 });
 
         var subscription = await ReadAsync(master, schoolId.PublicId);
         subscription.ShouldSatisfyAllConditions(
@@ -49,7 +49,7 @@ public class SubscriptionTests : TestBase
 
         var core = ModuleCatalog.CreateModules().Where(m => m.IsCore).Select(m => m.Code);
         subscription.Modules.Select(m => m.Code).OrderBy(c => c).ShouldBe(
-            core.Concat([ModuleCodes.Attendance, ModuleCodes.Exams, ModuleCodes.Fees]).OrderBy(c => c).ToList());
+            core.Concat([ModuleCode.Attendance, ModuleCode.Exams, ModuleCode.Fees]).OrderBy(c => c).ToList());
         subscription.Modules.ShouldAllBe(m => m.Status == TenantModuleStatus.Active && m.ValidFrom == subscription.StartDate && m.ValidTo == subscription.EndDate);
 
         var audit = await TestApp.FindAuditEventsAsync(masterUserId);
@@ -81,19 +81,17 @@ public class SubscriptionTests : TestBase
         using var master = await SignInAsMasterAsync();
         var schoolId = await AddPakistaniSchoolAsync("School One", SchoolDomain);
         await SetUpPricesAsync(master);
-        (await master.PostAsync("/api/Modules", new { code = "KIOSK", name = "Kiosk", description = "", isCore = false, sortOrder = 300 })).Dispose();
-        (await master.PostAsync("/api/Modules", new { code = "CANTEEN", name = "Canteen", description = "", isCore = false, sortOrder = 301 })).Dispose();
-        (await master.PostAsync("/api/Modules/CANTEEN/dependencies", new { requiresCode = "KIOSK" })).Dispose();
-        await SetPriceAsync(master, new { moduleCode = "CANTEEN", billingCycle = "Monthly", price = 100 });
-        await SetPriceAsync(master, new { moduleCode = "KIOSK", billingCycle = "Monthly", price = 40 });
+        (await master.PostAsync("/api/Modules/Hostel/dependencies", new { requiresCode = "Library" })).Dispose();
+        await SetPriceAsync(master, new { moduleCode = "Hostel", billingCycle = "Monthly", price = 100 });
+        await SetPriceAsync(master, new { moduleCode = "Library", billingCycle = "Monthly", price = 40 });
 
-        await SubscribeAsync(master, schoolId.PublicId, new { modules = new[] { "CANTEEN" }, billingCycle = "Monthly", trialDays = 0 });
+        await SubscribeAsync(master, schoolId.PublicId, new { modules = new[] { "Hostel" }, billingCycle = "Monthly", trialDays = 0 });
 
         var subscription = await ReadAsync(master, schoolId.PublicId);
         subscription.PlanCode.ShouldBeNull();
         subscription.Amount.ShouldBe(140m);
-        subscription.Modules.Select(m => m.Code).ShouldContain("KIOSK");
-        subscription.Modules.Select(m => m.Code).ShouldContain("CANTEEN");
+        subscription.Modules.Select(m => m.Code).ShouldContain(ModuleCode.Library);
+        subscription.Modules.Select(m => m.Code).ShouldContain(ModuleCode.Hostel);
     }
 
     [Test]
@@ -125,6 +123,9 @@ public class SubscriptionTests : TestBase
         var schoolId = await AddPakistaniSchoolAsync("School One", SchoolDomain);
         await SetUpPricesAsync(master);
         (await master.PostAsync("/api/Plans", new { code = "UNPRICED", name = "Unpriced", description = "", modules = Array.Empty<string>() })).Dispose();
+
+        // The school's default grants (registration) are not written by these requests; they are counted before and after.
+        var grantsBefore = await TestApp.CountAsync<TenantModule>();
         var path = $"/api/Schools/{schoolId.PublicId}/subscription";
         string[] none = [];
 
@@ -133,10 +134,10 @@ public class SubscriptionTests : TestBase
             await master.PostAsync(path, new { modules = none, billingCycle = "Monthly", trialDays = 0 }),                              // nothing chosen
             await master.PostAsync(path, new { planCode = "NOPE", modules = none, billingCycle = "Monthly", trialDays = 0 }),           // unknown plan
             await master.PostAsync(path, new { planCode = "UNPRICED", modules = none, billingCycle = "Monthly", trialDays = 0 }),       // no price
-            await master.PostAsync(path, new { modules = new[] { ModuleCodes.Students }, billingCycle = "Monthly", trialDays = 0 }),    // core add-on
+            await master.PostAsync(path, new { modules = new[] { nameof(ModuleCode.Students) }, billingCycle = "Monthly", trialDays = 0 }),    // core add-on
             await master.PostAsync(path, new { modules = new[] { "NOPE" }, billingCycle = "Monthly", trialDays = 0 }),                  // unknown module
-            await master.PostAsync(path, new { modules = new[] { ModuleCodes.Fees, ModuleCodes.Fees }, billingCycle = "Monthly", trialDays = 0 }),
-            await master.PostAsync(path, new { modules = new[] { ModuleCodes.Library }, billingCycle = "Monthly", trialDays = 0 }),          // Library has no price in the price book
+            await master.PostAsync(path, new { modules = new[] { ModuleCode.Fees, ModuleCode.Fees }, billingCycle = "Monthly", trialDays = 0 }),
+            await master.PostAsync(path, new { modules = new[] { nameof(ModuleCode.Library) }, billingCycle = "Monthly", trialDays = 0 }),          // Library has no price in the price book
             await master.PostAsync(path, new { planCode = "BASIC", modules = none, billingCycle = "Weekly", trialDays = 0 }),
             await master.PostAsync(path, new { planCode = "BASIC", modules = none, billingCycle = "Monthly", trialDays = 91 }),
             await master.PostAsync(path, new { planCode = "BASIC", modules = none, billingCycle = "Monthly", trialDays = -1 }),
@@ -149,7 +150,7 @@ public class SubscriptionTests : TestBase
         }
 
         (await TestApp.CountAsync<Subscription>()).ShouldBe(0);
-        (await TestApp.CountAsync<TenantModule>()).ShouldBe(0);
+        (await TestApp.CountAsync<TenantModule>()).ShouldBe(grantsBefore);
     }
 
     [Test]
@@ -240,13 +241,13 @@ public class SubscriptionTests : TestBase
     /// <summary>A BASIC plan (Attendance, Exams) at 25,000 monthly and 250,000 yearly, Fees at 8,000 monthly, in PKR.</summary>
     private static async Task SetUpPricesAsync(HttpSession master)
     {
-        (await master.PostAsync("/api/Plans", new { code = "BASIC", name = "Basic", description = "", modules = new[] { ModuleCodes.Attendance, ModuleCodes.Exams } })).Dispose();
+        (await master.PostAsync("/api/Plans", new { code = "BASIC", name = "Basic", description = "", modules = new[] { ModuleCode.Attendance, ModuleCode.Exams } })).Dispose();
         using var created = await master.PostAsync("/api/PriceBooks", new { countryCode = "PK", currencyCode = "PKR" });
         var bookId = await created.Content.ReadFromJsonAsync<Guid>();
         _bookId = bookId;
         await SetPriceAsync(master, new { planCode = "BASIC", billingCycle = "Monthly", price = 25000 });
         await SetPriceAsync(master, new { planCode = "BASIC", billingCycle = "Yearly", price = 250000 });
-        await SetPriceAsync(master, new { moduleCode = ModuleCodes.Fees, billingCycle = "Monthly", price = 8000 });
+        await SetPriceAsync(master, new { moduleCode = nameof(ModuleCode.Fees), billingCycle = "Monthly", price = 8000 });
     }
 
     private static Guid _bookId;

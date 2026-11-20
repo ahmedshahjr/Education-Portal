@@ -3,8 +3,10 @@ using EducationPortal.Domain.ValueObjects;
 namespace EducationPortal.Domain.Entities;
 
 /// <summary>
-/// A tenant. Every school is reached on its own domain (AGENTS.md section 2), and the domain is how a request finds its
-/// school before anyone signs in. Exactly one school is the master tenant, the platform owner: it is created once by
+/// A tenant. A school is reached on its own domain (AGENTS.md section 2), and the domain is how a request finds its
+/// school before anyone signs in. The domain is optional: a school without one signs in on the master tenant's domain, and
+/// the server finds its school from the account (the email is unique across the platform). Exactly one school is the
+/// master tenant, the platform owner: it is created once by
 /// <see cref="CreateMaster"/>, no method can change <see cref="IsMaster"/>, and a unique index allows only one.
 /// </summary>
 public class School : BaseSoftDeletableEntity
@@ -15,48 +17,60 @@ public class School : BaseSoftDeletableEntity
     /// <summary>The accent colour a school starts with: the theme's default cyan.</summary>
     public static readonly HexColor DefaultAccentColor = HexColor.From("#00a1ff");
 
-    private readonly List<Branch> _branches = [];
+    private readonly List<Campus> _campuses = [];
 
     private School()
     {
         // For EF Core.
         Name = string.Empty;
-        Domain = string.Empty;
         AccentColor = DefaultAccentColor;
     }
 
-    private School(string name, string domain, bool isMaster)
+    private School(string name, string? domain, bool isMaster)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(name.Trim().Length, NameMaxLength, nameof(name));
 
         Name = name.Trim();
-        Domain = NormalizeDomain(domain);
+        Domain = NormalizeOptionalDomain(domain);
         IsMaster = isMaster;
+
+        if (isMaster && Domain is null)
+        {
+            throw new ArgumentException("The master tenant needs a domain.", nameof(domain));
+        }
+
         AccentColor = DefaultAccentColor;
 
-        // Every school has its registration branch from the start, saved with it in the same save.
-        _branches.Add(Branch.CreateMain());
+        // Every school has its registration campus from the start, saved with it in the same save.
+        _campuses.Add(Campus.CreateMain());
     }
 
     /// <summary>
-    /// The school's branches. It always holds exactly one main branch, created with the school; nothing removes it, and
+    /// The school's campuses. It always holds exactly one main campus, created with the school; nothing removes it, and
     /// the database allows only one per school.
     /// </summary>
-    public IReadOnlyCollection<Branch> Branches => _branches;
+    public IReadOnlyCollection<Campus> Campuses => _campuses;
 
     /// <summary>Creates the master tenant. Only seeding calls this; there is no use case for it.</summary>
     public static School CreateMaster(string name, string domain) => new(name, domain, isMaster: true);
 
-    public static School Create(string name, string domain) => new(name, domain, isMaster: false);
+    /// <summary>Creates a school. A blank <paramref name="domain"/> means it has none and signs in on the master tenant's domain.</summary>
+    public static School Create(string name, string? domain) => new(name, domain, isMaster: false);
 
     /// <summary>The master tenant can never be switched off or deleted: the platform needs one.</summary>
     protected override bool CanBeDeactivated => !IsMaster;
 
     public string Name { get; private set; }
 
-    /// <summary>The host name the school is reached on, in lower case without a port, for example <c>school1.com</c>.</summary>
-    public string Domain { get; private set; }
+    /// <summary>
+    /// The host name the school is reached on, in lower case without a port, for example <c>school1.com</c>, or <c>null</c>
+    /// when it has none and signs in on the master tenant's domain.
+    /// </summary>
+    public string? Domain { get; private set; }
+
+    /// <summary>True when the school has its own domain.</summary>
+    public bool HasOwnDomain => Domain is not null;
 
     /// <summary>True for the one master tenant. Set at creation and never changed.</summary>
     public bool IsMaster { get; private set; }
@@ -113,15 +127,16 @@ public class School : BaseSoftDeletableEntity
     }
 
     /// <summary>
-    /// Changes the school's name and the host name it is reached on. The master tenant's domain never changes: the platform
-    /// is reached on it. Domain uniqueness across schools is checked by the use case, which has the other schools.
+    /// Changes the school's name and the host name it is reached on, or clears the domain (blank). The master tenant's domain
+    /// never changes: the platform is reached on it. Domain uniqueness across schools is checked by the use case, which has
+    /// the other schools.
     /// </summary>
-    public void UpdateProfile(string name, string domain)
+    public void UpdateProfile(string name, string? domain)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(name.Trim().Length, NameMaxLength, nameof(name));
 
-        var normalizedDomain = NormalizeDomain(domain);
+        var normalizedDomain = NormalizeOptionalDomain(domain);
         if (IsMaster && normalizedDomain != Domain)
         {
             throw new InvalidOperationException("The master tenant's domain cannot be changed.");
@@ -173,6 +188,10 @@ public class School : BaseSoftDeletableEntity
         AccentColor = accentColor;
         SidebarColor = sidebarColor;
     }
+
+    /// <summary>Like <see cref="NormalizeDomain"/>, but a blank domain is <c>null</c>: the school has none.</summary>
+    public static string? NormalizeOptionalDomain(string? domain) =>
+        string.IsNullOrWhiteSpace(domain) ? null : NormalizeDomain(domain);
 
     /// <summary>
     /// Lower-cases a host name and removes a trailing dot. Throws when it is not a plain host name (letters, digits,

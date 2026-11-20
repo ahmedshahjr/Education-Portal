@@ -6,7 +6,7 @@ namespace EducationPortal.Domain.Entities;
 /// A school's logo or favicon. Owned by one school (<see cref="SchoolId"/>), at most one per kind. The bytes are checked
 /// by <see cref="BrandingImageRules"/> before they are stored, and the stored content type comes from that check.
 /// </summary>
-public class BrandingImage : BaseAuditableEntity
+public class BrandingImage : BaseAuditableEntity, ITenantOwned
 {
     public const int ContentTypeMaxLength = 32;
     public const int VersionLength = 16;

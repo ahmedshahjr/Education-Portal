@@ -14,21 +14,21 @@ namespace EducationPortal.Application.Modules.Commands.AddModuleDependency;
 public record AddModuleDependencyCommand : IRequest
 {
     /// <summary>The module that needs the other one, taken from the route.</summary>
-    public string Code { get; init; } = string.Empty;
+    public ModuleCode Code { get; init; } = ModuleCode.None;
 
     /// <summary>The code of the module it needs.</summary>
-    public string RequiresCode { get; init; } = string.Empty;
+    public ModuleCode RequiresCode { get; init; } = ModuleCode.None;
 }
 
 public class AddModuleDependencyCommandValidator : AbstractValidator<AddModuleDependencyCommand>
 {
     public AddModuleDependencyCommandValidator(IApplicationDbContext context)
     {
-        RuleFor(c => c.Code).NotEmpty().MaximumLength(PortalModule.CodeMaxLength);
+        RuleFor(c => c.Code).IsInEnum().NotEqual(ModuleCode.None);
 
         RuleFor(c => c.RequiresCode)
             .NotEmpty()
-            .MaximumLength(PortalModule.CodeMaxLength)
+            .IsInEnum()
             .Must((command, requiresCode) => requiresCode != command.Code)
             .WithMessage(_ => ValidationMessages.ModuleCannotRequireItself)
             .MustAsync(async (requiresCode, cancellationToken) =>

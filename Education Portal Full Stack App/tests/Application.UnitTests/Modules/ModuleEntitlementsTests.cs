@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using EducationPortal.Application.Modules.Common;
 using NUnit.Framework;
 using Shouldly;
@@ -5,104 +6,108 @@ using Shouldly;
 namespace EducationPortal.Application.UnitTests.Modules;
 
 /// <summary>
-/// The rule behind every module check (SEC-AUTHZ-01, -06): core always, paid only inside an active grant's period. A grant
-/// on the school's main branch covers the whole school; a grant on another branch covers that branch only.
+/// The rule behind every module check (SEC-AUTHZ-01, -06): every module, core or paid, is on only inside an active grant's
+/// period. A grant on the school's main campus covers the whole school; a grant on another campus covers that campus only.
 /// </summary>
 public class ModuleEntitlementsTests
 {
-    private const int MainBranch = 1;
+    private const int MainCampus = 1;
     private const int North = 5;
     private const int South = 6;
 
     private static readonly DateTimeOffset Now = new(2026, 6, 15, 12, 0, 0, TimeSpan.Zero);
 
     private static ModuleEntitlements With(params ModuleGrant[] grants) =>
-        new(["STUDENTS", "ATTENDANCE", "FEES"], ["STUDENTS"], grants);
+        new([ModuleCode.Students, ModuleCode.Attendance, ModuleCode.Fees], grants);
 
-    /// <summary>A grant on the main branch: the whole school.</summary>
-    private static ModuleGrant WholeSchool(string code, DateTimeOffset from, DateTimeOffset? to) => new(code, MainBranch, true, from, to);
+    /// <summary>A grant on the main campus: the whole school.</summary>
+    private static ModuleGrant WholeSchool(ModuleCode code, DateTimeOffset from, DateTimeOffset? to) => new(code, MainCampus, true, from, to);
 
     [Test]
-    public void ShouldAlwaysHaveACoreModule() =>
-        With().Has("STUDENTS", null, Now).ShouldBeTrue();
+    public void ShouldNotHaveACoreModuleWithoutAGrant_SoTheMasterCanSwitchItOff()
+    {
+        With().Has(ModuleCode.Students, null, Now).ShouldBeFalse();
+        With(WholeSchool(ModuleCode.Students, Now.AddDays(-1), null)).Has(ModuleCode.Students, null, Now).ShouldBeTrue();
+    }
 
     [Test]
     public void ShouldNotHaveAPaidModuleWithoutAGrantOrAnUnknownOne()
     {
-        With().Has("FEES", null, Now).ShouldBeFalse();
-        With().Has("NOPE", null, Now).ShouldBeFalse();
-        ModuleEntitlements.None.Has("STUDENTS", null, Now).ShouldBeFalse();
+        With().Has(ModuleCode.Fees, null, Now).ShouldBeFalse();
+        With().Has((ModuleCode)99, null, Now).ShouldBeFalse();
+        ModuleEntitlements.None.Has(ModuleCode.Students, null, Now).ShouldBeFalse();
     }
 
     [Test]
     public void ShouldHaveAGrantedModuleBetweenItsDatesWithEndExclusive()
     {
-        var entitlements = With(WholeSchool("FEES", Now.AddDays(-1), Now.AddDays(1)));
+        var entitlements = With(WholeSchool(ModuleCode.Fees, Now.AddDays(-1), Now.AddDays(1)));
 
-        entitlements.Has("FEES", null, Now).ShouldBeTrue();
-        entitlements.Has("FEES", null, Now.AddDays(-1)).ShouldBeTrue();      // starts inclusive
-        entitlements.Has("FEES", null, Now.AddDays(-1).AddTicks(-1)).ShouldBeFalse();
-        entitlements.Has("FEES", null, Now.AddDays(1)).ShouldBeFalse();      // ends exclusive
+        entitlements.Has(ModuleCode.Fees, null, Now).ShouldBeTrue();
+        entitlements.Has(ModuleCode.Fees, null, Now.AddDays(-1)).ShouldBeTrue();      // starts inclusive
+        entitlements.Has(ModuleCode.Fees, null, Now.AddDays(-1).AddTicks(-1)).ShouldBeFalse();
+        entitlements.Has(ModuleCode.Fees, null, Now.AddDays(1)).ShouldBeFalse();      // ends exclusive
     }
 
     [Test]
     public void ShouldHaveAModuleWithNoEndForever() =>
-        With(WholeSchool("FEES", Now.AddDays(-1), null)).Has("FEES", null, Now.AddYears(50)).ShouldBeTrue();
+        With(WholeSchool(ModuleCode.Fees, Now.AddDays(-1), null)).Has(ModuleCode.Fees, null, Now.AddYears(50)).ShouldBeTrue();
 
     [Test]
-    public void ShouldLimitABranchGrantToThatBranch()
+    public void ShouldLimitACampusGrantToThatCampus()
     {
-        var entitlements = With(new ModuleGrant("FEES", North, false, Now.AddDays(-1), null));
+        var entitlements = With(new ModuleGrant(ModuleCode.Fees, North, false, Now.AddDays(-1), null));
 
-        entitlements.Has("FEES", North, Now).ShouldBeTrue();
-        entitlements.Has("FEES", South, Now).ShouldBeFalse();
-        entitlements.Has("FEES", null, Now).ShouldBeFalse(); // no branch asked: a branch-only grant is not on (fail closed)
+        entitlements.Has(ModuleCode.Fees, North, Now).ShouldBeTrue();
+        entitlements.Has(ModuleCode.Fees, South, Now).ShouldBeFalse();
+        entitlements.Has(ModuleCode.Fees, null, Now).ShouldBeFalse(); // no campus asked: a campus-only grant is not on (fail closed)
     }
 
     [Test]
-    public void ShouldGiveAWholeSchoolGrantToEveryBranch()
+    public void ShouldGiveAWholeSchoolGrantToEveryCampus()
     {
-        var entitlements = With(WholeSchool("FEES", Now.AddDays(-1), null));
+        var entitlements = With(WholeSchool(ModuleCode.Fees, Now.AddDays(-1), null));
 
-        entitlements.Has("FEES", North, Now).ShouldBeTrue();
-        entitlements.Has("FEES", South, Now).ShouldBeTrue();
-        entitlements.Has("FEES", null, Now).ShouldBeTrue();
+        entitlements.Has(ModuleCode.Fees, North, Now).ShouldBeTrue();
+        entitlements.Has(ModuleCode.Fees, South, Now).ShouldBeTrue();
+        entitlements.Has(ModuleCode.Fees, null, Now).ShouldBeTrue();
     }
 
     [Test]
-    public void ShouldTurnOffAnExpiredBranchGrantButKeepTheOtherBranchsGrant()
+    public void ShouldTurnOffAnExpiredCampusGrantButKeepTheOtherCampussGrant()
     {
         var entitlements = With(
-            new ModuleGrant("FEES", North, false, Now.AddDays(-30), Now.AddDays(-1)),
-            new ModuleGrant("FEES", South, false, Now.AddDays(-30), Now.AddDays(30)));
+            new ModuleGrant(ModuleCode.Fees, North, false, Now.AddDays(-30), Now.AddDays(-1)),
+            new ModuleGrant(ModuleCode.Fees, South, false, Now.AddDays(-30), Now.AddDays(30)));
 
-        entitlements.Has("FEES", North, Now).ShouldBeFalse();
-        entitlements.Has("FEES", South, Now).ShouldBeTrue();
-        entitlements.EnabledCodes(Now).ShouldNotContain("FEES");
+        entitlements.Has(ModuleCode.Fees, North, Now).ShouldBeFalse();
+        entitlements.Has(ModuleCode.Fees, South, Now).ShouldBeTrue();
+        entitlements.EnabledCodes(Now).ShouldNotContain(ModuleCode.Fees);
     }
 
     [Test]
-    public void ShouldTurnOffAnExpiredWholeSchoolGrantForEveryBranch()
+    public void ShouldTurnOffAnExpiredWholeSchoolGrantForEveryCampus()
     {
-        var entitlements = With(WholeSchool("FEES", Now.AddDays(-30), Now.AddDays(-1)));
+        var entitlements = With(WholeSchool(ModuleCode.Fees, Now.AddDays(-30), Now.AddDays(-1)));
 
-        entitlements.Has("FEES", null, Now).ShouldBeFalse();
-        entitlements.Has("FEES", North, Now).ShouldBeFalse();
-        entitlements.EnabledCodes(Now).ShouldNotContain("FEES");
+        entitlements.Has(ModuleCode.Fees, null, Now).ShouldBeFalse();
+        entitlements.Has(ModuleCode.Fees, North, Now).ShouldBeFalse();
+        entitlements.EnabledCodes(Now).ShouldNotContain(ModuleCode.Fees);
     }
 
     [Test]
     public void ShouldNotLetAGrantForOneModuleOpenAnother() =>
-        With(WholeSchool("FEES", Now.AddDays(-1), null)).Has("ATTENDANCE", null, Now).ShouldBeFalse();
+        With(WholeSchool(ModuleCode.Fees, Now.AddDays(-1), null)).Has(ModuleCode.Attendance, null, Now).ShouldBeFalse();
 
     [Test]
     public void ShouldListOnlyTheWholeSchoolModulesInCatalogueOrder()
     {
         var entitlements = With(
-            WholeSchool("FEES", Now.AddDays(-1), null),
-            new ModuleGrant("ATTENDANCE", North, false, Now.AddDays(-1), null),          // one branch only: not whole-school
-            WholeSchool("ATTENDANCE", Now.AddDays(-9), Now.AddDays(-1)));              // ended
+            WholeSchool(ModuleCode.Students, Now.AddDays(-1), null),
+            WholeSchool(ModuleCode.Fees, Now.AddDays(-1), null),
+            new ModuleGrant(ModuleCode.Attendance, North, false, Now.AddDays(-1), null),          // one campus only: not whole-school
+            WholeSchool(ModuleCode.Attendance, Now.AddDays(-9), Now.AddDays(-1)));              // ended
 
-        entitlements.EnabledCodes(Now).ShouldBe(["STUDENTS", "FEES"]);
+        entitlements.EnabledCodes(Now).ShouldBe([ModuleCode.Students, ModuleCode.Fees]);
     }
 }

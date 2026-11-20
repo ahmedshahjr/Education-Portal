@@ -19,12 +19,12 @@ public class SubscriptionQuoteRulesTests
 {
     private static readonly PriceBook Book = Saved(PriceBook.Create("PK", "PKR"), 1);
 
-    private static readonly PortalModule School = Module("SCHOOL", 1, core: true);
-    private static readonly PortalModule Students = Module("STUDENTS", 2, core: true);
-    private static readonly PortalModule Attendance = Module("ATTENDANCE", 3);
-    private static readonly PortalModule Fees = Module("FEES", 4);
-    private static readonly PortalModule Exams = Module("EXAMS", 5);
-    private static readonly PortalModule Library = Module("LIBRARY", 6);
+    private static readonly PortalModule School = Module(ModuleCode.School, 1, core: true);
+    private static readonly PortalModule Students = Module(ModuleCode.Students, 2, core: true);
+    private static readonly PortalModule Attendance = Module(ModuleCode.Attendance, 3);
+    private static readonly PortalModule Fees = Module(ModuleCode.Fees, 4);
+    private static readonly PortalModule Exams = Module(ModuleCode.Exams, 5);
+    private static readonly PortalModule Library = Module(ModuleCode.Library, 6);
 
     private static readonly PortalModule[] Catalogue = [School, Students, Attendance, Fees, Exams, Library];
 
@@ -51,7 +51,7 @@ public class SubscriptionQuoteRulesTests
     [Test]
     public void ShouldAddWhatAnAddOnRequiresDirectlyAndIndirectly()
     {
-        var modules = Resolve(planModules: [], addOns: ["FEES"]);
+        var modules = Resolve(planModules: [], addOns: [ModuleCode.Fees]);
 
         modules.ShouldBe([School, Students, Attendance, Fees]);
     }
@@ -59,27 +59,27 @@ public class SubscriptionQuoteRulesTests
     [Test]
     public void ShouldCombineThePlansModulesWithTheAddOnsWithoutDuplicates()
     {
-        var modules = Resolve(planModules: [Attendance.Id, Exams.Id], addOns: ["FEES", "EXAMS"]);
+        var modules = Resolve(planModules: [Attendance.Id, Exams.Id], addOns: [ModuleCode.Fees, ModuleCode.Exams]);
 
         modules.ShouldBe([School, Students, Attendance, Fees, Exams]);
     }
 
     [Test]
     public void ShouldRefuseAnUnknownAddOn() =>
-        Refused(() => Resolve([], ["NOPE"])).ShouldBe(Message("UnknownModules"));
+        Refused(() => Resolve([], [(ModuleCode)99])).ShouldBe(Message("UnknownModules"));
 
     [Test]
     public void ShouldRefuseSellingACoreModule() =>
-        Refused(() => Resolve([], ["STUDENTS"])).ShouldBe(Message("CoreModuleNotSold"));
+        Refused(() => Resolve([], [ModuleCode.Students])).ShouldBe(Message("CoreModuleNotSold"));
 
     [Test]
     public void ShouldRefuseAChoiceThatNeedsAnInactiveModule()
     {
-        var attendance = Module("ATTENDANCE", 3);
+        var attendance = Module(ModuleCode.Attendance, 3);
         attendance.Deactivate();
         PortalModule[] catalogue = [School, Students, attendance, Fees];
 
-        var error = Refused(() => SubscriptionQuoteRules.ResolveModules(catalogue, Dependencies, new HashSet<int>(), ["FEES"]));
+        var error = Refused(() => SubscriptionQuoteRules.ResolveModules(catalogue, Dependencies, new HashSet<int>(), [ModuleCode.Fees]));
 
         error.ShouldBe(Message("ModuleInactive"));
     }
@@ -97,7 +97,7 @@ public class SubscriptionQuoteRulesTests
     {
         // The plan has ATTENDANCE; FEES needs it, so only FEES is added to the plan's price.
         var planModules = new HashSet<int> { Attendance.Id };
-        var modules = Resolve([Attendance.Id], ["FEES"]);
+        var modules = Resolve([Attendance.Id], [ModuleCode.Fees]);
 
         SubscriptionQuoteRules.Price(Starter, planModules, modules, MonthlyPrices).ShouldBe(12500m);
     }
@@ -105,7 +105,7 @@ public class SubscriptionQuoteRulesTests
     [Test]
     public void ShouldPriceAddOnsOnlyWithTheirRequiredPaidModulesAndFreeCoreModules()
     {
-        var modules = Resolve([], ["FEES"]);
+        var modules = Resolve([], [ModuleCode.Fees]);
 
         // FEES + ATTENDANCE it requires; STUDENTS and SCHOOL are core and free. Exact decimal, no rounding.
         SubscriptionQuoteRules.Price(null, new HashSet<int>(), modules, MonthlyPrices).ShouldBe(4000.50m);
@@ -117,7 +117,7 @@ public class SubscriptionQuoteRulesTests
 
     [Test]
     public void ShouldRefuseAModuleWithoutAPrice() =>
-        Refused(() => SubscriptionQuoteRules.Price(null, new HashSet<int>(), Resolve([], ["LIBRARY"]), MonthlyPrices))
+        Refused(() => SubscriptionQuoteRules.Price(null, new HashSet<int>(), Resolve([], [ModuleCode.Library]), MonthlyPrices))
             .ShouldBe(Message("PriceMissing"));
 
     [Test]
@@ -129,7 +129,7 @@ public class SubscriptionQuoteRulesTests
             .ShouldBe(Message("PriceMissing"));
     }
 
-    private static IReadOnlyList<PortalModule> Resolve(int[] planModules, string[] addOns) =>
+    private static IReadOnlyList<PortalModule> Resolve(int[] planModules, ModuleCode[] addOns) =>
         SubscriptionQuoteRules.ResolveModules(Catalogue, Dependencies, planModules.ToHashSet(), addOns);
 
     private static readonly ResourceManager Messages = new(
@@ -140,8 +140,8 @@ public class SubscriptionQuoteRulesTests
     private static string Refused(Action action) =>
         Should.Throw<ValidationException>(action).Errors.Values.SelectMany(m => m).ShouldHaveSingleItem();
 
-    private static PortalModule Module(string code, int id, bool core = false) =>
-        Saved(PortalModule.Create(code, code, "", core, id), id);
+    private static PortalModule Module(ModuleCode code, int id, bool core = false) =>
+        Saved(PortalModule.Create(code, code.ToString(), "", core, id), id);
 
     private static T Saved<T>(T entity, int id) where T : BaseEntity
     {

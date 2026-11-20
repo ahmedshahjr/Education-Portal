@@ -231,7 +231,7 @@ export class DashboardDataService {
   readonly paymentCards = this.cardsSignal.asReadonly();
 
   readonly totalProjectBudget = computed(() =>
-    this.projectsSignal().reduce((sum, p) => sum + p.budget, 0)
+    this.projectsSignal().reduce((sum, p) => sum + p.budget, 0),
   );
 
   readonly overallBalanceData: OverallBalanceData = {
@@ -247,7 +247,13 @@ export class DashboardDataService {
       { id: 'sales', label: 'Total Sales', value: '$14,673', icon: 'trending-up', tone: 'warning' },
       { id: 'profit', label: 'Total Profit', value: '$9,281', icon: 'dollar-sign', tone: 'error' },
       { id: 'users', label: 'Total Users', value: '45.1k', icon: 'flag', tone: 'success' },
-      { id: 'expense', label: 'Total Expense', value: '$4,673', icon: 'pie-chart', tone: 'primary' },
+      {
+        id: 'expense',
+        label: 'Total Expense',
+        value: '$4,673',
+        icon: 'pie-chart',
+        tone: 'primary',
+      },
     ],
   };
 
@@ -386,7 +392,7 @@ export class DashboardDataService {
 
   updateProject(id: string, patch: Partial<ProjectItem>): void {
     this.projectsSignal.update((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...patch, updatedAt: 'Just now' } : item))
+      prev.map((item) => (item.id === id ? { ...item, ...patch, updatedAt: 'Just now' } : item)),
     );
   }
 

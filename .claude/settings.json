@@ -1,4 +1,7 @@
 {
+  "worktree": {
+    "bgIsolation": "none"
+  },
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_FLOW_V3_ENABLED": "true",
@@ -37,11 +40,6 @@
             "type": "command",
             "command": "node -e \"var a='.claude/helpers/hook-handler.cjs post-edit'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);if(!fs.existsSync(f))f=p.join((e.USERPROFILE?e.USERPROFILE:e.HOME?e.HOME:'.'),a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
             "timeout": 10000
-          },
-          {
-            "type": "command",
-            "command": "python3 docs/ai/readme-flow.py",
-            "timeout": 15000
           }
         ]
       }
@@ -136,9 +134,7 @@
   "enabledPlugins": {
     "ruflo-mods@ruflo": true,
     "ruflo-swarm@ruflo": true,
-    "ruflo-console@ruflo": true,
-    "frontend-design@anthropic-plugin-directory": true,
-    "skill-creator@anthropic-plugin-directory": true
+    "ruflo-console@ruflo": true
   },
   "extraKnownMarketplaces": {
     "ruflo": {

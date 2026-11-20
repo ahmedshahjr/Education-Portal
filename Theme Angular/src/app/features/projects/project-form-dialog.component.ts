@@ -4,8 +4,20 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormInputComponent } from '../../shared/components/form-input/form-input.component';
 import { ModalComponent } from '../../shared/components/modal/modal.component';
-import { SelectInputComponent, SelectOption } from '../../shared/components/select-input/select-input.component';
+import {
+  SelectInputComponent,
+  SelectOption,
+} from '../../shared/components/select-input/select-input.component';
 import { ProjectCategory, ProjectItem } from '../../shared/models/dashboard.models';
+
+/** Value the dialog returns when the form is submitted. */
+export interface ProjectFormResult {
+  readonly name: string;
+  readonly budget: number;
+  readonly leader: string;
+  readonly category: ProjectCategory;
+  readonly status: ProjectItem['status'];
+}
 
 export interface ProjectDialogData {
   readonly project?: ProjectItem;
@@ -119,7 +131,10 @@ export class ProjectFormDialogComponent {
     budget: [this.data.project?.budget ?? 4500, [Validators.required, Validators.min(0)]],
     leader: [this.data.project?.leader ?? '', [Validators.required]],
     category: [this.data.project?.category ?? ('SaaS' as ProjectCategory), [Validators.required]],
-    status: [this.data.project?.status ?? ('Active' as ProjectItem['status']), [Validators.required]],
+    status: [
+      this.data.project?.status ?? ('Active' as ProjectItem['status']),
+      [Validators.required],
+    ],
   });
 
   protected submit(): void {

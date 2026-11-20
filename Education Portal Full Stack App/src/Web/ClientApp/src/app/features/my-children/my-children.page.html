@@ -1,0 +1,40 @@
+<app-page-header
+  title="My children"
+  i18n-title="@@myChildren.title"
+  subtitle="The students linked to your account."
+  i18n-subtitle="@@myChildren.subtitle"
+/>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="Your children could not be loaded"
+        i18n-title="@@myChildren.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else if (children(); as items) {
+      @if (items.length === 0) {
+        <app-empty-state
+          icon="users"
+          title="No students linked yet"
+          i18n-title="@@myChildren.empty"
+          description="The school links your children to your account."
+          i18n-description="@@myChildren.emptyDescription"
+        />
+      } @else {
+        <ul class="mm-my-children__list" aria-label="Your children" i18n-aria-label="@@myChildren.listLabel">
+          @for (child of items; track child.id) {
+            <li class="mm-my-children__row">{{ fullName(child) }}</li>
+          }
+        </ul>
+      }
+    } @else {
+      <app-loading-state />
+    }
+  </mat-card-content>
+</mat-card>

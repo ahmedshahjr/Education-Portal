@@ -1,11 +1,14 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconButton } from '@angular/material/button';
+import { MatSuffix } from '@angular/material/form-field';
+import { AppIconComponent } from '../app-icon/app-icon.component';
 import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-form-input',
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconButton, MatSuffix, AppIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="mm-field">
@@ -14,11 +17,22 @@ import { MatInputModule } from '@angular/material/input';
         <input
           matInput
           [id]="fieldId()"
-          [type]="type()"
+          [type]="effectiveType()"
           [placeholder]="placeholder()"
           [attr.autocomplete]="autocomplete() || null"
           [formControl]="control()"
         />
+        @if (revealable() && type() === 'password') {
+          @if (revealed()) {
+            <button mat-icon-button matSuffix type="button" class="mm-field__reveal" (click)="toggleReveal()" i18n-aria-label="@@field.hidePassword" aria-label="Hide password">
+              <app-icon name="eye-off" [size]="20" />
+            </button>
+          } @else {
+            <button mat-icon-button matSuffix type="button" class="mm-field__reveal" (click)="toggleReveal()" i18n-aria-label="@@field.showPassword" aria-label="Show password">
+              <app-icon name="eye" [size]="20" />
+            </button>
+          }
+        }
         @if (hint()) {
           <mat-hint>{{ hint() }}</mat-hint>
         }
@@ -51,6 +65,13 @@ import { MatInputModule } from '@angular/material/input';
     .mm-field__control {
       width: 100%;
     }
+
+    /* The reveal button sits inside the outlined field, on the same row as the input. */
+    .mm-field__reveal {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-self: center;
+    }
   `,
 })
 export class FormInputComponent {
@@ -61,4 +82,18 @@ export class FormInputComponent {
   readonly hint = input<string>('');
   readonly autocomplete = input<string>('');
   readonly fieldId = input<string>(`mm-input-${Math.random().toString(36).slice(2, 8)}`);
+
+  /** Adds a button that shows or hides a password while it is typed. Only for password fields. */
+  readonly revealable = input(false);
+
+  protected readonly revealed = signal(false);
+
+  /** A password shows as text only while the user has chosen to reveal it. */
+  protected readonly effectiveType = computed(() =>
+    this.type() === 'password' && this.revealable() && this.revealed() ? 'text' : this.type(),
+  );
+
+  protected toggleReveal(): void {
+    this.revealed.update((shown) => !shown);
+  }
 }

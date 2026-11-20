@@ -1,0 +1,181 @@
+<app-page-header
+  title="Plans and prices"
+  i18n-title="@@pricing.title"
+  subtitle="The plans schools buy and the price of each plan and paid module, per country."
+  i18n-subtitle="@@pricing.subtitle"
+></app-page-header>
+
+@if (loadError(); as message) {
+  <app-empty-state
+    icon="alert-triangle"
+    title="Prices could not be loaded"
+    i18n-title="@@pricing.loadError"
+    [description]="message"
+    actionLabel="Try again"
+    i18n-actionLabel="@@common.tryAgain"
+    (action)="loadAll()"
+  />
+}
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    <h2 class="mm-pricing__heading" i18n="@@pricing.plansHeading">Plans</h2>
+    @if (plans(); as list) {
+      @if (list.length === 0) {
+        <p class="mm-pricing__hint" i18n="@@pricing.noPlans">No plans yet.</p>
+      }
+      <ul class="mm-pricing__list" aria-label="Plans" i18n-aria-label="@@pricing.plansLabel">
+        @for (plan of list; track plan.id) {
+          <li class="mm-pricing__row">
+            <span class="mm-pricing__name">
+              {{ plan.name }} <bdi dir="ltr" class="mm-pricing__code">{{ plan.code }}</bdi>
+            </span>
+            <span class="mm-pricing__hint">{{ planModuleNames(plan) || '—' }}</span>
+            <button mat-button type="button" [disabled]="busy()" (click)="deletePlan(plan)" i18n="@@pricing.deletePlan">Delete</button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <app-loading-state />
+    }
+
+    <form class="mm-pricing__form" [formGroup]="planForm" (ngSubmit)="addPlan()" novalidate>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@pricing.planCode">Code</mat-label>
+        <input matInput formControlName="code" maxlength="50" autocomplete="off" dir="ltr" />
+        <mat-hint i18n="@@pricing.codeHint">Upper case letters, digits and underscores, for example FULL.</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@pricing.planName">Name</mat-label>
+        <input matInput formControlName="name" maxlength="100" autocomplete="off" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@pricing.planDescription">Description</mat-label>
+        <input matInput formControlName="description" maxlength="300" autocomplete="off" />
+      </mat-form-field>
+      <fieldset class="mm-pricing__modules">
+        <legend i18n="@@pricing.planModules">Paid modules in the plan</legend>
+        @for (module of paidModules(); track module.code) {
+          <div>
+            <label class="mm-pricing__check">
+              <input
+                type="checkbox"
+                [checked]="planForm.controls.modules.value.includes(module.code)"
+                (change)="toggleModule(module.code)"
+              />
+              {{ module.name }}
+            </label>
+          </div>
+        }
+      </fieldset>
+      <button mat-flat-button type="submit" [disabled]="busy() || planForm.invalid" i18n="@@pricing.addPlan">Add plan</button>
+    </form>
+
+    @for (message of planErrors(); track message) {
+      <p class="mm-pricing__error" role="alert">{{ message }}</p>
+    }
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    <h2 class="mm-pricing__heading" i18n="@@pricing.booksHeading">Price books</h2>
+    @if (books(); as list) {
+      @if (list.length === 0) {
+        <p class="mm-pricing__hint" i18n="@@pricing.noBooks">No price books yet. A school can only be registered in a country with a price book.</p>
+      }
+      @for (book of list; track book.id) {
+        <section class="mm-pricing__book">
+          <h3 class="mm-pricing__book-title">
+            <bdi dir="ltr">{{ book.countryCode }}</bdi> · <bdi dir="ltr">{{ book.currencyCode }}</bdi>
+            <button mat-button type="button" [disabled]="busy()" (click)="deleteBook(book)" i18n="@@pricing.deleteBook">Delete book</button>
+          </h3>
+          <ul class="mm-pricing__list">
+            @for (price of book.prices; track $index) {
+              <li class="mm-pricing__row">
+                <span>{{ priceTargetName(price) }}</span>
+                <span>{{ price.billingCycle }}</span>
+                <bdi dir="ltr">{{ price.price }} {{ book.currencyCode }}</bdi>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+    }
+
+    <form class="mm-pricing__form" [formGroup]="bookForm" (ngSubmit)="addBook()" novalidate>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@pricing.country">Country</mat-label>
+        <mat-select formControlName="countryCode">
+          @for (country of countries(); track country.id) {
+            <mat-option [value]="country.code">{{ country.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@pricing.currency">Currency (ISO code)</mat-label>
+        <input matInput formControlName="currencyCode" maxlength="3" autocomplete="off" dir="ltr" />
+      </mat-form-field>
+      <button mat-flat-button type="submit" [disabled]="busy() || bookForm.invalid" i18n="@@pricing.addBook">Add price book</button>
+    </form>
+
+    @for (message of bookErrors(); track message) {
+      <p class="mm-pricing__error" role="alert">{{ message }}</p>
+    }
+
+    <h3 class="mm-pricing__heading" i18n="@@pricing.setPriceHeading">Set a price</h3>
+    <form class="mm-pricing__form" [formGroup]="priceForm" (ngSubmit)="setPrice()" novalidate>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@pricing.book">Price book</mat-label>
+        <mat-select formControlName="bookId">
+          @for (book of books() ?? []; track book.id) {
+            <mat-option [value]="book.id">{{ book.countryCode }} · {{ book.currencyCode }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@pricing.target">Price of</mat-label>
+        <mat-select formControlName="target">
+          <mat-option value="plan" i18n="@@pricing.targetPlan">A plan</mat-option>
+          <mat-option value="module" i18n="@@pricing.targetModule">A paid module</mat-option>
+        </mat-select>
+      </mat-form-field>
+      @if (priceForm.controls.target.value === 'plan') {
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@pricing.planPick">Plan</mat-label>
+          <mat-select formControlName="planCode">
+            @for (plan of plans() ?? []; track plan.id) {
+              <mat-option [value]="plan.code">{{ plan.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      } @else {
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@pricing.modulePick">Module</mat-label>
+          <mat-select formControlName="moduleCode">
+            @for (module of paidModules(); track module.code) {
+              <mat-option [value]="module.code">{{ module.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@pricing.cycle">Billing cycle</mat-label>
+        <mat-select formControlName="billingCycle">
+          @for (cycle of cycles; track cycle) {
+            <mat-option [value]="cycle">{{ cycle }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@pricing.amount">Price</mat-label>
+        <input matInput type="number" formControlName="price" min="0" dir="ltr" />
+      </mat-form-field>
+      <button mat-flat-button type="submit" [disabled]="busy() || priceForm.invalid" i18n="@@pricing.savePrice">Save price</button>
+    </form>
+
+    @for (message of priceErrors(); track message) {
+      <p class="mm-pricing__error" role="alert">{{ message }}</p>
+    }
+  </mat-card-content>
+</mat-card>

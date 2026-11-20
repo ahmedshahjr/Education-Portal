@@ -4,28 +4,32 @@
 @use '@angular/material' as mat;
 
 html {
-  @include mat.theme((
-    color: (
-      theme-type: light,
-      primary: mat.$azure-palette,
-      tertiary: mat.$cyan-palette,
-    ),
-    typography: (
-      plain-family: var(--mm-font-sans),
-      brand-family: var(--mm-font-sans),
-    ),
-    density: 0,
-  ));
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$azure-palette,
+        tertiary: mat.$cyan-palette,
+      ),
+      typography: (
+        plain-family: var(--mm-font-sans),
+        brand-family: var(--mm-font-sans),
+      ),
+      density: 0,
+    )
+  );
 }
 
 html.dark-theme {
-  @include mat.theme((
-    color: (
-      theme-type: dark,
-      primary: mat.$azure-palette,
-      tertiary: mat.$cyan-palette,
-    ),
-  ));
+  @include mat.theme(
+    (
+      color: (
+        theme-type: dark,
+        primary: mat.$azure-palette,
+        tertiary: mat.$cyan-palette,
+      ),
+    )
+  );
 }
 
 // Synchronize Material M3 system tokens with MaterialM Design Tokens
@@ -95,9 +99,10 @@ html.dark-theme {
   border-radius: var(--mm-radius-card) !important;
   color: var(--mm-text-primary);
   border: 0 solid transparent;
-  transition: box-shadow var(--mm-duration) var(--mm-ease),
-              background-color var(--mm-duration) var(--mm-ease),
-              border-color var(--mm-duration) var(--mm-ease);
+  transition:
+    box-shadow var(--mm-duration) var(--mm-ease),
+    background-color var(--mm-duration) var(--mm-ease),
+    border-color var(--mm-duration) var(--mm-ease);
 
   .mat-mdc-card-content {
     padding: var(--mm-card-pad);

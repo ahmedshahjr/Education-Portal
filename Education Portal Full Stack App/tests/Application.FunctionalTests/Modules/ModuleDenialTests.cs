@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using System.Text.Json;
 using EducationPortal.Application.Common.Exceptions;
 using EducationPortal.Application.Common.Security;
@@ -33,18 +34,18 @@ public class ModuleDenialTests : TestBase
 
         var refused = await Should.ThrowAsync<ModuleNotEnabledException>(() => TestApp.SendAsync(new FeesModuleProbe()));
 
-        refused.ModuleCode.ShouldBe(ModuleCodes.Fees);
+        refused.ModuleCode.ShouldBe(ModuleCode.Fees);
         var (status, body) = await ToResponseAsync(refused);
         status.ShouldBe(StatusCodes.Status403Forbidden);
         body.GetProperty("code").GetString().ShouldBe(ModuleNotEnabledException.ErrorCode);
-        body.GetProperty("module").GetString().ShouldBe(ModuleCodes.Fees);
+        body.GetProperty("module").GetString().ShouldBe(nameof(ModuleCode.Fees));
     }
 
     [Test]
     public async Task ShouldRefuseAModuleWhoseGrantHasExpired()
     {
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], start: DateTimeOffset.UtcNow.AddMonths(-2)); // ended a month ago
+        await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees], start: DateTimeOffset.UtcNow.AddMonths(-2)); // ended a month ago
         await RunAsSchoolAdministratorAsync(school.Id);
 
         await Should.ThrowAsync<ModuleNotEnabledException>(() => TestApp.SendAsync(new FeesModuleProbe()));
@@ -54,7 +55,7 @@ public class ModuleDenialTests : TestBase
     public async Task ShouldRefuseAModuleWhileTheSubscriptionIsSuspended()
     {
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees]);
+        var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees]);
         await SuspendAsync(subscription.PublicId, school.Id);
         await RunAsSchoolAdministratorAsync(school.Id);
 
@@ -62,15 +63,15 @@ public class ModuleDenialTests : TestBase
     }
 
     [Test]
-    public async Task ShouldRefuseAModuleGrantedToOneBranchWhenNoBranchIsKnown()
+    public async Task ShouldRefuseAModuleGrantedToOneCampusWhenNoCampusIsKnown()
     {
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        var branch = Branch.Create(school.Id, "North", "0002");
-        await TestApp.AddAsync(branch);
-        await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees], branchId: branch.Id);
+        var campus = Campus.Create(school.Id, "North", "0002");
+        await TestApp.AddAsync(campus);
+        await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees], campusId: campus.Id);
         await RunAsSchoolAdministratorAsync(school.Id);
 
-        // A branch-only grant counts only for that branch; the pipeline knows no branch, so it fails closed.
+        // A campus-only grant counts only for that campus; the pipeline knows no campus, so it fails closed.
         await Should.ThrowAsync<ModuleNotEnabledException>(() => TestApp.SendAsync(new FeesModuleProbe()));
     }
 
@@ -79,7 +80,7 @@ public class ModuleDenialTests : TestBase
     {
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         var other = await TestApp.AddSchoolAsync("School Two", "school2.localhost");
-        await TestApp.SubscribeAsync(other.Id, [ModuleCodes.Fees]);
+        await TestApp.SubscribeAsync(other.Id, [ModuleCode.Fees]);
         await RunAsSchoolAdministratorAsync(school.Id);
 
         await Should.ThrowAsync<ModuleNotEnabledException>(() => TestApp.SendAsync(new FeesModuleProbe()));
@@ -89,7 +90,7 @@ public class ModuleDenialTests : TestBase
     public async Task ShouldAllowTheModuleWhileAnActiveGrantCoversNow()
     {
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
-        await TestApp.SubscribeAsync(school.Id, [ModuleCodes.Fees]);
+        await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees]);
         await RunAsSchoolAdministratorAsync(school.Id);
 
         (await TestApp.SendAsync(new FeesModuleProbe())).ShouldBe(FeesModuleProbe.Allowed);
@@ -144,7 +145,7 @@ public class ModuleDenialTests : TestBase
 }
 
 /// <summary>A use case of the paid Fees module, only for tests: it answers <see cref="Allowed"/> once the pipeline lets it through.</summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCodes.Fees)]
+[Authorize(Roles = Roles.Administrator, Module = ModuleCode.Fees)]
 public sealed record FeesModuleProbe : IRequest<string>
 {
     public const string Allowed = "allowed";

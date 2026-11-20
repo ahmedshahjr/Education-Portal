@@ -6,7 +6,7 @@ namespace EducationPortal.Domain.Entities;
 /// school's subscription stops giving the module, so the rights come back with the module; while it is off they are
 /// neither shown nor used.
 /// </summary>
-public class RolePermission : BaseAuditableEntity
+public class RolePermission : BaseAuditableEntity, ITenantOwned
 {
     private RolePermission()
     {

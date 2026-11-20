@@ -43,11 +43,18 @@ public class CreatePlanCommandHandler : IRequestHandler<CreatePlanCommand, Guid>
     public async Task<Guid> Handle(CreatePlanCommand request, CancellationToken cancellationToken)
     {
         var plan = Plan.Create(request.Code, request.Name, request.Description);
-        _context.Plans.Add(plan);
-        await _context.SaveChangesAsync(cancellationToken);
 
-        await PlanModuleSync.SetModulesAsync(_context, plan, request.Modules, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        // The plan and its modules are saved together, or not at all.
+        await _context.ExecuteInTransactionAsync(async token =>
+        {
+            _context.Plans.Add(plan);
+            await _context.SaveChangesAsync(token);
+
+            await PlanModuleSync.SetModulesAsync(_context, plan, request.Modules, token);
+            await _context.SaveChangesAsync(token);
+
+            return plan.Id;
+        }, cancellationToken);
 
         await _auditLog.WriteAsync(
             SecurityAuditEventType.PlanCreated,

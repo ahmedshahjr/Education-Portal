@@ -37,14 +37,14 @@ public class GetSchoolModulesQueryHandler : IRequestHandler<GetSchoolModulesQuer
             .AsNoTracking()
             .OrderBy(m => m.SortOrder)
             .ThenBy(m => m.Code)
-            .Select(m => new { m.Code, m.Name, m.Description, m.IsCore, m.IsActive })
+            .Select(m => new { m.Code, m.Name, m.Description, m.IsCore, m.IsActive, m.IsDefaultEnabled })
             .ToListAsync(cancellationToken);
 
-        var enabled = (await _moduleAccess.GetEnabledCodesAsync(school.Id, cancellationToken)).ToHashSet(StringComparer.Ordinal);
+        var enabled = (await _moduleAccess.GetEnabledCodesAsync(school.Id, cancellationToken)).ToHashSet();
 
         // The master tenant is never limited by modules (AGENTS.md section 2: it oversees every school).
         return modules
-            .Select(m => new SchoolModuleDto(m.Code, m.Name, m.Description, m.IsCore, m.IsActive, school.IsMaster || enabled.Contains(m.Code)))
+            .Select(m => new SchoolModuleDto(m.Code, m.Name, m.Description, m.IsCore, m.IsActive, m.IsDefaultEnabled, school.IsMaster || enabled.Contains(m.Code)))
             .ToList();
     }
 }

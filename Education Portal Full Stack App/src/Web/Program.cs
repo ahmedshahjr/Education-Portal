@@ -23,8 +23,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // Resets the schema, imports the location data and seeds the demo tenants.
-    await app.InitialiseDatabaseAsync();
+    // Applies the migrations, imports the location data and seeds the demo tenants (nothing is dropped).
+    await app.MigrateAndSeedDevelopmentDatabaseAsync();
 }
 else
 {
@@ -41,7 +41,7 @@ else
 
 app.UseHttpsRedirection();
 app.UseExceptionHandler(options => { });
-app.UseSecurityHeaders();
+app.UseSecurityHeaders(app.Environment.IsDevelopment());
 
 // Every request belongs to the school that owns its host; unknown hosts get 404 and nothing else (SEC-AUTHZ-10).
 app.UseTenantResolution();

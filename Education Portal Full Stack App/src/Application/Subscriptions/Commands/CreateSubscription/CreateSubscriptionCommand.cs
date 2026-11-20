@@ -24,7 +24,7 @@ public record CreateSubscriptionCommand : IRequest<Guid>
     public string? PlanCode { get; init; }
 
     /// <summary>Codes of paid modules bought on top of the plan (or alone).</summary>
-    public IReadOnlyList<string> Modules { get; init; } = [];
+    public IReadOnlyList<ModuleCode> Modules { get; init; } = [];
 
     public BillingCycle BillingCycle { get; init; }
 
@@ -44,7 +44,7 @@ public class CreateSubscriptionCommandValidator : AbstractValidator<CreateSubscr
         RuleFor(c => c.Modules)
             .NotNull()
             .Must(modules => modules.Count <= 100)
-            .Must(modules => modules.Distinct(StringComparer.Ordinal).Count() == modules.Count)
+            .Must(modules => modules.Distinct().Count() == modules.Count)
             .WithMessage(_ => ValidationMessages.ModuleListedTwice);
 
         RuleFor(c => c)
@@ -94,10 +94,10 @@ public class CreateSubscriptionCommandHandler : IRequestHandler<CreateSubscripti
 
         var subscription = Subscription.Create(
             school.Id, quote.Plan, quote.PriceBook, request.BillingCycle, quote.Amount, _timeProvider.GetUtcNow(), request.TrialDays);
-        var mainBranch = await SchoolBranches.MainAsync(_context, school.Id, cancellationToken);
+        var mainCampus = await SchoolCampuses.MainAsync(_context, school.Id, cancellationToken);
         foreach (var module in quote.Modules)
         {
-            subscription.AddModule(module, mainBranch);
+            subscription.AddModule(module, mainCampus);
         }
 
         // One save: the subscription and its modules are written in one transaction.

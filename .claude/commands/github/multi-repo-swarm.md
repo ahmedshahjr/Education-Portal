@@ -14,7 +14,7 @@ REPOS=$(gh repo list org --limit 100 --json name,description,languages \
 
 # Get repository details
 REPO_DETAILS=$(echo "$REPOS" | jq -r '.name' | while read -r repo; do
-  gh api repos/org/$repo --jq '{name, default_branch, languages, topics}'
+  gh api repos/org/$repo --jq '{name, default_campus, languages, topics}'
 done | jq -s '.')
 
 # Initialize swarm with repository context

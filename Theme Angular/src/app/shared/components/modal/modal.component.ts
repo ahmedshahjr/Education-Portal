@@ -17,12 +17,7 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
             <p class="mm-modal__subtitle">{{ subtitle() }}</p>
           }
         </div>
-        <button
-          mat-icon-button
-          type="button"
-          aria-label="Close modal"
-          (click)="closed.emit()"
-        >
+        <button mat-icon-button type="button" aria-label="Close modal" (click)="closed.emit()">
           <app-icon name="x" [size]="18" />
         </button>
       </div>

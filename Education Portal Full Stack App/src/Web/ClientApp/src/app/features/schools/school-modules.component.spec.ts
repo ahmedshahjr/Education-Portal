@@ -12,18 +12,15 @@ const SCHOOL = '0190f3a0-0000-7000-8000-000000000005';
 const url = (path: string) => `/api/Schools/${SCHOOL}/${path}`;
 
 const modules = [
-  { code: 'STUDENTS', name: 'Students', description: '', isCore: true, isActive: true, isEnabled: true },
-  { code: 'EXAMS', name: 'Exams', description: '', isCore: false, isActive: true, isEnabled: true },
-  { code: 'LIBRARY', name: 'Library', description: '', isCore: false, isActive: true, isEnabled: true },
-  { code: 'FEES', name: 'Fees', description: '', isCore: false, isActive: true, isEnabled: false },
-  { code: 'HOSTEL', name: 'Hostel', description: '', isCore: false, isActive: false, isEnabled: false },
+  { code: 'Students', name: 'Students', description: '', isCore: true, isActive: true, isDefaultEnabled: true, isEnabled: true },
+  { code: 'Exams', name: 'Exams', description: '', isCore: false, isActive: true, isDefaultEnabled: false, isEnabled: true },
+  { code: 'Library', name: 'Library', description: '', isCore: false, isActive: true, isDefaultEnabled: false, isEnabled: false },
+  { code: 'Hostel', name: 'Hostel', description: '', isCore: false, isActive: false, isDefaultEnabled: false, isEnabled: false },
 ];
-const subscription = { planCode: 'BASIC', status: 'Active', modules: [] };
-const plans = [{ id: 'p1', code: 'BASIC', name: 'Basic', description: '', isActive: true, modules: ['EXAMS'] }];
 
 const openDialog = vi.fn();
 
-async function render(subscriptionBody: unknown | null = subscription) {
+async function render() {
   TestBed.configureTestingModule({
     imports: [SchoolModulesComponent],
     providers: [provideHttpClient(), provideHttpClientTesting(), { provide: MatDialog, useValue: { open: openDialog } }],
@@ -32,12 +29,6 @@ async function render(subscriptionBody: unknown | null = subscription) {
   const fixture = TestBed.createComponent(SchoolModulesComponent);
   fixture.componentRef.setInput('school', new SchoolSummaryDto({ id: SCHOOL, name: 'School One', domain: 'school1.com', isMaster: false, countryId: undefined }));
   fixture.detectChanges();
-  http.expectOne('/api/Plans').flush(json(plans));
-  if (subscriptionBody === null) {
-    http.expectOne(url('subscription')).flush(json({}), { status: 404, statusText: 'Not Found' });
-  } else {
-    http.expectOne(url('subscription')).flush(json(subscriptionBody));
-  }
   http.expectOne(url('modules')).flush(json(modules));
   const element = fixture.nativeElement as HTMLElement;
   // The generated client reads every response as a Blob, which is read asynchronously.
@@ -48,9 +39,8 @@ async function render(subscriptionBody: unknown | null = subscription) {
   return { fixture, http, element };
 }
 
-/** After a change the component reloads what the server holds: the subscription and the module list. */
+/** After a change the component reloads the module list the server holds. */
 async function reloadAfterChange(http: HttpTestingController) {
-  await vi.waitFor(() => http.expectOne(url('subscription')).flush(json(subscription)));
   await vi.waitFor(() => http.expectOne(url('modules')).flush(json(modules)));
 }
 
@@ -61,55 +51,49 @@ describe('SchoolModulesComponent', () => {
   beforeEach(() => openDialog.mockReset());
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
-  it('locks core, inactive and plan modules, and leaves add-ons switchable', async () => {
+  it('lets the master switch every module, core and default ones included', async () => {
     const { element } = await render();
 
-    expect(switchInput(element, 0).disabled).toBe(true); // STUDENTS: core
-    expect(switchInput(element, 1).disabled).toBe(true); // EXAMS: in the plan
-    expect(switchInput(element, 2).disabled).toBe(false); // LIBRARY: add-on that is on
-    expect(switchInput(element, 3).disabled).toBe(false); // FEES: add-on that is off
-    expect(switchInput(element, 4).disabled).toBe(true); // HOSTEL: made inactive by the master
+    expect(switchInput(element, 0).disabled).toBe(false); // STUDENTS: core, on by default
+    expect(switchInput(element, 1).disabled).toBe(false); // EXAMS: paid, on
+    expect(switchInput(element, 2).disabled).toBe(false); // LIBRARY: paid, off
   });
 
-  it('keeps add-on switches off when the school has no subscription yet', async () => {
-    const { element } = await render(null);
+  it('locks a module the master switched off for every school', async () => {
+    const { element } = await render();
 
-    expect(switchInput(element, 3).disabled).toBe(true);
-    expect(element.textContent).toContain('Start the school');
+    expect(switchInput(element, 3).disabled).toBe(true); // HOSTEL: inactive
   });
 
-  it('adds a paid module to the subscription when its switch is turned on', async () => {
-    const { http, element } = await render();
+  it('turns a module on for the school without asking first', async () => {
+    const { element, http } = await render();
 
-    switchInput(element, 3).click();
+    switchInput(element, 2).click();
 
-    const request = http.expectOne(url('subscription/modules'));
-    expect(request.request.method).toBe('POST');
-    expect(JSON.parse(request.request.body as string)).toMatchObject({ moduleCode: 'FEES' });
+    const request = http.expectOne({ method: 'PUT', url: url('modules/Library') });
+    expect(JSON.parse(request.request.body as string)).toEqual({ enabled: true });
     request.flush(null, { status: 204, statusText: 'No Content' });
     await reloadAfterChange(http);
   });
 
-  it('removes an add-on only after the master confirms', async () => {
+  it('turns a module off only after the master confirms', async () => {
     openDialog.mockReturnValue({ afterClosed: () => of(true) });
-    const { http, element } = await render();
+    const { element, http } = await render();
 
-    switchInput(element, 2).click();
+    switchInput(element, 1).click();
 
-    expect(openDialog).toHaveBeenCalledOnce();
-    const request = http.expectOne(url('subscription/modules/LIBRARY'));
-    expect(request.request.method).toBe('DELETE');
+    const request = http.expectOne({ method: 'PUT', url: url('modules/Exams') });
+    expect(JSON.parse(request.request.body as string)).toEqual({ enabled: false });
     request.flush(null, { status: 204, statusText: 'No Content' });
     await reloadAfterChange(http);
   });
 
-  it('keeps the module on when the master declines the confirm step', async () => {
+  it('sends nothing when the master declines the confirm step', async () => {
     openDialog.mockReturnValue({ afterClosed: () => of(false) });
-    const { http, element } = await render();
+    const { element, http } = await render();
 
-    switchInput(element, 2).click();
+    switchInput(element, 1).click();
 
-    http.expectNone(url('subscription/modules/LIBRARY'));
-    expect(switchInput(element, 2).getAttribute('aria-checked')).toBe('true');
+    http.expectNone({ method: 'PUT', url: url('modules/Exams') });
   });
 });

@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.SchoolRoles.Common;
 using EducationPortal.Domain.Entities;
@@ -14,7 +15,7 @@ public class SchoolRoleFieldsValidatorTests
 
     private sealed class FieldsValidator(IModuleAccess access, ICurrentTenant tenant) : SchoolRoleFieldsValidator<Fields>(access, tenant);
 
-    private static FieldsValidator Validator(params string[] enabled)
+    private static FieldsValidator Validator(params ModuleCode[] enabled)
     {
         var access = new Mock<IModuleAccess>();
         access.Setup(a => a.GetEnabledCodesAsync(5, It.IsAny<CancellationToken>())).ReturnsAsync(enabled);
@@ -23,12 +24,12 @@ public class SchoolRoleFieldsValidatorTests
         return new FieldsValidator(access.Object, tenant.Object);
     }
 
-    private static RolePermissionDto Right(string module, bool view = true, bool create = false) => new(module, view, create, false, false);
+    private static RolePermissionDto Right(ModuleCode module, bool view = true, bool create = false) => new(module, view, create, false, false);
 
     [Test]
     public async Task ShouldAcceptARoleWithRightsInEnabledModules()
     {
-        var result = await Validator("STUDENTS", "FEES").ValidateAsync(new Fields { Name = "Registrar", Permissions = [Right("STUDENTS"), Right("FEES", create: true)] });
+        var result = await Validator(ModuleCode.Students, ModuleCode.Fees).ValidateAsync(new Fields { Name = "Registrar", Permissions = [Right(ModuleCode.Students), Right(ModuleCode.Fees, create: true)] });
         result.IsValid.ShouldBeTrue();
     }
 
@@ -58,21 +59,21 @@ public class SchoolRoleFieldsValidatorTests
     [Test]
     public async Task ShouldRefuseRightsWithoutView()
     {
-        var result = await Validator("STUDENTS").ValidateAsync(new Fields { Name = "A", Permissions = [Right("STUDENTS", view: false, create: true)] });
+        var result = await Validator(ModuleCode.Students).ValidateAsync(new Fields { Name = "A", Permissions = [Right(ModuleCode.Students, view: false, create: true)] });
         result.IsValid.ShouldBeFalse();
     }
 
     [Test]
     public async Task ShouldRefuseAModuleListedTwice()
     {
-        var result = await Validator("STUDENTS").ValidateAsync(new Fields { Name = "A", Permissions = [Right("STUDENTS"), Right("STUDENTS")] });
+        var result = await Validator(ModuleCode.Students).ValidateAsync(new Fields { Name = "A", Permissions = [Right(ModuleCode.Students), Right(ModuleCode.Students)] });
         result.IsValid.ShouldBeFalse();
     }
 
     [Test]
     public async Task ShouldRefuseAModuleTheSchoolDoesNotHave()
     {
-        var result = await Validator("STUDENTS").ValidateAsync(new Fields { Name = "A", Permissions = [Right("FEES")] });
+        var result = await Validator(ModuleCode.Students).ValidateAsync(new Fields { Name = "A", Permissions = [Right(ModuleCode.Fees)] });
         result.IsValid.ShouldBeFalse();
     }
 }

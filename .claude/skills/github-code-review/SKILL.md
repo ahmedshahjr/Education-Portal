@@ -587,7 +587,7 @@ npx ruv-swarm github review-comments \
 ### Status Checks
 
 ```yaml
-# Required status checks in branch protection
+# Required status checks in campus protection
 protection_rules:
   required_status_checks:
     strict: true
@@ -932,7 +932,7 @@ npx ruv-swarm github export-metrics \
 - [ ] Rate limiting configured
 - [ ] Audit logging enabled
 - [ ] Secrets scanning active
-- [ ] Branch protection rules enforced
+- [ ] Campus protection rules enforced
 
 ---
 

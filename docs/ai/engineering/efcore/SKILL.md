@@ -20,7 +20,7 @@ Based on Microsoft's EF Core documentation: [efficient querying](https://learn.m
 
 | ID | Rule |
 |---|---|
-| ENG-EF-03 | **Read-only queries project.** Queries return DTOs/view models with `Select(...)` or AutoMapper `ProjectTo<T>(...)`, loading only the columns needed. When you must load entities you will not change, use `AsNoTracking()`. Track only in commands that modify the loaded entities. |
+| ENG-EF-03 | **Read-only queries project.** Queries return DTOs/view models with a hand-written `Select(...)` projection, loading only the columns needed. When you must load entities you will not change, use `AsNoTracking()`. Track only in commands that modify the loaded entities. |
 | ENG-EF-04 | **No N+1 and no lazy loading.** Lazy-loading proxies stay off. Load related data with projection or explicit `Include`/`ThenInclude` in the same query; never query inside a loop over results. Use `AsSplitQuery()` when including more than one collection navigation to avoid cartesian explosion. |
 | ENG-EF-05 | **Filter, sort and page in the database.** Keep `Where`, `OrderBy`, `Skip`/`Take` on `IQueryable` before materialising (`ToListAsync`). Never call `ToList()`/`AsEnumerable()` and then filter in memory. Every list endpoint is paginated with a stable `OrderBy` and a maximum page size; prefer keyset pagination for large tables. |
 | ENG-EF-06 | **Async with cancellation.** Use the async operators (`ToListAsync`, `FirstOrDefaultAsync`, `AnyAsync`, `SaveChangesAsync`, ...) and pass the request's `CancellationToken`. Never block with `.Result`, `.Wait()` or `.GetAwaiter().GetResult()`. |
@@ -32,7 +32,7 @@ Based on Microsoft's EF Core documentation: [efficient querying](https://learn.m
 | ID | Rule |
 |---|---|
 | ENG-EF-09 | All mapping is Fluent API in one `IEntityTypeConfiguration<T>` per entity in `src/Infrastructure/Data/Configurations` (applied by `ApplyConfigurationsFromAssembly`). Configure: max length for every string, required/optional matching nullability, indexes for every foreign key and every column used in filters or sorting, unique indexes for natural keys, enums as their number with a seeded lookup table, never `HasConversion<string>()` (ENG-ENUM-03, ENG-ENUM-04), the `Guid PublicId` alternate key on every entity (ENG-ID-02), value objects as owned or complex types, backing fields for read-only collections, explicit delete behaviour (`Restrict` by default for tenant data). |
-| ENG-EF-10 | **Tenant filters.** Every school-owned entity gets a global query filter on `SchoolId` (and `BranchId` where branch-scoped) fed by the current-user/tenant service, defined once in the `DbContext`, never by hand per query (AGENTS.md section 2, SEC-AUTHZ-03). Include `SchoolId` as the leading column of composite indexes on tenant tables. |
+| ENG-EF-10 | **Tenant filters.** Every school-owned entity gets a global query filter on `SchoolId` (and `CampusId` where campus-scoped) fed by the current-user/tenant service, defined once in the `DbContext`, never by hand per query (AGENTS.md section 2, SEC-AUTHZ-03). Include `SchoolId` as the leading column of composite indexes on tenant tables. |
 | ENG-EF-11 | **Concurrency.** Entities that several users can edit (grades, enrolments, roles) use optimistic concurrency with PostgreSQL's `xmin` system column (Npgsql `IsRowVersion()` on a `uint Version` property). Handle `DbUpdateConcurrencyException` by returning 409 Conflict, never by retrying blindly. |
 
 ## Writes and schema

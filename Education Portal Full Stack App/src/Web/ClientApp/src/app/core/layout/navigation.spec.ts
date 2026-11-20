@@ -10,11 +10,31 @@ describe('visibleNavSections', () => {
   });
 
   it('shows branding and the subscription to a school administrator but not the master portal', () => {
-    expect(ids(true, false)).toEqual(['dashboard', 'branding', 'subscription']);
+    expect(ids(true, false)).toEqual(['dashboard', 'subscription', 'audit', 'branding']);
+  });
+
+  it('shows class offerings to a school administrator only when the School module is on', () => {
+    const schoolItems = (enabled: string[]) =>
+      visibleNavSections(APP_NAV_SECTIONS, true, false, new Set(enabled))
+        .flatMap((s) => s.items.map((i) => i.id))
+        .filter((id) => id === 'class-offerings');
+    expect(schoolItems(['School'])).toEqual(['class-offerings']);
+    expect(schoolItems([])).toEqual([]);
   });
 
   it('shows the master portal to master tenant administrators', () => {
-    expect(ids(true, true)).toEqual(['dashboard', 'branding', 'schools', 'countries', 'add-on-requests', 'modules']);
+    expect(ids(true, true)).toEqual([
+      'dashboard',
+      'branding',
+      'schools',
+      'countries',
+      'add-on-requests',
+      'modules',
+      'school-requests',
+      'pricing',
+      'invoices',
+      'development-data',
+    ]);
   });
 
   it('shows an item of a module only when the module is on for the school', () => {

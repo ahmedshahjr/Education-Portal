@@ -9,7 +9,7 @@ public class AddOnRequestTests
 {
     private static PortalModule Module(bool isCore, int id)
     {
-        var module = PortalModule.Create("FEES", "Fees", "", isCore, sortOrder: 0);
+        var module = PortalModule.Create(ModuleCode.Fees, "Fees", "", isCore, sortOrder: 0);
         module.Id = id;
         return module;
     }

@@ -73,5 +73,5 @@ public class PasswordChangeAuthorizationTests
     }
 
     private AuthorizationBehaviour<TRequest, int> Behaviour<TRequest>() where TRequest : notnull =>
-        new(_user.Object, Mock.Of<IIdentityService>(), Mock.Of<ICurrentTenant>(), Mock.Of<IModuleAccess>());
+        new(_user.Object, Mock.Of<IIdentityService>(), Mock.Of<ICurrentTenant>(), Mock.Of<IModuleAccess>(), Mock.Of<IRoleRights>());
 }

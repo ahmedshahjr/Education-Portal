@@ -1,4 +1,6 @@
-﻿namespace EducationPortal.Application.Common.Security;
+namespace EducationPortal.Application.Common.Security;
+using EducationPortal.Domain.Enums;
+
 
 /// <summary>
 /// Specifies the class this attribute is applied to requires authorization.
@@ -28,11 +30,17 @@ public class AuthorizeAttribute : Attribute
     public bool MasterTenant { get; set; }
 
     /// <summary>
-    /// The code of the module the request belongs to (a <c>ModuleCodes</c> constant). When set, the request is refused with
+    /// The module the request belongs to (a <c>ModuleCode</c> member). When set, the request is refused with
     /// 403 unless the module is switched on for the school the request's host resolves to (SEC-AUTHZ-01). The master
     /// tenant is never limited by modules.
     /// </summary>
-    public string Module { get; set; } = string.Empty;
+    public ModuleCode Module { get; set; } = ModuleCode.None;
+
+    /// <summary>
+    /// The right the request needs in <see cref="Module"/> (SEC-AUTHZ-02): a school role of the user must give it. Administrators
+    /// and the master tenant are not checked. A request that names a right must also name its module.
+    /// </summary>
+    public AccessRight Right { get; set; } = AccessRight.None;
 
     /// <summary>
     /// When true, the request still runs while the user must replace a one-time password (reading their own account,

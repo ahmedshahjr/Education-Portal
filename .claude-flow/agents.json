@@ -1,0 +1,82 @@
+{
+  "agents": {
+    "hive-worker-1794924563430-40s5": {
+      "agentId": "hive-worker-1794924563430-40s5",
+      "agentType": "worker",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "worker",
+        "hiveRole": "worker"
+      },
+      "createdAt": "2026-11-17T14:09:23.430Z",
+      "domain": "hive-mind"
+    },
+    "hive-worker-1794924563430-27yj": {
+      "agentId": "hive-worker-1794924563430-27yj",
+      "agentType": "worker",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "worker",
+        "hiveRole": "worker"
+      },
+      "createdAt": "2026-11-17T14:09:23.430Z",
+      "domain": "hive-mind"
+    },
+    "hive-worker-1794924563430-kk72": {
+      "agentId": "hive-worker-1794924563430-kk72",
+      "agentType": "worker",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "worker",
+        "hiveRole": "worker"
+      },
+      "createdAt": "2026-11-17T14:09:23.430Z",
+      "domain": "hive-mind"
+    },
+    "hive-worker-1794928708395-c32i": {
+      "agentId": "hive-worker-1794928708395-c32i",
+      "agentType": "worker",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "specialist",
+        "hiveRole": "specialist"
+      },
+      "createdAt": "2026-11-17T15:18:28.395Z",
+      "domain": "hive-mind"
+    },
+    "hive-worker-1795015147937-9rks": {
+      "agentId": "hive-worker-1795015147937-9rks",
+      "agentType": "worker",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "specialist",
+        "hiveRole": "specialist"
+      },
+      "createdAt": "2026-11-18T15:19:07.937Z",
+      "domain": "hive-mind"
+    },
+    "hive-worker-1795015154799-tfby": {
+      "agentId": "hive-worker-1795015154799-tfby",
+      "agentType": "worker",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "scout",
+        "hiveRole": "scout"
+      },
+      "createdAt": "2026-11-18T15:19:14.800Z",
+      "domain": "hive-mind"
+    }
+  }
+}

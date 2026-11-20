@@ -16,7 +16,7 @@ const subscription = {
   status: 'Active',
   startDate: '2026-11-01T00:00:00Z',
   endDate: '2026-12-01T00:00:00Z',
-  modules: [{ code: 'STUDENTS', status: 'Active', validFrom: '2026-11-01T00:00:00Z', validTo: '2026-12-01T00:00:00Z' }],
+  modules: [{ code: 'Students', status: 'Active', validFrom: '2026-11-01T00:00:00Z', validTo: '2026-12-01T00:00:00Z' }],
 };
 
 async function render(body: unknown) {
@@ -40,8 +40,8 @@ describe('MySubscriptionPage', () => {
     const { element } = await render({
       subscription,
       availableAddOns: [
-        { code: 'LIBRARY', name: 'Library', description: 'Loans', price: 500, requested: false },
-        { code: 'HOSTEL', name: 'Hostel', description: 'Rooms', price: 900, requested: true },
+        { code: 'Library', name: 'Library', description: 'Loans', price: 500, requested: false },
+        { code: 'Hostel', name: 'Hostel', description: 'Rooms', price: 900, requested: true },
       ],
       requests: [],
     });
@@ -56,7 +56,7 @@ describe('MySubscriptionPage', () => {
   it('asks for a module', async () => {
     const { http, element } = await render({
       subscription,
-      availableAddOns: [{ code: 'LIBRARY', name: 'Library', description: 'Loans', price: 500, requested: false }],
+      availableAddOns: [{ code: 'Library', name: 'Library', description: 'Loans', price: 500, requested: false }],
       requests: [],
     });
 
@@ -64,7 +64,7 @@ describe('MySubscriptionPage', () => {
 
     const request = http.expectOne('/api/AddOnRequests');
     expect(request.request.method).toBe('POST');
-    expect(JSON.parse(request.request.body as string)).toEqual({ moduleCode: 'LIBRARY' });
+    expect(JSON.parse(request.request.body as string)).toEqual({ moduleCode: 'Library' });
     request.flush(json('0190f3a0-0000-7000-8000-000000000011'));
     await vi.waitFor(() => http.expectOne('/api/Subscriptions/mine').flush(json({ subscription, availableAddOns: [], requests: [] })));
   });

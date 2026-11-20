@@ -2,7 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../shared/services/toast.service';
 import { problemMessages } from '../../core/http/problem-details';
 import { LocalDatePipe } from '../../core/i18n/local-date.pipe';
 import { ModuleTextPipe } from '../../core/i18n/module-text.pipe';
@@ -37,7 +37,7 @@ import { AddOnRequestsClient, AvailableAddOnDto, MySubscriptionDto, RequestAddOn
 export class MySubscriptionPage {
   private readonly client = inject(SubscriptionsClient);
   private readonly requestsClient = inject(AddOnRequestsClient);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   protected readonly data = signal<MySubscriptionDto | null>(null);
   protected readonly loadError = signal<string | null>(null);
@@ -77,12 +77,12 @@ export class MySubscriptionPage {
     this.requestsClient.requestAddOn(new RequestAddOnCommand({ moduleCode: addOn.code })).subscribe({
       next: () => {
         this.busy.set(false);
-        this.snackBar.open($localize`:@@mySubscription.requested:Request sent. The platform owner will decide.`, undefined, { duration: 3000 });
+        this.toast.success($localize`:@@mySubscription.requested:Request sent. The platform owner will decide.`);
         this.load();
       },
       error: (error: unknown) => {
         this.busy.set(false);
-        this.snackBar.open(problemMessages(error)[0], undefined, { duration: 5000 });
+        this.toast.error(error);
       },
     });
   }

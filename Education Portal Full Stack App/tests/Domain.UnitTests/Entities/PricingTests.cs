@@ -8,9 +8,9 @@ namespace EducationPortal.Domain.UnitTests.Entities;
 
 public class PricingTests
 {
-    private static PortalModule Paid() => Saved(PortalModule.Create("FEES", "Fees", "", isCore: false, sortOrder: 1), 7);
+    private static PortalModule Paid() => Saved(PortalModule.Create(ModuleCode.Fees, "Fees", "", isCore: false, sortOrder: 1), 7);
 
-    private static PortalModule Core() => Saved(PortalModule.Create("STUDENTS", "Students", "", isCore: true, sortOrder: 1), 1);
+    private static PortalModule Core() => Saved(PortalModule.Create(ModuleCode.Students, "Students", "", isCore: true, sortOrder: 1), 1);
 
     private static PriceBook Book() => Saved(PriceBook.Create("PK", "PKR"), 3);
 

@@ -11,7 +11,7 @@ namespace EducationPortal.Application.PriceBooks.Commands.RemovePrice;
 /// audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record RemovePriceCommand(Guid PriceBookId, string? PlanCode, string? ModuleCode, BillingCycle BillingCycle) : IRequest;
+public record RemovePriceCommand(Guid PriceBookId, string? PlanCode, ModuleCode? ModuleCode, BillingCycle BillingCycle) : IRequest;
 
 public class RemovePriceCommandValidator : AbstractValidator<RemovePriceCommand>
 {
@@ -20,7 +20,7 @@ public class RemovePriceCommandValidator : AbstractValidator<RemovePriceCommand>
         RuleFor(c => c.PriceBookId).NotEmpty();
         RuleFor(c => c.BillingCycle).IsInEnum();
         RuleFor(c => c)
-            .Must(c => string.IsNullOrWhiteSpace(c.PlanCode) != string.IsNullOrWhiteSpace(c.ModuleCode))
+            .Must(c => string.IsNullOrWhiteSpace(c.PlanCode) != c.ModuleCode is null)
             .WithMessage(_ => ValidationMessages.PriceTargetRequired)
             .OverridePropertyName(nameof(RemovePriceCommand.PlanCode));
     }
@@ -55,7 +55,7 @@ public class RemovePriceCommandHandler : IRequestHandler<RemovePriceCommand>
                     && (planCode != null ? p.Code == planCode : m.Code == moduleCode)
                 select i)
             .FirstOrDefaultAsync(cancellationToken);
-        Guard.Against.NotFound(planCode ?? moduleCode ?? string.Empty, item);
+        Guard.Against.NotFound(planCode ?? moduleCode?.ToString() ?? string.Empty, item);
 
         var itemId = item.Id;
         _context.PriceBookItems.Remove(item);

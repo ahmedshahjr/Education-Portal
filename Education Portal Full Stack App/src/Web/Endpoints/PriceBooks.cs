@@ -101,7 +101,7 @@ public class PriceBooks : IEndpointGroup
 
     [EndpointSummary("Remove a price")]
     [EndpointDescription("Removes the price of a plan (planCode) or module (moduleCode) for one billing cycle. Answers 404 when there is no such price. Master tenant only.")]
-    public static async Task<NoContent> RemovePrice(ISender sender, Guid id, string? planCode, string? moduleCode, BillingCycle billingCycle)
+    public static async Task<NoContent> RemovePrice(ISender sender, Guid id, string? planCode, ModuleCode? moduleCode, BillingCycle billingCycle)
     {
         await sender.Send(new RemovePriceCommand(id, planCode, moduleCode, billingCycle));
 

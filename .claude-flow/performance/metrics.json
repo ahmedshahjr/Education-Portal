@@ -1,0 +1,54 @@
+{
+  "metrics": [],
+  "benchmarks": {
+    "bench-memory-1794921896146": {
+      "id": "bench-memory-1794921896146",
+      "name": "memory",
+      "type": "performance",
+      "results": {
+        "duration": 0.03997319999989122,
+        "iterations": 100,
+        "opsPerSecond": 2502,
+        "memory": 4883
+      },
+      "createdAt": "2026-11-17T13:24:56.146Z"
+    },
+    "bench-neural-1794921896224": {
+      "id": "bench-neural-1794921896224",
+      "name": "neural",
+      "type": "performance",
+      "results": {
+        "duration": 0.07803150000050664,
+        "iterations": 100,
+        "opsPerSecond": 1282,
+        "memory": 324
+      },
+      "createdAt": "2026-11-17T13:24:56.224Z"
+    },
+    "bench-swarm-1794921896225": {
+      "id": "bench-swarm-1794921896225",
+      "name": "swarm",
+      "type": "performance",
+      "results": {
+        "duration": 0.0009268000004813075,
+        "iterations": 100,
+        "opsPerSecond": 107898,
+        "memory": 0
+      },
+      "createdAt": "2026-11-17T13:24:56.225Z"
+    },
+    "bench-io-1794921896226": {
+      "id": "bench-io-1794921896226",
+      "name": "io",
+      "type": "performance",
+      "results": {
+        "duration": 0.00139850000012666,
+        "iterations": 100,
+        "opsPerSecond": 71505,
+        "memory": 0
+      },
+      "createdAt": "2026-11-17T13:24:56.226Z"
+    }
+  },
+  "version": "3.0.0"
+}

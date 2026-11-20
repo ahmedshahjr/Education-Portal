@@ -36,9 +36,14 @@ export const routes: Routes = [
           import('./features/branding/branding-settings.page').then((m) => m.BrandingSettingsPage),
       },
       {
+        path: 'settings/campus-codes',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.campus)],
+        loadComponent: () => import('./features/settings/campus-codes.page').then((m) => m.CampusCodesPage),
+      },
+      {
         path: 'campuses',
-        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.branch)],
-        loadComponent: () => import('./features/branches/branches.page').then((m) => m.BranchesPage),
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.campus)],
+        loadComponent: () => import('./features/campuses/campuses.page').then((m) => m.CampusesPage),
       },
       {
         path: 'subscription',
@@ -66,6 +71,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/add-on-requests/add-on-requests.page').then((m) => m.AddOnRequestsPage),
       },
       {
+        path: 'development-data',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () =>
+          import('./features/development-data/development-data.page').then((m) => m.DevelopmentDataPage),
+      },
+      {
         path: 'countries',
         canActivate: [masterAdministratorGuard],
         loadComponent: () => import('./features/countries/countries.page').then((m) => m.CountriesPage),
@@ -74,6 +85,48 @@ export const routes: Routes = [
         path: 'modules',
         canActivate: [masterAdministratorGuard],
         loadComponent: () => import('./features/modules/modules.page').then((m) => m.ModulesPage),
+      },
+      {
+        path: 'people',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.staff)],
+        loadComponent: () => import('./features/people/people.page').then((m) => m.PeoplePage),
+      },
+      {
+        path: 'roles',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.usersRoles)],
+        loadComponent: () => import('./features/roles/roles.page').then((m) => m.RolesPage),
+      },
+      {
+        path: 'class-offerings',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.school)],
+        loadComponent: () =>
+          import('./features/class-offerings/class-offerings.page').then((m) => m.ClassOfferingsPage),
+      },
+      {
+        path: 'school-requests',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () =>
+          import('./features/school-requests/school-requests-queue.page').then((m) => m.SchoolRequestsQueuePage),
+      },
+      {
+        path: 'pricing',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () => import('./features/pricing/pricing.page').then((m) => m.PricingPage),
+      },
+      {
+        path: 'invoices',
+        canActivate: [masterAdministratorGuard],
+        loadComponent: () => import('./features/invoices/invoices.page').then((m) => m.InvoicesPage),
+      },
+      {
+        path: 'audit',
+        canActivate: [administratorGuard],
+        loadComponent: () => import('./features/audit/audit.page').then((m) => m.AuditPage),
+      },
+      {
+        path: 'my-children',
+        canActivate: [authGuard, moduleGuard(MODULE_CODES.students)],
+        loadComponent: () => import('./features/my-children/my-children.page').then((m) => m.MyChildrenPage),
       },
     ],
   },

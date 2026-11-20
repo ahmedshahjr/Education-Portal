@@ -312,11 +312,11 @@
   <data name="CampusCodesExhausted" xml:space="preserve">
     <value>This school has no free campus code left.</value>
   </data>
-  <data name="BranchMainNotDeletable" xml:space="preserve">
-    <value>The main branch cannot be deleted: every school keeps it.</value>
+  <data name="CampusMainNotDeletable" xml:space="preserve">
+    <value>The main campus cannot be deleted: every school keeps it.</value>
   </data>
-  <data name="BranchHasModules" xml:space="preserve">
-    <value>This branch still has module grants. Turn those modules off first.</value>
+  <data name="CampusHasModules" xml:space="preserve">
+    <value>This campus still has module grants. Turn those modules off first.</value>
   </data>
   <data name="SchoolMasterNotDeletable" xml:space="preserve">
     <value>The master tenant cannot be deleted.</value>
@@ -354,34 +354,82 @@
   <data name="AddOnRequestNotPending" xml:space="preserve">
     <value>Only a pending request can be approved or rejected.</value>
   </data>
-  <data name="CampusCityNeedsState" xml:space="preserve">
-    <value>A city needs its province first.</value>
+  <data name="CampusStateNotInCountry" xml:space="preserve">
+    <value>The state must belong to the school's country.</value>
   </data>
-  <data name="CampusCoordinatesTogether" xml:space="preserve">
-    <value>Give the latitude and the longitude together.</value>
+  <data name="CampusCityNeedsState" xml:space="preserve">
+    <value>Choose a state before choosing a city.</value>
   </data>
   <data name="CampusCityNotInState" xml:space="preserve">
-    <value>The city is not in the chosen province.</value>
+    <value>The city must belong to the chosen state.</value>
   </data>
-  <data name="CampusGoogleMapsUrlFormat" xml:space="preserve">
-    <value>The Google Maps link must be an https address.</value>
+  <data name="CampusPrincipalNotFound" xml:space="preserve">
+    <value>The principal must be a person of this school.</value>
   </data>
-  <data name="CampusAddressTooLong" xml:space="preserve">
-    <value>The address is at most 300 characters.</value>
+  <data name="CampusPrincipalNotPrincipal" xml:space="preserve">
+    <value>The chosen person is not a principal.</value>
   </data>
-  <data name="CampusShiftLimit" xml:space="preserve">
-    <value>A campus has at most four shifts.</value>
+  <data name="PostalCodeInvalid" xml:space="preserve">
+    <value>A postal code has letters, digits, spaces and hyphens only, up to 10 characters.</value>
   </data>
-  <data name="CampusShiftNameRequired" xml:space="preserve">
-    <value>Give every shift a name.</value>
+  <data name="CampusLocationRequired" xml:space="preserve">
+    <value>Place the campus on the map.</value>
   </data>
-  <data name="CampusShiftNameTooLong" xml:space="preserve">
-    <value>A shift name is at most 50 characters.</value>
+  <data name="LatitudeInvalid" xml:space="preserve">
+    <value>Latitude must be between -90 and 90.</value>
   </data>
-  <data name="CampusShiftNamesDistinct" xml:space="preserve">
-    <value>Each shift on a campus needs its own name.</value>
+  <data name="UserDetailsIsPrincipal" xml:space="preserve">
+    <value>This person is the principal of a campus. Choose another principal there first.</value>
   </data>
-  <data name="CampusShiftEndAfterStart" xml:space="preserve">
-    <value>A shift ends after it starts on the same day.</value>
+  <data name="LongitudeInvalid" xml:space="preserve">
+    <value>Longitude must be between -180 and 180.</value>
+  </data>
+  <data name="PhoneInvalid" xml:space="preserve">
+    <value>A phone number has 7 to 15 digits and may start with +.</value>
+  </data>
+  <data name="WebsiteInvalid" xml:space="preserve">
+    <value>A website must be an absolute http or https address.</value>
+  </data>
+  <data name="CountryHasNoPriceBook" xml:space="preserve">
+    <value>The country has no price book yet. The master tenant must set its prices before a school is registered there.</value>
+  </data>
+  <data name="SchoolRequestNotPending" xml:space="preserve">
+    <value>Only a pending school request can be approved or rejected.</value>
+  </data>
+  <data name="ModuleSwitchedOff" xml:space="preserve">
+    <value>This module is switched off for every school, so it cannot be turned on for this school.</value>
+  </data>
+  <data name="CampusPhonesRequired" xml:space="preserve">
+    <value>Add at least one phone number for the campus.</value>
+  </data>
+  <data name="CampusPhonesTooMany" xml:space="preserve">
+    <value>A campus lists at most five phone numbers.</value>
+  </data>
+  <data name="StudentAgeOutOfRange" xml:space="preserve">
+    <value>The student must be {0} to {1} years old on the admission date.</value>
+  </data>
+  <data name="StudentBirthDateInFuture" xml:space="preserve">
+    <value>The date of birth cannot be in the future.</value>
+  </data>
+  <data name="StudentAdmissionBeforeBirth" xml:space="preserve">
+    <value>The admission date cannot be before the date of birth.</value>
+  </data>
+  <data name="StudentAdmissionTooFarAhead" xml:space="preserve">
+    <value>The admission date cannot be more than {0} days ahead.</value>
+  </data>
+  <data name="ParentIsNotParent" xml:space="preserve">
+    <value>The chosen person is not a parent.</value>
+  </data>
+  <data name="StudentIsNotStudent" xml:space="preserve">
+    <value>The chosen child is not a student.</value>
+  </data>
+  <data name="ParentAlreadyLinked" xml:space="preserve">
+    <value>This parent is already linked to this student.</value>
+  </data>
+  <data name="PersonHasNoAccount" xml:space="preserve">
+    <value>This person has no login account yet. Add the account first.</value>
+  </data>
+  <data name="RoleNotInSchool" xml:space="preserve">
+    <value>One of the roles is not a role of this school.</value>
   </data>
 </root>

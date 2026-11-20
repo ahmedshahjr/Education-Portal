@@ -1,6 +1,6 @@
 ---
 name: authorization-tenant-isolation
-description: Authorization and multi-tenant isolation rules (modules, role rights, branches, SchoolId/BranchId query filters, IDOR, SSRF). Use for any new use case, endpoint, entity, query, cache, export or background job. Part of the mandatory Education Portal compliance rules.
+description: Authorization and multi-tenant isolation rules (modules, role rights, campuses, SchoolId/CampusId query filters, IDOR, SSRF). Use for any new use case, endpoint, entity, query, cache, export or background job. Part of the mandatory Education Portal compliance rules.
 ---
 
 # Authorization and tenant isolation (MUST follow)
@@ -11,15 +11,16 @@ Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP Moderate Rev
 
 | ID | Rule |
 |---|---|
-| SEC-AUTHZ-01 | Access = modules enabled for the school ∩ role rights per module (View/Create/Edit/Delete) ∩ branches assigned to the user, plus the fixed rules in AGENTS.md section 2. Enforce it **on the server in the Application layer** (MediatR authorization behaviour / attributes). Angular hiding is only UX. |
+| SEC-AUTHZ-01 | Access = modules enabled for the school ∩ role rights per module (View/Create/Edit/Delete) ∩ campuses assigned to the user, plus the fixed rules in AGENTS.md section 2. Enforce it **on the server in the Application layer** (MediatR authorization behaviour / attributes). Angular hiding is only UX. |
 | SEC-AUTHZ-02 | Deny by default: every MediatR request MUST declare its module and required right. A request without an authorization declaration MUST fail a test (add an architecture test that scans for it). |
-| SEC-AUTHZ-03 | Every tenant-owned entity has `SchoolId` (and `BranchId` if branch-scoped) and is covered by EF Core global query filters fed by the current-user/tenant service. MUST NOT use `IgnoreQueryFilters()` except in master-tenant code paths that are explicitly authorized and audited. |
-| SEC-AUTHZ-04 | `SchoolId` comes only from the host-resolved tenant, never from the request body, query string or a client header. `BranchId` may come from the route but MUST be checked against the user's assigned branches on every request. |
-| SEC-AUTHZ-05 | No mass assignment: commands are explicit DTOs; never bind request data straight onto entities. Fields like `SchoolId`, `BranchId`, `CreatedBy`, role and permission fields are never client-settable unless the use case is exactly about changing them and is authorized for it. |
-| SEC-AUTHZ-06 | A record that belongs to another school or branch MUST return 404 (not 403), so IDs cannot be used to probe other tenants. A disabled module or missing right returns 403. |
+| SEC-AUTHZ-03 | Every tenant-owned entity has `SchoolId` (and `CampusId` if campus-scoped) and is covered by EF Core global query filters fed by the current-user/tenant service. MUST NOT use `IgnoreQueryFilters()` except in master-tenant code paths that are explicitly authorized and audited. |
+| SEC-AUTHZ-04 | `SchoolId` comes only from the host-resolved tenant, never from the request body, query string or a client header. `CampusId` may come from the route but MUST be checked against the user's assigned campuses on every request. |
+| SEC-AUTHZ-05 | No mass assignment: commands are explicit DTOs; never bind request data straight onto entities. Fields like `SchoolId`, `CampusId`, `CreatedBy`, role and permission fields are never client-settable unless the use case is exactly about changing them and is authorized for it. |
+| SEC-AUTHZ-06 | A record that belongs to another school or campus MUST return 404 (not 403), so IDs cannot be used to probe other tenants. A disabled module or missing right returns 403. |
 | SEC-AUTHZ-07 | Least privilege: new roles start with no rights. Master-tenant (cross-school) operations are separate use cases with their own authorization and audit, never a flag on a tenant use case. |
-| SEC-AUTHZ-08 | Raw SQL, Dapper, background jobs, exports, reports and caches MUST apply the same tenant and branch scoping as the query filters. Cache keys MUST include `SchoolId` (and `BranchId` where relevant). |
-| SEC-AUTHZ-09 | Every new use case gets functional tests proving: unauthenticated → 401; another school → 404; another branch → 404; disabled module → 403; missing role right → 403. (Also required by AGENTS.md.) |
+| SEC-AUTHZ-08 | Raw SQL, Dapper, background jobs, exports, reports and caches MUST apply the same tenant and campus scoping as the query filters. Cache keys MUST include `SchoolId` (and `CampusId` where relevant). |
+| SEC-AUTHZ-09 | A school-owned entity's tenant filter MUST NEVER be replaced or removed. EF Core keeps one query filter per entity type, so a second `HasQueryFilter` call (for example the soft-delete filter of `BaseSoftDeletableEntity`) silently drops the tenant filter, and another school's admin can then read or change the row. New filters MUST be combined with the existing ones (`IMutableEntityType.GetDeclaredQueryFilters()`, as `ApplicationDbContext.ApplySoftDeleteFilter` does), never added in place. A lookup by public id (`FirstOrDefault(x => x.PublicId == id)`) MUST run through the filtered query, so another school's row is not found and the answer is 404. Hand-written `Where(x => x.SchoolId == schoolId)` is not a substitute for the filter. A change to the model's filters MUST keep the tenant filter of every `SchoolId` entity, and the test that proves another school's row is refused MUST be added with it. |
+| SEC-AUTHZ-09 | Every new use case gets functional tests proving: unauthenticated → 401; another school → 404; another campus → 404; disabled module → 403; missing role right → 403. (Also required by AGENTS.md.) |
 | SEC-AUTHZ-10 | Unknown host → 404 and nothing served. Never fall back to a default tenant. |
 | SEC-AUTHZ-11 | Server-side requests to URLs supplied by users (webhooks, imports, avatars) MUST use an allow-list of hosts and block private/link-local/metadata addresses (SSRF). |
 

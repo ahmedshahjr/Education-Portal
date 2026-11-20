@@ -5,7 +5,7 @@ namespace EducationPortal.Domain.Entities;
 /// the school (<c>SchoolId</c>) and covered by the tenant query filter (SEC-AUTHZ-03). Assigning roles to users comes
 /// later; this is the model the school owner edits (AGENTS.md section 2, "Roles per school").
 /// </summary>
-public class SchoolRole : BaseAuditableEntity
+public class SchoolRole : BaseAuditableEntity, ITenantOwned
 {
     public const int NameMaxLength = 100;
 

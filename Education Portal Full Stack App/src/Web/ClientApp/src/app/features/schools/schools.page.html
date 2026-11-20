@@ -1,0 +1,104 @@
+<app-page-header
+  title="Schools"
+  i18n-title="@@schools.title"
+  subtitle="Master portal: every school on the platform, its country, its modules and its branding."
+  i18n-subtitle="@@schools.subtitle"
+>
+  @if (!adding()) {
+    <button mat-flat-button type="button" (click)="startAdding()" i18n="@@schools.add">Add school</button>
+  }
+</app-page-header>
+
+@if (adding()) {
+  <div class="mm-schools__section">
+    <app-school-form
+      [countries]="countries()"
+      [saving]="creating()"
+      [errors]="createErrors()"
+      (save)="create($event)"
+      (cancel)="adding.set(false)"
+    />
+  </div>
+}
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <app-empty-state
+        icon="alert-triangle"
+        title="Schools could not be loaded"
+        i18n-title="@@schools.loadError"
+        [description]="message"
+        actionLabel="Try again"
+        i18n-actionLabel="@@common.tryAgain"
+        (action)="load()"
+      />
+    } @else {
+      <app-data-table
+        [data]="visibleSchools()"
+        [columns]="columns()"
+        [loading]="schools() === null"
+        searchPlaceholder="Search schools by name or domain..."
+        i18n-searchPlaceholder="@@schools.searchPlaceholder"
+        emptyTitle="No schools yet"
+        i18n-emptyTitle="@@schools.empty"
+        emptyDescription="Schools appear here once they are added."
+        i18n-emptyDescription="@@schools.emptyDescription"
+      >
+        <div table-actions>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-schools__country-filter">
+            <mat-label i18n="@@schools.countryFilter">Country</mat-label>
+            <mat-select [value]="countryFilter()" (selectionChange)="changeCountryFilter($event.value)">
+              <mat-option [value]="null" i18n="@@schools.allCountries">All countries</mat-option>
+              @for (country of countries(); track country.id) {
+                <mat-option [value]="country.id">{{ country.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </app-data-table>
+    }
+  </mat-card-content>
+</mat-card>
+
+<ng-template #nameCell let-school>
+  <span class="mm-crud-title">{{ school.name }}</span>
+  @if (school.isMaster) {
+    <span class="mm-crud-sub" i18n="@@schools.masterTenant">(master tenant)</span>
+  }
+</ng-template>
+
+<ng-template #countryCell let-school>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-schools__country">
+    <mat-select
+      aria-label="Country of this school"
+      i18n-aria-label="@@schools.countryOf"
+      [value]="school.countryId ?? null"
+      [disabled]="assigning() === school.id"
+      (selectionChange)="assignCountry(school, $event.value)"
+    >
+      <mat-option [value]="null" i18n="@@schools.noCountry">None (English only, UTC)</mat-option>
+      @for (country of countries(); track country.id) {
+        <mat-option [value]="country.id">{{ country.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</ng-template>
+
+<ng-template #actionsCell let-school>
+  <span class="mm-crud-actions">
+    @if (!school.isMaster) {
+      <button mat-icon-button type="button" aria-label="Plan and modules of this school" i18n-aria-label="@@schools.modulesOf" matTooltip="Plan and modules" i18n-matTooltip="@@schools.edit" (click)="$event.stopPropagation(); showModules(school)">
+        <app-icon name="blocks" [size]="16" />
+      </button>
+    }
+    <button mat-icon-button type="button" aria-label="Branding of this school" i18n-aria-label="@@schools.brandingOf" matTooltip="Branding" i18n-matTooltip="@@schools.editBranding" (click)="$event.stopPropagation(); edit(school)">
+      <app-icon name="edit-3" [size]="16" />
+    </button>
+    @if (!school.isMaster) {
+      <button mat-icon-button type="button" class="mm-delete-btn" aria-label="Delete this school" i18n-aria-label="@@schools.deleteOf" matTooltip="Delete" i18n-matTooltip="@@schools.delete" (click)="$event.stopPropagation(); confirmDeleteSchool(school)">
+        <app-icon name="trash-2" [size]="16" />
+      </button>
+    }
+  </span>
+</ng-template>

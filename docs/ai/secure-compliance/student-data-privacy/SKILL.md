@@ -16,14 +16,14 @@ Most students are children. Treat their data with the highest care.
 | Class | Examples | Handling |
 |---|---|---|
 | Restricted | Student date of birth, home address, health / special-needs / safeguarding notes, government or national IDs, grades and assessments, parent contact details, photos | Need-to-know only, encrypted at rest, never in logs, masked in UI lists, every read in bulk/export audited |
-| Confidential | Names, school email, enrolments, class lists, staff records | Tenant/branch scoped, never in logs beyond IDs |
-| Internal | School/branch names, course catalogue, configuration | Tenant scoped |
+| Confidential | Names, school email, enrolments, class lists, staff records | Tenant/campus scoped, never in logs beyond IDs |
+| Internal | School/campus names, course catalogue, configuration | Tenant scoped |
 | Public | Marketing pages | None |
 
 | ID | Rule |
 |---|---|
 | SEC-PII-01 | Data minimisation: collect only fields a listed MVP feature needs. Adding a new Restricted field needs maintainer approval in the PR. |
-| SEC-PII-02 | MUST NOT log Restricted or Confidential values. Log IDs (UserId, SchoolId, BranchId, entity ID), not names, emails, DOBs, grades or request bodies. |
+| SEC-PII-02 | MUST NOT log Restricted or Confidential values. Log IDs (UserId, SchoolId, CampusId, entity ID), not names, emails, DOBs, grades or request bodies. |
 | SEC-PII-03 | Real personal data MUST NOT be used in development, test, demo or AI prompts. Use synthetic data (e.g. Bogus) that is obviously fake. Production data is never copied to lower environments. |
 | SEC-PII-04 | Parents see only their own linked children; students see only themselves; both are read-only (AGENTS.md fixed rules). Tests MUST prove a parent cannot read another child. |
 | SEC-PII-05 | Bulk export, report and print features are Restricted operations: separate right, audited, rate limited. |

@@ -168,7 +168,9 @@ export class DeliveryAnalyticsCardComponent {
   private readonly notifications = inject(NotificationService);
 
   protected readonly selectedTab = signal<DeliveryTab>('email');
-  protected readonly dataset = computed(() => this.dataService.deliveryDatasets[this.selectedTab()]);
+  protected readonly dataset = computed(
+    () => this.dataService.deliveryDatasets[this.selectedTab()],
+  );
 
   protected readonly tabs: readonly FilterOption<DeliveryTab>[] = [
     { id: 'email', label: 'Email' },
@@ -229,7 +231,7 @@ export class DeliveryAnalyticsCardComponent {
   protected onMenuAction(action: string): void {
     this.notifications.notify(
       action === 'download' ? 'Delivery analytics exported' : 'Delivery telemetry refreshed',
-      'primary'
+      'primary',
     );
   }
 }

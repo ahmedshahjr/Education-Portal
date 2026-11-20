@@ -37,8 +37,8 @@ public class PriceBookValidatorTests
         var id = Guid.NewGuid();
 
         validator.Validate(new RemovePriceCommand(id, "BASIC", null, BillingCycle.Monthly)).IsValid.ShouldBeTrue();
-        validator.Validate(new RemovePriceCommand(id, null, "FEES", BillingCycle.Yearly)).IsValid.ShouldBeTrue();
-        validator.Validate(new RemovePriceCommand(id, "BASIC", "FEES", BillingCycle.Monthly)).IsValid.ShouldBeFalse();
+        validator.Validate(new RemovePriceCommand(id, null, ModuleCode.Fees, BillingCycle.Yearly)).IsValid.ShouldBeTrue();
+        validator.Validate(new RemovePriceCommand(id, "BASIC", ModuleCode.Fees, BillingCycle.Monthly)).IsValid.ShouldBeFalse();
         validator.Validate(new RemovePriceCommand(id, null, null, BillingCycle.Monthly)).IsValid.ShouldBeFalse();
         validator.Validate(new RemovePriceCommand(id, "BASIC", null, (BillingCycle)99)).IsValid.ShouldBeFalse();
         validator.Validate(new RemovePriceCommand(Guid.Empty, "BASIC", null, BillingCycle.Monthly)).IsValid.ShouldBeFalse();

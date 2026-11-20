@@ -51,4 +51,4 @@ hand in each use case would be easy to forget in the next one.
 - Every save of an audited row writes one more row per changed entity. The volumes are small (a few changes per school
   per month).
 - Retention and an API or screen to read the entries are not decided (TODO); entries are kept for now.
-- The table is created by `EnsureCreated` like the rest of the schema; there are still no migrations.
+- The table is created by the `InitialCreate` EF Core migration like the rest of the schema, in the `audit` schema.

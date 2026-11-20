@@ -258,4 +258,46 @@
   <data name="Days" xml:space="preserve">
     <value>الأيام</value>
   </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>الاسم الأول</value>
+  </data>
+  <data name="MiddleName" xml:space="preserve">
+    <value>الاسم الأوسط</value>
+  </data>
+  <data name="LastName" xml:space="preserve">
+    <value>اسم العائلة</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>الهاتف</value>
+  </data>
+  <data name="DateOfBirth" xml:space="preserve">
+    <value>تاريخ الميلاد</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>الجنس</value>
+  </data>
+  <data name="FatherName" xml:space="preserve">
+    <value>اسم الأب</value>
+  </data>
+  <data name="Nationality" xml:space="preserve">
+    <value>الجنسية</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>العنوان</value>
+  </data>
+  <data name="City" xml:space="preserve">
+    <value>المدينة</value>
+  </data>
+  <data name="ClassApplied" xml:space="preserve">
+    <value>الصف المطلوب</value>
+  </data>
+  <data name="PreviousSchool" xml:space="preserve">
+    <value>المدرسة السابقة</value>
+  </data>
+  <data name="GuardianPhone" xml:space="preserve">
+    <value>هاتف ولي الأمر</value>
+  </data>
+  <data name="AdmissionDate" xml:space="preserve">
+    <value>تاريخ القبول</value>
+  </data>
 </root>

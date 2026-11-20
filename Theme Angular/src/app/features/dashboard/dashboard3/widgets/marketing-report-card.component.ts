@@ -22,10 +22,7 @@ import { ChartCardComponent } from '../../../../shared/components/chart-card/cha
   imports: [ChartComponent, ChartCardComponent, AppIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <app-chart-card
-      title="Marketing Report"
-      (menuAction)="onMenuAction($event)"
-    >
+    <app-chart-card title="Marketing Report" (menuAction)="onMenuAction($event)">
       <div class="mm-mkt-grid">
         <ul class="mm-mkt-list">
           @for (item of report.metrics; track item.id) {
@@ -192,8 +189,9 @@ import { ChartCardComponent } from '../../../../shared/components/chart-card/cha
       justify-content: center;
       flex-shrink: 0;
       cursor: pointer;
-      transition: background-color var(--mm-duration) var(--mm-ease),
-                  transform var(--mm-duration) var(--mm-ease);
+      transition:
+        background-color var(--mm-duration) var(--mm-ease),
+        transform var(--mm-duration) var(--mm-ease);
 
       &:hover {
         background-color: var(--mm-primary-hover);

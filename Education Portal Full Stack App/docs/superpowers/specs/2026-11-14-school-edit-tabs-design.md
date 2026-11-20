@@ -42,7 +42,7 @@ The master tenant edits a school today on one long page. Plan, module and invoic
 - Components keep their template and styles in external files (ENG-UI-18).
 - The maintainer's theme in `Theme Angular/` is the guide for components and tokens (ENG-UI-17).
 
-- **Decided (2026-11-14, maintainer):** every school has one main branch, created with it. `TenantModule.BranchId` is required. A grant on the main branch is school-wide (`IsSchoolWide`), and a grant on any other branch covers that branch only. Entitlements without a branch count only school-wide grants (fail closed).
+- **Decided (2026-11-14, maintainer):** every school has one main campus, created with it. `TenantModule.CampusId` is required. A grant on the main campus is school-wide (`IsSchoolWide`), and a grant on any other campus covers that campus only. Entitlements without a campus count only school-wide grants (fail closed).
 
 ## Approaches considered
 

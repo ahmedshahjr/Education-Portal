@@ -1,7 +1,7 @@
 namespace EducationPortal.Application.Subscriptions.Common;
 
 /// <summary>One module a school has through its subscription.</summary>
-public sealed record TenantModuleDto(string Code, TenantModuleStatus Status, DateTimeOffset ValidFrom, DateTimeOffset? ValidTo);
+public sealed record TenantModuleDto(ModuleCode Code, TenantModuleStatus Status, DateTimeOffset ValidFrom, DateTimeOffset? ValidTo);
 
 /// <summary>A school's subscription: what it bought, the price and currency copied when it was made, and its modules.</summary>
 /// <param name="Id">The subscription's public id.</param>

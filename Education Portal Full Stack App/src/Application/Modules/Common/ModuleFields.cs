@@ -12,6 +12,9 @@ public abstract record ModuleFields
 
     /// <summary>Where the module appears in lists and menus, lowest first.</summary>
     public int SortOrder { get; init; }
+
+    /// <summary>True when a school that registers gets the module automatically, free of charge.</summary>
+    public bool IsDefaultEnabled { get; init; }
 }
 
 /// <summary>The rules every module's fields follow (SEC-INPUT-01).</summary>

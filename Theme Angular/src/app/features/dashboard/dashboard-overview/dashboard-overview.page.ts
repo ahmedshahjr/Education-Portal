@@ -39,9 +39,7 @@ import { CompactNumberPipe } from '../../../shared/pipes/compact-number.pipe';
       [subtitle]="pageSubtitle()"
       [breadcrumbs]="breadcrumbs()"
     >
-      <a mat-flat-button color="primary" routerLink="/dashboards/dashboard3">
-        Open Dashboard 3
-      </a>
+      <a mat-flat-button color="primary" routerLink="/dashboards/dashboard3"> Open Dashboard 3 </a>
     </app-page-header>
 
     <div class="mm-grid">
@@ -57,7 +55,7 @@ import { CompactNumberPipe } from '../../../shared/pipes/compact-number.pipe';
       <div class="mm-col-4">
         <app-stat-card
           title="Tracked Budget"
-          [value]="dataService.totalProjectBudget() | compactNumber : '$'"
+          [value]="dataService.totalProjectBudget() | compactNumber: '$'"
           trendBadge="+21% quarter"
           icon="dollar-sign"
           tone="success"
@@ -117,17 +115,17 @@ export class DashboardOverviewPageComponent {
   readonly variant = input<'1' | '2'>('1');
 
   protected readonly pageTitle = computed(() =>
-    this.variant() === '2' ? 'Dashboard 2 — Revenue Velocity' : 'Dashboard 1 — Executive Summary'
+    this.variant() === '2' ? 'Dashboard 2 — Revenue Velocity' : 'Dashboard 1 — Executive Summary',
   );
 
   protected readonly pageSubtitle = computed(() =>
     this.variant() === '2'
       ? 'Monthly revenue breakdown, margin velocity, and channel attribution'
-      : 'High-level platform telemetry built with reusable MaterialM components'
+      : 'High-level platform telemetry built with reusable MaterialM components',
   );
 
   protected readonly chartTitle = computed(() =>
-    this.variant() === '2' ? 'Monthly Revenue vs Target' : 'Weekly Order Throughput'
+    this.variant() === '2' ? 'Monthly Revenue vs Target' : 'Weekly Order Throughput',
   );
 
   protected readonly breadcrumbs = computed<readonly BreadcrumbItem[]>(() => [
@@ -165,6 +163,6 @@ export class DashboardOverviewPageComponent {
       : [
           { name: 'Completed Orders', data: [62, 74, 68, 86, 92, 79, 96] },
           { name: 'Active Users', data: [48, 54, 59, 64, 71, 66, 78] },
-        ]
+        ],
   );
 }
