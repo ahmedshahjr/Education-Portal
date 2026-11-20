@@ -15,10 +15,16 @@ namespace EducationPortal.Infrastructure.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
+                name: "access");
+
+            migrationBuilder.EnsureSchema(
                 name: "billing");
 
             migrationBuilder.EnsureSchema(
                 name: "lookups");
+
+            migrationBuilder.EnsureSchema(
+                name: "admissions");
 
             migrationBuilder.EnsureSchema(
                 name: "identity");
@@ -31,9 +37,6 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
             migrationBuilder.EnsureSchema(
                 name: "modules");
-
-            migrationBuilder.EnsureSchema(
-                name: "access");
 
             migrationBuilder.CreateSequence<int>(
                 name: "InvoiceNumbers",
@@ -50,6 +53,19 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AddOnRequestStatuses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AdmissionStatuses",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AdmissionStatuses", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -120,6 +136,19 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClassLevels",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClassLevels", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Countries",
                 schema: "schools",
                 columns: table => new
@@ -152,6 +181,19 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CurriculumKinds",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CurriculumKinds", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DataRegions",
                 schema: "lookups",
                 columns: table => new
@@ -162,6 +204,71 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DataRegions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EnquiryChannels",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EnquiryChannels", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EnquiryStatuses",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EnquiryStatuses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FacilityKinds",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FacilityKinds", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FollowUpKinds",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FollowUpKinds", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Genders",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Genders", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -178,32 +285,16 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Modules",
-                schema: "modules",
+                name: "ModuleCodes",
+                schema: "lookups",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Code = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
-                    IsCore = table.Column<bool>(type: "boolean", nullable: false),
-                    SortOrder = table.Column<int>(type: "integer", nullable: false),
-                    IsDefaultEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    DeletedBy = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Modules", x => x.Id);
-                    table.UniqueConstraint("AK_Modules_PublicId", x => x.PublicId);
+                    table.PrimaryKey("PK_ModuleCodes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -217,6 +308,19 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PaymentMethods", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PhotoKinds",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PhotoKinds", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -270,6 +374,45 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     table.PrimaryKey("PK_PriceBooks", x => x.Id);
                     table.UniqueConstraint("AK_PriceBooks_PublicId", x => x.PublicId);
                     table.CheckConstraint("CK_PriceBooks_TaxRateRange", "\"TaxRate\" >= 0 AND \"TaxRate\" <= 100");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReviewerRelations",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReviewerRelations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReviewStatuses",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReviewStatuses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SchoolGenderPolicies",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SchoolGenderPolicies", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -364,6 +507,19 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "VisitStatuses",
+                schema: "lookups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VisitStatuses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 schema: "identity",
                 columns: table => new
@@ -424,7 +580,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    Domain = table.Column<string>(type: "character varying(253)", maxLength: 253, nullable: false),
+                    Domain = table.Column<string>(type: "character varying(253)", maxLength: 253, nullable: true),
                     IsMaster = table.Column<bool>(type: "boolean", nullable: false),
                     AccentColor = table.Column<string>(type: "character varying(7)", maxLength: 7, nullable: false),
                     SidebarColor = table.Column<string>(type: "character varying(7)", maxLength: 7, nullable: true),
@@ -465,126 +621,37 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ModuleDependencies",
+                name: "Modules",
                 schema: "modules",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ModuleId = table.Column<int>(type: "integer", nullable: false),
-                    RequiresModuleId = table.Column<int>(type: "integer", nullable: false),
+                    Code = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
+                    IsCore = table.Column<bool>(type: "boolean", nullable: false),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    IsDefaultEnabled = table.Column<bool>(type: "boolean", nullable: false),
                     PublicId = table.Column<Guid>(type: "uuid", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ModuleDependencies", x => x.Id);
-                    table.UniqueConstraint("AK_ModuleDependencies_PublicId", x => x.PublicId);
-                    table.CheckConstraint("CK_ModuleDependencies_NotSelf", "\"ModuleId\" <> \"RequiresModuleId\"");
+                    table.PrimaryKey("PK_Modules", x => x.Id);
+                    table.UniqueConstraint("AK_Modules_PublicId", x => x.PublicId);
                     table.ForeignKey(
-                        name: "FK_ModuleDependencies_Modules_ModuleId",
-                        column: x => x.ModuleId,
-                        principalSchema: "modules",
-                        principalTable: "Modules",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ModuleDependencies_Modules_RequiresModuleId",
-                        column: x => x.RequiresModuleId,
-                        principalSchema: "modules",
-                        principalTable: "Modules",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PlanModules",
-                schema: "billing",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    PlanId = table.Column<int>(type: "integer", nullable: false),
-                    ModuleId = table.Column<int>(type: "integer", nullable: false),
-                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PlanModules", x => x.Id);
-                    table.UniqueConstraint("AK_PlanModules_PublicId", x => x.PublicId);
-                    table.ForeignKey(
-                        name: "FK_PlanModules_Modules_ModuleId",
-                        column: x => x.ModuleId,
-                        principalSchema: "modules",
-                        principalTable: "Modules",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_PlanModules_Plans_PlanId",
-                        column: x => x.PlanId,
-                        principalSchema: "billing",
-                        principalTable: "Plans",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PriceBookItems",
-                schema: "billing",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    PriceBookId = table.Column<int>(type: "integer", nullable: false),
-                    PlanId = table.Column<int>(type: "integer", nullable: true),
-                    ModuleId = table.Column<int>(type: "integer", nullable: true),
-                    BillingCycle = table.Column<int>(type: "integer", nullable: false),
-                    Price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
-                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PriceBookItems", x => x.Id);
-                    table.UniqueConstraint("AK_PriceBookItems_PublicId", x => x.PublicId);
-                    table.CheckConstraint("CK_PriceBookItems_PlanOrModule", "(\"PlanId\" IS NULL) <> (\"ModuleId\" IS NULL)");
-                    table.CheckConstraint("CK_PriceBookItems_PriceNotNegative", "\"Price\" >= 0");
-                    table.ForeignKey(
-                        name: "FK_PriceBookItems_BillingCycles_BillingCycle",
-                        column: x => x.BillingCycle,
+                        name: "FK_Modules_ModuleCodes_Code",
+                        column: x => x.Code,
                         principalSchema: "lookups",
-                        principalTable: "BillingCycles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_PriceBookItems_Modules_ModuleId",
-                        column: x => x.ModuleId,
-                        principalSchema: "modules",
-                        principalTable: "Modules",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_PriceBookItems_Plans_PlanId",
-                        column: x => x.PlanId,
-                        principalSchema: "billing",
-                        principalTable: "Plans",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_PriceBookItems_PriceBooks_PriceBookId",
-                        column: x => x.PriceBookId,
-                        principalSchema: "billing",
-                        principalTable: "PriceBooks",
+                        principalTable: "ModuleCodes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -700,50 +767,6 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AddOnRequests",
-                schema: "billing",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    SchoolId = table.Column<int>(type: "integer", nullable: false),
-                    ModuleId = table.Column<int>(type: "integer", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false),
-                    DecidedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AddOnRequests", x => x.Id);
-                    table.UniqueConstraint("AK_AddOnRequests_PublicId", x => x.PublicId);
-                    table.ForeignKey(
-                        name: "FK_AddOnRequests_AddOnRequestStatuses_Status",
-                        column: x => x.Status,
-                        principalSchema: "lookups",
-                        principalTable: "AddOnRequestStatuses",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_AddOnRequests_Modules_ModuleId",
-                        column: x => x.ModuleId,
-                        principalSchema: "modules",
-                        principalTable: "Modules",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_AddOnRequests_Schools_SchoolId",
-                        column: x => x.SchoolId,
-                        principalSchema: "schools",
-                        principalTable: "Schools",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetUsers",
                 schema: "identity",
                 columns: table => new
@@ -752,6 +775,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     SchoolId = table.Column<int>(type: "integer", nullable: false),
                     PreferredLanguage = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: true),
                     MustChangePassword = table.Column<bool>(type: "boolean", nullable: false),
+                    UserDetailsId = table.Column<int>(type: "integer", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -815,6 +839,119 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         principalTable: "Schools",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SchoolCurricula",
+                schema: "schools",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    Kind = table.Column<int>(type: "integer", nullable: false),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SchoolCurricula", x => x.Id);
+                    table.UniqueConstraint("AK_SchoolCurricula_PublicId", x => x.PublicId);
+                    table.ForeignKey(
+                        name: "FK_SchoolCurricula_CurriculumKinds_Kind",
+                        column: x => x.Kind,
+                        principalSchema: "lookups",
+                        principalTable: "CurriculumKinds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SchoolCurricula_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalSchema: "schools",
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SchoolFacilities",
+                schema: "schools",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    Kind = table.Column<int>(type: "integer", nullable: false),
+                    Description = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SchoolFacilities", x => x.Id);
+                    table.UniqueConstraint("AK_SchoolFacilities_PublicId", x => x.PublicId);
+                    table.ForeignKey(
+                        name: "FK_SchoolFacilities_FacilityKinds_Kind",
+                        column: x => x.Kind,
+                        principalSchema: "lookups",
+                        principalTable: "FacilityKinds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SchoolFacilities_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalSchema: "schools",
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SchoolProfiles",
+                schema: "schools",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    Tagline = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    About = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
+                    EstablishedYear = table.Column<int>(type: "integer", nullable: true),
+                    GenderPolicy = table.Column<int>(type: "integer", nullable: false),
+                    VisitingHours = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    VirtualTourUrl = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    PublishedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SchoolProfiles", x => x.Id);
+                    table.UniqueConstraint("AK_SchoolProfiles_PublicId", x => x.PublicId);
+                    table.ForeignKey(
+                        name: "FK_SchoolProfiles_SchoolGenderPolicies_GenderPolicy",
+                        column: x => x.GenderPolicy,
+                        principalSchema: "lookups",
+                        principalTable: "SchoolGenderPolicies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SchoolProfiles_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalSchema: "schools",
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -955,6 +1092,175 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AddOnRequests",
+                schema: "billing",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    ModuleId = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    DecidedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AddOnRequests", x => x.Id);
+                    table.UniqueConstraint("AK_AddOnRequests_PublicId", x => x.PublicId);
+                    table.ForeignKey(
+                        name: "FK_AddOnRequests_AddOnRequestStatuses_Status",
+                        column: x => x.Status,
+                        principalSchema: "lookups",
+                        principalTable: "AddOnRequestStatuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AddOnRequests_Modules_ModuleId",
+                        column: x => x.ModuleId,
+                        principalSchema: "modules",
+                        principalTable: "Modules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AddOnRequests_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalSchema: "schools",
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ModuleDependencies",
+                schema: "modules",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ModuleId = table.Column<int>(type: "integer", nullable: false),
+                    RequiresModuleId = table.Column<int>(type: "integer", nullable: false),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ModuleDependencies", x => x.Id);
+                    table.UniqueConstraint("AK_ModuleDependencies_PublicId", x => x.PublicId);
+                    table.CheckConstraint("CK_ModuleDependencies_NotSelf", "\"ModuleId\" <> \"RequiresModuleId\"");
+                    table.ForeignKey(
+                        name: "FK_ModuleDependencies_Modules_ModuleId",
+                        column: x => x.ModuleId,
+                        principalSchema: "modules",
+                        principalTable: "Modules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ModuleDependencies_Modules_RequiresModuleId",
+                        column: x => x.RequiresModuleId,
+                        principalSchema: "modules",
+                        principalTable: "Modules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PlanModules",
+                schema: "billing",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PlanId = table.Column<int>(type: "integer", nullable: false),
+                    ModuleId = table.Column<int>(type: "integer", nullable: false),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlanModules", x => x.Id);
+                    table.UniqueConstraint("AK_PlanModules_PublicId", x => x.PublicId);
+                    table.ForeignKey(
+                        name: "FK_PlanModules_Modules_ModuleId",
+                        column: x => x.ModuleId,
+                        principalSchema: "modules",
+                        principalTable: "Modules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PlanModules_Plans_PlanId",
+                        column: x => x.PlanId,
+                        principalSchema: "billing",
+                        principalTable: "Plans",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PriceBookItems",
+                schema: "billing",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PriceBookId = table.Column<int>(type: "integer", nullable: false),
+                    PlanId = table.Column<int>(type: "integer", nullable: true),
+                    ModuleId = table.Column<int>(type: "integer", nullable: true),
+                    BillingCycle = table.Column<int>(type: "integer", nullable: false),
+                    Price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PriceBookItems", x => x.Id);
+                    table.UniqueConstraint("AK_PriceBookItems_PublicId", x => x.PublicId);
+                    table.CheckConstraint("CK_PriceBookItems_PlanOrModule", "(\"PlanId\" IS NULL) <> (\"ModuleId\" IS NULL)");
+                    table.CheckConstraint("CK_PriceBookItems_PriceNotNegative", "\"Price\" >= 0");
+                    table.ForeignKey(
+                        name: "FK_PriceBookItems_BillingCycles_BillingCycle",
+                        column: x => x.BillingCycle,
+                        principalSchema: "lookups",
+                        principalTable: "BillingCycles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PriceBookItems_Modules_ModuleId",
+                        column: x => x.ModuleId,
+                        principalSchema: "modules",
+                        principalTable: "Modules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PriceBookItems_Plans_PlanId",
+                        column: x => x.PlanId,
+                        principalSchema: "billing",
+                        principalTable: "Plans",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PriceBookItems_PriceBooks_PriceBookId",
+                        column: x => x.PriceBookId,
+                        principalSchema: "billing",
+                        principalTable: "PriceBooks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Cities",
                 schema: "schools",
                 columns: table => new
@@ -1077,6 +1383,42 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         column: x => x.UserId,
                         principalSchema: "identity",
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AccountRoles",
+                schema: "access",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    SchoolRoleId = table.Column<int>(type: "integer", nullable: false),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AccountRoles", x => x.Id);
+                    table.UniqueConstraint("AK_AccountRoles_PublicId", x => x.PublicId);
+                    table.ForeignKey(
+                        name: "FK_AccountRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "identity",
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AccountRoles_SchoolRoles_SchoolRoleId",
+                        column: x => x.SchoolRoleId,
+                        principalSchema: "access",
+                        principalTable: "SchoolRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1227,6 +1569,94 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ParentStudents",
+                schema: "schools",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    ParentUserDetailsId = table.Column<int>(type: "integer", nullable: false),
+                    StudentUserDetailsId = table.Column<int>(type: "integer", nullable: false),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ParentStudents", x => x.Id);
+                    table.UniqueConstraint("AK_ParentStudents_PublicId", x => x.PublicId);
+                    table.ForeignKey(
+                        name: "FK_ParentStudents_UserDetails_ParentUserDetailsId",
+                        column: x => x.ParentUserDetailsId,
+                        principalSchema: "schools",
+                        principalTable: "UserDetails",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ParentStudents_UserDetails_StudentUserDetailsId",
+                        column: x => x.StudentUserDetailsId,
+                        principalSchema: "schools",
+                        principalTable: "UserDetails",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StudentProfiles",
+                schema: "schools",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    UserDetailsId = table.Column<int>(type: "integer", nullable: false),
+                    DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
+                    Gender = table.Column<int>(type: "integer", nullable: false),
+                    FatherName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Nationality = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    Address = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
+                    City = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    ClassApplied = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    PreviousSchool = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    GuardianPhone = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    AdmissionDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentProfiles", x => x.Id);
+                    table.UniqueConstraint("AK_StudentProfiles_PublicId", x => x.PublicId);
+                    table.ForeignKey(
+                        name: "FK_StudentProfiles_Genders_Gender",
+                        column: x => x.Gender,
+                        principalSchema: "lookups",
+                        principalTable: "Genders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_StudentProfiles_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalSchema: "schools",
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudentProfiles_UserDetails_UserDetailsId",
+                        column: x => x.UserDetailsId,
+                        principalSchema: "schools",
+                        principalTable: "UserDetails",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Campuses",
                 schema: "schools",
                 columns: table => new
@@ -1244,6 +1674,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     Website = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
                     SchoolNumber = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     ShortName = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: true),
+                    Latitude = table.Column<decimal>(type: "numeric(9,6)", precision: 9, scale: 6, nullable: true),
+                    Longitude = table.Column<decimal>(type: "numeric(9,6)", precision: 9, scale: 6, nullable: true),
                     PrincipalUserDetailsId = table.Column<int>(type: "integer", nullable: true),
                     PublicId = table.Column<Guid>(type: "uuid", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -1380,6 +1812,83 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AdmissionEnquiries",
+                schema: "admissions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    CampusId = table.Column<int>(type: "integer", nullable: true),
+                    Level = table.Column<int>(type: "integer", nullable: true),
+                    Channel = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    ChildName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    ParentName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Phone = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Email = table.Column<string>(type: "character varying(254)", maxLength: 254, nullable: true),
+                    Message = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    ConsentGivenAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    SubmittedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    AssignedToUserDetailsId = table.Column<int>(type: "integer", nullable: true),
+                    ContactedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    ClosedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AdmissionEnquiries", x => x.Id);
+                    table.UniqueConstraint("AK_AdmissionEnquiries_PublicId", x => x.PublicId);
+                    table.CheckConstraint("CK_AdmissionEnquiries_OnlineNeedsConsent", "\"Channel\" <> 1 OR \"ConsentGivenAt\" IS NOT NULL");
+                    table.ForeignKey(
+                        name: "FK_AdmissionEnquiries_Campuses_CampusId",
+                        column: x => x.CampusId,
+                        principalSchema: "schools",
+                        principalTable: "Campuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AdmissionEnquiries_ClassLevels_Level",
+                        column: x => x.Level,
+                        principalSchema: "lookups",
+                        principalTable: "ClassLevels",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AdmissionEnquiries_EnquiryChannels_Channel",
+                        column: x => x.Channel,
+                        principalSchema: "lookups",
+                        principalTable: "EnquiryChannels",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AdmissionEnquiries_EnquiryStatuses_Status",
+                        column: x => x.Status,
+                        principalSchema: "lookups",
+                        principalTable: "EnquiryStatuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AdmissionEnquiries_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalSchema: "schools",
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AdmissionEnquiries_UserDetails_AssignedToUserDetailsId",
+                        column: x => x.AssignedToUserDetailsId,
+                        principalSchema: "schools",
+                        principalTable: "UserDetails",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CampusPhones",
                 schema: "schools",
                 columns: table => new
@@ -1405,6 +1914,187 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CampusPhones_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalSchema: "schools",
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClassOfferings",
+                schema: "schools",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    CampusId = table.Column<int>(type: "integer", nullable: true),
+                    Level = table.Column<int>(type: "integer", nullable: false),
+                    AcademicYear = table.Column<string>(type: "character varying(9)", maxLength: 9, nullable: false),
+                    MonthlyFee = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    AdmissionFee = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    CurrencyCode = table.Column<string>(type: "character(3)", fixedLength: true, maxLength: 3, nullable: false),
+                    SeatsTotal = table.Column<int>(type: "integer", nullable: false),
+                    SeatsAvailable = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    ShowFee = table.Column<bool>(type: "boolean", nullable: false),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClassOfferings", x => x.Id);
+                    table.UniqueConstraint("AK_ClassOfferings_PublicId", x => x.PublicId);
+                    table.CheckConstraint("CK_ClassOfferings_FeesNotNegative", "\"MonthlyFee\" >= 0 AND (\"AdmissionFee\" IS NULL OR \"AdmissionFee\" >= 0)");
+                    table.CheckConstraint("CK_ClassOfferings_Seats", "\"SeatsTotal\" >= 0 AND \"SeatsAvailable\" >= 0 AND \"SeatsAvailable\" <= \"SeatsTotal\"");
+                    table.ForeignKey(
+                        name: "FK_ClassOfferings_AdmissionStatuses_Status",
+                        column: x => x.Status,
+                        principalSchema: "lookups",
+                        principalTable: "AdmissionStatuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClassOfferings_Campuses_CampusId",
+                        column: x => x.CampusId,
+                        principalSchema: "schools",
+                        principalTable: "Campuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClassOfferings_ClassLevels_Level",
+                        column: x => x.Level,
+                        principalSchema: "lookups",
+                        principalTable: "ClassLevels",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClassOfferings_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalSchema: "schools",
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SchoolPhotos",
+                schema: "schools",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    CampusId = table.Column<int>(type: "integer", nullable: true),
+                    Kind = table.Column<int>(type: "integer", nullable: false),
+                    Caption = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    ContentType = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    Content = table.Column<byte[]>(type: "bytea", nullable: false),
+                    Version = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SchoolPhotos", x => x.Id);
+                    table.UniqueConstraint("AK_SchoolPhotos_PublicId", x => x.PublicId);
+                    table.ForeignKey(
+                        name: "FK_SchoolPhotos_Campuses_CampusId",
+                        column: x => x.CampusId,
+                        principalSchema: "schools",
+                        principalTable: "Campuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SchoolPhotos_PhotoKinds_Kind",
+                        column: x => x.Kind,
+                        principalSchema: "lookups",
+                        principalTable: "PhotoKinds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SchoolPhotos_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalSchema: "schools",
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SchoolReviews",
+                schema: "schools",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    CampusId = table.Column<int>(type: "integer", nullable: true),
+                    ReviewerName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Relation = table.Column<int>(type: "integer", nullable: false),
+                    Rating = table.Column<int>(type: "integer", nullable: false),
+                    Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Body = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    SubmittedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    ModeratedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    ModeratedBy = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: true),
+                    Reply = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    RepliedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SchoolReviews", x => x.Id);
+                    table.UniqueConstraint("AK_SchoolReviews_PublicId", x => x.PublicId);
+                    table.CheckConstraint("CK_SchoolReviews_Rating", "\"Rating\" BETWEEN 1 AND 5");
+                    table.ForeignKey(
+                        name: "FK_SchoolReviews_Campuses_CampusId",
+                        column: x => x.CampusId,
+                        principalSchema: "schools",
+                        principalTable: "Campuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SchoolReviews_ReviewStatuses_Status",
+                        column: x => x.Status,
+                        principalSchema: "lookups",
+                        principalTable: "ReviewStatuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SchoolReviews_ReviewerRelations_Relation",
+                        column: x => x.Relation,
+                        principalSchema: "lookups",
+                        principalTable: "ReviewerRelations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SchoolReviews_Schools_SchoolId",
                         column: x => x.SchoolId,
                         principalSchema: "schools",
                         principalTable: "Schools",
@@ -1474,6 +2164,104 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "CampusVisits",
+                schema: "admissions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    EnquiryId = table.Column<int>(type: "integer", nullable: false),
+                    CampusId = table.Column<int>(type: "integer", nullable: false),
+                    ScheduledAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Notes = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CampusVisits", x => x.Id);
+                    table.UniqueConstraint("AK_CampusVisits_PublicId", x => x.PublicId);
+                    table.ForeignKey(
+                        name: "FK_CampusVisits_AdmissionEnquiries_EnquiryId",
+                        column: x => x.EnquiryId,
+                        principalSchema: "admissions",
+                        principalTable: "AdmissionEnquiries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CampusVisits_Campuses_CampusId",
+                        column: x => x.CampusId,
+                        principalSchema: "schools",
+                        principalTable: "Campuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CampusVisits_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalSchema: "schools",
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CampusVisits_VisitStatuses_Status",
+                        column: x => x.Status,
+                        principalSchema: "lookups",
+                        principalTable: "VisitStatuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EnquiryFollowUps",
+                schema: "admissions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SchoolId = table.Column<int>(type: "integer", nullable: false),
+                    EnquiryId = table.Column<int>(type: "integer", nullable: false),
+                    Kind = table.Column<int>(type: "integer", nullable: false),
+                    Note = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    OccurredAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    PublicId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EnquiryFollowUps", x => x.Id);
+                    table.UniqueConstraint("AK_EnquiryFollowUps_PublicId", x => x.PublicId);
+                    table.ForeignKey(
+                        name: "FK_EnquiryFollowUps_AdmissionEnquiries_EnquiryId",
+                        column: x => x.EnquiryId,
+                        principalSchema: "admissions",
+                        principalTable: "AdmissionEnquiries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EnquiryFollowUps_FollowUpKinds_Kind",
+                        column: x => x.Kind,
+                        principalSchema: "lookups",
+                        principalTable: "FollowUpKinds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_EnquiryFollowUps_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalSchema: "schools",
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 schema: "lookups",
                 table: "AddOnRequestStatuses",
@@ -1483,6 +2271,17 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     { 1, "Pending" },
                     { 2, "Approved" },
                     { 3, "Rejected" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
+                table: "AdmissionStatuses",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Open" },
+                    { 2, "Closed" },
+                    { 3, "WaitingList" }
                 });
 
             migrationBuilder.InsertData(
@@ -1528,6 +2327,47 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
             migrationBuilder.InsertData(
                 schema: "lookups",
+                table: "ClassLevels",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Playgroup" },
+                    { 2, "Nursery" },
+                    { 3, "Prep" },
+                    { 4, "Class1" },
+                    { 5, "Class2" },
+                    { 6, "Class3" },
+                    { 7, "Class4" },
+                    { 8, "Class5" },
+                    { 9, "Class6" },
+                    { 10, "Class7" },
+                    { 11, "Class8" },
+                    { 12, "Class9" },
+                    { 13, "Class10" },
+                    { 14, "FirstYear" },
+                    { 15, "SecondYear" },
+                    { 16, "OLevel" },
+                    { 17, "ALevel" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
+                table: "CurriculumKinds",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Matric" },
+                    { 2, "Intermediate" },
+                    { 3, "FederalBoard" },
+                    { 4, "Cambridge" },
+                    { 5, "InternationalBaccalaureate" },
+                    { 6, "AmericanDiploma" },
+                    { 7, "Montessori" },
+                    { 8, "Religious" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
                 table: "DataRegions",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
@@ -1535,6 +2375,76 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     { 1, "SouthAsia" },
                     { 2, "MiddleEast" },
                     { 3, "NorthAmerica" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
+                table: "EnquiryChannels",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Online" },
+                    { 2, "Phone" },
+                    { 3, "InPerson" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
+                table: "EnquiryStatuses",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "New" },
+                    { 2, "Contacted" },
+                    { 3, "VisitScheduled" },
+                    { 4, "Applied" },
+                    { 5, "Enrolled" },
+                    { 6, "Closed" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
+                table: "FacilityKinds",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Transport" },
+                    { 2, "Hostel" },
+                    { 3, "Library" },
+                    { 4, "ScienceLab" },
+                    { 5, "ComputerLab" },
+                    { 6, "SportsGround" },
+                    { 7, "Cafeteria" },
+                    { 8, "PrayerArea" },
+                    { 9, "MedicalRoom" },
+                    { 10, "Cctv" },
+                    { 11, "AirConditioning" },
+                    { 12, "Playground" },
+                    { 13, "Auditorium" },
+                    { 14, "SwimmingPool" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
+                table: "FollowUpKinds",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Call" },
+                    { 2, "Email" },
+                    { 3, "Visit" },
+                    { 4, "Note" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
+                table: "Genders",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Male" },
+                    { 2, "Female" },
+                    { 3, "Other" }
                 });
 
             migrationBuilder.InsertData(
@@ -1550,6 +2460,32 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
             migrationBuilder.InsertData(
                 schema: "lookups",
+                table: "ModuleCodes",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 0, "None" },
+                    { 1, "School" },
+                    { 2, "Campus" },
+                    { 3, "AcademicSetup" },
+                    { 4, "UsersRoles" },
+                    { 5, "Students" },
+                    { 6, "Staff" },
+                    { 7, "Admissions" },
+                    { 8, "Attendance" },
+                    { 9, "Fees" },
+                    { 10, "ParentCommunication" },
+                    { 11, "Exams" },
+                    { 12, "Timetable" },
+                    { 13, "HrPayroll" },
+                    { 14, "Transport" },
+                    { 15, "Library" },
+                    { 16, "Lms" },
+                    { 17, "Hostel" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
                 table: "PaymentMethods",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
@@ -1559,6 +2495,52 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     { 3, "Cheque" },
                     { 4, "MobileWallet" },
                     { 5, "Other" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
+                table: "PhotoKinds",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Campus" },
+                    { 2, "Classroom" },
+                    { 3, "Facility" },
+                    { 4, "Event" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
+                table: "ReviewStatuses",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Pending" },
+                    { 2, "Approved" },
+                    { 3, "Rejected" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
+                table: "ReviewerRelations",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Parent" },
+                    { 2, "Student" },
+                    { 3, "Alumni" },
+                    { 4, "Other" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
+                table: "SchoolGenderPolicies",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "BoysOnly" },
+                    { 2, "GirlsOnly" },
+                    { 3, "CoEducation" }
                 });
 
             migrationBuilder.InsertData(
@@ -1625,7 +2607,18 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     { 45, "CampusSettingsChanged" },
                     { 46, "UserDetailsCreated" },
                     { 47, "SchoolRequestApproved" },
-                    { 48, "SchoolRequestRejected" }
+                    { 48, "SchoolRequestRejected" },
+                    { 49, "UserDetailsUpdated" },
+                    { 50, "UserDetailsDeleted" },
+                    { 51, "PublicPageProfileChanged" },
+                    { 52, "PublicPagePublished" },
+                    { 53, "PublicPageUnpublished" },
+                    { 54, "SchoolCurriculaChanged" },
+                    { 55, "SchoolFacilityChanged" },
+                    { 56, "SchoolPhotoUploaded" },
+                    { 57, "SchoolPhotoChanged" },
+                    { 58, "SchoolPhotoDeleted" },
+                    { 59, "ClassOfferingChanged" }
                 });
 
             migrationBuilder.InsertData(
@@ -1690,8 +2683,42 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 {
                     { 1, "Principal" },
                     { 2, "Teacher" },
-                    { 3, "Staff" }
+                    { 3, "Staff" },
+                    { 4, "Student" },
+                    { 5, "Parent" }
                 });
+
+            migrationBuilder.InsertData(
+                schema: "lookups",
+                table: "VisitStatuses",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Requested" },
+                    { 2, "Confirmed" },
+                    { 3, "Completed" },
+                    { 4, "Cancelled" },
+                    { 5, "NoShow" }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccountRoles_SchoolId_UserId_SchoolRoleId",
+                schema: "access",
+                table: "AccountRoles",
+                columns: new[] { "SchoolId", "UserId", "SchoolRoleId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccountRoles_SchoolRoleId",
+                schema: "access",
+                table: "AccountRoles",
+                column: "SchoolRoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccountRoles_UserId",
+                schema: "access",
+                table: "AccountRoles",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AddOnRequests_ModuleId",
@@ -1711,6 +2738,42 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 name: "IX_AddOnRequests_Status",
                 schema: "billing",
                 table: "AddOnRequests",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdmissionEnquiries_AssignedToUserDetailsId",
+                schema: "admissions",
+                table: "AdmissionEnquiries",
+                column: "AssignedToUserDetailsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdmissionEnquiries_CampusId",
+                schema: "admissions",
+                table: "AdmissionEnquiries",
+                column: "CampusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdmissionEnquiries_Channel",
+                schema: "admissions",
+                table: "AdmissionEnquiries",
+                column: "Channel");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdmissionEnquiries_Level",
+                schema: "admissions",
+                table: "AdmissionEnquiries",
+                column: "Level");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdmissionEnquiries_SchoolId_Status_SubmittedAt",
+                schema: "admissions",
+                table: "AdmissionEnquiries",
+                columns: new[] { "SchoolId", "Status", "SubmittedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdmissionEnquiries_Status",
+                schema: "admissions",
+                table: "AdmissionEnquiries",
                 column: "Status");
 
             migrationBuilder.CreateIndex(
@@ -1755,6 +2818,14 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 schema: "identity",
                 table: "AspNetUsers",
                 column: "SchoolId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_SchoolId_UserDetailsId",
+                schema: "identity",
+                table: "AspNetUsers",
+                columns: new[] { "SchoolId", "UserDetailsId" },
+                unique: true,
+                filter: "\"UserDetailsId\" IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
@@ -1830,6 +2901,30 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 column: "SchoolId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CampusVisits_CampusId",
+                schema: "admissions",
+                table: "CampusVisits",
+                column: "CampusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CampusVisits_EnquiryId",
+                schema: "admissions",
+                table: "CampusVisits",
+                column: "EnquiryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CampusVisits_SchoolId_ScheduledAt",
+                schema: "admissions",
+                table: "CampusVisits",
+                columns: new[] { "SchoolId", "ScheduledAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CampusVisits_Status",
+                schema: "admissions",
+                table: "CampusVisits",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ChangeAuditEntries_Action",
                 schema: "audit",
                 table: "ChangeAuditEntries",
@@ -1861,6 +2956,33 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ClassOfferings_CampusId",
+                schema: "schools",
+                table: "ClassOfferings",
+                column: "CampusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClassOfferings_Level",
+                schema: "schools",
+                table: "ClassOfferings",
+                column: "Level");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClassOfferings_SchoolId_CampusId_Level_AcademicYear",
+                schema: "schools",
+                table: "ClassOfferings",
+                columns: new[] { "SchoolId", "CampusId", "Level", "AcademicYear" },
+                unique: true,
+                filter: "\"IsDeleted\" = false")
+                .Annotation("Npgsql:NullsDistinct", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClassOfferings_Status",
+                schema: "schools",
+                table: "ClassOfferings",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Countries_Code",
                 schema: "schools",
                 table: "Countries",
@@ -1873,6 +2995,24 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 table: "Countries",
                 column: "Iso3",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EnquiryFollowUps_EnquiryId_OccurredAt",
+                schema: "admissions",
+                table: "EnquiryFollowUps",
+                columns: new[] { "EnquiryId", "OccurredAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EnquiryFollowUps_Kind",
+                schema: "admissions",
+                table: "EnquiryFollowUps",
+                column: "Kind");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EnquiryFollowUps_SchoolId",
+                schema: "admissions",
+                table: "EnquiryFollowUps",
+                column: "SchoolId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InvoiceLines_InvoiceId",
@@ -1941,6 +3081,31 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 column: "Code",
                 unique: true,
                 filter: "\"IsDeleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ParentStudents_ParentUserDetailsId",
+                schema: "schools",
+                table: "ParentStudents",
+                column: "ParentUserDetailsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ParentStudents_SchoolId_ParentUserDetailsId_StudentUserDeta~",
+                schema: "schools",
+                table: "ParentStudents",
+                columns: new[] { "SchoolId", "ParentUserDetailsId", "StudentUserDetailsId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ParentStudents_SchoolId_StudentUserDetailsId",
+                schema: "schools",
+                table: "ParentStudents",
+                columns: new[] { "SchoolId", "StudentUserDetailsId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ParentStudents_StudentUserDetailsId",
+                schema: "schools",
+                table: "ParentStudents",
+                column: "StudentUserDetailsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_InvoiceId",
@@ -2063,9 +3228,90 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_SchoolCurricula_Kind",
+                schema: "schools",
+                table: "SchoolCurricula",
+                column: "Kind");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchoolCurricula_SchoolId_Kind",
+                schema: "schools",
+                table: "SchoolCurricula",
+                columns: new[] { "SchoolId", "Kind" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchoolFacilities_Kind",
+                schema: "schools",
+                table: "SchoolFacilities",
+                column: "Kind");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchoolFacilities_SchoolId_Kind",
+                schema: "schools",
+                table: "SchoolFacilities",
+                columns: new[] { "SchoolId", "Kind" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchoolPhotos_CampusId",
+                schema: "schools",
+                table: "SchoolPhotos",
+                column: "CampusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchoolPhotos_Kind",
+                schema: "schools",
+                table: "SchoolPhotos",
+                column: "Kind");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchoolPhotos_SchoolId_SortOrder",
+                schema: "schools",
+                table: "SchoolPhotos",
+                columns: new[] { "SchoolId", "SortOrder" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchoolProfiles_GenderPolicy",
+                schema: "schools",
+                table: "SchoolProfiles",
+                column: "GenderPolicy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchoolProfiles_SchoolId",
+                schema: "schools",
+                table: "SchoolProfiles",
+                column: "SchoolId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SchoolRequests_Status",
                 schema: "schools",
                 table: "SchoolRequests",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchoolReviews_CampusId",
+                schema: "schools",
+                table: "SchoolReviews",
+                column: "CampusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchoolReviews_Relation",
+                schema: "schools",
+                table: "SchoolReviews",
+                column: "Relation");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchoolReviews_SchoolId_Status_SubmittedAt",
+                schema: "schools",
+                table: "SchoolReviews",
+                columns: new[] { "SchoolId", "Status", "SubmittedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchoolReviews_Status",
+                schema: "schools",
+                table: "SchoolReviews",
                 column: "Status");
 
             migrationBuilder.CreateIndex(
@@ -2145,6 +3391,25 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 schema: "schools",
                 table: "States",
                 column: "Type");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentProfiles_Gender",
+                schema: "schools",
+                table: "StudentProfiles",
+                column: "Gender");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentProfiles_SchoolId",
+                schema: "schools",
+                table: "StudentProfiles",
+                column: "SchoolId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentProfiles_UserDetailsId",
+                schema: "schools",
+                table: "StudentProfiles",
+                column: "UserDetailsId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subscriptions_BillingCycle",
@@ -2234,6 +3499,10 @@ namespace EducationPortal.Infrastructure.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AccountRoles",
+                schema: "access");
+
+            migrationBuilder.DropTable(
                 name: "AddOnRequests",
                 schema: "billing");
 
@@ -2266,8 +3535,20 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 schema: "schools");
 
             migrationBuilder.DropTable(
+                name: "CampusVisits",
+                schema: "admissions");
+
+            migrationBuilder.DropTable(
                 name: "ChangeAuditEntries",
                 schema: "audit");
+
+            migrationBuilder.DropTable(
+                name: "ClassOfferings",
+                schema: "schools");
+
+            migrationBuilder.DropTable(
+                name: "EnquiryFollowUps",
+                schema: "admissions");
 
             migrationBuilder.DropTable(
                 name: "InvoiceLines",
@@ -2276,6 +3557,10 @@ namespace EducationPortal.Infrastructure.Data.Migrations
             migrationBuilder.DropTable(
                 name: "ModuleDependencies",
                 schema: "modules");
+
+            migrationBuilder.DropTable(
+                name: "ParentStudents",
+                schema: "schools");
 
             migrationBuilder.DropTable(
                 name: "Payments",
@@ -2298,12 +3583,36 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 schema: "access");
 
             migrationBuilder.DropTable(
+                name: "SchoolCurricula",
+                schema: "schools");
+
+            migrationBuilder.DropTable(
+                name: "SchoolFacilities",
+                schema: "schools");
+
+            migrationBuilder.DropTable(
+                name: "SchoolPhotos",
+                schema: "schools");
+
+            migrationBuilder.DropTable(
+                name: "SchoolProfiles",
+                schema: "schools");
+
+            migrationBuilder.DropTable(
                 name: "SchoolRequests",
+                schema: "schools");
+
+            migrationBuilder.DropTable(
+                name: "SchoolReviews",
                 schema: "schools");
 
             migrationBuilder.DropTable(
                 name: "SecurityAuditEvents",
                 schema: "audit");
+
+            migrationBuilder.DropTable(
+                name: "StudentProfiles",
+                schema: "schools");
 
             migrationBuilder.DropTable(
                 name: "TenantModules",
@@ -2326,7 +3635,23 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 schema: "lookups");
 
             migrationBuilder.DropTable(
+                name: "VisitStatuses",
+                schema: "lookups");
+
+            migrationBuilder.DropTable(
                 name: "ChangeAuditActions",
+                schema: "lookups");
+
+            migrationBuilder.DropTable(
+                name: "AdmissionStatuses",
+                schema: "lookups");
+
+            migrationBuilder.DropTable(
+                name: "AdmissionEnquiries",
+                schema: "admissions");
+
+            migrationBuilder.DropTable(
+                name: "FollowUpKinds",
                 schema: "lookups");
 
             migrationBuilder.DropTable(
@@ -2342,7 +3667,31 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 schema: "access");
 
             migrationBuilder.DropTable(
+                name: "CurriculumKinds",
+                schema: "lookups");
+
+            migrationBuilder.DropTable(
+                name: "FacilityKinds",
+                schema: "lookups");
+
+            migrationBuilder.DropTable(
+                name: "PhotoKinds",
+                schema: "lookups");
+
+            migrationBuilder.DropTable(
+                name: "SchoolGenderPolicies",
+                schema: "lookups");
+
+            migrationBuilder.DropTable(
                 name: "SchoolRequestStatuses",
+                schema: "lookups");
+
+            migrationBuilder.DropTable(
+                name: "ReviewStatuses",
+                schema: "lookups");
+
+            migrationBuilder.DropTable(
+                name: "ReviewerRelations",
                 schema: "lookups");
 
             migrationBuilder.DropTable(
@@ -2354,8 +3703,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 schema: "lookups");
 
             migrationBuilder.DropTable(
-                name: "Campuses",
-                schema: "schools");
+                name: "Genders",
+                schema: "lookups");
 
             migrationBuilder.DropTable(
                 name: "Modules",
@@ -2366,12 +3715,32 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                 schema: "lookups");
 
             migrationBuilder.DropTable(
+                name: "Campuses",
+                schema: "schools");
+
+            migrationBuilder.DropTable(
+                name: "ClassLevels",
+                schema: "lookups");
+
+            migrationBuilder.DropTable(
+                name: "EnquiryChannels",
+                schema: "lookups");
+
+            migrationBuilder.DropTable(
+                name: "EnquiryStatuses",
+                schema: "lookups");
+
+            migrationBuilder.DropTable(
                 name: "InvoiceStatuses",
                 schema: "lookups");
 
             migrationBuilder.DropTable(
                 name: "Subscriptions",
                 schema: "billing");
+
+            migrationBuilder.DropTable(
+                name: "ModuleCodes",
+                schema: "lookups");
 
             migrationBuilder.DropTable(
                 name: "CampusKinds",

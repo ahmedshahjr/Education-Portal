@@ -96,7 +96,7 @@ public class CreateUserDetailsCommandHandler : IRequestHandler<CreateUserDetails
             if (!result.Succeeded)
             {
                 // Throwing rolls the person back too. The policy messages say what to change in the password.
-                throw new Common.Exceptions.ValidationException(result.Errors.Select(e => new ValidationFailure(nameof(request.OneTimePassword), e)));
+                throw new EducationPortal.Application.Common.Exceptions.ValidationException(result.Errors.Select(e => new ValidationFailure(nameof(request.OneTimePassword), e)));
             }
 
             return userId;
