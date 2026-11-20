@@ -21,7 +21,7 @@ public interface IIdentityService
     /// Creates a school's administrator with a one-time password, checked against the password policy. The account must
     /// replace the password before it can do anything else.
     /// </summary>
-    Task<(Result Result, string UserId)> CreateSchoolAdministratorAsync(int schoolId, string email, string oneTimePassword);
+    Task<(Result Result, string UserId)> CreateSchoolAdministratorAsync(int schoolId, string email, string password, bool mustChangePassword);
 
     /// <summary>
     /// Replaces the user's password after checking the current one, ends the one-time-password block, ends their other

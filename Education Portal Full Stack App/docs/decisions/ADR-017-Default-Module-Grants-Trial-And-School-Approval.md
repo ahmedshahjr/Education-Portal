@@ -24,7 +24,7 @@ A school got paid modules only through its subscription.
    Core modules are on by default; paid modules are off by default. A registering school gets each active default module as
    a **default grant** (`TenantModule` with no subscription, the whole school, no end). Changing the flag affects only schools
    that register afterwards.
-4. **Free trial.** A school that registers gets a 30-day trial of the Full plan (`SchoolRegistration.TrialDays`). The trial is
+4. **Free trial.** A school that registers gets a 3-month (90-day) trial of the Full plan (`SchoolRegistration.TrialDays`; amended 2026-11-19 from 30 days). Its data region follows from its country (`DataRegionForCountry`), and approval asks no domain. The trial is
    a `Subscription` in status Trial, priced from the school's country's price book, so a school needs a country that has a
    price book. Default grants stay on when the trial ends; the subscription's modules are suspended by the existing billing
    rules. The banner's remaining days come from `GET /api/Subscriptions/mine` (`trialDaysRemaining`).
@@ -48,3 +48,5 @@ A school got paid modules only through its subscription.
   switches them off if that is not wanted.
 - Registration and approval are one transaction: the school, its grants, its trial, its administrator and the request's approval are saved together or not at all. Audit records are written after the commit, so they never describe a rolled-back change. Plan and role creation, which save twice, are one transaction too.
 - The approval screens and the trial banner are built in Angular (school requests, plans and prices, invoices, the trial banner).
+
+**Amended 2026-11-19:** master approval is removed. The public registration form creates the school, its trial and its administrator account at once, with the password the visitor chose; the master tenant still adds schools directly and extends trials.

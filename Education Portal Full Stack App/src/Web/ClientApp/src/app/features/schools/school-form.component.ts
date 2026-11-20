@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { CountryDto, DataRegion } from '../../web-api-client';
+import { CountryDto } from '../../web-api-client';
 
 /** Limits shared with the server (School.NameMaxLength, PasswordRules); the server checks everything again. */
 export const SCHOOL_NAME_MAX_LENGTH = 200;
@@ -21,7 +21,6 @@ export interface NewSchool {
   readonly name: string;
   readonly domain: string;
   readonly countryId: string | null;
-  readonly dataRegion: DataRegion | null;
   readonly administratorEmail: string;
   readonly administratorPassword: string;
 }
@@ -71,16 +70,6 @@ export interface NewSchool {
               <mat-hint i18n="@@schoolForm.countryHint">Sets the school's languages, time zone, currency and price book.</mat-hint>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-col-6 mm-col-md-12">
-              <mat-label i18n="@@schoolForm.dataRegion">Data region</mat-label>
-              <mat-select formControlName="dataRegion">
-                <mat-option [value]="null" i18n="@@schoolForm.noDataRegion">Not decided yet</mat-option>
-                <mat-option [value]="regions.SouthAsia" i18n="@@schoolForm.regionSouthAsia">South Asia</mat-option>
-                <mat-option [value]="regions.MiddleEast" i18n="@@schoolForm.regionMiddleEast">Middle East</mat-option>
-                <mat-option [value]="regions.NorthAmerica" i18n="@@schoolForm.regionNorthAmerica">North America</mat-option>
-              </mat-select>
-              <mat-hint i18n="@@schoolForm.dataRegionHint">Where the school's data is kept.</mat-hint>
-            </mat-form-field>
           </div>
 
           <h3 class="mm-school-form__section" i18n="@@schoolForm.adminSection">First administrator</h3>
@@ -159,7 +148,6 @@ export class SchoolFormComponent {
   readonly save = output<NewSchool>();
   readonly cancel = output<void>();
 
-  protected readonly regions = DataRegion;
   protected readonly nameMaxLength = SCHOOL_NAME_MAX_LENGTH;
   protected readonly passwordMaxLength = PASSWORD_MAX_LENGTH;
 
@@ -167,7 +155,6 @@ export class SchoolFormComponent {
     name: ['', [Validators.required, Validators.maxLength(SCHOOL_NAME_MAX_LENGTH)]],
     domain: ['', [Validators.required, Validators.pattern(DOMAIN_PATTERN)]],
     countryId: [null as string | null],
-    dataRegion: [null as DataRegion | null],
     administratorEmail: ['', [Validators.required, Validators.email, Validators.maxLength(256)]],
     administratorPassword: [
       '',

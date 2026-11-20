@@ -15,161 +15,126 @@ using Shouldly;
 namespace EducationPortal.Application.FunctionalTests.SchoolRequests;
 
 /// <summary>
-/// A school applies anonymously; the master tenant approves it, which registers the school with its 30-day free trial and
-/// the modules that are on by default. Rejecting creates nothing. Only the master tenant reads and decides the queue.
+/// The public self-service registration (decided 2026-11-19): a visitor registers a school with its country, administrator
+/// email and password, and the school, its 3-month trial and its administrator are created at once, with no master approval.
+/// Refused registrations create nothing. The master no longer approves or rejects requests.
 /// </summary>
 public class SchoolRegistrationTests : TestBase
 {
-    private const string NewSchoolDomain = "approved.localhost";
-    private const string AdministratorEmail = "admin@approved.local";
+    private const string Password = "violet harbour lantern 47";
 
     [Test]
-    public async Task ShouldApproveARequestAndRegisterTheSchoolWithAThirtyDayTrial()
+    public async Task ShouldRegisterASchoolWithATrialAndLetItsAdministratorSignIn()
     {
-        var master = await SetUpPriceBookAsync();
-        var requestId = await SubmitRequestAsync("Approved School");
+        var countryId = await SetUpPriceBookAsync();
+        var anonymous = TestHttp.CreateDevelopmentSession();
 
-        using var approve = await master.PostAsync($"/api/SchoolRequests/{requestId}/approve", new
+        using var response = await anonymous.PostAsync("/api/SchoolRequests", new
         {
-            domain = NewSchoolDomain,
-            countryId = await CountryIdAsync("PK"),
-            administratorEmail = AdministratorEmail,
-            administratorPassword = TestApp.AdministratorPassword,
+            schoolName = "Self Service School",
+            countryId,
+            contactName = "Ayesha Khan",
+            contactEmail = "admin@self-service.example",
+            administratorPassword = Password,
         });
-        approve.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var schoolId = await approve.Content.ReadFromJsonAsync<Guid>();
 
-        (await ReadRequestsAsync(master)).Single(r => r.Id == requestId).Status.ShouldBe(SchoolRequestStatus.Approved);
+        response.StatusCode.ShouldBe(HttpStatusCode.Created);
+        var schoolId = await response.Content.ReadFromJsonAsync<Guid>();
+        var school = (await TestApp.FindAsync<School>(await TestApp.FindIdAsync<School>(schoolId)))!;
+        school.Domain.ShouldBeNull();
+        school.DataRegion.ShouldBe(DataRegion.SouthAsia);
 
-        using var subscription = await master.GetAsync($"/api/Schools/{schoolId}/subscription");
+        // The administrator signs in straight away on the master domain, because the school has no domain yet.
+        var admin = TestHttp.CreateDevelopmentSession();
+        using var signIn = await admin.SignInAsync("admin@self-service.example", Password);
+        signIn.StatusCode.ShouldBe(HttpStatusCode.OK);
+        using var subscription = await admin.GetAsync("/api/Subscriptions/mine");
         subscription.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var body = await subscription.Content.ReadFromJsonAsync<SubscriptionReadModel>(Json);
+        var body = (await subscription.Content.ReadFromJsonAsync<MySubscriptionReadModel>(Json))!.Subscription;
         body.ShouldNotBeNull();
         body.Status.ShouldBe(SubscriptionStatus.Trial);
         var trialEnd = body.TrialEndDate.ShouldNotBeNull();
+        SchoolRegistration.TrialDays.ShouldBe(90);
         trialEnd.ShouldBeGreaterThan(DateTimeOffset.UtcNow.AddDays(SchoolRegistration.TrialDays - 1));
         trialEnd.ShouldBeLessThanOrEqualTo(DateTimeOffset.UtcNow.AddDays(SchoolRegistration.TrialDays + 1));
     }
 
     [Test]
-    public async Task ShouldLetTheApprovedAdministratorSignInOnTheSchoolDomain()
+    public async Task ShouldRefuseAWeakPasswordAndCreateNothing()
     {
-        var master = await SetUpPriceBookAsync();
-        var requestId = await SubmitRequestAsync("Signable School");
-        using var approve = await Approve(master, requestId, "signable.localhost", "admin@signable.local");
-        approve.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var countryId = await SetUpPriceBookAsync();
+        var schoolsBefore = await TestApp.CountAsync<School>();
+        var anonymous = TestHttp.CreateDevelopmentSession();
 
-        // The administrator signs in on the school's own domain with the one-time password from the approval.
-        var school = TestHttp.CreateDevelopmentSession("signable.localhost");
-        using var signIn = await school.SignInAsync("admin@signable.local", TestApp.AdministratorPassword);
-        signIn.StatusCode.ShouldBe(HttpStatusCode.OK);
+        // The password passes the length rule but fails the policy (it names the product), which is checked after the school is saved.
+        using var response = await anonymous.PostAsync("/api/SchoolRequests", Body("Weak School", countryId, "weak@weak.example", "educationportal 2026"));
 
-        // The one-time password must be replaced first; until then the school's modules are refused (PASSWORD_CHANGE_REQUIRED).
-        using var me = await school.GetCurrentUserAsync();
-        me.StatusCode.ShouldBe(HttpStatusCode.OK);
-        using var blocked = await school.GetAsync("/api/Modules/enabled");
-        blocked.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
-
-        using var changed = await school.PostAsync("/api/Users/me/password", new
-        {
-            currentPassword = TestApp.AdministratorPassword,
-            newPassword = "a brand new passphrase 2026",
-        });
-        changed.StatusCode.ShouldBe(HttpStatusCode.NoContent);
-
-        using var modules = await school.GetAsync("/api/Modules/enabled");
-        modules.StatusCode.ShouldBe(HttpStatusCode.OK);
-        using var localization = await school.GetAsync("/api/Localization");
-        localization.StatusCode.ShouldBe(HttpStatusCode.OK);
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest, await response.Content.ReadAsStringAsync());
+        (await TestApp.CountAsync<School>()).ShouldBe(schoolsBefore);
     }
 
     [Test]
-    public async Task ShouldRefuseToApproveARequestTwice()
+    public async Task ShouldRefuseACountryWithoutAPriceBookAndCreateNothing()
     {
-        var master = await SetUpPriceBookAsync();
-        var requestId = await SubmitRequestAsync("Twice School");
-        using var first = await Approve(master, requestId, "twice.localhost", "twice@approved.local");
-        first.StatusCode.ShouldBe(HttpStatusCode.OK);
+        await SetUpPriceBookAsync();
+        var unpriced = await TestApp.AddCountryAsync("AE", "United Arab Emirates", ["en", "ar"], "en", "Asia/Dubai", "AED");
+        var schoolsBefore = await TestApp.CountAsync<School>();
+        var anonymous = TestHttp.CreateDevelopmentSession();
 
-        using var second = await Approve(master, requestId, "twice-again.localhost", "twice-again@approved.local");
+        using var response = await anonymous.PostAsync("/api/SchoolRequests", Body("Unpriced School", unpriced.PublicId, "admin@unpriced.example", Password));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await TestApp.CountAsync<School>()).ShouldBe(schoolsBefore);
+    }
+
+    [Test]
+    public async Task ShouldRefuseAnAdministratorEmailThatAlreadyHasAnAccount()
+    {
+        var countryId = await SetUpPriceBookAsync();
+        var anonymous = TestHttp.CreateDevelopmentSession();
+        using (var first = await anonymous.PostAsync("/api/SchoolRequests", Body("First School", countryId, "taken@first.example", Password)))
+        {
+            first.StatusCode.ShouldBe(HttpStatusCode.Created);
+        }
+
+        using var second = await anonymous.PostAsync("/api/SchoolRequests", Body("Second School", countryId, "taken@first.example", Password));
 
         second.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
     [Test]
-    public async Task ShouldRefuseACountryWithoutAPriceBook()
+    public async Task ShouldListOnlyThePricedCountriesToVisitors()
     {
-        var master = await SetUpPriceBookAsync();
-        var requestId = await SubmitRequestAsync("Unpriced School");
-        var unpriced = await TestApp.AddCountryAsync("AE", "United Arab Emirates", ["en", "ar"], "en", "Asia/Dubai", "AED");
-
-        using var response = await master.PostAsync($"/api/SchoolRequests/{requestId}/approve", new
-        {
-            domain = "unpriced.localhost",
-            countryId = unpriced.PublicId,
-            administratorEmail = "admin@unpriced.local",
-            administratorPassword = TestApp.AdministratorPassword,
-        });
-
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        (await ReadRequestsAsync(master)).Single(r => r.Id == requestId).Status.ShouldBe(SchoolRequestStatus.Pending);
-    }
-
-    [Test]
-    public async Task ShouldLeaveTheRequestPendingAndCreateNothingWhenTheSchoolCannotBeRegistered()
-    {
-        var master = await SetUpPriceBookAsync();
-        var requestId = await SubmitRequestAsync("Rolled Back School");
-        var schoolsBefore = await TestApp.CountAsync<School>();
-        var subscriptionsBefore = await TestApp.CountAsync<Subscription>();
-
-        // The password passes the length rule but fails the password policy, which is only checked after the school is saved.
-        using var response = await master.PostAsync($"/api/SchoolRequests/{requestId}/approve", new
-        {
-            domain = "rolled-back.localhost",
-            countryId = await CountryIdAsync("PK"),
-            administratorEmail = "head@rolled-back.local",
-            administratorPassword = "head head head head",
-        });
-
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        (await ReadRequestsAsync(master)).Single(r => r.Id == requestId).Status.ShouldBe(SchoolRequestStatus.Pending);
-        (await TestApp.CountAsync<School>()).ShouldBe(schoolsBefore);
-        (await TestApp.CountAsync<Subscription>()).ShouldBe(subscriptionsBefore);
-    }
-
-    [Test]
-    public async Task ShouldRejectARequestAndCreateNoSchool()
-    {
-        var master = await SetUpPriceBookAsync();
-        var requestId = await SubmitRequestAsync("Rejected School");
-        var schoolsBefore = await TestApp.CountAsync<School>();
-
-        using var reject = await master.PostAsync($"/api/SchoolRequests/{requestId}/reject", new { });
-        reject.StatusCode.ShouldBe(HttpStatusCode.NoContent);
-
-        (await ReadRequestsAsync(master)).Single(r => r.Id == requestId).Status.ShouldBe(SchoolRequestStatus.Rejected);
-        (await TestApp.CountAsync<School>()).ShouldBe(schoolsBefore);
-
-        using var again = await master.PostAsync($"/api/SchoolRequests/{requestId}/reject", new { });
-        again.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-    }
-
-    [Test]
-    public async Task ShouldKeepTheRequestQueueFromAnonymousVisitors()
-    {
-        await TestApp.RunAsAdministratorAsync();
+        await SetUpPriceBookAsync();
+        await TestApp.AddCountryAsync("AE", "United Arab Emirates", ["en", "ar"], "en", "Asia/Dubai", "AED");
         var anonymous = TestHttp.CreateDevelopmentSession();
 
-        using var list = await anonymous.GetAsync("/api/SchoolRequests");
-        using var approve = await anonymous.PostAsync($"/api/SchoolRequests/{Guid.NewGuid()}/approve", new { });
+        using var response = await anonymous.GetAsync("/api/SchoolRequests/countries");
 
-        list.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
-        approve.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var countries = (await response.Content.ReadFromJsonAsync<List<CountryReadModel>>(Json))!;
+        countries.Select(c => c.Code).ShouldBe(["PK"]);
     }
 
-    /// <summary>The master tenant, with a country (PK) that has a price book and the Full plan priced for it.</summary>
-    private static async Task<HttpSession> SetUpPriceBookAsync()
+    [Test]
+    public async Task ShouldNoLongerHaveMasterApprovalOrTheRequestQueue()
+    {
+        await TestApp.RunAsAdministratorAsync();
+        var master = TestHttp.CreateDevelopmentSession();
+        using (var signIn = await master.SignInAsync(TestApp.AdministratorEmail, TestApp.AdministratorPassword))
+        {
+            signIn.StatusCode.ShouldBe(HttpStatusCode.OK);
+        }
+
+        using var approve = await master.PostAsync($"/api/SchoolRequests/{Guid.NewGuid()}/approve", new { });
+        using var queue = await master.GetAsync("/api/SchoolRequests");
+
+        approve.IsSuccessStatusCode.ShouldBeFalse();
+        queue.StatusCode.ShouldNotBe(HttpStatusCode.OK);
+    }
+
+    /// <summary>Adds the country PK with a price book and the Full plan priced for it. Returns the country's public id.</summary>
+    private static async Task<Guid> SetUpPriceBookAsync()
     {
         await TestApp.RunAsAdministratorAsync();
         await TestApp.AddCountryAsync("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR");
@@ -186,30 +151,17 @@ public class SchoolRegistrationTests : TestBase
         using var price = await master.PutAsync($"/api/PriceBooks/{bookId}/prices", new { planCode = PricingCatalog.Full, billingCycle = "Monthly", price = 30000 });
         price.StatusCode.ShouldBe(HttpStatusCode.NoContent);
 
-        return master;
+        return await CountryIdAsync("PK");
     }
 
-    private static async Task<Guid> SubmitRequestAsync(string schoolName)
+    private static object Body(string schoolName, Guid countryId, string email, string password) => new
     {
-        var anonymous = TestHttp.CreateDevelopmentSession();
-        using var response = await anonymous.PostAsync("/api/SchoolRequests", new
-        {
-            schoolName,
-            contactName = "Ayesha Khan",
-            contactEmail = $"contact@{schoolName.Replace(" ", "-").ToLowerInvariant()}.example",
-        });
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        return await response.Content.ReadFromJsonAsync<Guid>();
-    }
-
-    private static async Task<HttpResponseMessage> Approve(HttpSession master, Guid requestId, string domain, string email) =>
-        await master.PostAsync($"/api/SchoolRequests/{requestId}/approve", new
-        {
-            domain,
-            countryId = await CountryIdAsync("PK"),
-            administratorEmail = email,
-            administratorPassword = TestApp.AdministratorPassword,
-        });
+        schoolName,
+        countryId,
+        contactName = "Ayesha Khan",
+        contactEmail = email,
+        administratorPassword = password,
+    };
 
     private static async Task<Guid> CountryIdAsync(string code)
     {
@@ -219,17 +171,12 @@ public class SchoolRegistrationTests : TestBase
         return country.PublicId;
     }
 
-    private static async Task<List<RequestReadModel>> ReadRequestsAsync(HttpSession master)
-    {
-        using var response = await master.GetAsync("/api/SchoolRequests");
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return (await response.Content.ReadFromJsonAsync<List<RequestReadModel>>(Json))!;
-    }
-
     // The API sends enums by name (ENG-ENUM-01).
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
 
-    private sealed record RequestReadModel(Guid Id, string SchoolName, string ContactName, string ContactEmail, SchoolRequestStatus Status);
+    private sealed record MySubscriptionReadModel(SubscriptionReadModel? Subscription);
 
     private sealed record SubscriptionReadModel(Guid Id, SubscriptionStatus Status, DateTimeOffset? TrialEndDate);
+
+    private sealed record CountryReadModel(Guid Id, string Name, string Code);
 }

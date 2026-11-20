@@ -1,7 +1,5 @@
-using EducationPortal.Application.SchoolRequests.Commands.ApproveSchoolRequest;
-using EducationPortal.Application.SchoolRequests.Commands.RejectSchoolRequest;
 using EducationPortal.Application.SchoolRequests.Commands.SubmitSchoolRequest;
-using EducationPortal.Application.SchoolRequests.Queries.GetSchoolRequests;
+using EducationPortal.Application.SchoolRequests.Queries.GetRegistrationCountries;
 using EducationPortal.Web.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Antiforgery;
@@ -10,61 +8,37 @@ using Microsoft.AspNetCore.Http.HttpResults;
 namespace EducationPortal.Web.Endpoints;
 
 /// <summary>
-/// The "request a school" form, and the master tenant's queue of requests. Anyone can send a request; nothing becomes active
-/// until the master tenant approves it, and approval registers the school with its 30-day free trial.
+/// The public self-service "register a school" form (decided 2026-11-19). A visitor picks a country, names the school and its
+/// administrator, and chooses a password: the school, its trial and its administrator account are created at once. No master
+/// approval is needed.
 /// </summary>
 public class SchoolRequests : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapPost(SubmitSchoolRequest)
-            // compliance-exception: SEC-AUTHN-01 a school applies before it has any account; the form only creates a pending request
+            // compliance-exception: SEC-AUTHN-01 a school registers before it has any account; the form creates the first administrator
             .AllowAnonymous()
             .RequireRateLimiting(RateLimitPolicies.SchoolRequest)
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
-        groupBuilder.MapGet(GetSchoolRequests)
-            .RequireAuthorization();
-
-        groupBuilder.MapPost(ApproveSchoolRequest, "{id:guid}/approve")
-            .RequireAuthorization()
-            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
-
-        groupBuilder.MapPost(RejectSchoolRequest, "{id:guid}/reject")
-            .RequireAuthorization()
-            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+        groupBuilder.MapGet(GetRegistrationCountries, "countries")
+            .AllowAnonymous();
     }
 
-    [EndpointSummary("Request a school")]
-    [EndpointDescription("Sends a request for a school to join. It stays pending until the master tenant approves it.")]
+    [EndpointSummary("Register a school")]
+    [EndpointDescription("Registers a school for the visitor: the school with its country's data region, the modules on by default, a 3-month free trial of the Full plan and its first administrator (the contact email, with the password chosen). Returns the school's id. Anonymous, rate limited per address.")]
     public static async Task<Created<Guid>> SubmitSchoolRequest(ISender sender, SubmitSchoolRequestCommand command)
     {
         var id = await sender.Send(command);
 
-        return TypedResults.Created($"/api/SchoolRequests/{id}", id);
+        return TypedResults.Created($"/api/Schools/{id}", id);
     }
 
-    [EndpointSummary("List the school requests")]
-    [EndpointDescription("Returns the school requests, pending ones first. Master tenant only.")]
-    public static async Task<Ok<IReadOnlyList<SchoolRequestDto>>> GetSchoolRequests(ISender sender)
+    [EndpointSummary("List the countries a school can register in")]
+    [EndpointDescription("Returns the countries that have a price book, for the registration form. Anonymous.")]
+    public static async Task<Ok<IReadOnlyList<RegistrationCountryDto>>> GetRegistrationCountries(ISender sender)
     {
-        return TypedResults.Ok(await sender.Send(new GetSchoolRequestsQuery()));
-    }
-
-    [EndpointSummary("Approve a school request")]
-    [EndpointDescription("Registers the school: its domain, country, first administrator, the modules on by default and a 30-day free trial of the Full plan. Returns the school's id. Master tenant only.")]
-    public static async Task<Ok<Guid>> ApproveSchoolRequest(ISender sender, Guid id, ApproveSchoolRequestCommand command)
-    {
-        // The route names the request; an id in the body is ignored.
-        return TypedResults.Ok(await sender.Send(command with { RequestId = id }));
-    }
-
-    [EndpointSummary("Reject a school request")]
-    [EndpointDescription("Rejects a pending school request. No school and no account is created. Master tenant only.")]
-    public static async Task<NoContent> RejectSchoolRequest(ISender sender, Guid id)
-    {
-        await sender.Send(new RejectSchoolRequestCommand { RequestId = id });
-
-        return TypedResults.NoContent();
+        return TypedResults.Ok(await sender.Send(new GetRegistrationCountriesQuery()));
     }
 }

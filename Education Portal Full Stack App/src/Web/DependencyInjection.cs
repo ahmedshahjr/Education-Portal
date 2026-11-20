@@ -85,6 +85,7 @@ public static class DependencyInjection
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
             var signInPermitLimit = builder.Configuration.GetValue<int>("RateLimiting:SignInPermitLimit", 5);
+            var schoolRequestPermitLimit = builder.Configuration.GetValue<int>("RateLimiting:SchoolRequestPermitLimit", 5);
 
             // Sign-in attempts per client address and minute (SEC-WEB-07). Each account is protected separately by
             // the lockout in Identity.
@@ -102,7 +103,7 @@ public static class DependencyInjection
                 partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
                 factory: _ => new FixedWindowRateLimiterOptions
                 {
-                    PermitLimit = 5,
+                    PermitLimit = schoolRequestPermitLimit,
                     Window = TimeSpan.FromHours(1),
                     QueueLimit = 0,
                 }));

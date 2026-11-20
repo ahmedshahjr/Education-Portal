@@ -60,7 +60,6 @@ public class CreateSchoolTests : TestBase
             name = "  New School  ",
             domain = "New-School.Localhost.",
             countryId = countryId.PublicId,
-            dataRegion = "SouthAsia",
             administratorEmail = NewAdminEmail,
             administratorPassword = OneTimePassword,
         });
@@ -88,7 +87,7 @@ public class CreateSchoolTests : TestBase
     }
 
     [Test]
-    public async Task ShouldAddASchoolWithoutADataRegion()
+    public async Task ShouldDeriveTheDataRegionFromTheCountry()
     {
         await TestApp.RunAsAdministratorAsync();
         using var master = await SignInAsMasterAsync();
@@ -98,7 +97,7 @@ public class CreateSchoolTests : TestBase
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
         var school = (await TestApp.FindAsync<School>(await TestApp.FindIdAsync<School>(await response.Content.ReadFromJsonAsync<Guid>())))!;
         school.CountryId.ShouldNotBeNull();
-        school.DataRegion.ShouldBeNull();
+        school.DataRegion.ShouldBe(DataRegion.SouthAsia);
     }
 
     [Test]

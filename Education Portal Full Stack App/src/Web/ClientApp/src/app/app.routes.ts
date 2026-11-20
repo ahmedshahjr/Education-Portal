@@ -103,12 +103,6 @@ export const routes: Routes = [
           import('./features/class-offerings/class-offerings.page').then((m) => m.ClassOfferingsPage),
       },
       {
-        path: 'school-requests',
-        canActivate: [masterAdministratorGuard],
-        loadComponent: () =>
-          import('./features/school-requests/school-requests-queue.page').then((m) => m.SchoolRequestsQueuePage),
-      },
-      {
         path: 'pricing',
         canActivate: [masterAdministratorGuard],
         loadComponent: () => import('./features/pricing/pricing.page').then((m) => m.PricingPage),

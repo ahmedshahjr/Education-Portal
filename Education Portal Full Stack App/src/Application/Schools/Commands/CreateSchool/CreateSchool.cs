@@ -10,11 +10,11 @@ using FluentValidation.Results;
 namespace EducationPortal.Application.Schools.Commands.CreateSchool;
 
 /// <summary>
-/// Adds a school tenant on its own domain, with its country (languages, time zone, currency and price book, which must exist)
-/// and data region, together with its first administrator. The administrator gets a one-time password from the master
-/// and must replace it on first sign-in. School and account are saved in one transaction, so neither exists without the
-/// other. The school starts with the default branding, the modules that are on by default, and a 30-day free trial of the Full
-/// plan when it has a country. Master tenant administrators only
+/// Adds a school tenant, optionally on its own domain, with its country (languages, time zone, currency and price book, which
+/// must exist), together with its first administrator. Its data region follows from the country. The administrator gets a
+/// one-time password from the master and must replace it on first sign-in. School and account are saved in one transaction,
+/// so neither exists without the other. The school starts with the default branding, the modules that are on by default, and
+/// a 3-month free trial of the Full plan. Master tenant administrators only
 /// (SEC-AUTHZ-07); the master tenant itself is only ever created by seeding. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
@@ -27,9 +27,6 @@ public record CreateSchoolCommand : IRequest<Guid>
 
     /// <summary>The country's public id. Required: it sets the school's languages, time zone, currency and price book, and prices its trial.</summary>
     public Guid CountryId { get; init; }
-
-    /// <summary>Where the school's data is kept, or <c>null</c> when not decided yet.</summary>
-    public DataRegion? DataRegion { get; init; }
 
     /// <summary>The email the school's first administrator signs in with. Unique across the platform.</summary>
     public string AdministratorEmail { get; init; } = string.Empty;
@@ -76,7 +73,6 @@ public class CreateSchoolCommandValidator : AbstractValidator<CreateSchoolComman
                             select b.Id).AnyAsync(cancellationToken))
                     .WithMessage(_ => ValidationMessages.CountryHasNoPriceBook));
 
-        RuleFor(c => c.DataRegion).IsInEnum();
 
         RuleFor(c => c.AdministratorEmail)
             .NotEmpty()
@@ -124,9 +120,9 @@ public class CreateSchoolCommandHandler : IRequestHandler<CreateSchoolCommand, G
                 request.Name,
                 request.Domain,
                 request.CountryId,
-                request.DataRegion,
                 request.AdministratorEmail,
-                request.AdministratorPassword),
+                request.AdministratorPassword,
+                MustChangePassword: true),
             token), cancellationToken);
 
         // The audit records are written after the commit, so they never describe a school that was rolled back.

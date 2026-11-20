@@ -17,7 +17,6 @@ import {
   CountriesClient,
   CountryDto,
   CreateSchoolCommand,
-  DataRegion2,
   SchoolsClient,
   SchoolSummaryDto,
   UpdateSchoolCountryCommand,
@@ -126,8 +125,6 @@ export class SchoolsPage {
       name: school.name,
       domain: school.domain,
       countryId: school.countryId ?? undefined,
-      // NSwag types a nullable enum as an empty class (DataRegion2); on the wire it is the enum's name, as here.
-      dataRegion: (school.dataRegion ?? undefined) as unknown as DataRegion2 | undefined,
       administratorEmail: school.administratorEmail,
       administratorPassword: school.administratorPassword,
     });

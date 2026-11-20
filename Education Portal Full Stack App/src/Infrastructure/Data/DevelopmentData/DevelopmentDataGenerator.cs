@@ -64,9 +64,10 @@ public sealed class DevelopmentDataGenerator : IDevelopmentDataGenerator
                     faker.Company.CompanyName(),
                     domain,
                     country.PublicId,
-                    DataRegion: null,
+
                     AdministratorEmail: $"admin@{domain}",
-                    AdministratorPassword: DevelopmentDataSeeder.DevelopmentPassword),
+                    AdministratorPassword: DevelopmentDataSeeder.DevelopmentPassword,
+                    MustChangePassword: true),
                 token), cancellationToken);
             var schoolId = registered.Id;
 

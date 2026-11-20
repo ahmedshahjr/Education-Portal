@@ -36,8 +36,7 @@ describe('SchoolFormComponent', () => {
       {
         name: 'New School',
         domain: 'new-school.localhost',
-        countryId: null,
-        dataRegion: null,
+        countryId: null,
         administratorEmail: 'head@new-school.local',
         administratorPassword: 'violet harbour lantern 47',
       },

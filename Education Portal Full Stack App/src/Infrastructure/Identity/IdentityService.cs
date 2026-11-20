@@ -57,17 +57,17 @@ public class IdentityService : IIdentityService
         return await _userManager.FindByEmailAsync(email) is not null;
     }
 
-    public async Task<(Result Result, string UserId)> CreateSchoolAdministratorAsync(int schoolId, string email, string oneTimePassword)
+    public async Task<(Result Result, string UserId)> CreateSchoolAdministratorAsync(int schoolId, string email, string password, bool mustChangePassword)
     {
         var user = new ApplicationUser
         {
             UserName = email,
             Email = email,
             SchoolId = schoolId,
-            MustChangePassword = true,
+            MustChangePassword = mustChangePassword,
         };
 
-        var created = await _userManager.CreateAsync(user, oneTimePassword);
+        var created = await _userManager.CreateAsync(user, password);
 
         if (!created.Succeeded)
         {
@@ -108,8 +108,17 @@ public class IdentityService : IIdentityService
             }
         }
 
-        // The stamp changed, so this browser's cookie is renewed too; otherwise the next request would sign it out.
-        await _signInManager.RefreshSignInAsync(user);
+        // The stamp changed, so this browser's cookie is renewed too; otherwise the next request would sign it out. A session
+        // hosted on the master domain keeps its marker, or the renewed cookie would no longer act as the school there.
+        var hostedOnMaster = _signInManager.Context?.User.FindFirst(EducationPortal.Application.Common.Security.TenantClaimTypes.HostedOnMaster)?.Value == "true";
+        if (hostedOnMaster)
+        {
+            await _signInManager.SignInWithClaimsAsync(user, isPersistent: false, [new System.Security.Claims.Claim(EducationPortal.Application.Common.Security.TenantClaimTypes.HostedOnMaster, "true")]);
+        }
+        else
+        {
+            await _signInManager.RefreshSignInAsync(user);
+        }
 
         return Result.Success();
     }

@@ -3,9 +3,159 @@
   "contract": "ruflo.mission-observation/1",
   "source": "ruflo-cli/missions",
   "workspaceId": "ws_48fc84af0e8a3b7e",
-  "observedAt": "2026-11-19T04:07:50.958Z",
+  "observedAt": "2026-11-19T17:17:59.135Z",
   "truncated": false,
   "missions": [
+    {
+      "missionId": "msn_ea7e2d9e8ee7bca277c2fc89",
+      "objective": ": add all enties in the ui and show trail banner above the ui if │ │ trail is active and add toaster from messager. if comapus are │ │ multiple more than 1 add dropwndo above to filter databased on │ │ that.",
+      "state": "planned",
+      "revision": 2,
+      "executionMode": "session-bound",
+      "plan": {
+        "revision": 1,
+        "digest": "sha256:9df6107e89cfc93d0684421d57857cc11f88f62267086adebef837481049d508",
+        "taskCount": 15,
+        "tasks": [
+          {
+            "id": "t1",
+            "title": "Specification: Research prior art, existing ADRs and memory",
+            "dependsOn": [],
+            "status": "pending"
+          },
+          {
+            "id": "t2",
+            "title": "Specification: Specify the requirements and acceptance criteria",
+            "dependsOn": [],
+            "status": "pending"
+          },
+          {
+            "id": "t3",
+            "title": "Architecture: Design the architecture and interfaces",
+            "dependsOn": [
+              "t2"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t4",
+            "title": "Architecture: Record the decisions as ADRs and write the SOP",
+            "dependsOn": [
+              "t3",
+              "t1"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t5",
+            "title": "Pseudocode: Write the pseudocode for the core logic",
+            "dependsOn": [
+              "t2"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t6",
+            "title": "Refinement: Write the failing tests first",
+            "dependsOn": [
+              "t3",
+              "t5"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t7",
+            "title": "Refinement: Implement until the tests pass",
+            "dependsOn": [
+              "t6"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t8",
+            "title": "Gate: Benchmark against the baseline",
+            "dependsOn": [
+              "t7"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t9",
+            "title": "Gate: Security review",
+            "dependsOn": [
+              "t7"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t10",
+            "title": "Gate: Review the change",
+            "dependsOn": [
+              "t7"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t11",
+            "title": "Refinement: Run the full test suite",
+            "dependsOn": [
+              "t7"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t12",
+            "title": "Completion: Integrate: build and CI",
+            "dependsOn": [
+              "t11"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t13",
+            "title": "Completion: Document the change",
+            "dependsOn": [
+              "t7"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t14",
+            "title": "Completion: Validate the result against the goal",
+            "dependsOn": [
+              "t11",
+              "t12"
+            ],
+            "status": "pending"
+          },
+          {
+            "id": "t15",
+            "title": "Completion: Learn: store the outcome and self-optimize",
+            "dependsOn": [
+              "t14"
+            ],
+            "status": "pending"
+          }
+        ]
+      },
+      "budget": {
+        "currency": "USD",
+        "ceilingMinor": 5500,
+        "estimatedMinor": 4400,
+        "reservedMinor": 0,
+        "settledMinor": 0,
+        "unresolvedMinor": 0
+      },
+      "evidence": {
+        "count": 0,
+        "verified": 0
+      },
+      "executor": null,
+      "unresolvedOperations": 0,
+      "blockedReason": null,
+      "lastEventSequence": 2,
+      "updatedAt": "2026-11-19T17:17:59.135Z"
+    },
     {
       "missionId": "msn_cb3148a74d68cbf6ccc3e5d2",
       "objective": "add all enties in the ui and show trail banner above the ui if trail is active and add toaster from messager. if comapus are multiple more than 1 add dropwndo above to filter databased on that.",

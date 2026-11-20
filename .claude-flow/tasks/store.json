@@ -164,6 +164,261 @@
       "result": {
         "cancelReason": "mission cancelled from the console"
       }
+    },
+    "task-1795108681349-u6jdcb": {
+      "taskId": "task-1795108681349-u6jdcb",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t1] Specification: Research prior art, existing ADRs and memory",
+      "priority": "normal",
+      "status": "in_progress",
+      "progress": 5,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t1",
+        "phase:S"
+      ],
+      "createdAt": "2026-11-19T17:18:01.349Z",
+      "startedAt": "2026-11-19T17:19:09.106Z",
+      "completedAt": null
+    },
+    "task-1795108683577-p51o9a": {
+      "taskId": "task-1795108683577-p51o9a",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t2] Specification: Specify the requirements and acceptance criteria",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t2",
+        "phase:S"
+      ],
+      "createdAt": "2026-11-19T17:18:03.577Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108685835-l11t11": {
+      "taskId": "task-1795108685835-l11t11",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t3] Architecture: Design the architecture and interfaces",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t3",
+        "phase:A"
+      ],
+      "createdAt": "2026-11-19T17:18:05.835Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108688085-cvtrpx": {
+      "taskId": "task-1795108688085-cvtrpx",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t4] Architecture: Record the decisions as ADRs and write the SOP",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t4",
+        "phase:A"
+      ],
+      "createdAt": "2026-11-19T17:18:08.085Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108690443-0p7200": {
+      "taskId": "task-1795108690443-0p7200",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t5] Pseudocode: Write the pseudocode for the core logic",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t5",
+        "phase:P"
+      ],
+      "createdAt": "2026-11-19T17:18:10.443Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108692571-iurezo": {
+      "taskId": "task-1795108692571-iurezo",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t6] Refinement: Write the failing tests first",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t6",
+        "phase:R"
+      ],
+      "createdAt": "2026-11-19T17:18:12.571Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108694776-g1zxbx": {
+      "taskId": "task-1795108694776-g1zxbx",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t7] Refinement: Implement until the tests pass",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t7",
+        "phase:R"
+      ],
+      "createdAt": "2026-11-19T17:18:14.776Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108697032-is9s0e": {
+      "taskId": "task-1795108697032-is9s0e",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t8] Gate: Benchmark against the baseline",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t8",
+        "phase:X"
+      ],
+      "createdAt": "2026-11-19T17:18:17.032Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108699405-u4w0ya": {
+      "taskId": "task-1795108699405-u4w0ya",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t9] Gate: Security review",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t9",
+        "phase:X"
+      ],
+      "createdAt": "2026-11-19T17:18:19.405Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108701702-w8a2ee": {
+      "taskId": "task-1795108701702-w8a2ee",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t10] Gate: Review the change",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t10",
+        "phase:X"
+      ],
+      "createdAt": "2026-11-19T17:18:21.702Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108703767-uscvkx": {
+      "taskId": "task-1795108703767-uscvkx",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t11] Refinement: Run the full test suite",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t11",
+        "phase:R"
+      ],
+      "createdAt": "2026-11-19T17:18:23.767Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108705917-l9butb": {
+      "taskId": "task-1795108705917-l9butb",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t12] Completion: Integrate: build and CI",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t12",
+        "phase:C"
+      ],
+      "createdAt": "2026-11-19T17:18:25.917Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108708054-d9j3tb": {
+      "taskId": "task-1795108708054-d9j3tb",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t13] Completion: Document the change",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t13",
+        "phase:C"
+      ],
+      "createdAt": "2026-11-19T17:18:28.054Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108710248-esmitq": {
+      "taskId": "task-1795108710248-esmitq",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t14] Completion: Validate the result against the goal",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t14",
+        "phase:C"
+      ],
+      "createdAt": "2026-11-19T17:18:30.248Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795108712497-lekaw9": {
+      "taskId": "task-1795108712497-lekaw9",
+      "type": "feature",
+      "description": "[msn_ea7e2d9e8ee7bca277c2fc89/t15] Completion: Learn: store the outcome and self-optimize",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_ea7e2d9e8ee7bca277c2fc89",
+        "task:t15",
+        "phase:C"
+      ],
+      "createdAt": "2026-11-19T17:18:32.497Z",
+      "startedAt": null,
+      "completedAt": null
     }
   },
   "version": "3.0.0"

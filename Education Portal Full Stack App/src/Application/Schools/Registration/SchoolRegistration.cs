@@ -10,28 +10,36 @@ using FluentValidation.Results;
 
 namespace EducationPortal.Application.Schools.Registration;
 
-/// <summary>The fields a school is registered with (the master adding it, or the approval of a school request).</summary>
+/// <summary>
+/// The fields a school is registered with (the master adding it, or the approval of a school request). The data region is not
+/// asked: it follows from the country (<see cref="DataRegionForCountry"/>). The domain is optional: a school without one signs in
+/// on the master tenant's domain until one is set.
+/// </summary>
 public sealed record SchoolRegistrationRequest(
     string Name,
     string? Domain,
     Guid CountryId,
-    DataRegion? DataRegion,
     string AdministratorEmail,
-    string AdministratorPassword);
+    string AdministratorPassword,
+    bool MustChangePassword);
 
 /// <summary>The ids of a registered school and of its first administrator, for the response and for the audit records.</summary>
 public sealed record RegisteredSchool(int Id, Guid PublicId, string AdministratorId);
 
 /// <summary>
 /// What a school gets when it is registered: its country, the modules that are on by default (free, for the whole school),
-/// and a free trial of the Full plan for <see cref="TrialDays"/> days, from the registration. The trial is a subscription,
-/// priced from the country's price book, so the country must have one. The trial gives the plan's modules and every core
-/// module; the default grants stay on when the trial ends.
+/// and a free trial of the Full plan for <see cref="TrialDays"/> days (three months), from the registration. The trial is a
+/// subscription, priced from the country's price book, so the country must have one. The trial gives the plan's modules and
+/// every core module; the default grants stay on when the trial ends. The school can sign in as soon as it is registered.
 /// </summary>
 public static class SchoolRegistration
 {
-    /// <summary>The length of the free trial a registered school gets.</summary>
-    public const int TrialDays = 30;
+    /// <summary>The length of the free trial a registered school gets: three months.</summary>
+    public const int TrialDays = 90;
+
+    /// <summary>The password length limits of the administrator's password (the policy itself is checked by Identity).</summary>
+    public const int PasswordMinLength = 15;
+    public const int PasswordMaxLength = 128;
 
     /// <summary>
     /// Registers a school: the school, its default grants, its trial and its first administrator. The caller runs it inside
@@ -47,21 +55,28 @@ public static class SchoolRegistration
     {
         var now = timeProvider.GetUtcNow();
 
+        var countryId = await context.Countries.ResolveIdAsync(request.CountryId, cancellationToken);
+        var countryCode = await context.Countries
+            .Where(c => c.Id == countryId)
+            .Select(c => c.Code)
+            .SingleAsync(cancellationToken);
+
         var school = School.Create(request.Name, request.Domain);
-        school.AssignCountry(await context.Countries.ResolveIdAsync(request.CountryId, cancellationToken));
-        school.AssignDataRegion(request.DataRegion);
+        school.AssignCountry(countryId);
+        school.AssignDataRegion(DataRegionForCountry.For(countryCode));
 
         context.Schools.Add(school);
         await context.SaveChangesAsync(cancellationToken);
 
         await SchoolDefaultModules.GrantAsync(context, school.Id, now, cancellationToken);
-        await StartTrialAsync(context, school, now, cancellationToken);
+        await StartTrialAsync(context, school, countryCode, now, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
         var (result, administratorId) = await identity.CreateSchoolAdministratorAsync(
             school.Id,
             request.AdministratorEmail.Trim(),
-            request.AdministratorPassword);
+            request.AdministratorPassword,
+            request.MustChangePassword);
 
         if (!result.Succeeded)
         {
@@ -75,18 +90,8 @@ public static class SchoolRegistration
     /// <summary>
     /// Starts the trial. Its price is the Full plan's monthly price in the country's price book. The caller saves the changes.
     /// </summary>
-    private static async Task StartTrialAsync(IApplicationDbContext context, School school, DateTimeOffset now, CancellationToken cancellationToken)
+    private static async Task StartTrialAsync(IApplicationDbContext context, School school, string countryCode, DateTimeOffset now, CancellationToken cancellationToken)
     {
-        if (school.CountryId is not { } countryId)
-        {
-            throw new InvalidOperationException("A registered school has a country, so it can be given a trial.");
-        }
-
-        var countryCode = await context.Countries
-            .Where(c => c.Id == countryId)
-            .Select(c => c.Code)
-            .SingleAsync(cancellationToken);
-
         var quote = await SubscriptionPlanner.QuoteAsync(
             context, countryCode, PricingCatalog.Full, [], BillingCycle.Monthly, cancellationToken);
 
