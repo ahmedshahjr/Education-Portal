@@ -97,6 +97,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/roles/roles.page').then((m) => m.RolesPage),
       },
       {
+        path: 'academic-calendar',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.academicSetup)],
+        loadComponent: () =>
+          import('./features/academic-calendar/academic-calendar.page').then((m) => m.AcademicCalendarPage),
+      },
+      {
+        path: 'settings/school-details',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.school)],
+        loadComponent: () =>
+          import('./features/school-details/school-details.page').then((m) => m.SchoolDetailsPage),
+      },
+      {
         path: 'class-offerings',
         canActivate: [administratorGuard, moduleGuard(MODULE_CODES.school)],
         loadComponent: () =>

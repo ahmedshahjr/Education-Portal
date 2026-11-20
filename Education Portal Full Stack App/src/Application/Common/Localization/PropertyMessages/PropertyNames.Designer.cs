@@ -605,5 +605,203 @@ namespace EducationPortal.Application.Common.Localization {
             }
         }
         
+            
+        /// <summary>
+        ///   Looks up a localized string similar to Title.
+        /// </summary>
+        internal static string Title {
+            get {
+                return ResourceManager.GetString("Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start date.
+        /// </summary>
+        internal static string StartDate {
+            get {
+                return ResourceManager.GetString("StartDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to End date.
+        /// </summary>
+        internal static string EndDate {
+            get {
+                return ResourceManager.GetString("EndDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start time.
+        /// </summary>
+        internal static string StartTime {
+            get {
+                return ResourceManager.GetString("StartTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to End time.
+        /// </summary>
+        internal static string EndTime {
+            get {
+                return ResourceManager.GetString("EndTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Event date.
+        /// </summary>
+        internal static string EventDate {
+            get {
+                return ResourceManager.GetString("EventDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Number.
+        /// </summary>
+        internal static string Sequence {
+            get {
+                return ResourceManager.GetString("Sequence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Local name.
+        /// </summary>
+        internal static string LocalName {
+            get {
+                return ResourceManager.GetString("LocalName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Registration number.
+        /// </summary>
+        internal static string RegistrationNumber {
+            get {
+                return ResourceManager.GetString("RegistrationNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Registration authority.
+        /// </summary>
+        internal static string RegistrationAuthority {
+            get {
+                return ResourceManager.GetString("RegistrationAuthority", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tax number.
+        /// </summary>
+        internal static string TaxNumber {
+            get {
+                return ResourceManager.GetString("TaxNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Website.
+        /// </summary>
+        internal static string Website {
+            get {
+                return ResourceManager.GetString("Website", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Currency decimals.
+        /// </summary>
+        internal static string CurrencyDecimals {
+            get {
+                return ResourceManager.GetString("CurrencyDecimals", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phone pattern.
+        /// </summary>
+        internal static string PhonePattern {
+            get {
+                return ResourceManager.GetString("PhonePattern", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to First day of the week.
+        /// </summary>
+        internal static string WeekStartDay {
+            get {
+                return ResourceManager.GetString("WeekStartDay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Weekend days.
+        /// </summary>
+        internal static string WeekendDays {
+            get {
+                return ResourceManager.GetString("WeekendDays", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Academic year start month.
+        /// </summary>
+        internal static string AcademicYearStartMonth {
+            get {
+                return ResourceManager.GetString("AcademicYearStartMonth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Status.
+        /// </summary>
+        internal static string Status {
+            get {
+                return ResourceManager.GetString("Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type.
+        /// </summary>
+        internal static string Type {
+            get {
+                return ResourceManager.GetString("Type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Applies to.
+        /// </summary>
+        internal static string AppliesTo {
+            get {
+                return ResourceManager.GetString("AppliesTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Audience.
+        /// </summary>
+        internal static string Audience {
+            get {
+                return ResourceManager.GetString("Audience", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Students.
+        /// </summary>
+        internal static string GenderPolicy {
+            get {
+                return ResourceManager.GetString("GenderPolicy", resourceCulture);
+            }
+        }
     }
 }

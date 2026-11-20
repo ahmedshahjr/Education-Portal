@@ -10,7 +10,7 @@ using EducationPortal.Domain.Entities;
 namespace EducationPortal.Application.Campuses.Commands.UpdateCampus;
 
 /// <summary>
-/// Renames a campus of the current school. Its code is generated once and does not change. Needs the Campuses module.
+/// Renames a campus of the current school and sets its local name and who it teaches. Its code is generated once and does not change. Needs the Campuses module.
 /// Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
@@ -20,6 +20,12 @@ public record UpdateCampusCommand : IRequest
     public Guid CampusId { get; init; }
 
     public string Name { get; init; } = string.Empty;
+
+    /// <summary>The name in the local language and script; blank clears it.</summary>
+    public string? LocalName { get; init; }
+
+    /// <summary>Whether the campus teaches boys, girls or both.</summary>
+    public SchoolGenderPolicy GenderPolicy { get; init; } = SchoolGenderPolicy.CoEducation;
 
     /// <summary>
     /// The campus's contact and registration details. When it is left out the details stay as they are; when it is sent,
@@ -37,6 +43,9 @@ public class UpdateCampusCommandValidator : AbstractValidator<UpdateCampusComman
         RuleFor(c => c.Name)
             .NotEmpty()
             .MaximumLength(Campus.NameMaxLength);
+
+        RuleFor(c => c.LocalName).MaximumLength(Campus.LocalNameMaxLength);
+        RuleFor(c => c.GenderPolicy).IsInEnum();
 
         RuleFor(c => c.Details!)
             .SetValidator(new CampusDetailsInputValidator())
@@ -70,6 +79,7 @@ public class UpdateCampusCommandHandler : IRequestHandler<UpdateCampusCommand>
         }
 
         campus.Rename(request.Name);
+        campus.SetProfile(request.LocalName, request.GenderPolicy);
         await _context.SaveChangesAsync(cancellationToken);
 
         await _auditLog.WriteAsync(

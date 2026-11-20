@@ -1,0 +1,104 @@
+@if (loadError(); as message) {
+  <app-empty-state
+    icon="alert-triangle"
+    title="Shifts could not be loaded"
+    i18n-title="@@academicCalendar.shiftsLoadError"
+    [description]="message"
+    actionLabel="Try again"
+    i18n-actionLabel="@@common.tryAgain"
+    (action)="load()"
+  />
+} @else {
+  <app-campus-filter class="mm-academic__campus-filter" [campuses]="campuses()" (selected)="selectedCampusId.set($event)" />
+
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <app-data-table
+        [data]="rows()"
+        [columns]="columns()"
+        [loading]="shifts() === null"
+        searchPlaceholder="Search shifts..."
+        i18n-searchPlaceholder="@@academicCalendar.searchShifts"
+        emptyTitle="No shifts yet"
+        i18n-emptyTitle="@@academicCalendar.shiftsEmpty"
+        emptyDescription="Add a shift, such as Morning or Evening, for each campus."
+        i18n-emptyDescription="@@academicCalendar.shiftsEmptyDescription"
+      >
+        <div table-actions>
+          @if (editing() === null) {
+            <button mat-flat-button type="button" [disabled]="campuses().length === 0" (click)="startAdd()" i18n="@@academicCalendar.addShift">Add shift</button>
+          }
+        </div>
+      </app-data-table>
+    </mat-card-content>
+  </mat-card>
+
+  @if (editing() !== null) {
+    <mat-card class="mm-card mm-elevated">
+      <mat-card-content>
+        <h2 class="mm-academic__heading">
+          @if (editing() === 'new') {
+            <ng-container i18n="@@academicCalendar.addShiftHeading">Add a shift</ng-container>
+          } @else {
+            <ng-container i18n="@@academicCalendar.editShiftHeading">Edit shift</ng-container>
+          }
+        </h2>
+        <form class="mm-academic__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@academicCalendar.colCampus">Campus</mat-label>
+            <mat-select formControlName="campusId">
+              @for (campus of campuses(); track campus.id) {
+                <mat-option [value]="campus.id">{{ campus.name }}</mat-option>
+              }
+            </mat-select>
+            @if (form.controls.campusId.hasError('required')) {
+              <mat-error i18n="@@academicCalendar.required">This field is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@academicCalendar.shiftName">Shift name</mat-label>
+            <input matInput formControlName="name" maxlength="50" autocomplete="off" />
+            @if (form.controls.name.hasError('required')) {
+              <mat-error i18n="@@academicCalendar.required">This field is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@academicCalendar.colStarts">Starts</mat-label>
+            <input matInput type="time" formControlName="startTime" dir="ltr" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@academicCalendar.colEnds">Ends</mat-label>
+            <input matInput type="time" formControlName="endTime" dir="ltr" />
+          </mat-form-field>
+
+          @if (form.hasError('timeRange')) {
+            <p class="mm-academic__error" role="alert" i18n="@@academicCalendar.timeRangeInvalid">The end time must be after the start time.</p>
+          }
+
+          <div class="mm-academic__actions">
+            <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@academicCalendar.save">Save</button>
+            <button mat-button type="button" [disabled]="busy()" (click)="cancel()" i18n="@@common.cancel">Cancel</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @for (message of errors(); track message) {
+    <p class="mm-academic__error" role="alert">{{ message }}</p>
+  }
+}
+
+<ng-template #actionsCell let-shift>
+  <span class="mm-crud-actions">
+    <button mat-icon-button type="button" [disabled]="busy() || editing() !== null" [attr.aria-label]="'Edit ' + shift.name" i18n-aria-label="@@academicCalendar.editShift" (click)="startEdit(shift)">
+      <app-icon name="edit-3" [size]="16" />
+    </button>
+    <button mat-icon-button type="button" class="mm-delete-btn" [disabled]="busy() || editing() !== null" [attr.aria-label]="'Delete ' + shift.name" i18n-aria-label="@@academicCalendar.deleteShift" (click)="confirmDelete(shift)">
+      <app-icon name="trash-2" [size]="16" />
+    </button>
+  </span>
+</ng-template>

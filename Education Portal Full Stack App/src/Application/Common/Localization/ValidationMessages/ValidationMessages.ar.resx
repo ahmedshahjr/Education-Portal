@@ -432,6 +432,57 @@
   <data name="RoleNotInSchool" xml:space="preserve">
     <value>أحد الأدوار ليس من أدوار هذه المدرسة.</value>
   </data>
+  <data name="DateRangeInvalid" xml:space="preserve">
+    <value>يجب أن يكون تاريخ الانتهاء في تاريخ البدء أو بعده.</value>
+  </data>
+  <data name="TimeRangeInvalid" xml:space="preserve">
+    <value>يجب أن يكون وقت الانتهاء بعد وقت البدء.</value>
+  </data>
+  <data name="EndTimeNeedsStartTime" xml:space="preserve">
+    <value>يتطلب وقت الانتهاء وقت بدء.</value>
+  </data>
+  <data name="AcademicYearTooLong" xml:space="preserve">
+    <value>لا تتجاوز السنة الدراسية سنتين.</value>
+  </data>
+  <data name="AcademicYearNameTaken" xml:space="preserve">
+    <value>لدى المدرسة سنة دراسية بهذا الاسم بالفعل.</value>
+  </data>
+  <data name="AcademicYearOverlaps" xml:space="preserve">
+    <value>تتداخل التواريخ مع سنة دراسية أخرى للمدرسة.</value>
+  </data>
+  <data name="AcademicYearClosed" xml:space="preserve">
+    <value>لا يمكن تغيير سنة دراسية مغلقة.</value>
+  </data>
+  <data name="AcademicYearHasTerms" xml:space="preserve">
+    <value>احذف فصول السنة أولاً.</value>
+  </data>
+  <data name="TermOutsideYear" xml:space="preserve">
+    <value>يجب أن تقع تواريخ الفصل ضمن سنته الدراسية.</value>
+  </data>
+  <data name="TermSequenceTaken" xml:space="preserve">
+    <value>لدى السنة فصل بهذا الرقم بالفعل.</value>
+  </data>
+  <data name="TermOverlaps" xml:space="preserve">
+    <value>تتداخل التواريخ مع فصل آخر من السنة.</value>
+  </data>
+  <data name="ShiftNameTaken" xml:space="preserve">
+    <value>لدى الفرع وردية بهذا الاسم بالفعل.</value>
+  </data>
+  <data name="HolidayTooLong" xml:space="preserve">
+    <value>لا تتجاوز العطلة 120 يومًا.</value>
+  </data>
+  <data name="PhonePatternInvalid" xml:space="preserve">
+    <value>يجب أن يكون نمط الهاتف تعبيرًا نمطيًا صالحًا لا يتجاوز 200 حرف.</value>
+  </data>
+  <data name="WeekendDaysInvalid" xml:space="preserve">
+    <value>اختر ثلاثة أيام عطلة مختلفة على الأكثر.</value>
+  </data>
+  <data name="CityNotInSchoolCountry" xml:space="preserve">
+    <value>يجب أن تكون المدينة في بلد المدرسة.</value>
+  </data>
+  <data name="EmailInvalid" xml:space="preserve">
+    <value>عنوان البريد الإلكتروني غير صالح.</value>
+  </data>
   <data name="PersonIsNotTeacher" xml:space="preserve">
     <value>الشخص المختار ليس معلماً.</value>
   </data>

@@ -7,6 +7,12 @@
     <dt i18n="@@campuses.kind">Type</dt>
     <dd>{{ campus.kind === kinds.Main ? 'Main campus' : 'Campus' }}</dd>
 
+    <dt i18n="@@campuses.localNameLabel">Name in the local language</dt>
+    <dd><bdi>{{ campus.localName || '—' }}</bdi></dd>
+
+    <dt i18n="@@campuses.genderPolicyLabel">Students</dt>
+    <dd>{{ genderLabel() }}</dd>
+
     <dt i18n="@@campuses.addressLabel">Address</dt>
     <dd>{{ campus.details.address || '—' }}</dd>
 

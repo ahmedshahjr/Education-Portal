@@ -300,4 +300,70 @@
   <data name="AdmissionDate" xml:space="preserve">
     <value>داخلے کی تاریخ</value>
   </data>
+  <data name="Title" xml:space="preserve">
+    <value>عنوان</value>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>آغاز کی تاریخ</value>
+  </data>
+  <data name="EndDate" xml:space="preserve">
+    <value>اختتامی تاریخ</value>
+  </data>
+  <data name="StartTime" xml:space="preserve">
+    <value>آغاز کا وقت</value>
+  </data>
+  <data name="EndTime" xml:space="preserve">
+    <value>اختتامی وقت</value>
+  </data>
+  <data name="EventDate" xml:space="preserve">
+    <value>تقریب کی تاریخ</value>
+  </data>
+  <data name="Sequence" xml:space="preserve">
+    <value>نمبر</value>
+  </data>
+  <data name="LocalName" xml:space="preserve">
+    <value>مقامی نام</value>
+  </data>
+  <data name="RegistrationNumber" xml:space="preserve">
+    <value>رجسٹریشن نمبر</value>
+  </data>
+  <data name="RegistrationAuthority" xml:space="preserve">
+    <value>رجسٹریشن ادارہ</value>
+  </data>
+  <data name="TaxNumber" xml:space="preserve">
+    <value>ٹیکس نمبر</value>
+  </data>
+  <data name="Website" xml:space="preserve">
+    <value>ویب سائٹ</value>
+  </data>
+  <data name="CurrencyDecimals" xml:space="preserve">
+    <value>کرنسی کے اعشاری ہندسے</value>
+  </data>
+  <data name="PhonePattern" xml:space="preserve">
+    <value>فون پیٹرن</value>
+  </data>
+  <data name="WeekStartDay" xml:space="preserve">
+    <value>ہفتے کا پہلا دن</value>
+  </data>
+  <data name="WeekendDays" xml:space="preserve">
+    <value>ہفتہ وار چھٹی کے دن</value>
+  </data>
+  <data name="AcademicYearStartMonth" xml:space="preserve">
+    <value>تعلیمی سال کے آغاز کا مہینہ</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>حیثیت</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>قسم</value>
+  </data>
+  <data name="AppliesTo" xml:space="preserve">
+    <value>لاگو برائے</value>
+  </data>
+  <data name="Audience" xml:space="preserve">
+    <value>سامعین</value>
+  </data>
+  <data name="GenderPolicy" xml:space="preserve">
+    <value>طلبہ</value>
+  </data>
 </root>

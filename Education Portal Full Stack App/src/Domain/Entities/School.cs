@@ -189,6 +189,56 @@ public class School : BaseSoftDeletableEntity
         SidebarColor = sidebarColor;
     }
 
+    /// <summary>The school's name in the local language and script, or <c>null</c>.</summary>
+    public string? LocalName { get; private set; }
+
+    public string? RegistrationNumber { get; private set; }
+
+    /// <summary>The body the school is registered with, for example a provincial education board.</summary>
+    public string? RegistrationAuthority { get; private set; }
+
+    public string? TaxNumber { get; private set; }
+
+    public string? Address { get; private set; }
+
+    /// <summary>The city of the school's head office, from the location data of its country.</summary>
+    public int? CityId { get; private set; }
+
+    public City? City { get; private set; }
+
+    public string? Phone { get; private set; }
+
+    public string? Email { get; private set; }
+
+    public string? Website { get; private set; }
+
+    /// <summary>The month (1 to 12) the school's academic year usually starts in.</summary>
+    public int AcademicYearStartMonth { get; private set; } = SchoolDetails.DefaultAcademicYearStartMonth;
+
+    /// <summary>
+    /// Replaces the school's registration and contact details. The values were checked by <see cref="SchoolDetails.Create"/>;
+    /// the use case has checked the city is in the school's country.
+    /// </summary>
+    public void UpdateDetails(SchoolDetails details)
+    {
+        ArgumentNullException.ThrowIfNull(details);
+        if (IsDeleted)
+        {
+            throw new InvalidOperationException("A deleted school cannot be changed.");
+        }
+
+        LocalName = details.LocalName;
+        RegistrationNumber = details.RegistrationNumber;
+        RegistrationAuthority = details.RegistrationAuthority;
+        TaxNumber = details.TaxNumber;
+        Address = details.Address;
+        CityId = details.CityId;
+        Phone = details.Phone;
+        Email = details.Email;
+        Website = details.Website;
+        AcademicYearStartMonth = details.AcademicYearStartMonth;
+    }
+
     /// <summary>Like <see cref="NormalizeDomain"/>, but a blank domain is <c>null</c>: the school has none.</summary>
     public static string? NormalizeOptionalDomain(string? domain) =>
         string.IsNullOrWhiteSpace(domain) ? null : NormalizeDomain(domain);

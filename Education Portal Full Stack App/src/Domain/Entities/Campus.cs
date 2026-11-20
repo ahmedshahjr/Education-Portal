@@ -14,6 +14,7 @@ namespace EducationPortal.Domain.Entities;
 public class Campus : BaseSoftDeletableEntity, ITenantOwned
 {
     public const int NameMaxLength = 200;
+    public const int LocalNameMaxLength = 200;
     public const int CodeLength = 4;
     public const string MainName = "Main campus";
 
@@ -151,6 +152,35 @@ public class Campus : BaseSoftDeletableEntity, ITenantOwned
         {
             _phones.Add(new CampusPhone(this, numbers[position], position));
         }
+    }
+
+    /// <summary>The campus's name in the local language and script, or <c>null</c>.</summary>
+    public string? LocalName { get; private set; }
+
+    /// <summary>Whether the campus teaches boys, girls or both. A new campus is co-educational until the school says otherwise.</summary>
+    public SchoolGenderPolicy GenderPolicy { get; private set; } = SchoolGenderPolicy.CoEducation;
+
+    /// <summary>Sets the campus's local name (blank clears it) and who it teaches.</summary>
+    public void SetProfile(string? localName, SchoolGenderPolicy genderPolicy)
+    {
+        if (IsDeleted)
+        {
+            throw new InvalidOperationException("A deleted campus cannot be changed.");
+        }
+
+        if (!Enum.IsDefined(genderPolicy))
+        {
+            throw new ArgumentOutOfRangeException(nameof(genderPolicy), genderPolicy, "Unknown gender policy.");
+        }
+
+        var normalized = string.IsNullOrWhiteSpace(localName) ? null : localName.Trim();
+        if (normalized is not null)
+        {
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(normalized.Length, LocalNameMaxLength, nameof(localName));
+        }
+
+        LocalName = normalized;
+        GenderPolicy = genderPolicy;
     }
 
     /// <summary>The main campus is the school's registration campus: it cannot be deleted or deactivated.</summary>

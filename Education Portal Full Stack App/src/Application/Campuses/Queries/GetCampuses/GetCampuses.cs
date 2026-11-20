@@ -46,6 +46,8 @@ public class GetCampusesQueryHandler : IRequestHandler<GetCampusesQuery, IReadOn
                 b.Name,
                 b.Code,
                 b.Kind,
+                b.LocalName,
+                b.GenderPolicy,
                 b.Address,
                 StateId = b.State == null ? (Guid?)null : b.State.PublicId,
                 StateName = b.State == null ? null : b.State.Name,
@@ -102,7 +104,9 @@ public class GetCampusesQueryHandler : IRequestHandler<GetCampusesQuery, IReadOn
                     c.PrincipalId,
                     c.PrincipalName,
                     c.Latitude,
-                    c.Longitude)))
+                    c.Longitude),
+                c.LocalName,
+                c.GenderPolicy))
             .ToList();
     }
 }

@@ -48,6 +48,12 @@ public static class DatabaseSchemas
         [typeof(EnquiryFollowUp)] = Admissions,
         [typeof(CampusVisit)] = Admissions,
 
+        [typeof(AcademicYear)] = Academics,
+        [typeof(Term)] = Academics,
+        [typeof(Shift)] = Academics,
+        [typeof(Holiday)] = Academics,
+        [typeof(CalendarEvent)] = Academics,
+
         [typeof(BrandingImage)] = Schools,
         [typeof(SchoolRequest)] = Schools,
         [typeof(Country)] = Schools,

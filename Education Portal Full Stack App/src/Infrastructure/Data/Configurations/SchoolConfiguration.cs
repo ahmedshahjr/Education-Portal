@@ -28,6 +28,19 @@ public class SchoolConfiguration : IEntityTypeConfiguration<School>
             .HasForeignKey(s => s.CountryId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Registration and contact details (SchoolDetails). Lengths match the domain limits.
+        builder.Property(s => s.LocalName).HasMaxLength(SchoolDetails.LocalNameMaxLength);
+        builder.Property(s => s.RegistrationNumber).HasMaxLength(SchoolDetails.RegistrationNumberMaxLength);
+        builder.Property(s => s.RegistrationAuthority).HasMaxLength(SchoolDetails.RegistrationAuthorityMaxLength);
+        builder.Property(s => s.TaxNumber).HasMaxLength(SchoolDetails.TaxNumberMaxLength);
+        builder.Property(s => s.Address).HasMaxLength(SchoolDetails.AddressMaxLength);
+        builder.Property(s => s.Phone).HasMaxLength(ContactRules.PhoneMaxLength);
+        builder.Property(s => s.Email).HasMaxLength(ContactRules.EmailMaxLength);
+        builder.Property(s => s.Website).HasMaxLength(ContactRules.WebsiteMaxLength);
+        builder.Property(s => s.AcademicYearStartMonth).HasDefaultValue(SchoolDetails.DefaultAcademicYearStartMonth);
+        builder.HasOne(s => s.City).WithMany().HasForeignKey(s => s.CityId).OnDelete(DeleteBehavior.Restrict);
+        builder.ToTable(t => t.HasCheckConstraint("CK_Schools_AcademicYearStartMonth", "\"AcademicYearStartMonth\" BETWEEN 1 AND 12"));
+
         // One school per domain: the domain is how a request finds its tenant (SEC-AUTHZ-10).
         builder.HasIndex(s => s.Domain).IsUnique();
 

@@ -1,0 +1,32 @@
+.mm-regional__title {
+  margin-block: 0 var(--mm-space-3);
+  font-size: var(--mm-text-base);
+  font-weight: 600;
+}
+
+.mm-regional__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--mm-space-2) var(--mm-space-3);
+}
+
+.mm-regional__form mat-form-field {
+  flex: 1 1 220px;
+}
+
+.mm-regional__form .mm-regional__wide {
+  flex-basis: 100%;
+}
+
+.mm-regional__error {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--mm-error);
+}
+
+.mm-regional__actions {
+  display: flex;
+  flex-basis: 100%;
+  gap: var(--mm-space-2);
+}

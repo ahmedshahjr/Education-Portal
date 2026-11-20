@@ -13,7 +13,7 @@ public static class EnumLookupTables
     /// tests (Respawn) leaves them alone.
     /// </summary>
     public static IReadOnlyList<string> Tables { get; } =
-        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes", "BillingCycles", "SubscriptionStatuses", "TenantModuleStatuses", "DataRegions", "InvoiceStatuses", "PaymentMethods", "AddOnRequestStatuses", "ChangeAuditActions", "CampusKinds", "UserTypes", "Genders", "ModuleCodes", "SchoolGenderPolicies", "CurriculumKinds", "FacilityKinds", "ClassLevels", "AdmissionStatuses", "PhotoKinds", "EnquiryChannels", "EnquiryStatuses", "FollowUpKinds", "VisitStatuses", "ReviewStatuses", "ReviewerRelations", "Weekdays", "EventAudiences"];
+        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes", "BillingCycles", "SubscriptionStatuses", "TenantModuleStatuses", "DataRegions", "InvoiceStatuses", "PaymentMethods", "AddOnRequestStatuses", "ChangeAuditActions", "CampusKinds", "UserTypes", "Genders", "ModuleCodes", "SchoolGenderPolicies", "CurriculumKinds", "FacilityKinds", "ClassLevels", "AdmissionStatuses", "PhotoKinds", "EnquiryChannels", "EnquiryStatuses", "FollowUpKinds", "VisitStatuses", "ReviewStatuses", "ReviewerRelations", "Weekdays", "EventAudiences", "AcademicYearStatuses", "HolidayTypes", "HolidayAudiences", "CalendarEventTypes", "CalendarEventAudiences", "DaysOfWeek"];
 
     internal static void Configure(ModelBuilder builder)
     {
@@ -48,10 +48,17 @@ public static class EnumLookupTables
         Map<SchoolReview, ReviewerRelation>(builder, Tables[28], r => r.Relation);
         Map<TimetableSlot, Weekday>(builder, Tables[29], t => t.Day);
         Map<SchoolEvent, EventAudience>(builder, Tables[30], e => e.Audience);
+        Map<AcademicYear, AcademicYearStatus>(builder, Tables[31], y => y.Status);
+        Map<Holiday, HolidayType>(builder, Tables[32], h => h.Type);
+        Map<Holiday, HolidayAudience>(builder, Tables[33], h => h.AppliesTo);
+        Map<CalendarEvent, CalendarEventType>(builder, Tables[34], e => e.Type);
+        Map<CalendarEvent, CalendarEventAudience>(builder, Tables[35], e => e.Audience);
+        Map<Country, DayOfWeek>(builder, Tables[36], c => c.WeekStartDay);
 
         // More columns of an enum that already has its lookup table.
         Reference<Subscription, BillingCycle>(builder, s => s.BillingCycle);
         Reference<AdmissionEnquiry, ClassLevel?>(builder, e => e.Level);
+        Reference<Campus, SchoolGenderPolicy>(builder, c => c.GenderPolicy);
     }
 
     // A nullable enum column (TColumn is TEnum?) is allowed to be empty; its lookup table is the one of TEnum.

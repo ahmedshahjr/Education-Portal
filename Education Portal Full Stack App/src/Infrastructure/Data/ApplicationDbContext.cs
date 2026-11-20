@@ -98,6 +98,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 
+    public DbSet<AcademicYear> AcademicYears => Set<AcademicYear>();
+
+    public DbSet<Term> Terms => Set<Term>();
+
+    public DbSet<Shift> Shifts => Set<Shift>();
+
+    public DbSet<Holiday> Holidays => Set<Holiday>();
+
+    public DbSet<CalendarEvent> CalendarEvents => Set<CalendarEvent>();
     public DbSet<Course> Courses => Set<Course>();
 
     public DbSet<Enrolment> Enrolments => Set<Enrolment>();

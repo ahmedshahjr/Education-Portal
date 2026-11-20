@@ -173,4 +173,16 @@ public enum SecurityAuditEventType
 
     /// <summary>A class offering was added, changed or deleted.</summary>
     ClassOfferingChanged = 59,
+
+    /// <summary>An academic year or one of its terms was added, changed or deleted.</summary>
+    AcademicYearChanged = 60,
+
+    /// <summary>A campus shift was added, changed or deleted.</summary>
+    ShiftChanged = 61,
+
+    /// <summary>A holiday or an event on the school calendar was added, changed or deleted.</summary>
+    SchoolCalendarChanged = 62,
+
+    /// <summary>The school's registration and contact details were changed.</summary>
+    SchoolDetailsChanged = 63,
 }

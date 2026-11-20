@@ -6,9 +6,18 @@ namespace EducationPortal.Application.Campuses.Common;
 /// A campus of a school (the class keeps its name). <see cref="Code"/> is the four-digit code; <see cref="DisplayCode"/> is
 /// the code as the school shows it, with the school's prefix when the prefix is on. <see cref="Kind"/> is
 /// <see cref="CampusKind.Main"/> for the registration campus. <see cref="Details"/> holds the contact and registration
-/// details, with the names of the state, city and principal for display.
+/// details, with the names of the state, city and principal for display. <see cref="LocalName"/> is the name in the local
+/// language and script, and <see cref="GenderPolicy"/> says whether it teaches boys, girls or both.
 /// </summary>
-public sealed record CampusDto(Guid Id, string Name, string Code, string DisplayCode, CampusKind Kind, CampusDetailsDto Details);
+public sealed record CampusDto(
+    Guid Id,
+    string Name,
+    string Code,
+    string DisplayCode,
+    CampusKind Kind,
+    CampusDetailsDto Details,
+    string? LocalName,
+    SchoolGenderPolicy GenderPolicy);
 
 /// <summary>The contact and registration details of a campus. Links are public ids; names are for display.</summary>
 public sealed record CampusDetailsDto(

@@ -19,6 +19,12 @@ public partial class Country : BaseSoftDeletableEntity
     public const int Iso3Length = 3;
     public const int PhoneCodeMaxLength = 16;
     public const int NativeNameMaxLength = 200;
+    public const int MaxCurrencyDecimals = 4;
+    public const int PhonePatternMaxLength = 200;
+    public const int MaxWeekendDays = 3;
+
+    /// <summary>How long a phone pattern may take to test one number, so a badly written pattern cannot stall a request.</summary>
+    public static readonly TimeSpan PhonePatternTimeout = TimeSpan.FromMilliseconds(100);
 
     private readonly List<string> _languages = [];
 
@@ -80,6 +86,78 @@ public partial class Country : BaseSoftDeletableEntity
 
     /// <summary>The ISO 4217 currency code, for example <c>PKR</c>.</summary>
     public string CurrencyCode { get; private set; }
+
+    /// <summary>Digits after the decimal point in the currency, for example 2 for PKR and 0 for JPY.</summary>
+    public int CurrencyDecimals { get; private set; } = 2;
+
+    /// <summary>
+    /// A regular expression a local phone number must match, for example <c>^03\d{9}$</c>, or <c>null</c> when numbers are
+    /// only checked for their length (<see cref="ValueObjects.ContactRules"/>).
+    /// </summary>
+    public string? PhonePattern { get; private set; }
+
+    /// <summary>The first day of the week on calendars, for example Monday in Pakistan and Sunday in Saudi Arabia.</summary>
+    public DayOfWeek WeekStartDay { get; private set; } = DayOfWeek.Monday;
+
+    private readonly List<DayOfWeek> _weekendDays = [DayOfWeek.Saturday, DayOfWeek.Sunday];
+
+    /// <summary>The days schools are normally closed, in week order from <see cref="WeekStartDay"/>.</summary>
+    public IReadOnlyList<DayOfWeek> WeekendDays => _weekendDays.AsReadOnly();
+
+    /// <summary>
+    /// Sets the conventions schools in the country follow: currency decimals, the phone number pattern, the first day of the
+    /// week and the weekend. Only the master tenant changes them; the location data import never does.
+    /// </summary>
+    public void SetRegionalSettings(int currencyDecimals, string? phonePattern, DayOfWeek weekStartDay, IEnumerable<DayOfWeek> weekendDays)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(currencyDecimals);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(currencyDecimals, MaxCurrencyDecimals);
+        ArgumentNullException.ThrowIfNull(weekendDays);
+
+        if (!Enum.IsDefined(weekStartDay))
+        {
+            throw new ArgumentOutOfRangeException(nameof(weekStartDay), weekStartDay, "Unknown day of the week.");
+        }
+
+        var pattern = string.IsNullOrWhiteSpace(phonePattern) ? null : phonePattern.Trim();
+        if (pattern is not null && !IsValidPhonePattern(pattern))
+        {
+            throw new ArgumentException("The phone pattern must be a valid regular expression of at most 200 characters.", nameof(phonePattern));
+        }
+
+        var days = weekendDays.Distinct().ToList();
+        if (days.Any(day => !Enum.IsDefined(day)))
+        {
+            throw new ArgumentOutOfRangeException(nameof(weekendDays), "Unknown day of the week.");
+        }
+
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(days.Count, MaxWeekendDays, nameof(weekendDays));
+
+        CurrencyDecimals = currencyDecimals;
+        PhonePattern = pattern;
+        WeekStartDay = weekStartDay;
+        _weekendDays.Clear();
+        _weekendDays.AddRange(days.OrderBy(day => ((int)day - (int)weekStartDay + 7) % 7));
+    }
+
+    /// <summary>True for a regular expression of at most <see cref="PhonePatternMaxLength"/> characters that .NET can compile.</summary>
+    public static bool IsValidPhonePattern(string? pattern)
+    {
+        if (string.IsNullOrWhiteSpace(pattern) || pattern.Length > PhonePatternMaxLength)
+        {
+            return false;
+        }
+
+        try
+        {
+            _ = new Regex(pattern, RegexOptions.CultureInvariant, PhonePatternTimeout);
+            return true;
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+    }
 
     public void Update(string name, IEnumerable<string> languages, string defaultLanguage, string timeZoneId, string currencyCode)
     {

@@ -118,6 +118,10 @@ Effective access for a school user = **modules enabled for their school** ∩ **
 
 Each school has its own public page on its own domain, open without sign-in (a cross-school directory is out of scope). The tables, all `ITenantOwned`: `SchoolProfile` (tagline, about, year, boys/girls/co-ed, visiting hours, virtual tour, published or draft), `SchoolCurriculum` and `SchoolFacility` (closed sets: `CurriculumKind`, `FacilityKind`), `ClassOffering` (class, academic year, fees, seats, `AdmissionStatus`, optionally per campus), `SchoolPhoto` (gallery, PNG/JPEG/WebP up to 2 MB, type read from the bytes), `SchoolReview` (rating 1 to 5, starts `Pending`, public only when approved, the school may reply) and the enquiry flow in the `admissions` schema: `AdmissionEnquiry` (`EnquiryChannel` Online, Phone or InPerson; an online enquiry records consent), `EnquiryFollowUp` (calls, emails, visits, notes) and `CampusVisit`. Only entities exist so far: the endpoints, the public Angular page and the staff screens are not built. An enquiry holds personal data of a parent and a child, so it is hard-deleted on erasure and its retention period is still to be decided (SEC-PII-06).
 
+### Academic calendar and regional details (phase A of the entity spec, 2026-11-20)
+
+All `ITenantOwned` with soft delete, in the `academics` schema, behind the Academic setup module (`ModuleCode.AcademicSetup`): `AcademicYear` (one current per school, no overlaps, a closed year is read only), `Term` (inside its year, order 1 to 12, no overlaps), `Shift` (per campus), `Holiday` and `CalendarEvent` (whole school when `CampusId` is null). `School` gains registration and contact details (`SchoolDetails` value object, `UpdateDetails`), `Campus` a local name and a `SchoolGenderPolicy`, and `Country` regional settings (currency decimals, phone pattern, week start, weekend days) set by the master tenant only. The theme in `Theme Angular/` has no calendar, so calendars and date pickers are Angular Material's (`provideNativeDateAdapter`, styled through `--mat-datepicker-*` tokens mapped to `--mm-*` in `styles/_material-overrides.scss`). A date without a time (`DateOnly`) is shown with the `calendarDate` pipe and converted with `fromApiDate`/`dateKey` (`features/academic-calendar/academic-calendar.logic.ts`), never with `localDate`, which would shift it by time zone. Deferred: `ClassOffering.AcademicYear` stays text until the public page moves to `AcademicYear`; rights below Administrator wait for phase B (users and roles).
+
 ## 3. Tech stack (from the template files)
 
 | Area | Choice |
@@ -282,6 +286,11 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
    6. Is it over-engineered or under-built for the real constraints? (REVIEW-06)
    - **CI enforces this:** `docs/ai/review-checklist-guard.py` runs on every pull request and fails when the Review checklist section is missing, an item is missing or duplicated, or an item is not ticked. It matches the `(REVIEW-0N)` tags, so keep them when copying the list. Run it yourself on a saved description: `python3 docs/ai/review-checklist-guard.py --pr-body-file body.md`.
    - A tick is a statement that the question was asked honestly. Do not tick a box to get CI green.
+
+10. **The base branch is always `development`** (decided 2026-11-20). Every feature branch starts from the latest `origin/development` and every pull request targets `development`, never `main` (`main` only receives releases from `development`). Before asking for review, and again whenever GitHub reports a merge conflict, bring the branch up to date and resolve the conflicts yourself:
+    - `git fetch origin development && git merge origin/development`, resolve each conflict keeping both sides' work, then build and run the tests before pushing. Never rebase or force-push a branch that is already pushed.
+    - Where both sides add to the same list (DbSets, `DatabaseSchemas`, `EnumLookupTables.Tables` and its indices, `.resx` entries and `ValidationMessages.Designer.cs`), keep every entry; new lookup tables go after the base branch's, with their indices shifted.
+    - EF Core migrations are never merged by hand: when both sides added one, remove the branch's own migration, keep the base branch's, and run `dotnet ef migrations add` again so its snapshot matches the merged model.
 
 <!-- BEGIN GENERATED: ai skills (docs/ai/sync-ai-wrappers.py) -->
 All AI skills (same list for every tool). Read both overviews (`secure-compliance` and `engineering-standards`) first, then every skill that matches the change:

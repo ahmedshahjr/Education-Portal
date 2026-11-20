@@ -26,6 +26,19 @@ public class CountryConfiguration : IEntityTypeConfiguration<Country>
         builder.Property(c => c.PhoneCode).HasMaxLength(Country.PhoneCodeMaxLength);
         builder.Property(c => c.NativeName).HasMaxLength(Country.NativeNameMaxLength);
 
+        // Regional settings (Country.SetRegionalSettings).
+        builder.Property(c => c.CurrencyDecimals).HasDefaultValue(2);
+        builder.Property(c => c.PhonePattern).HasMaxLength(Country.PhonePatternMaxLength);
+        builder.Property(c => c.WeekStartDay).HasDefaultValue(DayOfWeek.Monday);
+
+        // Weekend days are a PostgreSQL integer[] of DayOfWeek numbers, read and written through the entity's field.
+        builder.PrimitiveCollection(c => c.WeekendDays)
+            .HasField("_weekendDays")
+            .UsePropertyAccessMode(PropertyAccessMode.Field)
+            .IsRequired();
+
+        builder.ToTable(t => t.HasCheckConstraint("CK_Countries_CurrencyDecimals", $"\"CurrencyDecimals\" BETWEEN 0 AND {Country.MaxCurrencyDecimals}"));
+
         builder.HasIndex(c => c.Code).IsUnique();
         builder.HasIndex(c => c.Iso3).IsUnique();
     }

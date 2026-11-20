@@ -11,6 +11,7 @@ import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { CampusDetailsDialogComponent } from './campus-details-dialog.component';
 import { CampusLocationPickerComponent } from './campus-location-picker.component';
+import { genderPolicyOptions } from './campus-gender-policy';
 import { CampusScopeService } from '../../core/campus/campus-scope.service';
 import { problemMessages } from '../../core/http/problem-details';
 import { LatLng } from '../../core/maps/google-maps';
@@ -28,6 +29,7 @@ import {
   CampusLocationsDto,
   CampusStateDto,
   CreateCampusCommand,
+  SchoolGenderPolicy,
   UpdateCampusCommand,
   UserDetailsClient,
   UserDetailsDto,
@@ -102,6 +104,9 @@ export class CampusesPage {
   protected readonly principals = signal<readonly UserDetailsDto[]>([]);
 
   protected readonly kinds = CampusKind;
+
+  /** The gender policies a campus can have, with their labels. */
+  protected readonly genderPolicies = genderPolicyOptions();
   protected readonly maxPhones = MAX_PHONES;
 
   /** The list filters: a state (province) and a city, or '' for all. */
@@ -153,6 +158,8 @@ export class CampusesPage {
 
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(200)]],
+    localName: ['', [Validators.maxLength(200)]],
+    genderPolicy: [SchoolGenderPolicy.CoEducation],
     address: ['', [Validators.required, Validators.maxLength(300)]],
     stateId: ['', [Validators.required]],
     cityId: ['', [Validators.required]],
@@ -233,7 +240,7 @@ export class CampusesPage {
     this.adding.set(true);
   }
 
-  protected startEdit(campus: CampusDto): void {
+  startEdit(campus: CampusDto): void {
     this.errors.set([]);
     this.adding.set(false);
     this.editingId.set(campus.id);
@@ -241,6 +248,8 @@ export class CampusesPage {
     const phones = details.phones.length > 0 ? details.phones : [''];
     this.form.reset({
       name: campus.name,
+      localName: campus.localName ?? '',
+      genderPolicy: campus.genderPolicy,
       address: details.address ?? '',
       stateId: details.stateId ?? '',
       cityId: details.cityId ?? '',
@@ -318,9 +327,15 @@ export class CampusesPage {
 
     this.busy.set(true);
     this.errors.set([]);
+    const profile = {
+      name: value.name.trim(),
+      localName: value.localName.trim() || undefined,
+      genderPolicy: value.genderPolicy,
+      details,
+    };
     const request: Observable<unknown> = editing
-      ? this.campusesClient.updateCampus(editing, new UpdateCampusCommand({ name: value.name.trim(), details }))
-      : this.campusesClient.createCampus(new CreateCampusCommand({ name: value.name.trim(), details }));
+      ? this.campusesClient.updateCampus(editing, new UpdateCampusCommand(profile))
+      : this.campusesClient.createCampus(new CreateCampusCommand(profile));
 
     request.subscribe({
       next: () => {
@@ -358,6 +373,8 @@ export class CampusesPage {
   private resetForm(): void {
     this.form.reset({
       name: '',
+      localName: '',
+      genderPolicy: SchoolGenderPolicy.CoEducation,
       address: '',
       stateId: '',
       cityId: '',

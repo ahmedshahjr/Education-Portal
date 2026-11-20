@@ -7,4 +7,8 @@ public sealed record CountryDto(
     IReadOnlyList<string> Languages,
     string DefaultLanguage,
     string TimeZoneId,
-    string CurrencyCode);
+    string CurrencyCode,
+    int CurrencyDecimals,
+    string? PhonePattern,
+    DayOfWeek WeekStartDay,
+    IReadOnlyList<DayOfWeek> WeekendDays);

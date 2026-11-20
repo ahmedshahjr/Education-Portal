@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it } from 'vitest';
-import { CountryDto } from '../../web-api-client';
+import { CountryDto, DayOfWeek } from '../../web-api-client';
 import { NewSchool, SchoolFormComponent } from './school-form.component';
 
 const countries = [
-  new CountryDto({ id: '0190f3a0-0000-7000-8000-000000000001', code: 'PK', name: 'Pakistan', languages: ['en', 'ur'], defaultLanguage: 'en', timeZoneId: 'Asia/Karachi', currencyCode: 'PKR' }),
+  new CountryDto({ id: '0190f3a0-0000-7000-8000-000000000001', code: 'PK', name: 'Pakistan', languages: ['en', 'ur'], defaultLanguage: 'en', timeZoneId: 'Asia/Karachi', currencyCode: 'PKR', currencyDecimals: 2, phonePattern: undefined, weekStartDay: DayOfWeek.Monday, weekendDays: [DayOfWeek.Saturday, DayOfWeek.Sunday] }),
 ];
 
 function create() {

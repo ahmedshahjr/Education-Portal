@@ -1,4 +1,5 @@
 using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Common.Security;
 
 namespace EducationPortal.Application.Calendar.Commands.MarkNotificationRead;
@@ -25,11 +26,13 @@ public class MarkNotificationReadCommandHandler : IRequestHandler<MarkNotificati
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
+    private readonly TimeProvider _timeProvider;
 
-    public MarkNotificationReadCommandHandler(IApplicationDbContext context, IUser user)
+    public MarkNotificationReadCommandHandler(IApplicationDbContext context, IUser user, TimeProvider timeProvider)
     {
         _context = context;
         _user = user;
+        _timeProvider = timeProvider;
     }
 
     public async Task Handle(MarkNotificationReadCommand request, CancellationToken cancellationToken)
@@ -40,7 +43,7 @@ public class MarkNotificationReadCommandHandler : IRequestHandler<MarkNotificati
             n => n.Id == notificationId && n.RecipientAccountId == _user.Id, cancellationToken);
         Guard.Against.NotFound(request.Id, notification);
 
-        notification.MarkRead(DateTimeOffset.UtcNow);
+        notification.MarkRead(_timeProvider.GetUtcNow());
         await _context.SaveChangesAsync(cancellationToken);
     }
 }

@@ -40,7 +40,7 @@ public class GetCountriesQueryHandler : IRequestHandler<GetCountriesQuery, Pagin
             .AsNoTracking()
             .OrderBy(c => c.Name)
             .ThenBy(c => c.Id)
-            .Select(c => new CountryDto(c.PublicId, c.Code, c.Name, c.Languages, c.DefaultLanguage, c.TimeZoneId, c.CurrencyCode));
+            .Select(c => new CountryDto(c.PublicId, c.Code, c.Name, c.Languages, c.DefaultLanguage, c.TimeZoneId, c.CurrencyCode, c.CurrencyDecimals, c.PhonePattern, c.WeekStartDay, c.WeekendDays));
 
         return await PaginatedList<CountryDto>.CreateAsync(countries, request.PageNumber, request.PageSize, cancellationToken);
     }

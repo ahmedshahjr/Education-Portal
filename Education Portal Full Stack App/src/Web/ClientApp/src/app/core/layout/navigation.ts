@@ -30,6 +30,7 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
       { id: 'campuses', label: $localize`:@@nav.campuses:Campuses`, icon: 'git-branch', route: '/campuses', access: 'school-administrator', module: MODULE_CODES.campus },
       { id: 'people', label: $localize`:@@nav.people:Users`, icon: 'users', route: '/people', access: 'school-administrator', module: MODULE_CODES.staff },
       { id: 'roles', label: $localize`:@@nav.roles:Roles`, icon: 'key-round', route: '/roles', access: 'school-administrator', module: MODULE_CODES.usersRoles },
+      { id: 'academic-calendar', label: $localize`:@@nav.academicCalendar:Academic calendar`, icon: 'calendar', route: '/academic-calendar', access: 'school-administrator', module: MODULE_CODES.academicSetup },
       { id: 'class-offerings', label: $localize`:@@nav.classOfferings:Class offerings`, icon: 'book-open', route: '/class-offerings', access: 'school-administrator', module: MODULE_CODES.school },
       { id: 'audit', label: $localize`:@@nav.audit:Change history`, icon: 'file-text', route: '/audit', access: 'school-administrator' },
       { id: 'my-children', label: $localize`:@@nav.myChildren:My children`, icon: 'users', route: '/my-children', access: 'everyone', module: MODULE_CODES.students },
@@ -46,6 +47,7 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
         access: 'administrator',
         children: [
           { id: 'branding', label: $localize`:@@nav.branding:Branding`, icon: 'sliders-horizontal', route: '/settings/branding', access: 'administrator' },
+          { id: 'school-details', label: $localize`:@@nav.schoolDetails:School details`, icon: 'file-text', route: '/settings/school-details', access: 'school-administrator', module: MODULE_CODES.school },
           { id: 'campus-codes', label: $localize`:@@nav.campusCodes:Campus codes`, icon: 'git-branch', route: '/settings/campus-codes', access: 'school-administrator', module: MODULE_CODES.campus },
         ],
       },

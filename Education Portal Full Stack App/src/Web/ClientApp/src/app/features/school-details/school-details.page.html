@@ -1,0 +1,111 @@
+<app-page-header
+  title="School details"
+  i18n-title="@@schoolDetails.title"
+  subtitle="Your school's registration and contact details. Campus details are kept on each campus."
+  i18n-subtitle="@@schoolDetails.subtitle"
+></app-page-header>
+
+@if (loadError(); as message) {
+  <app-empty-state
+    icon="alert-triangle"
+    title="School details could not be loaded"
+    i18n-title="@@schoolDetails.loadError"
+    [description]="message"
+    actionLabel="Try again"
+    i18n-actionLabel="@@common.tryAgain"
+    (action)="load()"
+  />
+} @else if (!loaded()) {
+  <app-loading-state [rows]="4" />
+} @else {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <form class="mm-school-details__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <h2 class="mm-school-details__heading" i18n="@@schoolDetails.registrationHeading">Registration</h2>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolDetails.localName">Name in the local language</mat-label>
+          <input matInput formControlName="localName" maxlength="200" autocomplete="off" dir="auto" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolDetails.registrationNumber">Registration number</mat-label>
+          <input matInput formControlName="registrationNumber" maxlength="50" autocomplete="off" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolDetails.registrationAuthority">Registered with</mat-label>
+          <input matInput formControlName="registrationAuthority" maxlength="200" autocomplete="off" />
+          <mat-hint i18n="@@schoolDetails.registrationAuthorityHint">The board or ministry the school is registered with.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolDetails.taxNumber">Tax number</mat-label>
+          <input matInput formControlName="taxNumber" maxlength="50" autocomplete="off" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolDetails.academicYearStartMonth">Academic year usually starts in</mat-label>
+          <mat-select formControlName="academicYearStartMonth">
+            @for (month of months; track month.value) {
+              <mat-option [value]="month.value">{{ month.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <h2 class="mm-school-details__heading" i18n="@@schoolDetails.contactHeading">Head office</h2>
+
+        <mat-form-field appearance="outline" class="mm-school-details__wide">
+          <mat-label i18n="@@schoolDetails.address">Address</mat-label>
+          <input matInput formControlName="address" maxlength="300" autocomplete="off" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolDetails.state">State or province</mat-label>
+          <mat-select formControlName="stateId" (selectionChange)="onStateChange()">
+            <mat-option value="" i18n="@@schoolDetails.none">Not set</mat-option>
+            @for (state of locations()?.states ?? []; track state.id) {
+              <mat-option [value]="state.id">{{ state.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolDetails.city">City</mat-label>
+          <mat-select formControlName="cityId">
+            <mat-option value="" i18n="@@schoolDetails.none">Not set</mat-option>
+            @for (city of citiesOf(form.controls.stateId.value); track city.id) {
+              <mat-option [value]="city.id">{{ city.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolDetails.phone">Phone</mat-label>
+          <input matInput formControlName="phone" maxlength="30" autocomplete="off" dir="ltr" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolDetails.email">Email</mat-label>
+          <input matInput type="email" formControlName="email" maxlength="254" autocomplete="off" dir="ltr" />
+          @if (form.controls.email.hasError('email')) {
+            <mat-error i18n="@@schoolDetails.emailInvalid">Enter a valid email address.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolDetails.website">Website</mat-label>
+          <input matInput formControlName="website" maxlength="2048" autocomplete="off" dir="ltr" />
+        </mat-form-field>
+
+        @for (message of errors(); track message) {
+          <p class="mm-school-details__error" role="alert">{{ message }}</p>
+        }
+
+        <div class="mm-school-details__actions">
+          <button mat-flat-button type="submit" [disabled]="busy() || form.invalid || form.pristine" i18n="@@schoolDetails.save">Save</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+}

@@ -2,6 +2,7 @@ using EducationPortal.Application.Calendar.Common;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Localization;
 using EducationPortal.Application.Common.Models;
+using EducationPortal.Application.Common.Security;
 using EducationPortal.Application.Academics.Common;
 using EducationPortal.Domain.Communication;
 using EducationPortal.Domain.Enums;

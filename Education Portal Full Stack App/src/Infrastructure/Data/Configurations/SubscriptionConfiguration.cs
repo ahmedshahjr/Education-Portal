@@ -1,4 +1,5 @@
 ﻿using EducationPortal.Domain.Entities;
+using EducationPortal.Domain.Enums;
 using EducationPortal.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -44,6 +45,8 @@ public class CampusConfiguration : IEntityTypeConfiguration<Campus>
         builder.HasOne(b => b.City).WithMany().HasForeignKey(b => b.CityId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(b => b.PrincipalUserDetails).WithMany().HasForeignKey(b => b.PrincipalUserDetailsId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(b => b.PrincipalUserDetailsId);
+        builder.Property(b => b.LocalName).HasMaxLength(Campus.LocalNameMaxLength);
+        builder.Property(b => b.GenderPolicy).HasDefaultValue(SchoolGenderPolicy.CoEducation);
     }
 }
 

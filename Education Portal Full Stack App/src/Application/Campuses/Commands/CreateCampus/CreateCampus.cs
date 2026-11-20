@@ -20,6 +20,12 @@ public record CreateCampusCommand : IRequest<Guid>
 {
     public string Name { get; init; } = string.Empty;
 
+    /// <summary>The name in the local language and script, or blank for none.</summary>
+    public string? LocalName { get; init; }
+
+    /// <summary>Whether the campus teaches boys, girls or both.</summary>
+    public SchoolGenderPolicy GenderPolicy { get; init; } = SchoolGenderPolicy.CoEducation;
+
     /// <summary>The contact and registration details of the campus. Required: see <see cref="CampusDetailsInput"/>.</summary>
     public CampusDetailsInput Details { get; init; } = new();
 }
@@ -31,6 +37,9 @@ public class CreateCampusCommandValidator : AbstractValidator<CreateCampusComman
         RuleFor(c => c.Name)
             .NotEmpty()
             .MaximumLength(Campus.NameMaxLength);
+
+        RuleFor(c => c.LocalName).MaximumLength(Campus.LocalNameMaxLength);
+        RuleFor(c => c.GenderPolicy).IsInEnum();
 
         RuleFor(c => c.Details)
             .SetValidator(new CampusDetailsInputValidator());
@@ -67,6 +76,7 @@ public class CreateCampusCommandHandler : IRequestHandler<CreateCampusCommand, G
 
         var campus = Campus.Create(schoolId, request.Name, code);
         campus.UpdateDetails(details);
+        campus.SetProfile(request.LocalName, request.GenderPolicy);
         _context.Campuses.Add(campus);
         await _context.SaveChangesAsync(cancellationToken);
 
