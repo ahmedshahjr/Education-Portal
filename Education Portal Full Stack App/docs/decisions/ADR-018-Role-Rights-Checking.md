@@ -11,7 +11,7 @@ stored and shown, but no request was checked against them. A teacher could reach
 
 ## Decision
 
-1. **A use case names the right it needs.** `[Authorize(Module = ModuleCode.X, Right = AccessRight.View | Create | Edit | Delete)]`.
+1. **A use case names the right it needs.** `[Authorize(Module = ModuleCode.X, Right = AccessRight.View | Create | Edit | Delete | Approve | Export)]`. Approve and Export were added on 2026-11-20 (phase B of the entity spec); every right needs View.
    A request that names a right must also name its module; otherwise it is refused with an error in the code.
 2. **Roles decide, per school.** The right holds when one of the user's `AccountRole`s of the request's school has a
    `RolePermission` for that module that gives the right. The check is `IRoleRights.HasRightAsync`, which fails closed.
