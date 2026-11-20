@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { ChangePasswordCommand, CurrentUserDto, SignInCommand, UsersClient } from '../../web-api-client';
+import { ChangePasswordCommand, CurrentUserDto, ModuleCode, SignInCommand, UsersClient } from '../../web-api-client';
 import { BrandingService } from '../branding/branding.service';
 import { ModulesService } from '../modules/modules.service';
 
@@ -26,14 +26,19 @@ export class AuthService {
    * Asks the server who is signed in. The answer also gives a fresh antiforgery token for this visitor, because a token
    * is bound to the identity it was issued for (SEC-WEB-03).
    */
-  initialize(): Observable<boolean> {
+  initialize(modulesFromSignIn?: readonly ModuleCode[]): Observable<boolean> {
     return this.users.getCurrentUser().pipe(
       tap((user) => this.user.set(user)),
       // The modules switched on for the school decide what the menu shows. An account that must change its one-time
-      // password can't read them yet (the server refuses), and sees no menu until it has.
+      // password can't read them yet (the server refuses), and sees no menu until it has. The sign-in answer already
+      // carries the list, so after signing in no second request is made for it.
       switchMap((user) => {
         if (user.mustChangePassword) {
           this.modules.clear();
+          return of(undefined);
+        }
+        if (modulesFromSignIn) {
+          this.modules.set(modulesFromSignIn);
           return of(undefined);
         }
         return this.modules.load();
@@ -53,7 +58,7 @@ export class AuthService {
    */
   signIn(email: string, password: string): Observable<void> {
     return this.users.signIn(new SignInCommand({ email, password })).pipe(
-      switchMap(() => this.initialize()),
+      switchMap((answer) => this.initialize(answer.modules)),
       switchMap(() => this.branding.load()),
       map(() => undefined)
     );

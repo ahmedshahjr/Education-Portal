@@ -647,7 +647,7 @@ sequenceDiagram
     H->>A: SignInSucceeded, SignInFailed, SignInLockedOut or TenantMismatch
     alt succeeded
         SM-->>UI: host-only session cookie with the SchoolId claim<br/>(15 min sliding, 12 h absolute)
-        E-->>UI: 200
+        E-->>UI: 200 with the school's enabled modules
         UI->>E: GET /api/Users/me
         E-->>UI: current user (with mustChangePassword) and a fresh antiforgery token
         opt account still has its one-time password

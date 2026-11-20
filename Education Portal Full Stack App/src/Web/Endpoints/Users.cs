@@ -44,13 +44,13 @@ public class Users : IEndpointGroup
     }
 
     [EndpointSummary("Sign in")]
-    [EndpointDescription("Signs the user in with email and password and sets the session cookie. Every failure returns 401 with the same message, so the response does not show whether an account exists or is locked.")]
-    public static async Task<Results<Ok, ProblemHttpResult>> SignIn(ISender sender, SignInCommand command)
+    [EndpointDescription("Signs the user in with email and password and sets the session cookie. The answer lists the modules the school may use, so the menu needs no second request. Every failure returns 401 with the same message, so the response does not show whether an account exists or is locked.")]
+    public static async Task<Results<Ok<SignInResponse>, ProblemHttpResult>> SignIn(ISender sender, SignInCommand command)
     {
-        var signedIn = await sender.Send(command);
+        var outcome = await sender.Send(command);
 
-        return signedIn
-            ? TypedResults.Ok()
+        return outcome.SignedIn
+            ? TypedResults.Ok(new SignInResponse(outcome.Modules))
             : TypedResults.Problem(
                 title: "Unauthorized",
                 detail: "Invalid email or password.",

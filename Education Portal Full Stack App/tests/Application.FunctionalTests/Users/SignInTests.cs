@@ -31,6 +31,20 @@ public class SignInTests : TestBase
     }
 
     [Test]
+    public async Task ShouldReturnTheModulesTheSchoolMayUseWithTheSignIn()
+    {
+        await TestApp.RunAsAdministratorAsync();
+        using var session = TestHttp.CreateDevelopmentSession();
+
+        var response = await session.SignInAsync(TestApp.AdministratorEmail, TestApp.AdministratorPassword);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        using var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        // The master tenant oversees every module, so the answer lists the whole catalogue, not an empty list.
+        body.RootElement.GetProperty("modules").GetArrayLength().ShouldBeGreaterThan(0);
+    }
+
+    [Test]
     public async Task ShouldAnswerAWrongPasswordAndAnUnknownEmailTheSameWay()
     {
         await TestApp.RunAsDefaultUserAsync();

@@ -28,6 +28,14 @@ describe('ModulesService', () => {
     expect(service.isEnabled(ModuleCode.Fees)).toBe(false);
   });
 
+  it('takes the list from the sign-in answer without asking the server again', () => {
+    service.set([ModuleCode.Students, ModuleCode.Students, ModuleCode.Fees]);
+
+    // No request is made: the sign-in answer already held the list (afterEach verifies there are no open requests).
+    expect(service.count()).toBe(2);
+    expect(service.isEnabled(ModuleCode.Fees)).toBe(true);
+  });
+
   it('shows no module when the list cannot be loaded', async () => {
     let done = false;
     service.load().subscribe(() => (done = true));

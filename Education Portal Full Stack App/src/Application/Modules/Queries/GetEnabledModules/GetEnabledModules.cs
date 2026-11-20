@@ -1,5 +1,6 @@
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Security;
+using EducationPortal.Application.Modules.Common;
 
 namespace EducationPortal.Application.Modules.Queries.GetEnabledModules;
 
@@ -28,17 +29,6 @@ public class GetEnabledModulesQueryHandler : IRequestHandler<GetEnabledModulesQu
     {
         var schoolId = _tenant.SchoolId ?? throw new UnauthorizedAccessException();
 
-        if (_tenant.IsMaster)
-        {
-            // The master tenant oversees everything, so every module is on for it.
-            return await _context.Modules
-                .AsNoTracking()
-                .OrderBy(m => m.SortOrder)
-                .ThenBy(m => m.Code)
-                .Select(m => m.Code)
-                .ToListAsync(cancellationToken);
-        }
-
-        return await _moduleAccess.GetEnabledCodesAsync(schoolId, cancellationToken);
+        return await EnabledModules.ForTenantAsync(_context, _moduleAccess, schoolId, _tenant.IsMaster, cancellationToken);
     }
 }
