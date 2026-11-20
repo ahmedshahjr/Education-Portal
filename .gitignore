@@ -30,3 +30,11 @@ Thumbs.db
 run-claude.bat
 /claudeollama.bat
 /.claude-flow/cost/attribution.jsonl
+
+# Claude tooling runtime state (generated, machine-specific; not project source)
+.claude/helpers/
+.claude-flow/policy/
+.claude-flow/sessions/
+.claude-flow/metrics/
+.claude-flow/daemon-state.json
+.claude-flow/daemon.pid
