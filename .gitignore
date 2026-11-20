@@ -24,9 +24,17 @@ Thumbs.db
 .env.*.local
 .claude-flow/data/
 .claude-flow/logs/
-.claude-flow/sessions/
+**/.claude-flow/sessions/
 
 # Local launcher script for Claude Code (not part of the project)
 run-claude.bat
 /claudeollama.bat
 /.claude-flow/cost/attribution.jsonl
+
+# Claude tooling runtime state (generated, machine-specific; not project source)
+.claude/helpers/
+**/.claude-flow/policy/
+**/.claude-flow/sessions/
+**/.claude-flow/metrics/
+.claude-flow/daemon-state.json
+.claude-flow/daemon.pid

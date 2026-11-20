@@ -1001,5 +1001,122 @@ namespace EducationPortal.Application.Common.Localization {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to The chosen person is not a teacher.
+        /// </summary>
+        internal static string PersonIsNotTeacher {
+            get {
+                return ResourceManager.GetString("PersonIsNotTeacher", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This student is already enrolled in this class.
+        /// </summary>
+        internal static string StudentAlreadyEnrolled {
+            get {
+                return ResourceManager.GetString("StudentAlreadyEnrolled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The weights of the course's assessments cannot add up to more than 100.
+        /// </summary>
+        internal static string AssessmentWeightsTooHigh {
+            get {
+                return ResourceManager.GetString("AssessmentWeightsTooHigh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A score is from 0 to the assessment's maximum.
+        /// </summary>
+        internal static string ScoreOutOfRange {
+            get {
+                return ResourceManager.GetString("ScoreOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The bands must cover 0 to 100 once: each band needs a letter, its minimum must not be above its maximum, and the bands must neither overlap nor leave a gap.
+        /// </summary>
+        internal static string GradeScaleInvalid {
+            get {
+                return ResourceManager.GetString("GradeScaleInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The teacher already teaches a lesson at this time (lesson {0}).
+        /// </summary>
+        internal static string TimetableTeacherClash {
+            get {
+                return ResourceManager.GetString("TimetableTeacherClash", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The room is already booked at this time (lesson {0}).
+        /// </summary>
+        internal static string TimetableRoomClash {
+            get {
+                return ResourceManager.GetString("TimetableRoomClash", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The class already has a lesson at this time (lesson {0}).
+        /// </summary>
+        internal static string TimetableClassClash {
+            get {
+                return ResourceManager.GetString("TimetableClassClash", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A lesson ends after it starts.
+        /// </summary>
+        internal static string TimetableEndsAfterStart {
+            get {
+                return ResourceManager.GetString("TimetableEndsAfterStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An event ends after it starts.
+        /// </summary>
+        internal static string EventEndsAfterStart {
+            get {
+                return ResourceManager.GetString("EventEndsAfterStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The calendar range ends after it starts.
+        /// </summary>
+        internal static string CalendarRangeInvalid {
+            get {
+                return ResourceManager.GetString("CalendarRangeInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A calendar range covers at most 366 days.
+        /// </summary>
+        internal static string CalendarRangeTooLong {
+            get {
+                return ResourceManager.GetString("CalendarRangeTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This student is not enrolled in the course's class.
+        /// </summary>
+        internal static string StudentNotInCourseClass {
+            get {
+                return ResourceManager.GetString("StudentNotInCourseClass", resourceCulture);
+            }
+        }
+        
 }
 }

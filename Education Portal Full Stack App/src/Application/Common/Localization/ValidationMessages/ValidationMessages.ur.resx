@@ -432,4 +432,43 @@
   <data name="RoleNotInSchool" xml:space="preserve">
     <value>ایک کردار اس مدرسے کا نہیں ہے۔</value>
   </data>
+  <data name="PersonIsNotTeacher" xml:space="preserve">
+    <value>منتخب شخص استاد نہیں ہے۔</value>
+  </data>
+  <data name="StudentAlreadyEnrolled" xml:space="preserve">
+    <value>یہ طالب علم اس کلاس میں پہلے ہی داخل ہے۔</value>
+  </data>
+  <data name="AssessmentWeightsTooHigh" xml:space="preserve">
+    <value>کورس کے جائزوں کے وزن کا مجموعہ 100 سے زیادہ نہیں ہو سکتا۔</value>
+  </data>
+  <data name="ScoreOutOfRange" xml:space="preserve">
+    <value>نمبر 0 سے جائزے کی زیادہ سے زیادہ حد تک ہونا چاہیے۔</value>
+  </data>
+  <data name="StudentNotInCourseClass" xml:space="preserve">
+    <value>یہ طالب علم کورس کی کلاس میں داخل نہیں ہے۔</value>
+  </data>
+  <data name="GradeScaleInvalid" xml:space="preserve">
+    <value>درجات کے حصے 0 سے 100 تک ایک بار آنے چاہئیں: ہر حصے کا ایک حرف ہو، اس کی کم از کم قدر زیادہ سے زیادہ قدر سے بڑھ نہ ہو، اور حصے نہ ایک دوسرے میں ملیں اور نہ خلا چھوڑیں۔</value>
+  </data>
+  <data name="TimetableTeacherClash" xml:space="preserve">
+    <value>استاد اس وقت پہلے ہی ایک پیریڈ پڑھا رہا ہے (پیریڈ {0})۔</value>
+  </data>
+  <data name="TimetableRoomClash" xml:space="preserve">
+    <value>کمرہ اس وقت پہلے ہی بک ہے (پیریڈ {0})۔</value>
+  </data>
+  <data name="TimetableClassClash" xml:space="preserve">
+    <value>کلاس کا اس وقت پہلے ہی ایک پیریڈ ہے (پیریڈ {0})۔</value>
+  </data>
+  <data name="TimetableEndsAfterStart" xml:space="preserve">
+    <value>پیریڈ شروع ہونے کے بعد ختم ہوتا ہے۔</value>
+  </data>
+  <data name="EventEndsAfterStart" xml:space="preserve">
+    <value>تقریب شروع ہونے کے بعد ختم ہوتی ہے۔</value>
+  </data>
+  <data name="CalendarRangeInvalid" xml:space="preserve">
+    <value>کیلنڈر کی مدت شروع ہونے کے بعد ختم ہوتی ہے۔</value>
+  </data>
+  <data name="CalendarRangeTooLong" xml:space="preserve">
+    <value>کیلنڈر کی مدت زیادہ سے زیادہ 366 دن کی ہو سکتی ہے۔</value>
+  </data>
 </root>

@@ -432,4 +432,43 @@
   <data name="RoleNotInSchool" xml:space="preserve">
     <value>One of the roles is not a role of this school.</value>
   </data>
+  <data name="PersonIsNotTeacher" xml:space="preserve">
+    <value>The chosen person is not a teacher.</value>
+  </data>
+  <data name="StudentAlreadyEnrolled" xml:space="preserve">
+    <value>This student is already enrolled in this class.</value>
+  </data>
+  <data name="AssessmentWeightsTooHigh" xml:space="preserve">
+    <value>The weights of the course's assessments cannot add up to more than 100.</value>
+  </data>
+  <data name="ScoreOutOfRange" xml:space="preserve">
+    <value>A score is from 0 to the assessment's maximum.</value>
+  </data>
+  <data name="StudentNotInCourseClass" xml:space="preserve">
+    <value>This student is not enrolled in the course's class.</value>
+  </data>
+  <data name="GradeScaleInvalid" xml:space="preserve">
+    <value>The bands must cover 0 to 100 once: each band needs a letter, its minimum must not be above its maximum, and the bands must neither overlap nor leave a gap.</value>
+  </data>
+  <data name="TimetableTeacherClash" xml:space="preserve">
+    <value>The teacher already teaches a lesson at this time (lesson {0}).</value>
+  </data>
+  <data name="TimetableRoomClash" xml:space="preserve">
+    <value>The room is already booked at this time (lesson {0}).</value>
+  </data>
+  <data name="TimetableClassClash" xml:space="preserve">
+    <value>The class already has a lesson at this time (lesson {0}).</value>
+  </data>
+  <data name="TimetableEndsAfterStart" xml:space="preserve">
+    <value>A lesson ends after it starts.</value>
+  </data>
+  <data name="EventEndsAfterStart" xml:space="preserve">
+    <value>An event ends after it starts.</value>
+  </data>
+  <data name="CalendarRangeInvalid" xml:space="preserve">
+    <value>The calendar range ends after it starts.</value>
+  </data>
+  <data name="CalendarRangeTooLong" xml:space="preserve">
+    <value>A calendar range covers at most 366 days.</value>
+  </data>
 </root>
