@@ -2,11 +2,13 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.FunctionalTests.Infrastructure;
 using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
 using EducationPortal.Infrastructure.Data;
+using EducationPortal.Web.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
@@ -78,7 +80,17 @@ public class SchoolWithoutDomainTests : TestBase
         // Each school has only its own main campus, whichever session asks on the same host.
         (await CampusCountAsync(firstCampuses)).ShouldBe(1);
         (await CampusCountAsync(secondCampuses)).ShouldBe(1);
-        (await TestApp.CountAsync<Campus>()).ShouldBeGreaterThanOrEqualTo(2);
+        // Both main campuses exist; read across schools as the master tenant, because the test's own scope is the last
+        // school signed in, whose filter would show only its own campus.
+        (await CountAllCampusesAsync(first.Id, second.Id)).ShouldBe(2);
+    }
+
+    private static async Task<int> CountAllCampusesAsync(params int[] schoolIds)
+    {
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(schoolIds[0], IsMaster: true));
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        return await context.Campuses.CountAsync(c => schoolIds.Contains(c.SchoolId));
     }
 
     private static async Task<int> CampusCountAsync(HttpResponseMessage response)
