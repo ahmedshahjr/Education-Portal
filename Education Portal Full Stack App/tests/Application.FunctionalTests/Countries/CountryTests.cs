@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using EducationPortal.Application.Countries.Common;
 using EducationPortal.Application.Localization.Common;
 using EducationPortal.Application.Localization.Queries.GetLocalization;
@@ -249,8 +251,11 @@ public class CountryTests : TestBase
     {
         using var response = await session.GetAsync("/api/Countries");
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        return (await response.Content.ReadFromJsonAsync<CountryPage>())!;
+        return (await response.Content.ReadFromJsonAsync<CountryPage>(Json))!;
     }
+
+    // The API sends enums by name (ADR-008), for example the week start day.
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
 
     /// <summary>The JSON shape of one page of countries.</summary>
     private sealed record CountryPage(List<CountryDto> Items, int TotalCount);
