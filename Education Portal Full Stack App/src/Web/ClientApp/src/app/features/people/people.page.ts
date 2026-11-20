@@ -62,8 +62,6 @@ export class PeoplePage {
   protected readonly busy = signal(false);
   protected readonly errors = signal<readonly string[]>([]);
 
-  protected readonly errors = signal<readonly string[]>([]);
-
   /** The type tab chosen. */
   protected readonly selectedType = signal<TypeFilter>('All');
 
