@@ -287,6 +287,11 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
    - **CI enforces this:** `docs/ai/review-checklist-guard.py` runs on every pull request and fails when the Review checklist section is missing, an item is missing or duplicated, or an item is not ticked. It matches the `(REVIEW-0N)` tags, so keep them when copying the list. Run it yourself on a saved description: `python3 docs/ai/review-checklist-guard.py --pr-body-file body.md`.
    - A tick is a statement that the question was asked honestly. Do not tick a box to get CI green.
 
+10. **The base branch is always `development`** (decided 2026-11-20). Every feature branch starts from the latest `origin/development` and every pull request targets `development`, never `main` (`main` only receives releases from `development`). Before asking for review, and again whenever GitHub reports a merge conflict, bring the branch up to date and resolve the conflicts yourself:
+    - `git fetch origin development && git merge origin/development`, resolve each conflict keeping both sides' work, then build and run the tests before pushing. Never rebase or force-push a branch that is already pushed.
+    - Where both sides add to the same list (DbSets, `DatabaseSchemas`, `EnumLookupTables.Tables` and its indices, `.resx` entries and `ValidationMessages.Designer.cs`), keep every entry; new lookup tables go after the base branch's, with their indices shifted.
+    - EF Core migrations are never merged by hand: when both sides added one, remove the branch's own migration, keep the base branch's, and run `dotnet ef migrations add` again so its snapshot matches the merged model.
+
 <!-- BEGIN GENERATED: ai skills (docs/ai/sync-ai-wrappers.py) -->
 All AI skills (same list for every tool). Read both overviews (`secure-compliance` and `engineering-standards`) first, then every skill that matches the change:
 

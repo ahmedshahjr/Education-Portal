@@ -107,6 +107,24 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<Holiday> Holidays => Set<Holiday>();
 
     public DbSet<CalendarEvent> CalendarEvents => Set<CalendarEvent>();
+    public DbSet<Course> Courses => Set<Course>();
+
+    public DbSet<Enrolment> Enrolments => Set<Enrolment>();
+
+    public DbSet<Assessment> Assessments => Set<Assessment>();
+
+    public DbSet<Score> Scores => Set<Score>();
+
+    public DbSet<TimetableSlot> TimetableSlots => Set<TimetableSlot>();
+
+    public DbSet<GradingScale> GradingScales => Set<GradingScale>();
+
+    public DbSet<GradingBand> GradingBands => Set<GradingBand>();
+
+    public DbSet<SchoolEvent> SchoolEvents => Set<SchoolEvent>();
+
+    public DbSet<Notification> Notifications => Set<Notification>();
+
 
     // Read by the query filters on every query, so each request sees its own tenant (ENG-EF-10).
     private int? CurrentSchoolId => _tenant.SchoolId;

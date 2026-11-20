@@ -13,7 +13,7 @@ public static class EnumLookupTables
     /// tests (Respawn) leaves them alone.
     /// </summary>
     public static IReadOnlyList<string> Tables { get; } =
-        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes", "BillingCycles", "SubscriptionStatuses", "TenantModuleStatuses", "DataRegions", "InvoiceStatuses", "PaymentMethods", "AddOnRequestStatuses", "ChangeAuditActions", "CampusKinds", "UserTypes", "Genders", "ModuleCodes", "SchoolGenderPolicies", "CurriculumKinds", "FacilityKinds", "ClassLevels", "AdmissionStatuses", "PhotoKinds", "EnquiryChannels", "EnquiryStatuses", "FollowUpKinds", "VisitStatuses", "ReviewStatuses", "ReviewerRelations", "AcademicYearStatuses", "HolidayTypes", "HolidayAudiences", "CalendarEventTypes", "CalendarEventAudiences", "DaysOfWeek"];
+        ["SecurityAuditEventTypes", "SecurityAuditOutcomes", "BrandingImageKinds", "SchoolRequestStatuses", "StateTypes", "BillingCycles", "SubscriptionStatuses", "TenantModuleStatuses", "DataRegions", "InvoiceStatuses", "PaymentMethods", "AddOnRequestStatuses", "ChangeAuditActions", "CampusKinds", "UserTypes", "Genders", "ModuleCodes", "SchoolGenderPolicies", "CurriculumKinds", "FacilityKinds", "ClassLevels", "AdmissionStatuses", "PhotoKinds", "EnquiryChannels", "EnquiryStatuses", "FollowUpKinds", "VisitStatuses", "ReviewStatuses", "ReviewerRelations", "Weekdays", "EventAudiences", "AcademicYearStatuses", "HolidayTypes", "HolidayAudiences", "CalendarEventTypes", "CalendarEventAudiences", "DaysOfWeek"];
 
     internal static void Configure(ModelBuilder builder)
     {
@@ -46,12 +46,14 @@ public static class EnumLookupTables
         Map<CampusVisit, VisitStatus>(builder, Tables[26], v => v.Status);
         Map<SchoolReview, ReviewStatus>(builder, Tables[27], r => r.Status);
         Map<SchoolReview, ReviewerRelation>(builder, Tables[28], r => r.Relation);
-        Map<AcademicYear, AcademicYearStatus>(builder, Tables[29], y => y.Status);
-        Map<Holiday, HolidayType>(builder, Tables[30], h => h.Type);
-        Map<Holiday, HolidayAudience>(builder, Tables[31], h => h.AppliesTo);
-        Map<CalendarEvent, CalendarEventType>(builder, Tables[32], e => e.Type);
-        Map<CalendarEvent, CalendarEventAudience>(builder, Tables[33], e => e.Audience);
-        Map<Country, DayOfWeek>(builder, Tables[34], c => c.WeekStartDay);
+        Map<TimetableSlot, Weekday>(builder, Tables[29], t => t.Day);
+        Map<SchoolEvent, EventAudience>(builder, Tables[30], e => e.Audience);
+        Map<AcademicYear, AcademicYearStatus>(builder, Tables[31], y => y.Status);
+        Map<Holiday, HolidayType>(builder, Tables[32], h => h.Type);
+        Map<Holiday, HolidayAudience>(builder, Tables[33], h => h.AppliesTo);
+        Map<CalendarEvent, CalendarEventType>(builder, Tables[34], e => e.Type);
+        Map<CalendarEvent, CalendarEventAudience>(builder, Tables[35], e => e.Audience);
+        Map<Country, DayOfWeek>(builder, Tables[36], c => c.WeekStartDay);
 
         // More columns of an enum that already has its lookup table.
         Reference<Subscription, BillingCycle>(builder, s => s.BillingCycle);

@@ -383,6 +383,7 @@ Step 2 adds a permission check after authorization: the module is switched on fo
 ### Sign-in and accounts
 - **Accounts for people** (`feature/person-accounts`). Adding a person with `POST /api/UserDetails` can also create their login: an `email` and a `oneTimePassword` (the same account rules as the school administrator's account, with the password policy checked when the account is made). The person and the account are saved in one transaction, the account is marked to change its password on first sign-in, and it is linked to the person by `AspNetUsers.UserDetailsId`, unique per school (migration `AddPersonAccountLink`).
 - **Parents, children and account roles** (migration `AddParentStudentsAndAccountRoles`). The user type `Parent` (5) is linked to its students with `schools.ParentStudents` (`GET/POST /api/UserDetails/{id}/children`, `DELETE /api/UserDetails/{id}/children/{studentId}`, Staff module). A parent sees only their own students at `GET /api/Parents/me/children` (Students module, one-time password changed). Every school starts with the built-in roles Principal, Teacher, Student and Parent (`POST /api/SchoolRoles/built-in`, idempotent), whose starting rights are a proposal in `BuiltInRoles.cs`. An account's roles are `access.AccountRoles`, set with `PUT /api/UserDetails/{id}/roles` and read with `GET` (Users & Roles module). **Role rights are checked** on each use case that names a right (`Authorize(Right = ...)`, [ADR-018](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-018-Role-Rights-Checking.md)). Administrators and the master tenant are not checked. Existing endpoints are moved to the check one at a time.
+- **Academics, grading, timetable and calendar** ([ADR-019](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-019-Academic-Grading-Timetable-And-Calendar.md), hand-written migrations `AddAcademicFoundations`, `AddGradingScales`, `AddCalendarAndNotifications`; not yet run with `dotnet ef migrations list`). Schema `academics`: courses (a class offering, a teacher, an optional campus), enrolments (a student in a class once), assessments (weight up to 100 per course, maximum score), scores (one per student and assessment), timetable slots, grading scales with their bands. Schema `communication`: school events (audience All, Staff, Parents or Students) and one notification per recipient. Endpoints: `/api/Courses`, `/api/Enrolments`, `/api/Assessments`, `/api/Scores/{assessmentId}/students/{studentId}`, `/api/GradingScales`, `/api/ReportCards/{studentId}`, `/api/TimetableSlots` (with `/conflicts` to preview a clash), `/api/SchoolEvents` and `/api/Notifications`. A teacher grades only their own courses; a report card shows a teacher only their own courses; a student or a linked parent sees all of theirs; a notification is shown to its recipient only.
 
 - ASP.NET Core Identity from the template (kept on purpose), with users and roles in the same PostgreSQL database.
 - Four endpoints under `/api/Users` (`login`, `logout`, `me` and `me/password`) replace the template's Identity API endpoints. Signing in sets a session cookie.
@@ -683,10 +684,14 @@ flowchart TB
     roles -- yes --> e403c["403"]
     roles -- no --> policy{"Policy required and<br/>not satisfied?"}
     policy -- yes --> e403d["403"]
-    policy -- no --> next
+    policy -- no --> rights{"Right named on the request and user is not<br/>an administrator and not the master tenant?"}
+    rights -- no --> next
+    rights -- yes --> hasRight{"A school role of the user gives<br/>the right (View, Create, Edit, Delete)<br/>in the module?"}
+    hasRight -- no --> e403e["403"]
+    hasRight -- yes --> next
 ```
 
-Role rights per module (View, Create, Edit, Delete) and campus checks are added here as step 2 continues.
+Role rights are checked here ([ADR-018](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-018-Role-Rights-Checking.md)). Campus checks are still to come.
 
 ### EF Core and PostgreSQL flow
 

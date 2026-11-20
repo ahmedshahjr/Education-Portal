@@ -295,6 +295,59 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Assessment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("MaximumScore")
+                        .HasPrecision(7, 2)
+                        .HasColumnType("numeric(7,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Weight")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("SchoolId", "CourseId");
+
+                    b.ToTable("Assessments", "academics");
+                });
+
             modelBuilder.Entity("EducationPortal.Domain.Entities.BrandingImage", b =>
                 {
                     b.Property<int>("Id")
@@ -983,6 +1036,63 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Course", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CampusId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ClassOfferingId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TeacherUserDetailsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("CampusId");
+
+                    b.HasIndex("ClassOfferingId");
+
+                    b.HasIndex("TeacherUserDetailsId");
+
+                    b.HasIndex("SchoolId", "ClassOfferingId");
+
+                    b.HasIndex("SchoolId", "TeacherUserDetailsId");
+
+                    b.ToTable("Courses", "academics");
+                });
+
             modelBuilder.Entity("EducationPortal.Domain.Entities.EnquiryFollowUp", b =>
                 {
                     b.Property<int>("Id")
@@ -1034,6 +1144,150 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("EnquiryId", "OccurredAt");
 
                     b.ToTable("EnquiryFollowUps", "admissions");
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Enrolment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClassOfferingId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StudentUserDetailsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("ClassOfferingId");
+
+                    b.HasIndex("StudentUserDetailsId");
+
+                    b.HasIndex("SchoolId", "StudentUserDetailsId", "ClassOfferingId")
+                        .IsUnique();
+
+                    b.ToTable("Enrolments", "academics");
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.GradingBand", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("GradingScaleId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Letter")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<decimal>("MaxPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<decimal>("MinPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<decimal>("Points")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("GradingScaleId");
+
+                    b.HasIndex("SchoolId", "GradingScaleId");
+
+                    b.ToTable("GradingBands", "academics");
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.GradingScale", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("SchoolId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("GradingScales", "academics");
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.Holiday", b =>
@@ -1302,6 +1556,63 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         {
                             t.HasCheckConstraint("CK_ModuleDependencies_NotSelf", "\"ModuleId\" <> \"RequiresModuleId\"");
                         });
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Body")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RecipientAccountId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<int>("SchoolEventId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("SchoolEventId");
+
+                    b.HasIndex("SchoolId", "RecipientAccountId", "Created");
+
+                    b.ToTable("Notifications", "communication");
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.ParentStudent", b =>
@@ -2024,6 +2335,61 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.ToTable("SchoolCurricula", "schools");
                 });
 
+            modelBuilder.Entity("EducationPortal.Domain.Entities.SchoolEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Audience")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTimeOffset>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("Audience");
+
+                    b.HasIndex("SchoolId", "StartsAt");
+
+                    b.ToTable("SchoolEvents", "communication");
+                });
+
             modelBuilder.Entity("EducationPortal.Domain.Entities.SchoolFacility", b =>
                 {
                     b.Property<int>("Id")
@@ -2403,6 +2769,54 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("SchoolRoles", "access");
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Score", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssessmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("EnrolmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Value")
+                        .HasPrecision(7, 2)
+                        .HasColumnType("numeric(7,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("EnrolmentId");
+
+                    b.HasIndex("AssessmentId", "EnrolmentId")
+                        .IsUnique();
+
+                    b.ToTable("Scores", "academics");
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.SecurityAuditEvent", b =>
@@ -2910,6 +3324,68 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                             t.HasCheckConstraint("CK_Terms_Sequence", "\"Sequence\" BETWEEN 1 AND 12");
                         });
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.TimetableSlot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CampusId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Day")
+                        .HasColumnType("integer");
+
+                    b.Property<TimeOnly>("End")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Room")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("integer");
+
+                    b.Property<TimeOnly>("Start")
+                        .HasColumnType("time without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("CampusId");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("Day");
+
+                    b.HasIndex("SchoolId", "CourseId");
+
+                    b.HasIndex("SchoolId", "Day");
+
+                    b.ToTable("TimetableSlots", "academics");
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.UserDetails", b =>
@@ -3537,6 +4013,43 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         {
                             Id = 6,
                             Name = "Closed"
+                        });
+                });
+
+            modelBuilder.Entity("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.EventAudience>", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EventAudiences", "lookups");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "All"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Staff"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Parents"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Students"
                         });
                 });
 
@@ -4710,6 +5223,58 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.Weekday>", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Weekdays", "lookups");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Monday"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Tuesday"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Wednesday"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Thursday"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Friday"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Saturday"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Sunday"
+                        });
+                });
+
             modelBuilder.Entity("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<System.DayOfWeek>", b =>
                 {
                     b.Property<int>("Id")
@@ -5064,6 +5629,15 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Assessment", b =>
+                {
+                    b.HasOne("EducationPortal.Domain.Entities.Course", null)
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("EducationPortal.Domain.Entities.BrandingImage", b =>
                 {
                     b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.BrandingImageKind>", null)
@@ -5246,6 +5820,26 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Course", b =>
+                {
+                    b.HasOne("EducationPortal.Domain.Entities.Campus", null)
+                        .WithMany()
+                        .HasForeignKey("CampusId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("EducationPortal.Domain.Entities.ClassOffering", null)
+                        .WithMany()
+                        .HasForeignKey("ClassOfferingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.UserDetails", null)
+                        .WithMany()
+                        .HasForeignKey("TeacherUserDetailsId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("EducationPortal.Domain.Entities.EnquiryFollowUp", b =>
                 {
                     b.HasOne("EducationPortal.Domain.Entities.AdmissionEnquiry", "Enquiry")
@@ -5267,6 +5861,30 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Enquiry");
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Enrolment", b =>
+                {
+                    b.HasOne("EducationPortal.Domain.Entities.ClassOffering", null)
+                        .WithMany()
+                        .HasForeignKey("ClassOfferingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.UserDetails", null)
+                        .WithMany()
+                        .HasForeignKey("StudentUserDetailsId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.GradingBand", b =>
+                {
+                    b.HasOne("EducationPortal.Domain.Entities.GradingScale", null)
+                        .WithMany("Bands")
+                        .HasForeignKey("GradingScaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.Holiday", b =>
@@ -5346,6 +5964,17 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("RequiresModuleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("EducationPortal.Domain.Entities.SchoolEvent", "SchoolEvent")
+                        .WithMany()
+                        .HasForeignKey("SchoolEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SchoolEvent");
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.ParentStudent", b =>
@@ -5506,6 +6135,15 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("EducationPortal.Domain.Entities.SchoolEvent", b =>
+                {
+                    b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.EventAudience>", null)
+                        .WithMany()
+                        .HasForeignKey("Audience")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("EducationPortal.Domain.Entities.SchoolFacility", b =>
                 {
                     b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.FacilityKind>", null)
@@ -5597,6 +6235,21 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.Score", b =>
+                {
+                    b.HasOne("EducationPortal.Domain.Entities.Assessment", null)
+                        .WithMany()
+                        .HasForeignKey("AssessmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Enrolment", null)
+                        .WithMany()
+                        .HasForeignKey("EnrolmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -5749,6 +6402,26 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("EducationPortal.Domain.Entities.TimetableSlot", b =>
+                {
+                    b.HasOne("EducationPortal.Domain.Entities.Campus", null)
+                        .WithMany()
+                        .HasForeignKey("CampusId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("EducationPortal.Domain.Entities.Course", null)
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.Weekday>", null)
+                        .WithMany()
+                        .HasForeignKey("Day")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("EducationPortal.Domain.Entities.UserDetails", b =>
                 {
                     b.HasOne("EducationPortal.Domain.Entities.School", null)
@@ -5827,6 +6500,11 @@ namespace EducationPortal.Infrastructure.Data.Migrations
             modelBuilder.Entity("EducationPortal.Domain.Entities.Campus", b =>
                 {
                     b.Navigation("Phones");
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.GradingScale", b =>
+                {
+                    b.Navigation("Bands");
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.Invoice", b =>

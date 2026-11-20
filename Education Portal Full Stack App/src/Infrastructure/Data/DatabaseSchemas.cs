@@ -21,9 +21,10 @@ public static class DatabaseSchemas
     public const string Lookups = "lookups";
     public const string Admissions = "admissions";
     public const string Academics = "academics";
+    public const string Communication = "communication";
 
     /// <summary>Every feature schema, for tools that reset or inspect the database (Respawn in the functional tests).</summary>
-    public static readonly string[] All = [Identity, Access, Schools, Modules, Billing, Audit, Lookups, Admissions, Academics];
+    public static readonly string[] All = [Identity, Access, Schools, Modules, Billing, Audit, Lookups, Admissions, Academics, Communication];
 
     private static readonly Dictionary<Type, string> BySchool = new()
     {
@@ -73,6 +74,16 @@ public static class DatabaseSchemas
         [typeof(Invoice)] = Billing,
         [typeof(InvoiceLine)] = Billing,
         [typeof(Payment)] = Billing,
+
+        [typeof(Course)] = Academics,
+        [typeof(Enrolment)] = Academics,
+        [typeof(Assessment)] = Academics,
+        [typeof(Score)] = Academics,
+        [typeof(TimetableSlot)] = Academics,
+        [typeof(GradingScale)] = Academics,
+        [typeof(GradingBand)] = Academics,
+        [typeof(SchoolEvent)] = Communication,
+        [typeof(Notification)] = Communication,
 
         [typeof(SecurityAuditEvent)] = Audit,
         [typeof(ChangeAuditEntry)] = Audit,

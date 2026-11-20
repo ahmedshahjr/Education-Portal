@@ -32,6 +32,12 @@ public interface IIdentityService
     /// <summary>The login account of a person of the school, or null when the person has none.</summary>
     Task<string?> FindAccountIdOfPersonAsync(int schoolId, int userDetailsId);
 
+    /// <summary>
+    /// The login accounts of the school that belong to the given people, or every account of the school when
+    /// <paramref name="personIds"/> is null. Accounts with no person record are only returned for null.
+    /// </summary>
+    Task<IReadOnlyList<string>> FindAccountIdsAsync(int schoolId, IReadOnlyCollection<int>? personIds);
+
     /// <summary>The person a login account belongs to, or null when the account is not a person's.</summary>
     Task<int?> FindPersonIdOfAccountAsync(string userId);
 
