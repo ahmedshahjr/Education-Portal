@@ -40,6 +40,7 @@ import {
   HolidayDto,
   HolidayType,
   SchoolCalendarClient,
+  SchoolEventDto,
   UpdateCalendarEventCommand,
   UpdateHolidayCommand,
 } from '../../web-api-client';
@@ -53,9 +54,12 @@ import {
 import { coversDay, dateKey, fromApiDate, fromApiTime, isTimeRangeValid, monthRange, toApiTime } from './academic-calendar.logic';
 import { SchoolCalendarApi } from './school-calendar.api';
 
-/** A holiday or an event as the calendar shows it, with local calendar dates. */
+/**
+ * A holiday, a calendar event or a school event as the calendar shows it, with local calendar dates. A school event (from
+ * the Calendar feature, for the whole school) is only read here: it is changed in the school calendar, not on this page.
+ */
 export interface CalendarEntry {
-  readonly kind: 'holiday' | 'event';
+  readonly kind: 'holiday' | 'event' | 'school';
   readonly id: string;
   readonly title: string;
   readonly campusId: string | null;
@@ -67,6 +71,35 @@ export interface CalendarEntry {
   readonly isTentative: boolean;
   readonly holiday?: HolidayDto;
   readonly event?: CalendarEventDto;
+  readonly schoolEvent?: SchoolEventDto;
+}
+
+/** The local calendar day of an instant, as a date at local midnight. */
+function localDay(instant: Date): Date {
+  return new Date(instant.getFullYear(), instant.getMonth(), instant.getDate());
+}
+
+/** A two-digit hour or minute. */
+function twoDigits(value: number): string {
+  return value.toString().padStart(2, '0');
+}
+
+function schoolEventEntry(event: SchoolEventDto): CalendarEntry {
+  const starts = new Date(event.startsAt);
+  const ends = new Date(event.endsAt);
+  return {
+    kind: 'school',
+    id: event.id,
+    title: event.title,
+    campusId: null,
+    startDate: localDay(starts),
+    endDate: localDay(ends),
+    typeLabel: $localize`:@@academicCalendar.schoolEvent:School event`,
+    audienceLabel: '',
+    timeLabel: `${twoDigits(starts.getHours())}:${twoDigits(starts.getMinutes())} – ${twoDigits(ends.getHours())}:${twoDigits(ends.getMinutes())}`,
+    isTentative: false,
+    schoolEvent: event,
+  };
 }
 
 function holidayEntry(holiday: HolidayDto): CalendarEntry {
@@ -159,6 +192,9 @@ export class SchoolCalendarPanelComponent {
   readonly month = signal<Date>(monthRange(new Date()).from);
   readonly campusId = signal<string | null>(null);
 
+  /** Whether the school's own events (the Calendar feature's school events) are listed beside the holidays and events. */
+  readonly showSchoolEvents = signal(true);
+
   readonly entries = signal<readonly CalendarEntry[] | null>(null);
   protected readonly loadError = signal<string | null>(null);
   protected readonly busy = signal(false);
@@ -183,7 +219,7 @@ export class SchoolCalendarPanelComponent {
     const onDay = (this.entries() ?? []).filter((entry) => coversDay(entry.startDate, entry.endDate, date));
     return {
       'mm-calendar-day--holiday': onDay.some((entry) => entry.kind === 'holiday'),
-      'mm-calendar-day--event': onDay.some((entry) => entry.kind === 'event'),
+      'mm-calendar-day--event': onDay.some((entry) => entry.kind !== 'holiday'),
     };
   };
 
@@ -213,7 +249,7 @@ export class SchoolCalendarPanelComponent {
 
   constructor() {
     // Reload whenever the month or the campus changes.
-    effect(() => this.load(this.month(), this.campusId()));
+    effect(() => this.load(this.month(), this.campusId(), this.showSchoolEvents()));
 
     // The calendar reports month changes (the arrows, the period picker) through its active date.
     afterNextRender(() => {
@@ -228,15 +264,19 @@ export class SchoolCalendarPanelComponent {
   }
 
   reload(): void {
-    this.load(this.month(), this.campusId());
+    this.load(this.month(), this.campusId(), this.showSchoolEvents());
   }
 
-  private load(month: Date, campusId: string | null): void {
+  private load(month: Date, campusId: string | null, includeSchoolEvents: boolean): void {
     this.loadError.set(null);
     const { from, to } = monthRange(month);
-    this.api.read(from, to, campusId).subscribe({
+    this.api.read(from, to, campusId, includeSchoolEvents).subscribe({
       next: (calendar) => {
-        const entries = [...calendar.holidays.map(holidayEntry), ...calendar.events.map(eventEntry)].sort(
+        const entries = [
+          ...calendar.holidays.map(holidayEntry),
+          ...calendar.events.map(eventEntry),
+          ...calendar.schoolEvents.map(schoolEventEntry),
+        ].sort(
           (a, b) => dateKey(a.startDate).localeCompare(dateKey(b.startDate)) || a.title.localeCompare(b.title)
         );
         this.entries.set(entries);
@@ -245,6 +285,10 @@ export class SchoolCalendarPanelComponent {
       },
       error: (error: unknown) => this.loadError.set(problemMessages(error)[0]),
     });
+  }
+
+  setShowSchoolEvents(show: boolean): void {
+    this.showSchoolEvents.set(show);
   }
 
   protected campusName(campusId: string | null): string {
@@ -291,6 +335,10 @@ export class SchoolCalendarPanelComponent {
   }
 
   startEdit(entry: CalendarEntry): void {
+    // A school event is changed in the school calendar, not here.
+    if (entry.kind === 'school') {
+      return;
+    }
     this.errors.set([]);
     if (entry.holiday) {
       const holiday = entry.holiday;
@@ -372,6 +420,9 @@ export class SchoolCalendarPanelComponent {
   }
 
   confirmDelete(entry: CalendarEntry): void {
+    if (entry.kind === 'school') {
+      return;
+    }
     const data: ConfirmDialogData =
       entry.kind === 'holiday'
         ? {

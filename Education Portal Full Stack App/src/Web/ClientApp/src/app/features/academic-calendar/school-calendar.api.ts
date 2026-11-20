@@ -14,8 +14,12 @@ export class SchoolCalendarApi {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL, { optional: true }) ?? '';
 
-  read(from: Date, to: Date, campusId: string | null): Observable<SchoolCalendarDto> {
-    let params = new HttpParams().set('from', dateKey(from)).set('to', dateKey(to));
+  /** Reads the holidays, calendar events and (unless left out) the school events of a range. */
+  read(from: Date, to: Date, campusId: string | null, includeSchoolEvents = true): Observable<SchoolCalendarDto> {
+    let params = new HttpParams()
+      .set('from', dateKey(from))
+      .set('to', dateKey(to))
+      .set('includeSchoolEvents', String(includeSchoolEvents));
     if (campusId) {
       params = params.set('campusId', campusId);
     }

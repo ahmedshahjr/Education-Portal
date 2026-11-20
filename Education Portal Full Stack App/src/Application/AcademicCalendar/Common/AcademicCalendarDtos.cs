@@ -1,3 +1,5 @@
+using EducationPortal.Application.Calendar.Common;
+
 namespace EducationPortal.Application.AcademicCalendar.Common;
 
 /// <summary>An academic year with its terms in order. Ids are public ids (ENG-ID-02).</summary>
@@ -37,5 +39,11 @@ public sealed record CalendarEventDto(
     CalendarEventType Type,
     CalendarEventAudience Audience);
 
-/// <summary>The holidays and events of a date range, each ordered by date.</summary>
-public sealed record SchoolCalendarDto(IReadOnlyList<HolidayDto> Holidays, IReadOnlyList<CalendarEventDto> Events);
+/// <summary>
+/// The holidays, calendar events and school events (timed, with an audience, from the Calendar feature) of a date range.
+/// Holidays and events are ordered by date; school events by their start. School events are for the whole school.
+/// </summary>
+public sealed record SchoolCalendarDto(
+    IReadOnlyList<HolidayDto> Holidays,
+    IReadOnlyList<CalendarEventDto> Events,
+    IReadOnlyList<SchoolEventDto> SchoolEvents);

@@ -826,6 +826,8 @@
     "roles.builtIn": "پہلے سے موجود",
     "roles.right.approve": "منظوری",
     "roles.right.export": "برآمد",
-    "roles.saved": "کردار محفوظ ہو گیا۔"
+    "roles.saved": "کردار محفوظ ہو گیا۔",
+    "academicCalendar.schoolEvent": "اسکول کا واقعہ",
+    "academicCalendar.showSchoolEvents": "اسکول کے واقعات دکھائیں"
   }
 }

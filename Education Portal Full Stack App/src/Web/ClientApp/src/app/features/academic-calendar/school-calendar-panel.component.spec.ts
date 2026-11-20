@@ -24,6 +24,7 @@ async function render() {
   request.flush({
     holidays: [{ id: 'h1', campusId: undefined, title: 'Spring break', startDate: day(1), endDate: day(3), type: 'Vacation', appliesTo: 'Both', isTentative: false }],
     events: [{ id: 'e1', campusId: 'campus-1', title: 'Sports day', eventDate: day(2), startTime: '09:00:00', endTime: '12:00:00', type: 'Sports', audience: 'All' }],
+    schoolEvents: [],
   });
   await vi.waitFor(() => {
     fixture.detectChanges();
@@ -62,8 +63,38 @@ describe('SchoolCalendarPanelComponent', () => {
     expect(body).toEqual({ title: 'Founders day', startDate: day(5), endDate: day(5), type: 'School', appliesTo: 'Students', isTentative: false });
     request.flush(new Blob([JSON.stringify('id')], { type: 'application/json' }));
 
-    await vi.waitFor(() => http.expectOne((r) => r.url === '/api/SchoolCalendar').flush({ holidays: [], events: [] }));
+    await vi.waitFor(() => http.expectOne((r) => r.url === '/api/SchoolCalendar').flush({ holidays: [], events: [], schoolEvents: [] }));
     expect(panel.editing()).toBeNull();
+  });
+
+  it('lists a school event as read-only and asks for school events, or leaves them out on request', async () => {
+    const { fixture, http, element } = await render();
+    const panel = fixture.componentInstance;
+    const sports = new Date(today.getFullYear(), today.getMonth(), 6, 9, 0);
+    const sportsEnd = new Date(today.getFullYear(), today.getMonth(), 6, 13, 0);
+
+    // A school event arrives with the next answer: it is listed, but it has no edit or delete button.
+    panel.reload();
+    const [withSchool] = http.match((r) => r.urlWithParams.includes('includeSchoolEvents=true'));
+    withSchool.flush({
+      holidays: [],
+      events: [],
+      schoolEvents: [{ id: 's1', title: 'Founders fair', description: undefined, startsAt: sports.toISOString(), endsAt: sportsEnd.toISOString(), audience: 'All' }],
+    });
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(element.textContent).toContain('Founders fair');
+    });
+    expect(panel.entries()?.find((e) => e.title === 'Founders fair')?.kind).toBe('school');
+    expect(element.querySelector('[aria-label="Edit Founders fair"]')).toBeNull();
+    expect(element.querySelector('[aria-label="Delete Founders fair"]')).toBeNull();
+
+    // The toggle reloads without the school events.
+    panel.setShowSchoolEvents(false);
+    TestBed.flushEffects();
+    const [withoutSchool] = http.match((r) => r.urlWithParams.includes('includeSchoolEvents=false'));
+    withoutSchool.flush({ holidays: [], events: [], schoolEvents: [] });
+    await vi.waitFor(() => expect(panel.entries()?.some((e) => e.kind === 'school')).toBe(false));
   });
 
   it('does not send an event whose end time comes without a start time', async () => {
