@@ -7,6 +7,9 @@ public abstract record SchoolRoleFields
 {
     public string Name { get; init; } = string.Empty;
 
+    /// <summary>What the role is for; optional, at most 500 characters.</summary>
+    public string? Description { get; init; }
+
     /// <summary>The rights per module. A module that is not listed (or has no view right) gives the role nothing.</summary>
     public IReadOnlyList<RolePermissionDto> Permissions { get; init; } = [];
 }
@@ -21,13 +24,14 @@ public abstract class SchoolRoleFieldsValidator<T> : AbstractValidator<T>
     protected SchoolRoleFieldsValidator(IModuleAccess moduleAccess, ICurrentTenant tenant)
     {
         RuleFor(r => r.Name).NotEmpty().MaximumLength(SchoolRole.NameMaxLength);
+        RuleFor(r => r.Description).MaximumLength(SchoolRole.DescriptionMaxLength);
 
         RuleFor(r => r.Permissions)
             .NotNull()
             .Must(p => p.Count <= Enum.GetValues<ModuleCode>().Length)
             .Must(p => p.Select(x => x.Module).Distinct().Count() == p.Count)
             .WithMessage(_ => ValidationMessages.ModuleListedTwice)
-            .Must(p => p.All(x => x.CanView || !(x.CanCreate || x.CanEdit || x.CanDelete)))
+            .Must(p => p.All(x => x.CanView || !(x.CanCreate || x.CanEdit || x.CanDelete || x.CanApprove || x.CanExport)))
             .WithMessage(_ => ValidationMessages.RightsNeedView)
             .CustomAsync(async (permissions, validation, cancellationToken) =>
             {
@@ -72,11 +76,11 @@ internal static class SchoolRoleStore
             }
             else if (existing is not null)
             {
-                existing.Set(given.CanView, given.CanCreate, given.CanEdit, given.CanDelete);
+                existing.Set(given.CanView, given.CanCreate, given.CanEdit, given.CanDelete, given.CanApprove, given.CanExport);
             }
             else
             {
-                context.RolePermissions.Add(RolePermission.Create(role, module, given.CanView, given.CanCreate, given.CanEdit, given.CanDelete));
+                context.RolePermissions.Add(RolePermission.Create(role, module, given.CanView, given.CanCreate, given.CanEdit, given.CanDelete, given.CanApprove, given.CanExport));
             }
         }
     }
@@ -92,7 +96,7 @@ internal static class SchoolRoleReader
             .AsNoTracking()
             .Where(r => r.SchoolId == schoolId && (id == null || r.PublicId == id))
             .OrderBy(r => r.Name)
-            .Select(r => new { r.Id, r.PublicId, r.Name })
+            .Select(r => new { r.Id, r.PublicId, r.Name, r.Description, r.IsSystem })
             .ToListAsync(cancellationToken);
 
         var enabled = (await moduleAccess.GetEnabledCodesAsync(schoolId, cancellationToken)).ToHashSet();
@@ -102,11 +106,11 @@ internal static class SchoolRoleReader
                 join m in context.Modules on p.ModuleId equals m.Id
                 where p.SchoolId == schoolId && roleIds.Contains(p.SchoolRoleId)
                 orderby m.SortOrder, m.Code
-                select new { p.SchoolRoleId, m.Code, p.CanView, p.CanCreate, p.CanEdit, p.CanDelete })
+                select new { p.SchoolRoleId, m.Code, p.CanView, p.CanCreate, p.CanEdit, p.CanDelete, p.CanApprove, p.CanExport })
             .ToListAsync(cancellationToken))
             .Where(p => enabled.Contains(p.Code))
-            .ToLookup(p => p.SchoolRoleId, p => new RolePermissionDto(p.Code, p.CanView, p.CanCreate, p.CanEdit, p.CanDelete));
+            .ToLookup(p => p.SchoolRoleId, p => new RolePermissionDto(p.Code, p.CanView, p.CanCreate, p.CanEdit, p.CanDelete, p.CanApprove, p.CanExport));
 
-        return roles.Select(r => new SchoolRoleDto(r.PublicId, r.Name, rights[r.Id].ToList())).ToList();
+        return roles.Select(r => new SchoolRoleDto(r.PublicId, r.Name, r.Description, r.IsSystem, rights[r.Id].ToList())).ToList();
     }
 }

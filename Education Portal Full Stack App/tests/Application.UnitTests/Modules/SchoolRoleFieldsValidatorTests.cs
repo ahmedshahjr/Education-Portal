@@ -24,7 +24,7 @@ public class SchoolRoleFieldsValidatorTests
         return new FieldsValidator(access.Object, tenant.Object);
     }
 
-    private static RolePermissionDto Right(ModuleCode module, bool view = true, bool create = false) => new(module, view, create, false, false);
+    private static RolePermissionDto Right(ModuleCode module, bool view = true, bool create = false) => new(module, view, create, false, false, false, false);
 
     [Test]
     public async Task ShouldAcceptARoleWithRightsInEnabledModules()

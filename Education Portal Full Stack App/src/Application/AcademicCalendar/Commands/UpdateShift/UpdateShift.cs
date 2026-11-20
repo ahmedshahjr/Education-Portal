@@ -8,7 +8,7 @@ using EducationPortal.Domain.Constants;
 namespace EducationPortal.Application.AcademicCalendar.Commands.UpdateShift;
 
 /// <summary>Changes a shift's name and times. Its campus does not change. Needs the Academic setup module. Audited (SEC-LOG-03).</summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Edit)]
 public record UpdateShiftCommand : IRequest
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
@@ -35,12 +35,14 @@ public class UpdateShiftCommandValidator : AbstractValidator<UpdateShiftCommand>
 
 public class UpdateShiftCommandHandler : IRequestHandler<UpdateShiftCommand>
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
     private readonly ICurrentTenant _tenant;
 
-    public UpdateShiftCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant)
+    public UpdateShiftCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _auditLog = auditLog;
         _tenant = tenant;
@@ -53,6 +55,7 @@ public class UpdateShiftCommandHandler : IRequestHandler<UpdateShiftCommand>
         var shift = await _context.Shifts.FirstOrDefaultAsync(s => s.SchoolId == schoolId && s.PublicId == request.ShiftId, cancellationToken);
         Guard.Against.NotFound(request.ShiftId, shift);
 
+        await _campusAccess.EnsureCampusAsync(shift.CampusId, cancellationToken);
         await ShiftRules.EnsureNameFreeAsync(_context, shift.CampusId, shift.Id, request.Name, cancellationToken);
 
         shift.Change(request.Name, request.StartTime, request.EndTime);

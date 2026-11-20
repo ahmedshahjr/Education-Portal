@@ -53,6 +53,8 @@ public interface IApplicationDbContext
 
     DbSet<AccountRole> AccountRoles { get; }
 
+    DbSet<UserCampus> UserCampuses { get; }
+
     DbSet<Course> Courses { get; }
 
     DbSet<Enrolment> Enrolments { get; }

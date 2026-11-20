@@ -10,6 +10,7 @@ public static class DependencyInjection
     {
         builder.Services.AddScoped<EducationPortal.Application.Common.Interfaces.IModuleAccess, EducationPortal.Application.Modules.Common.ModuleAccess>();
         builder.Services.AddScoped<EducationPortal.Application.Common.Interfaces.IRoleRights, EducationPortal.Application.SchoolRoles.Common.RoleRights>();
+        builder.Services.AddScoped<EducationPortal.Application.Common.Interfaces.ICampusAccess, EducationPortal.Application.Campuses.Common.CampusAccess>();
         builder.Services.AddSingleton<EducationPortal.Application.Common.Interfaces.IPaymentProvider, EducationPortal.Application.Invoices.Common.ManualPaymentProvider>();
 
         // The daily subscription lifecycle (ADR-015). Bad settings stop the app at start-up rather than at 01:00.

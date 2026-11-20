@@ -42,6 +42,8 @@ public sealed class RoleRights : IRoleRights
             AccessRight.Create => await permissions.AnyAsync(p => p.CanCreate, cancellationToken),
             AccessRight.Edit => await permissions.AnyAsync(p => p.CanEdit, cancellationToken),
             AccessRight.Delete => await permissions.AnyAsync(p => p.CanDelete, cancellationToken),
+            AccessRight.Approve => await permissions.AnyAsync(p => p.CanApprove, cancellationToken),
+            AccessRight.Export => await permissions.AnyAsync(p => p.CanExport, cancellationToken),
             _ => throw new ArgumentOutOfRangeException(nameof(right), right, "Unknown right."),
         };
     }

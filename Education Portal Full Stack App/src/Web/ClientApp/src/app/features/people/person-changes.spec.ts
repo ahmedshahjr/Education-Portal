@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { UserType } from '../../web-api-client';
-import { buildPersonChanges, needsAdmissionDetails, planChildLinks, PersonFormValue, sameRoles } from './person-changes';
+import { buildPersonChanges, needsAdmissionDetails, planChildLinks, PersonFormValue, sameIds } from './person-changes';
 
 const form: PersonFormValue = {
   firstName: '  Ayesha ',
@@ -65,13 +65,13 @@ describe('planChildLinks', () => {
   });
 });
 
-describe('sameRoles', () => {
+describe('sameIds', () => {
   it('is true for the same roles in any order', () => {
-    expect(sameRoles(['r1', 'r2'], ['r2', 'r1'])).toBe(true);
+    expect(sameIds(['r1', 'r2'], ['r2', 'r1'])).toBe(true);
   });
 
   it('is false when a role is added or removed', () => {
-    expect(sameRoles(['r1'], ['r1', 'r2'])).toBe(false);
-    expect(sameRoles(['r1', 'r2'], ['r1'])).toBe(false);
+    expect(sameIds(['r1'], ['r1', 'r2'])).toBe(false);
+    expect(sameIds(['r1', 'r2'], ['r1'])).toBe(false);
   });
 });

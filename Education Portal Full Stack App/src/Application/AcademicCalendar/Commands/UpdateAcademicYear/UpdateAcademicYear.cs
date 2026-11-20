@@ -12,7 +12,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.UpdateAcademicYe
 /// the same or new values); closing a year stops it being current. The year's terms must still fall inside its dates.
 /// Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Edit)]
 public record UpdateAcademicYearCommand : IRequest
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>

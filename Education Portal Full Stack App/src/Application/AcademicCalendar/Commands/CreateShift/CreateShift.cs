@@ -11,7 +11,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.CreateShift;
 /// Adds a shift to a campus of the school, for example Morning from 07:30 to 13:00. Names are unique within a campus.
 /// Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Create)]
 public record CreateShiftCommand : IRequest<Guid>
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
@@ -38,12 +38,14 @@ public class CreateShiftCommandValidator : AbstractValidator<CreateShiftCommand>
 
 public class CreateShiftCommandHandler : IRequestHandler<CreateShiftCommand, Guid>
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
     private readonly ICurrentTenant _tenant;
 
-    public CreateShiftCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant)
+    public CreateShiftCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _auditLog = auditLog;
         _tenant = tenant;
@@ -54,6 +56,7 @@ public class CreateShiftCommandHandler : IRequestHandler<CreateShiftCommand, Gui
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await _context.Campuses.Where(c => c.SchoolId == schoolId).ResolveIdAsync(request.CampusId, cancellationToken);
 
+        await _campusAccess.EnsureCampusAsync(campusId, cancellationToken);
         await ShiftRules.EnsureNameFreeAsync(_context, campusId, null, request.Name, cancellationToken);
 
         var shift = Shift.Create(schoolId, campusId, request.Name, request.StartTime, request.EndTime);

@@ -1,7 +1,7 @@
 <app-page-header
   title="Roles"
   i18n-title="@@roles.title"
-  subtitle="What each role of the school may do in each module: view, create, edit and delete."
+  subtitle="What each role of the school may do in each module: view, create, edit, delete, approve and export."
   i18n-subtitle="@@roles.subtitle"
 ></app-page-header>
 
@@ -35,14 +35,27 @@
   @if (roles() !== null) {
     <mat-card class="mm-card mm-elevated">
       <mat-card-content>
-        <h2 class="mm-roles__heading" i18n="@@roles.addHeading">Add a role</h2>
-        <form class="mm-roles__form" [formGroup]="form" (ngSubmit)="add()" novalidate>
+        @if (editing(); as role) {
+          <h2 class="mm-roles__heading" i18n="@@roles.editHeading">Edit {{ role.name }}</h2>
+        } @else {
+          <h2 class="mm-roles__heading" i18n="@@roles.addHeading">Add a role</h2>
+        }
+        <form class="mm-roles__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
           <mat-form-field appearance="outline">
             <mat-label i18n="@@roles.name">Role name</mat-label>
             <input matInput formControlName="name" maxlength="100" autocomplete="off" />
+            @if (editing()?.isSystem) {
+              <mat-hint i18n="@@roles.systemNameHint">A built-in role keeps its name.</mat-hint>
+            }
             @if (form.controls.name.hasError('required')) {
               <mat-error i18n="@@roles.required">This field is required.</mat-error>
             }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@roles.description">Description</mat-label>
+            <textarea matInput formControlName="description" maxlength="500" rows="2"></textarea>
+            <mat-hint i18n="@@roles.descriptionHint">Optional. What the role is for.</mat-hint>
           </mat-form-field>
 
           <table class="mm-roles__matrix" aria-label="Rights per module" i18n-aria-label="@@roles.matrixLabel">
@@ -68,7 +81,16 @@
             </tbody>
           </table>
 
-          <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@roles.add">Add role</button>
+          <p class="mm-roles__note" i18n="@@roles.viewNote">Every right includes View. A user's campuses decide where the rights apply.</p>
+
+          <div class="mm-roles__actions">
+            @if (editing()) {
+              <button mat-button type="button" [disabled]="busy()" (click)="cancelEdit()" i18n="@@common.cancel">Cancel</button>
+              <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@roles.save">Save role</button>
+            } @else {
+              <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@roles.add">Add role</button>
+            }
+          </div>
         </form>
 
         @for (message of errors(); track message) {
@@ -79,10 +101,27 @@
   }
 }
 
+<ng-template #nameCell let-role>
+  <span class="mm-roles__name">
+    <span>{{ role.name }}</span>
+    @if (role.isSystem) {
+      <app-status-badge tone="primary" i18n="@@roles.builtIn">Built-in</app-status-badge>
+    }
+  </span>
+  @if (role.description) {
+    <span class="mm-roles__description">{{ role.description }}</span>
+  }
+</ng-template>
+
 <ng-template #actionsCell let-role>
   <span class="mm-crud-actions">
-    <button mat-icon-button type="button" class="mm-delete-btn" [disabled]="busy()" [attr.aria-label]="'Delete ' + role.name" i18n-aria-label="@@roles.deleteRole" (click)="$event.stopPropagation(); confirmDelete(role)">
-      <app-icon name="trash-2" [size]="16" />
+    <button mat-icon-button type="button" [disabled]="busy()" [attr.aria-label]="'Edit ' + role.name" i18n-aria-label="@@roles.editRole" (click)="$event.stopPropagation(); startEdit(role)">
+      <app-icon name="edit-3" [size]="16" />
     </button>
+    @if (!role.isSystem) {
+      <button mat-icon-button type="button" class="mm-delete-btn" [disabled]="busy()" [attr.aria-label]="'Delete ' + role.name" i18n-aria-label="@@roles.deleteRole" (click)="$event.stopPropagation(); confirmDelete(role)">
+        <app-icon name="trash-2" [size]="16" />
+      </button>
+    }
   </span>
 </ng-template>

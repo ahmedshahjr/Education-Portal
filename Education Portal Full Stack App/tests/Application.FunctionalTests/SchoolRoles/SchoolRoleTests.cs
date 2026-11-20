@@ -29,15 +29,15 @@ public class SchoolRoleTests : TestBase
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
 
-        var id = await CreateAsync(session, "Registrar", [new(ModuleCode.Students, true, true, true, false)]);
+        var id = await CreateAsync(session, "Registrar", [new(ModuleCode.Students, true, true, true, false, false, false)]);
 
         var roles = await ListAsync(session);
         roles.ShouldHaveSingleItem().ShouldSatisfyAllConditions(
             r => r.Id.ShouldBe(id),
             r => r.Name.ShouldBe("Registrar"),
-            r => r.Permissions.ShouldBe([new RolePermissionDto(ModuleCode.Students, true, true, true, false)]));
+            r => r.Permissions.ShouldBe([new RolePermissionDto(ModuleCode.Students, true, true, true, false, false, false)]));
 
-        using var update = await session.PutAsync($"/api/SchoolRoles/{id}", Body("Admissions officer", [new(ModuleCode.Students, true, false, false, false), new(ModuleCode.Staff, true, false, false, false)]));
+        using var update = await session.PutAsync($"/api/SchoolRoles/{id}", Body("Admissions officer", [new(ModuleCode.Students, true, false, false, false, false, false), new(ModuleCode.Staff, true, false, false, false, false, false)]));
         update.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         var changed = (await ListAsync(session)).Single();
         changed.Name.ShouldBe("Admissions officer");
@@ -47,6 +47,46 @@ public class SchoolRoleTests : TestBase
         delete.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         (await ListAsync(session)).ShouldBeEmpty();
         (await TestApp.CountAsync<RolePermission>()).ShouldBe(0);
+    }
+
+    [Test]
+    public async Task ShouldSaveTheDescriptionAndTheApproveAndExportRights()
+    {
+        var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
+        using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
+
+        using var create = await session.PostAsync("/api/SchoolRoles", Body("Registrar", [new(ModuleCode.Students, true, false, false, false, true, true)], " Keeps the records "));
+        create.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        var role = (await ListAsync(session)).Single();
+        role.ShouldSatisfyAllConditions(
+            r => r.Description.ShouldBe("Keeps the records"),
+            r => r.IsSystem.ShouldBeFalse(),
+            r => r.Permissions.ShouldBe([new RolePermissionDto(ModuleCode.Students, true, false, false, false, true, true)]));
+
+        using var exportWithoutView = await session.PostAsync("/api/SchoolRoles", Body("Clerk", [new(ModuleCode.Students, false, false, false, false, false, true)]));
+        exportWithoutView.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task ShouldKeepTheNameOfABuiltInRoleAndRefuseToDeleteIt()
+    {
+        var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
+        using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
+        (await session.PostAsync("/api/SchoolRoles/built-in", new { })).Dispose();
+        var teacher = (await ListAsync(session)).Single(r => r.Name == "Teacher");
+        teacher.IsSystem.ShouldBeTrue();
+
+        using var rename = await session.PutAsync($"/api/SchoolRoles/{teacher.Id}", Body("Tutor", []));
+        using var describe = await session.PutAsync($"/api/SchoolRoles/{teacher.Id}", Body("Teacher", [], "Teaches classes"));
+        using var delete = await session.DeleteAsync($"/api/SchoolRoles/{teacher.Id}");
+
+        rename.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        describe.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        delete.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var kept = (await ListAsync(session)).Single(r => r.Id == teacher.Id);
+        kept.Name.ShouldBe("Teacher");
+        kept.Description.ShouldBe("Teaches classes");
     }
 
     [Test]
@@ -70,8 +110,8 @@ public class SchoolRoleTests : TestBase
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
 
-        using var noView = await session.PostAsync("/api/SchoolRoles", Body("A", [new(ModuleCode.Students, false, true, false, false)]));
-        using var twice = await session.PostAsync("/api/SchoolRoles", Body("B", [new(ModuleCode.Students, true, false, false, false), new(ModuleCode.Students, true, true, false, false)]));
+        using var noView = await session.PostAsync("/api/SchoolRoles", Body("A", [new(ModuleCode.Students, false, true, false, false, false, false)]));
+        using var twice = await session.PostAsync("/api/SchoolRoles", Body("B", [new(ModuleCode.Students, true, false, false, false, false, false), new(ModuleCode.Students, true, true, false, false, false, false)]));
 
         noView.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         twice.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -84,8 +124,8 @@ public class SchoolRoleTests : TestBase
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
 
-        using var unsold = await session.PostAsync("/api/SchoolRoles", Body("Cashier", [new(ModuleCode.Fees, true, true, false, false)]));
-        using var unknown = await session.PostAsync("/api/SchoolRoles", Body("Ghost", [new((ModuleCode)99, true, false, false, false)]));
+        using var unsold = await session.PostAsync("/api/SchoolRoles", Body("Cashier", [new(ModuleCode.Fees, true, true, false, false, false, false)]));
+        using var unknown = await session.PostAsync("/api/SchoolRoles", Body("Ghost", [new((ModuleCode)99, true, false, false, false, false, false)]));
 
         unsold.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         unknown.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -97,21 +137,21 @@ public class SchoolRoleTests : TestBase
         var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
         var subscription = await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees], start: DateTimeOffset.UtcNow.AddDays(-1));
         using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
-        var id = await CreateAsync(session, "Cashier", [new(ModuleCode.Fees, true, true, false, false), new(ModuleCode.Students, true, false, false, false)]);
+        var id = await CreateAsync(session, "Cashier", [new(ModuleCode.Fees, true, true, false, false, false, false), new(ModuleCode.Students, true, false, false, false, false, false)]);
 
         await ChangeGrantsAsync(subscription.Id, school.Id, grant => grant.Suspend());
         var hidden = (await ListAsync(session)).Single();
         hidden.Permissions.Select(p => p.Module).ShouldBe([ModuleCode.Students]);
 
         // Saving while Fees is off must not lose the Fees rights.
-        using var update = await session.PutAsync($"/api/SchoolRoles/{id}", Body("Cashier", [new(ModuleCode.Students, true, true, false, false)]));
+        using var update = await session.PutAsync($"/api/SchoolRoles/{id}", Body("Cashier", [new(ModuleCode.Students, true, true, false, false, false, false)]));
         update.StatusCode.ShouldBe(HttpStatusCode.NoContent);
 
         await ChangeGrantsAsync(subscription.Id, school.Id, grant => grant.Reactivate());
         (await ListAsync(session)).Single().Permissions.ShouldBe(
         [
-            new RolePermissionDto(ModuleCode.Students, true, true, false, false),
-            new RolePermissionDto(ModuleCode.Fees, true, true, false, false),
+            new RolePermissionDto(ModuleCode.Students, true, true, false, false, false, false),
+            new RolePermissionDto(ModuleCode.Fees, true, true, false, false, false, false),
         ], ignoreOrder: true);
     }
 
@@ -165,8 +205,8 @@ public class SchoolRoleTests : TestBase
         events.ShouldContain(SecurityAuditEventType.RoleDeleted);
     }
 
-    private static object Body(string name, List<RolePermissionDto> permissions) =>
-        new { name, permissions = permissions.Select(p => new { module = p.Module, p.CanView, p.CanCreate, p.CanEdit, p.CanDelete }) };
+    private static object Body(string name, List<RolePermissionDto> permissions, string? description = null) =>
+        new { name, description, permissions = permissions.Select(p => new { module = p.Module, p.CanView, p.CanCreate, p.CanEdit, p.CanDelete, p.CanApprove, p.CanExport }) };
 
     private static async Task<Guid> CreateAsync(HttpSession session, string name, List<RolePermissionDto> permissions)
     {

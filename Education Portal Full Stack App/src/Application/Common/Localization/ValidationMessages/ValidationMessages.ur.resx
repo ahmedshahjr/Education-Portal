@@ -522,4 +522,16 @@
   <data name="CalendarRangeTooLong" xml:space="preserve">
     <value>کیلنڈر کی مدت زیادہ سے زیادہ 366 دن کی ہو سکتی ہے۔</value>
   </data>
+  <data name="SystemRoleKeepsName" xml:space="preserve">
+    <value>پہلے سے موجود کردار کا نام نہیں بدلا جا سکتا۔</value>
+  </data>
+  <data name="SystemRoleNotDeletable" xml:space="preserve">
+    <value>پہلے سے موجود کردار حذف نہیں کیا جا سکتا۔</value>
+  </data>
+  <data name="CampusNotInSchool" xml:space="preserve">
+    <value>ایک کیمپس اس مدرسے کا نہیں ہے۔</value>
+  </data>
+  <data name="CampusListedTwice" xml:space="preserve">
+    <value>ہر کیمپس صرف ایک بار شامل کیا جا سکتا ہے۔</value>
+  </data>
 </root>

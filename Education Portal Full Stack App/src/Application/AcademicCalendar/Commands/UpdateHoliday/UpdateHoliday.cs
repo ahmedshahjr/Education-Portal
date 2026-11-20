@@ -8,7 +8,7 @@ using EducationPortal.Domain.Constants;
 namespace EducationPortal.Application.AcademicCalendar.Commands.UpdateHoliday;
 
 /// <summary>Changes a holiday on the school calendar. Needs the Academic setup module. Audited (SEC-LOG-03).</summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Edit)]
 public record UpdateHolidayCommand : IRequest, IHolidayInput
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
@@ -43,12 +43,14 @@ public class UpdateHolidayCommandValidator : AbstractValidator<UpdateHolidayComm
 
 public class UpdateHolidayCommandHandler : IRequestHandler<UpdateHolidayCommand>
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
     private readonly ICurrentTenant _tenant;
 
-    public UpdateHolidayCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant)
+    public UpdateHolidayCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _auditLog = auditLog;
         _tenant = tenant;
@@ -61,7 +63,9 @@ public class UpdateHolidayCommandHandler : IRequestHandler<UpdateHolidayCommand>
         var item = await _context.Holidays.FirstOrDefaultAsync(h => h.SchoolId == schoolId && h.PublicId == request.HolidayId, cancellationToken);
         Guard.Against.NotFound(request.HolidayId, item);
 
+        await _campusAccess.EnsureCampusAsync(item.CampusId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, cancellationToken);
         item.Change(campusId, request.Title, request.StartDate, request.EndDate, request.Type, request.AppliesTo, request.IsTentative);
         await _context.SaveChangesAsync(cancellationToken);
 

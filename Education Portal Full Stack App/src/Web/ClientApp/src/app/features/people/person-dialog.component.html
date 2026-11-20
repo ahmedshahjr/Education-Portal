@@ -81,6 +81,17 @@
       <mat-hint i18n="@@people.rolesHint">Decides what the user may see. The built-in roles are a starting point.</mat-hint>
     </mat-form-field>
 
+    <h3 class="mm-person-dialog__heading" i18n="@@people.campusesHeading">Campuses</h3>
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@people.campusesLabel">Campuses</mat-label>
+      <mat-select formControlName="campuses" multiple>
+        @for (campus of campuses; track campus.id) {
+          <mat-option [value]="campus.id">{{ campus.displayCode }} {{ campus.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint i18n="@@people.campusesHint">The user works only with these campuses' data. Administrators see every campus.</mat-hint>
+    </mat-form-field>
+
     @if (adding) {
       <h3 class="mm-person-dialog__heading" i18n="@@people.accountHeading">Login</h3>
       <div class="mm-person-dialog__grid">

@@ -1,13 +1,15 @@
 using System.Globalization;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Security;
+using EducationPortal.Application.Common.Localization;
 using EducationPortal.Domain.Constants;
+using FluentValidation.Results;
 
 namespace EducationPortal.Application.SchoolRoles.Commands.DeleteRole;
 
 /// <summary>
 /// Deletes a role of the current school together with its rights. A role of another school is not found (SEC-AUTHZ-03);
-/// audited (SEC-LOG-03).
+/// a built-in role cannot be deleted; audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
 public record DeleteRoleCommand(Guid Id) : IRequest;
@@ -27,6 +29,12 @@ public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand>
     {
         var role = await _context.SchoolRoles.FirstOrDefaultAsync(r => r.PublicId == request.Id, cancellationToken);
         Guard.Against.NotFound(request.Id, role);
+
+        if (role.IsSystem)
+        {
+            throw new EducationPortal.Application.Common.Exceptions.ValidationException(
+                [new ValidationFailure(nameof(request.Id), ValidationMessages.SystemRoleNotDeletable)]);
+        }
 
         var rights = await _context.RolePermissions.Where(p => p.SchoolRoleId == role.Id).ToListAsync(cancellationToken);
         _context.RolePermissions.RemoveRange(rights);

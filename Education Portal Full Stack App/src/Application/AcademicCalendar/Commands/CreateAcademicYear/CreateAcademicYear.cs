@@ -11,7 +11,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.CreateAcademicYe
 /// Adds an academic year to a school, planned until it is changed. Its name is unique in the school and its dates do not
 /// overlap another year. Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Create)]
 public record CreateAcademicYearCommand : IRequest<Guid>
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>

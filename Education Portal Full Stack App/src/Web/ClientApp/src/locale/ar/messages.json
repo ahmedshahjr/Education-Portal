@@ -424,7 +424,7 @@
     "roles.right.delete": "حذف",
     "roles.right.edit": "تعديل",
     "roles.right.view": "عرض",
-    "roles.subtitle": "ما الذي يمكن لكل دور في المدرسة فعله في كل وحدة: العرض والإنشاء والتعديل والحذف.",
+    "roles.subtitle": "ما يمكن لكل دور في المدرسة فعله في كل وحدة: العرض والإنشاء والتعديل والحذف والاعتماد والتصدير.",
     "roles.title": "الأدوار",
     "schoolEdit.invoicesTab": "الفواتير",
     "schoolEdit.planTab": "الخطة والوحدات",
@@ -813,6 +813,19 @@
     "schoolDetails.emailInvalid": "أدخل بريداً إلكترونياً صحيحاً.",
     "schoolDetails.website": "الموقع الإلكتروني",
     "schoolDetails.save": "حفظ",
-    "schoolDetails.saved": "تم حفظ بيانات المدرسة."
+    "schoolDetails.saved": "تم حفظ بيانات المدرسة.",
+    "people.campusesHeading": "الفروع",
+    "people.campusesLabel": "الفروع",
+    "people.campusesHint": "يعمل المستخدم على بيانات هذه الفروع فقط. يرى المسؤولون كل الفروع.",
+    "roles.editHeading": "تعديل {$INTERPOLATION}",
+    "roles.systemNameHint": "يحتفظ الدور المدمج باسمه.",
+    "roles.description": "الوصف",
+    "roles.descriptionHint": "اختياري. الغرض من الدور.",
+    "roles.viewNote": "كل صلاحية تتضمن العرض. فروع المستخدم تحدد أين تنطبق الصلاحيات.",
+    "roles.save": "حفظ الدور",
+    "roles.builtIn": "مدمج",
+    "roles.right.approve": "اعتماد",
+    "roles.right.export": "تصدير",
+    "roles.saved": "تم حفظ الدور."
   }
 }

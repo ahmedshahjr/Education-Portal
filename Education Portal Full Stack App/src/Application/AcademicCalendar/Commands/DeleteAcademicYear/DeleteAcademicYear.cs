@@ -11,7 +11,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.DeleteAcademicYe
 /// Deletes an academic year that has no terms left. The row is kept (soft delete) and hidden everywhere; it stops being the
 /// current year. Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
-[Authorize(Roles = Roles.Administrator, Module = ModuleCode.AcademicSetup)]
+[Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Delete)]
 public record DeleteAcademicYearCommand : IRequest
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>

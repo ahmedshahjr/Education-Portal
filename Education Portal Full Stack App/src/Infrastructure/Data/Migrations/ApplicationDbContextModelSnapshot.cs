@@ -2102,6 +2102,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("CanApprove")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("CanCreate")
                         .HasColumnType("boolean");
 
@@ -2109,6 +2112,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("CanEdit")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanExport")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("CanView")
@@ -2151,7 +2157,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     b.ToTable("RolePermissions", "access", t =>
                         {
-                            t.HasCheckConstraint("CK_RolePermissions_NeedView", "\"CanView\" OR NOT (\"CanCreate\" OR \"CanEdit\" OR \"CanDelete\")");
+                            t.HasCheckConstraint("CK_RolePermissions_NeedView", "\"CanView\" OR NOT (\"CanCreate\" OR \"CanEdit\" OR \"CanDelete\" OR \"CanApprove\" OR \"CanExport\")");
                         });
                 });
 
@@ -2743,6 +2749,13 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset>("LastModified")
                         .HasColumnType("timestamp with time zone");
@@ -3386,6 +3399,52 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("SchoolId", "Day");
 
                     b.ToTable("TimetableSlots", "academics");
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.UserCampus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CampusId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserDetailsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("CampusId");
+
+                    b.HasIndex("SchoolId");
+
+                    b.HasIndex("UserDetailsId", "CampusId")
+                        .IsUnique();
+
+                    b.ToTable("UserCampuses", "access");
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.UserDetails", b =>
@@ -6419,6 +6478,27 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("Day")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.UserCampus", b =>
+                {
+                    b.HasOne("EducationPortal.Domain.Entities.Campus", null)
+                        .WithMany()
+                        .HasForeignKey("CampusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.School", null)
+                        .WithMany()
+                        .HasForeignKey("SchoolId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.UserDetails", null)
+                        .WithMany()
+                        .HasForeignKey("UserDetailsId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

@@ -14,17 +14,20 @@ import { FilterOption, FilterPanelComponent } from '../../shared/components/filt
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import {
+  CampusDto,
+  CampusesClient,
   CreateUserDetailsCommand,
   LinkStudentCommand,
   SchoolRoleDto,
   SchoolRolesClient,
   SetAccountRolesCommand,
+  SetPersonCampusesCommand,
   UpdateUserDetailsCommand,
   UserDetailsClient,
   UserDetailsDto,
   UserType,
 } from '../../web-api-client';
-import { planChildLinks, sameRoles } from './person-changes';
+import { planChildLinks, sameIds } from './person-changes';
 import { PersonDialogComponent, PersonDialogData, PersonDialogResult } from './person-dialog.component';
 
 /** The type tabs: everyone, or one user type. */
@@ -54,6 +57,7 @@ type TypeFilter = 'All' | UserType;
 export class PeoplePage {
   private readonly peopleClient = inject(UserDetailsClient);
   private readonly rolesClient = inject(SchoolRolesClient);
+  private readonly campusesClient = inject(CampusesClient);
   private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
 
@@ -131,30 +135,34 @@ export class PeoplePage {
               ? this.peopleClient.getChildren(person.id).pipe(catchError(() => of([] as UserDetailsDto[])))
               : of([] as UserDetailsDto[]),
             roleIds: person ? this.peopleClient.getAccountRoles(person.id).pipe(catchError(() => of([] as string[]))) : of([] as string[]),
+            campuses: this.campusesClient.getCampuses().pipe(catchError(() => of([] as CampusDto[]))),
+            campusIds: person ? this.peopleClient.getPersonCampuses(person.id).pipe(catchError(() => of([] as string[]))) : of([] as string[]),
           })
         )
       )
-      .subscribe(({ students, roles, children, roleIds }) => {
+      .subscribe(({ students, roles, children, roleIds, campuses, campusIds }) => {
         const data: PersonDialogData = {
           person,
           students,
           roles,
           currentChildIds: children.map((child) => child.id),
           currentRoleIds: roleIds,
+          campuses,
+          currentCampusIds: campusIds,
         };
         this.dialog
           .open<PersonDialogComponent, PersonDialogData, PersonDialogResult>(PersonDialogComponent, { data, width: '640px', autoFocus: 'first-tabbable' })
           .afterClosed()
           .subscribe((result) => {
             if (result) {
-              this.save(person, result, data.currentRoleIds, data.currentChildIds);
+              this.save(person, result, data);
             }
           });
       });
   }
 
-  /** Saves the person, then the roles of their account and the children of a parent, as the modal chose them. */
-  private save(person: UserDetailsDto | null, result: PersonDialogResult, startRoles: readonly string[], startChildren: readonly string[]): void {
+  /** Saves the person, then the roles of their account, their campuses and the children of a parent, as the modal chose them. */
+  private save(person: UserDetailsDto | null, result: PersonDialogResult, start: PersonDialogData): void {
     this.busy.set(true);
     this.errors.set([]);
 
@@ -162,7 +170,7 @@ export class PeoplePage {
       ? this.peopleClient.updateUserDetails(person.id, new UpdateUserDetailsCommand(result.fields)).pipe(map(() => person.id))
       : this.peopleClient.createUserDetails(new CreateUserDetailsCommand(result.fields));
 
-    saved.pipe(switchMap((personId) => this.applyRelations(personId, result, startRoles, startChildren))).subscribe({
+    saved.pipe(switchMap((personId) => this.applyRelations(personId, result, start))).subscribe({
       next: () => {
         this.busy.set(false);
         this.toast.success(person ? $localize`:@@people.updated:User saved.` : $localize`:@@people.added:User added.`);
@@ -171,30 +179,29 @@ export class PeoplePage {
       error: (error: unknown) => {
         this.busy.set(false);
         this.errors.set(problemMessages(error));
-        // The person may have been saved before the roles or children failed, so the list is shown again.
+        // The person may have been saved before the roles, campuses or children failed, so the list is shown again.
         this.load();
       },
     });
   }
 
-  /** The roles of the account and the links of a parent, changed only where they differ from what the person had. */
-  private applyRelations(
-    personId: string,
-    result: PersonDialogResult,
-    startRoles: readonly string[],
-    startChildren: readonly string[]
-  ): Observable<unknown> {
-    const roles: Observable<unknown> = sameRoles(result.roleIds, startRoles)
+  /** The roles, the campuses and the links of a parent, changed only where they differ from what the person had. */
+  private applyRelations(personId: string, result: PersonDialogResult, start: PersonDialogData): Observable<unknown> {
+    const roles: Observable<unknown> = sameIds(result.roleIds, start.currentRoleIds)
       ? of(null)
       : this.peopleClient.setAccountRoles(personId, new SetAccountRolesCommand({ roleIds: [...result.roleIds] }));
 
-    const links = planChildLinks(startChildren, result.childIds);
+    const campuses: Observable<unknown> = sameIds(result.campusIds, start.currentCampusIds)
+      ? of(null)
+      : this.peopleClient.setPersonCampuses(personId, new SetPersonCampusesCommand({ campusIds: [...result.campusIds] }));
+
+    const links = planChildLinks(start.currentChildIds, result.childIds);
     const children: Observable<unknown>[] = [
       ...links.add.map((studentId) => this.peopleClient.linkStudent(personId, new LinkStudentCommand({ studentId }))),
       ...links.remove.map((studentId) => this.peopleClient.unlinkStudent(personId, studentId)),
     ];
 
-    return forkJoin([roles, ...children]);
+    return forkJoin([roles, campuses, ...children]);
   }
 
   /** Asks first. The user is hidden everywhere; the server refuses a principal of a campus. */

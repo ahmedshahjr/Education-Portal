@@ -53,8 +53,8 @@ export function planChildLinks(current: readonly string[], wanted: readonly stri
   };
 }
 
-/** True when two lists of role ids hold the same roles, in any order. */
-export function sameRoles(a: readonly string[], b: readonly string[]): boolean {
+/** True when two lists of ids (roles, campuses) hold the same ids, in any order. */
+export function sameIds(a: readonly string[], b: readonly string[]): boolean {
   if (new Set(a).size !== new Set(b).size) {
     return false;
   }

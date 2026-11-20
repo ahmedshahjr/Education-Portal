@@ -3,7 +3,7 @@ using EducationPortal.Domain.Common;
 namespace EducationPortal.Domain.Entities;
 
 /// <summary>
-/// A person of a school works at a campus (the table <c>UserCampus</c>). A person can belong to several campuses. Owned by
+/// A person of a school works at a campus (the table <c>UserCampuses</c>). A person can belong to several campuses. Owned by
 /// the school (<see cref="SchoolId"/>) and covered by the tenant query filter (SEC-AUTHZ-03). A campus-scoped list filters
 /// its rows by these links.
 /// </summary>

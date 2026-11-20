@@ -10,6 +10,7 @@ public class SchoolRoleConfiguration : IEntityTypeConfiguration<SchoolRole>
     {
         builder.HasOne<School>().WithMany().HasForeignKey(r => r.SchoolId).OnDelete(DeleteBehavior.Cascade);
         builder.Property(r => r.Name).IsRequired().HasMaxLength(SchoolRole.NameMaxLength);
+        builder.Property(r => r.Description).HasMaxLength(SchoolRole.DescriptionMaxLength);
 
         // A school's role names are unique.
         builder.HasIndex(r => new { r.SchoolId, r.Name }).IsUnique();
@@ -31,6 +32,6 @@ public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermissi
 
         builder.ToTable(t => t.HasCheckConstraint(
             "CK_RolePermissions_NeedView",
-            "\"CanView\" OR NOT (\"CanCreate\" OR \"CanEdit\" OR \"CanDelete\")"));
+            "\"CanView\" OR NOT (\"CanCreate\" OR \"CanEdit\" OR \"CanDelete\" OR \"CanApprove\" OR \"CanExport\")"));
     }
 }

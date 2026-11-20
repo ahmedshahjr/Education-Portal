@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { SchoolRoleDto, UserDetailsDto, UserType } from '../../web-api-client';
+import { CampusDto, SchoolRoleDto, UserDetailsDto, UserType } from '../../web-api-client';
 import { buildPersonChanges, needsAdmissionDetails, PersonChanges } from './person-changes';
 
 export interface PersonDialogData {
@@ -19,19 +19,25 @@ export interface PersonDialogData {
   readonly currentChildIds: readonly string[];
   /** The roles the person's account holds now (empty for a new person). */
   readonly currentRoleIds: readonly string[];
+  /** The school's campuses, to choose where the person works from. */
+  readonly campuses: readonly CampusDto[];
+  /** The campuses the person is assigned to now (empty for a new person). */
+  readonly currentCampusIds: readonly string[];
 }
 
-/** What the modal returns: the person's fields, the children a parent should have, and the roles of the account. */
+/** What the modal returns: the person's fields, the children a parent should have, the roles of the account and the campuses. */
 export interface PersonDialogResult {
   readonly fields: PersonChanges;
   readonly childIds: readonly string[];
   readonly roleIds: readonly string[];
+  readonly campusIds: readonly string[];
 }
 
 /**
  * Adds a person or changes one. Adding also creates the person's login: an email and a one-time password, which the
  * person replaces on first sign-in. Every type gets a login, as the maintainer decided for the people plan. A parent's
- * children and every account's roles are chosen here too; the page saves them after the person.
+ * children, every account's roles and the campuses the person works at are chosen here too; the page saves them after
+ * the person. Someone who is not an administrator acts only on their campuses.
  */
 @Component({
   selector: 'app-person-dialog',
@@ -48,6 +54,7 @@ export class PersonDialogComponent {
   protected readonly adding = this.person === null;
   protected readonly students = this.data.students;
   protected readonly roles = this.data.roles;
+  protected readonly campuses = this.data.campuses;
   protected readonly types = [UserType.Principal, UserType.Teacher, UserType.Staff, UserType.Student, UserType.Parent];
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
@@ -60,6 +67,7 @@ export class PersonDialogComponent {
     oneTimePassword: ['', [Validators.maxLength(128)]],
     children: [[...this.data.currentChildIds] as string[]],
     roles: [[...this.data.currentRoleIds] as string[]],
+    campuses: [[...this.data.currentCampusIds] as string[]],
   });
 
   /** The type chosen, so the student note and the children picker follow the selection. */
@@ -90,6 +98,7 @@ export class PersonDialogComponent {
       fields: buildPersonChanges(value, this.adding),
       childIds: value.userType === UserType.Parent ? value.children : [],
       roleIds: value.roles,
+      campusIds: value.campuses,
     });
   }
 }

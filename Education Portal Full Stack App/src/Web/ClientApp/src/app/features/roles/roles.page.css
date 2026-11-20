@@ -31,8 +31,10 @@ h3 {
 }
 
 .mm-roles__name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mm-space-2);
   font-weight: 600;
-  min-width: 160px;
 }
 
 .mm-roles__rights {
@@ -67,4 +69,19 @@ h3 {
 
 .mm-roles__matrix th[scope='row'] {
   text-align: start;
+}
+.mm-roles__description {
+  display: block;
+  color: var(--mm-text-muted);
+  font-size: var(--mm-text-xs);
+}
+
+.mm-roles__note {
+  color: var(--mm-text-muted);
+}
+
+.mm-roles__actions {
+  display: flex;
+  gap: var(--mm-space-2);
+  justify-content: flex-end;
 }

@@ -1271,5 +1271,40 @@ namespace EducationPortal.Application.Common.Localization {
             }
         }
         
-}
+        /// <summary>
+        ///   Looks up a localized string similar to A built-in role keeps its name.
+        /// </summary>
+        internal static string SystemRoleKeepsName {
+            get {
+                return ResourceManager.GetString("SystemRoleKeepsName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A built-in role cannot be deleted.
+        /// </summary>
+        internal static string SystemRoleNotDeletable {
+            get {
+                return ResourceManager.GetString("SystemRoleNotDeletable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to One of the campuses is not a campus of this school.
+        /// </summary>
+        internal static string CampusNotInSchool {
+            get {
+                return ResourceManager.GetString("CampusNotInSchool", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Each campus can be listed only once.
+        /// </summary>
+        internal static string CampusListedTwice {
+            get {
+                return ResourceManager.GetString("CampusListedTwice", resourceCulture);
+            }
+        }
+    }
 }

@@ -60,6 +60,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<AccountRole> AccountRoles => Set<AccountRole>();
 
+    public DbSet<UserCampus> UserCampuses => Set<UserCampus>();
+
     public DbSet<StudentProfile> StudentProfiles => Set<StudentProfile>();
 
     public DbSet<SchoolProfile> SchoolProfiles => Set<SchoolProfile>();

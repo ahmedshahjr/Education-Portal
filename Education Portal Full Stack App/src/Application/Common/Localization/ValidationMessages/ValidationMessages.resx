@@ -522,4 +522,16 @@
   <data name="CalendarRangeTooLong" xml:space="preserve">
     <value>A calendar range covers at most 366 days.</value>
   </data>
+  <data name="SystemRoleKeepsName" xml:space="preserve">
+    <value>A built-in role keeps its name.</value>
+  </data>
+  <data name="SystemRoleNotDeletable" xml:space="preserve">
+    <value>A built-in role cannot be deleted.</value>
+  </data>
+  <data name="CampusNotInSchool" xml:space="preserve">
+    <value>One of the campuses is not a campus of this school.</value>
+  </data>
+  <data name="CampusListedTwice" xml:space="preserve">
+    <value>Each campus can be listed only once.</value>
+  </data>
 </root>
