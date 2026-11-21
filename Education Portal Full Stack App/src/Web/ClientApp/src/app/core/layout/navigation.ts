@@ -36,6 +36,7 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
       { id: 'student-admissions', label: $localize`:@@nav.studentAdmissions:Admit a student`, icon: 'user-plus', route: '/student-admissions', access: 'school-administrator', module: MODULE_CODES.students },
       { id: 'exams', label: $localize`:@@nav.exams:Exams`, icon: 'check-square', route: '/exams', access: 'school-administrator', module: MODULE_CODES.exams },
       { id: 'timetable', label: $localize`:@@nav.timetable:Timetable`, icon: 'clock', route: '/timetable', access: 'school-administrator', module: MODULE_CODES.timetable },
+      { id: 'events', label: $localize`:@@nav.events:Events`, icon: 'calendar', route: '/events', access: 'school-administrator', module: MODULE_CODES.school },
       { id: 'class-offerings', label: $localize`:@@nav.classOfferings:Class offerings`, icon: 'book-open', route: '/class-offerings', access: 'school-administrator', module: MODULE_CODES.school },
       { id: 'audit', label: $localize`:@@nav.audit:Change history`, icon: 'file-text', route: '/audit', access: 'school-administrator' },
       { id: 'my-children', label: $localize`:@@nav.myChildren:My children`, icon: 'users', route: '/my-children', access: 'everyone', module: MODULE_CODES.students },

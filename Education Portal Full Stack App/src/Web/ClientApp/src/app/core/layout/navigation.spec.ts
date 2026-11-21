@@ -9,8 +9,8 @@ describe('visibleNavSections', () => {
     expect(ids(false, true)).toEqual(['dashboard']);
   });
 
-  it('shows branding and the subscription to a school administrator but not the master portal', () => {
-    expect(ids(true, false)).toEqual(['dashboard', 'subscription', 'audit', 'branding']);
+  it('shows the customization menu and the subscription to a school administrator but not the master portal', () => {
+    expect(ids(true, false)).toEqual(['dashboard', 'subscription', 'audit', 'customization-menu']);
   });
 
   it('shows class offerings to a school administrator only when the School module is on', () => {
@@ -35,7 +35,7 @@ describe('visibleNavSections', () => {
   it('shows the master portal to master tenant administrators', () => {
     expect(ids(true, true)).toEqual([
       'dashboard',
-      'branding',
+      'customization-menu',
       'schools',
       'countries',
       'add-on-requests',

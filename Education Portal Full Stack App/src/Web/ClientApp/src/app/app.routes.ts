@@ -145,6 +145,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/timetable/timetable.page').then((m) => m.TimetablePage),
       },
       {
+        path: 'events',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.school)],
+        loadComponent: () => import('./features/school-events/school-events.page').then((m) => m.SchoolEventsPage),
+      },
+      {
         path: 'school-requests',
         canActivate: [masterAdministratorGuard],
         loadComponent: () =>

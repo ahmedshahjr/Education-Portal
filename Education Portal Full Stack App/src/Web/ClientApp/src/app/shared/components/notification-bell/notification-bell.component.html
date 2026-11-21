@@ -1,0 +1,40 @@
+@if (available()) {
+  <button
+    mat-icon-button
+    type="button"
+    class="mm-bell"
+    [matMenuTriggerFor]="notificationsMenu"
+    (menuOpened)="load()"
+    [attr.aria-label]="unread() > 0 ? unreadLabel : noUnreadLabel"
+    i18n-matTooltip="@@notifications.title"
+    matTooltip="Notifications"
+  >
+    <app-icon name="bell" [size]="20" />
+    @if (unread() > 0) {
+      <span class="mm-bell__count" aria-hidden="true">{{ unread() > 99 ? '99+' : unread() }}</span>
+    }
+  </button>
+
+  <mat-menu #notificationsMenu="matMenu" xPosition="before">
+    <div class="mm-bell__panel" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" role="presentation">
+      <div class="mm-bell__title" i18n="@@notifications.title">Notifications</div>
+      @if (items().length === 0) {
+        <p class="mm-bell__empty" i18n="@@notifications.empty">You have no notifications.</p>
+      } @else {
+        <ul class="mm-bell__list">
+          @for (item of items(); track item.id) {
+            <li>
+              <button type="button" class="mm-bell__item" [class.mm-bell__item--unread]="!item.readAt" (click)="open(item)">
+                <span class="mm-bell__item-title">{{ item.title }}</span>
+                @if (item.body) {
+                  <span class="mm-bell__item-body">{{ item.body }}</span>
+                }
+                <span class="mm-bell__item-time">{{ item.created | localDate: 'dateTime' }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </mat-menu>
+}

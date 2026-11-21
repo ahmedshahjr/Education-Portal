@@ -12,6 +12,7 @@ import { CampusScopeService } from '../../../core/campus/campus-scope.service';
 import { LayoutService } from '../../../core/layout/layout.service';
 import { AppIconComponent } from '../app-icon/app-icon.component';
 import { LanguageMenuComponent } from '../language-menu/language-menu.component';
+import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 
 /**
  * The theme's top bar, reduced to what the portal uses today: sidebar toggle, language, light/dark mode and the account
@@ -19,7 +20,7 @@ import { LanguageMenuComponent } from '../language-menu/language-menu.component'
  */
 @Component({
   selector: 'app-topbar',
-  imports: [MatToolbarModule, MatButtonModule, MatMenuModule, MatTooltipModule, MatFormFieldModule, MatSelectModule, AppIconComponent, LanguageMenuComponent],
+  imports: [MatToolbarModule, MatButtonModule, MatMenuModule, MatTooltipModule, MatFormFieldModule, MatSelectModule, AppIconComponent, LanguageMenuComponent, NotificationBellComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss',

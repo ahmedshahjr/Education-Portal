@@ -1,0 +1,100 @@
+<app-page-header
+  title="Events"
+  i18n-title="@@events.title"
+  subtitle="What is on at the school: add an event for everyone, staff, parents or students."
+  i18n-subtitle="@@events.subtitle"
+></app-page-header>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    <form class="mm-ac__form" [formGroup]="range" (ngSubmit)="load()" novalidate>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@events.from">From</mat-label>
+        <input matInput type="date" formControlName="from" dir="ltr" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@events.to">To</mat-label>
+        <input matInput type="date" formControlName="to" dir="ltr" />
+      </mat-form-field>
+      <div class="mm-ac__actions">
+        <button mat-stroked-button type="submit" i18n="@@events.show">Show events</button>
+      </div>
+    </form>
+
+    @if (loadError(); as message) {
+      <p class="mm-ac__error" role="alert">{{ message }}</p>
+    }
+
+    <app-data-table
+      [data]="rows()"
+      [columns]="columns"
+      [loading]="events() === null && !loadError()"
+      searchPlaceholder="Search events..."
+      i18n-searchPlaceholder="@@events.search"
+      emptyTitle="No events in this range"
+      i18n-emptyTitle="@@events.empty"
+      emptyDescription="Choose other dates, or add an event."
+      i18n-emptyDescription="@@events.emptyDescription"
+    >
+      <div table-actions>
+        @if (!adding()) {
+          <button mat-flat-button type="button" (click)="startAdd()" i18n="@@events.add">Add event</button>
+        }
+      </div>
+    </app-data-table>
+  </mat-card-content>
+</mat-card>
+
+@if (adding()) {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <h2 class="mm-ac__heading" i18n="@@events.addHeading">Add an event</h2>
+      <form class="mm-ac__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <mat-form-field appearance="outline" class="mm-ac__wide">
+          <mat-label i18n="@@events.colTitle">Event</mat-label>
+          <input matInput formControlName="title" [maxlength]="titleMax" autocomplete="off" />
+          @if (form.controls.title.hasError('required')) {
+            <mat-error i18n="@@events.required">This field is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="mm-ac__wide">
+          <mat-label i18n="@@events.description">Description</mat-label>
+          <textarea matInput formControlName="description" rows="3" [maxlength]="descriptionMax"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@events.colStarts">Starts</mat-label>
+          <input matInput type="datetime-local" formControlName="startsAt" dir="ltr" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@events.colEnds">Ends</mat-label>
+          <input matInput type="datetime-local" formControlName="endsAt" dir="ltr" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@events.colAudience">For</mat-label>
+          <mat-select formControlName="audience">
+            @for (audience of audiences; track audience) {
+              <mat-option [value]="audience">{{ audienceLabel(audience) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (form.hasError('endsBeforeStart')) {
+          <p class="mm-ac__error" role="alert" i18n="@@events.endsBeforeStart">The event must end after it starts.</p>
+        }
+
+        @for (message of errors(); track message) {
+          <p class="mm-ac__error" role="alert">{{ message }}</p>
+        }
+
+        <div class="mm-ac__actions">
+          <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@events.save">Save</button>
+          <button mat-button type="button" [disabled]="busy()" (click)="adding.set(false)" i18n="@@common.cancel">Cancel</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+}
