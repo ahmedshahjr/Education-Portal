@@ -1,0 +1,46 @@
+<div class="mm-calendar">
+  <div class="mm-calendar__toolbar">
+    <app-page-header title="Calendar" i18n-title="@@calendar.title" subtitle="Holidays, events and school events for the month." i18n-subtitle="@@calendar.subtitle" />
+
+    <div class="mm-calendar__controls">
+      <button mat-button type="button" (click)="previousMonth()" i18n="@@calendar.previous">Previous</button>
+      <button mat-button type="button" (click)="today()" i18n="@@calendar.today">Today</button>
+      <button mat-button type="button" (click)="nextMonth()" i18n="@@calendar.next">Next</button>
+      <h2 class="mm-calendar__title">{{ title() }}</h2>
+      <app-campus-filter [campuses]="campuses()" (selected)="selectCampus($event)" />
+    </div>
+  </div>
+
+  @if (loadError(); as message) {
+    <p class="mm-calendar__status" role="alert">{{ message }}</p>
+  }
+
+  <div class="mm-calendar__grid" role="grid" [attr.aria-busy]="loading()">
+    <div class="mm-calendar__row mm-calendar__row--head" role="row">
+      @for (name of weekdays(); track $index) {
+        <div class="mm-calendar__weekday" role="columnheader">{{ name }}</div>
+      }
+    </div>
+
+    @for (week of weeks(); track $index) {
+      <div class="mm-calendar__row" role="row">
+        @for (day of week; track day.getTime()) {
+          <div class="mm-calendar__day" role="gridcell" [class.mm-calendar__day--outside]="!inMonth(day)">
+            <span class="mm-calendar__number">{{ day.getDate() }}</span>
+            @for (item of items(day).slice(0, shown); track $index) {
+              <div
+                class="mm-calendar__item"
+                [class.mm-calendar__item--holiday]="item.kind === 'holiday'"
+                [class.mm-calendar__item--event]="item.kind === 'event'"
+                [class.mm-calendar__item--school]="item.kind === 'school'"
+              >{{ item.title }}</div>
+            }
+            @if (items(day).length > shown) {
+              <div class="mm-calendar__more">+{{ items(day).length - shown }}</div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

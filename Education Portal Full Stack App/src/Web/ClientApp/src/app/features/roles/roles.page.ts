@@ -1,10 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, TemplateRef, viewChild } from '@angular/core';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
@@ -19,28 +16,24 @@ import {
   CreateRoleCommand,
   ModuleDto,
   ModulesClient,
-  RolePermissionDto,
   SchoolRoleDto,
   SchoolRolesClient,
   UpdateRoleCommand,
 } from '../../web-api-client';
-import { RIGHT_KEYS, Right, rolePermissions } from './role-rights';
+import { Right, RIGHT_KEYS } from './role-rights';
+import { RoleDialogComponent, RoleDialogData, RoleDialogResult } from './role-dialog.component';
 
 /**
- * The school's roles and what each one may do in each of its modules (View, Create, Edit, Delete, Approve, Export), as a
- * table with one column per module. Only the modules the school has are offered; the server refuses a right in a module
- * that is off. The form below the table adds a role or changes the one being edited. A built-in role keeps its name and
- * cannot be deleted, so its name field is locked and it has no delete button.
+ * The school's roles and what each one may do in each of its modules, as a table with one column per module. Adding and
+ * changing a role open a dialog (small entities, ADR-024). A built-in role keeps its name and cannot be deleted, so it has
+ * no delete button. Only the modules the school has are offered; the server refuses a right in a module that is off.
  */
 @Component({
   selector: 'app-roles-page',
   imports: [
-    ReactiveFormsModule,
     ModuleTextPipe,
     MatButtonModule,
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
     PageHeaderComponent,
     EmptyStateComponent,
     AppIconComponent,
@@ -54,7 +47,6 @@ import { RIGHT_KEYS, Right, rolePermissions } from './role-rights';
 export class RolesPage {
   private readonly rolesClient = inject(SchoolRolesClient);
   private readonly modulesClient = inject(ModulesClient);
-  private readonly formBuilder = inject(FormBuilder);
   private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
 
@@ -63,9 +55,6 @@ export class RolesPage {
   protected readonly loadError = signal<string | null>(null);
   protected readonly busy = signal(false);
   protected readonly errors = signal<readonly string[]>([]);
-
-  /** The role whose rights are in the form, or null while a new role is being added. */
-  protected readonly editing = signal<SchoolRoleDto | null>(null);
 
   private readonly rightLabels: Record<Right, string> = {
     canView: $localize`:@@roles.right.view:View`,
@@ -77,14 +66,6 @@ export class RolesPage {
   };
 
   protected readonly rights: readonly { key: Right; label: string }[] = RIGHT_KEYS.map((key) => ({ key, label: this.rightLabels[key] }));
-
-  /** One checkbox per (module, right) of the new role. */
-  protected readonly grants = new Map<string, FormControl<boolean>>();
-
-  protected readonly form = this.formBuilder.nonNullable.group({
-    name: ['', [Validators.required, Validators.maxLength(100)]],
-    description: ['', [Validators.maxLength(500)]],
-  });
 
   private readonly actionsCell = viewChild.required<TemplateRef<DataTableCellContext<SchoolRoleDto>>>('actionsCell');
   private readonly nameCell = viewChild.required<TemplateRef<DataTableCellContext<SchoolRoleDto>>>('nameCell');
@@ -117,71 +98,36 @@ export class RolesPage {
           next: (modules) => {
             const enabled = new Set(codes);
             this.modules.set(modules.filter((m) => enabled.has(m.code)));
-            this.resetGrants();
           },
         });
       },
     });
   }
 
-  protected grant(module: string, right: Right): FormControl<boolean> {
-    const key = `${module}:${right}`;
-    let control = this.grants.get(key);
-    if (!control) {
-      control = this.formBuilder.nonNullable.control(false);
-      this.grants.set(key, control);
-    }
-    return control;
+  /** Opens the role dialog: a new role, or the role in the row. */
+  protected openDialog(role: SchoolRoleDto | null): void {
+    this.errors.set([]);
+    const data: RoleDialogData = { role, modules: this.modules() };
+    this.dialog
+      .open<RoleDialogComponent, RoleDialogData, RoleDialogResult>(RoleDialogComponent, { data, width: '720px', autoFocus: 'first-tabbable' })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.saveRole(role, result);
+        }
+      });
   }
 
-  /** Adds the role in the form, or saves the role being edited. */
-  protected save(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    const value = this.form.getRawValue();
-    const permissions = rolePermissions(
-      this.modules().map((m) => m.code),
-      (module, right) => this.grant(module, right).value
-    ).map((p) => new RolePermissionDto(p));
-    const fields = { name: value.name.trim(), description: value.description.trim() || undefined, permissions };
-    const editing = this.editing();
+  /** Adds the role, or saves the changes to the role it was opened for. */
+  private saveRole(role: SchoolRoleDto | null, result: RoleDialogResult): void {
+    const fields = { name: result.name, description: result.description, permissions: result.permissions };
 
     this.run(
-      editing
-        ? this.rolesClient.updateRole(editing.id, new UpdateRoleCommand({ ...fields, id: editing.id }))
+      role
+        ? this.rolesClient.updateRole(role.id, new UpdateRoleCommand({ ...fields, id: role.id }))
         : this.rolesClient.createRole(new CreateRoleCommand(fields)),
-      editing ? $localize`:@@roles.saved:Role saved.` : $localize`:@@roles.added:Role added.`,
-      () => this.cancelEdit()
+      role ? $localize`:@@roles.saved:Role saved.` : $localize`:@@roles.added:Role added.`
     );
-  }
-
-  /** Puts a role's name, description and rights into the form to change them. A built-in role's name is locked. */
-  protected startEdit(role: SchoolRoleDto): void {
-    this.editing.set(role);
-    this.errors.set([]);
-    this.form.reset({ name: role.name, description: role.description ?? '' });
-    if (role.isSystem) {
-      this.form.controls.name.disable();
-    } else {
-      this.form.controls.name.enable();
-    }
-    for (const module of this.modules()) {
-      const permission = role.permissions.find((p) => p.module === module.code);
-      for (const right of RIGHT_KEYS) {
-        this.grant(module.code, right).setValue(permission?.[right] ?? false);
-      }
-    }
-  }
-
-  /** Leaves editing: the form adds a new role again. */
-  protected cancelEdit(): void {
-    this.editing.set(null);
-    this.form.controls.name.enable();
-    this.form.reset({ name: '', description: '' });
-    this.resetGrants();
   }
 
   protected confirmDelete(role: SchoolRoleDto): void {
@@ -210,22 +156,12 @@ export class RolesPage {
     return names.length > 0 ? names.join(', ') : '—';
   }
 
-  private resetGrants(): void {
-    this.grants.clear();
-    for (const module of this.modules()) {
-      for (const right of this.rights) {
-        this.grant(module.code, right.key);
-      }
-    }
-  }
-
-  private run(request: Observable<unknown>, done: string, onSuccess?: () => void): void {
+  private run(request: Observable<unknown>, done: string): void {
     this.busy.set(true);
     this.errors.set([]);
     request.subscribe({
       next: () => {
         this.busy.set(false);
-        onSuccess?.();
         this.toast.success(done);
         this.load();
       },

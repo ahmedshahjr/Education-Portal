@@ -30,7 +30,8 @@ export class SidebarComponent {
       this.auth.isAdministrator(),
       this.branding.isMaster(),
       this.modules.enabled(),
-      (module, right) => this.rights.can(module, right)
+      (module, right) => (module === undefined ? this.rights.canAnywhere(right) : this.rights.can(module, right)),
+      this.rights.isParent()
     )
   );
 

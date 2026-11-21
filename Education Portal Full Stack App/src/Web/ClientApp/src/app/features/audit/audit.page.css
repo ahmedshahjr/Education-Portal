@@ -11,3 +11,40 @@
   white-space: pre-wrap;
   word-break: break-all;
 }
+
+.mm-audit__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--mm-space-3);
+  margin-block-end: var(--mm-space-3);
+}
+
+.mm-audit__filter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-space-1);
+  font-size: var(--mm-text-sm);
+}
+
+.mm-audit__sentence {
+  margin: 0;
+}
+
+.mm-audit__change {
+  margin: var(--mm-space-1) 0 0;
+  color: var(--mm-text-muted);
+  font-size: var(--mm-text-sm);
+}
+
+.mm-audit__pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--mm-space-3);
+  margin-block-start: var(--mm-space-3);
+}
+
+.mm-audit__count {
+  color: var(--mm-text-muted);
+}

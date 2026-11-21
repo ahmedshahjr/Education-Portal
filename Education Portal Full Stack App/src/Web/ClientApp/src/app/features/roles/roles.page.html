@@ -16,6 +16,10 @@
     (action)="load()"
   />
 } @else {
+  <div class="mm-roles__toolbar">
+    <button mat-flat-button type="button" [disabled]="busy() || roles() === null" (click)="openDialog(null)" i18n="@@roles.add">Add role</button>
+  </div>
+
   <mat-card class="mm-card mm-elevated">
     <mat-card-content>
       <app-data-table
@@ -26,79 +30,14 @@
         i18n-searchPlaceholder="@@roles.search"
         emptyTitle="No roles yet"
         i18n-emptyTitle="@@roles.none"
-        emptyDescription="Add a role below: choose what it may do in each module."
+        emptyDescription="Add a role: choose what it may do in each module."
         i18n-emptyDescription="@@roles.noneDescription"
       />
+      @for (message of errors(); track message) {
+        <p class="mm-roles__error" role="alert">{{ message }}</p>
+      }
     </mat-card-content>
   </mat-card>
-
-  @if (roles() !== null) {
-    <mat-card class="mm-card mm-elevated">
-      <mat-card-content>
-        @if (editing(); as role) {
-          <h2 class="mm-roles__heading" i18n="@@roles.editHeading">Edit {{ role.name }}</h2>
-        } @else {
-          <h2 class="mm-roles__heading" i18n="@@roles.addHeading">Add a role</h2>
-        }
-        <form class="mm-roles__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
-          <mat-form-field appearance="outline">
-            <mat-label i18n="@@roles.name">Role name</mat-label>
-            <input matInput formControlName="name" maxlength="100" autocomplete="off" />
-            @if (editing()?.isSystem) {
-              <mat-hint i18n="@@roles.systemNameHint">A built-in role keeps its name.</mat-hint>
-            }
-            @if (form.controls.name.hasError('required')) {
-              <mat-error i18n="@@roles.required">This field is required.</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label i18n="@@roles.description">Description</mat-label>
-            <textarea matInput formControlName="description" maxlength="500" rows="2"></textarea>
-            <mat-hint i18n="@@roles.descriptionHint">Optional. What the role is for.</mat-hint>
-          </mat-form-field>
-
-          <table class="mm-roles__matrix" aria-label="Rights per module" i18n-aria-label="@@roles.matrixLabel">
-            <thead>
-              <tr>
-                <th scope="col" i18n="@@roles.module">Module</th>
-                @for (right of rights; track right.key) {
-                  <th scope="col">{{ right.label }}</th>
-                }
-              </tr>
-            </thead>
-            <tbody>
-              @for (module of modules(); track module.code) {
-                <tr>
-                  <th scope="row">{{ module | moduleText }}</th>
-                  @for (right of rights; track right.key) {
-                    <td>
-                      <input type="checkbox" [formControl]="grant(module.code, right.key)" [attr.aria-label]="(module | moduleText) + ' ' + right.label" />
-                    </td>
-                  }
-                </tr>
-              }
-            </tbody>
-          </table>
-
-          <p class="mm-roles__note" i18n="@@roles.viewNote">Every right includes View. A user's campuses decide where the rights apply.</p>
-
-          <div class="mm-roles__actions">
-            @if (editing()) {
-              <button mat-button type="button" [disabled]="busy()" (click)="cancelEdit()" i18n="@@common.cancel">Cancel</button>
-              <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@roles.save">Save role</button>
-            } @else {
-              <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@roles.add">Add role</button>
-            }
-          </div>
-        </form>
-
-        @for (message of errors(); track message) {
-          <p class="mm-roles__error" role="alert">{{ message }}</p>
-        }
-      </mat-card-content>
-    </mat-card>
-  }
 }
 
 <ng-template #nameCell let-role>
@@ -115,7 +54,7 @@
 
 <ng-template #actionsCell let-role>
   <span class="mm-crud-actions">
-    <button mat-icon-button type="button" [disabled]="busy()" [attr.aria-label]="'Edit ' + role.name" i18n-aria-label="@@roles.editRole" (click)="$event.stopPropagation(); startEdit(role)">
+    <button mat-icon-button type="button" [disabled]="busy()" [attr.aria-label]="'Edit ' + role.name" i18n-aria-label="@@roles.editRole" (click)="$event.stopPropagation(); openDialog(role)">
       <app-icon name="edit-3" [size]="16" />
     </button>
     @if (!role.isSystem) {

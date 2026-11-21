@@ -11,7 +11,7 @@ namespace EducationPortal.Domain.Entities;
 /// keep working.
 /// </para>
 /// </summary>
-public class SchoolRole : BaseAuditableEntity, ITenantOwned
+public class SchoolRole : BaseSoftDeletableEntity, ITenantOwned
 {
     public const int NameMaxLength = 100;
 

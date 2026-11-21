@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal, TemplateR
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { ToastService } from '../../shared/services/toast.service';
-import { forkJoin, Observable, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { AppIconComponent } from '../../shared/components/app-icon/app-icon.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -13,29 +13,15 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { FilterOption, FilterPanelComponent } from '../../shared/components/filter-panel/filter-panel.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
-import {
-  CampusDto,
-  CampusesClient,
-  CreateUserDetailsCommand,
-  LinkStudentCommand,
-  SchoolRoleDto,
-  SchoolRolesClient,
-  SetAccountRolesCommand,
-  SetPersonCampusesCommand,
-  UpdateUserDetailsCommand,
-  UserDetailsClient,
-  UserDetailsDto,
-  UserType,
-} from '../../web-api-client';
-import { planChildLinks, sameIds } from './person-changes';
-import { PersonDialogComponent, PersonDialogData, PersonDialogResult } from './person-dialog.component';
+import { UserDetailsClient, UserDetailsDto, UserType } from '../../web-api-client';
 
 /** The type tabs: everyone, or one user type. */
 type TypeFilter = 'All' | UserType;
 
 /**
- * The users of the school (principals, teachers and other staff, the Staff module), as a table. The tabs filter by type; the
- * icons edit a user or delete it. A deleted user is hidden everywhere, and a principal of a campus can be deleted only after
+ * The users of the school (principals, teachers and other staff, the Staff module), as a table. The tabs filter by type.
+ * Add and edit open the person's own page (`/people/new`, `/people/:id`), since people are large entities (ADR-024). The
+ * delete icon asks first. A deleted user is hidden everywhere, and a principal of a campus can be deleted only after
  * another principal is chosen there (the server refuses it, and the message is shown).
  */
 @Component({
@@ -56,10 +42,9 @@ type TypeFilter = 'All' | UserType;
 })
 export class PeoplePage {
   private readonly peopleClient = inject(UserDetailsClient);
-  private readonly rolesClient = inject(SchoolRolesClient);
-  private readonly campusesClient = inject(CampusesClient);
   private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
 
   protected readonly people = signal<readonly UserDetailsDto[] | null>(null);
   protected readonly loadError = signal<string | null>(null);
@@ -68,7 +53,6 @@ export class PeoplePage {
 
   /** The type tab chosen. */
   protected readonly selectedType = signal<TypeFilter>('All');
-
 
   protected readonly typeTabs: readonly FilterOption<TypeFilter>[] = [
     { id: 'All', label: $localize`:@@people.all:All` },
@@ -103,7 +87,7 @@ export class PeoplePage {
     this.load();
   }
 
-  /** The name as the table and the form show it. */
+  /** The name as the table shows it. */
   protected fullName(person: UserDetailsDto): string {
     return `${person.firstName}${person.middleName ? ' ' + person.middleName : ''} ${person.lastName}`;
   }
@@ -117,91 +101,9 @@ export class PeoplePage {
     });
   }
 
-  /**
-   * Opens the modal to add a person, or to change one. The modal chooses from the school's students and roles, and starts
-   * from the children and roles the person has now. The built-in roles are added to the school first, once it is needed.
-   */
+  /** Opens the person's page: a new person, or the one in the row. */
   protected openDialog(person: UserDetailsDto | null): void {
-    this.errors.set([]);
-    this.rolesClient
-      .ensureBuiltInRoles()
-      .pipe(
-        catchError(() => of(undefined)),
-        switchMap(() =>
-          forkJoin({
-            students: this.peopleClient.getUserDetails(UserType.Student).pipe(catchError(() => of([] as UserDetailsDto[]))),
-            roles: this.rolesClient.getRoles().pipe(catchError(() => of([] as SchoolRoleDto[]))),
-            children: person
-              ? this.peopleClient.getChildren(person.id).pipe(catchError(() => of([] as UserDetailsDto[])))
-              : of([] as UserDetailsDto[]),
-            roleIds: person ? this.peopleClient.getAccountRoles(person.id).pipe(catchError(() => of([] as string[]))) : of([] as string[]),
-            campuses: this.campusesClient.getCampuses().pipe(catchError(() => of([] as CampusDto[]))),
-            campusIds: person ? this.peopleClient.getPersonCampuses(person.id).pipe(catchError(() => of([] as string[]))) : of([] as string[]),
-          })
-        )
-      )
-      .subscribe(({ students, roles, children, roleIds, campuses, campusIds }) => {
-        const data: PersonDialogData = {
-          person,
-          students,
-          roles,
-          currentChildIds: children.map((child) => child.id),
-          currentRoleIds: roleIds,
-          campuses,
-          currentCampusIds: campusIds,
-        };
-        this.dialog
-          .open<PersonDialogComponent, PersonDialogData, PersonDialogResult>(PersonDialogComponent, { data, width: '640px', autoFocus: 'first-tabbable' })
-          .afterClosed()
-          .subscribe((result) => {
-            if (result) {
-              this.save(person, result, data);
-            }
-          });
-      });
-  }
-
-  /** Saves the person, then the roles of their account, their campuses and the children of a parent, as the modal chose them. */
-  private save(person: UserDetailsDto | null, result: PersonDialogResult, start: PersonDialogData): void {
-    this.busy.set(true);
-    this.errors.set([]);
-
-    const saved: Observable<string> = person
-      ? this.peopleClient.updateUserDetails(person.id, new UpdateUserDetailsCommand(result.fields)).pipe(map(() => person.id))
-      : this.peopleClient.createUserDetails(new CreateUserDetailsCommand(result.fields));
-
-    saved.pipe(switchMap((personId) => this.applyRelations(personId, result, start))).subscribe({
-      next: () => {
-        this.busy.set(false);
-        this.toast.success(person ? $localize`:@@people.updated:User saved.` : $localize`:@@people.added:User added.`);
-        this.load();
-      },
-      error: (error: unknown) => {
-        this.busy.set(false);
-        this.errors.set(problemMessages(error));
-        // The person may have been saved before the roles, campuses or children failed, so the list is shown again.
-        this.load();
-      },
-    });
-  }
-
-  /** The roles, the campuses and the links of a parent, changed only where they differ from what the person had. */
-  private applyRelations(personId: string, result: PersonDialogResult, start: PersonDialogData): Observable<unknown> {
-    const roles: Observable<unknown> = sameIds(result.roleIds, start.currentRoleIds)
-      ? of(null)
-      : this.peopleClient.setAccountRoles(personId, new SetAccountRolesCommand({ roleIds: [...result.roleIds] }));
-
-    const campuses: Observable<unknown> = sameIds(result.campusIds, start.currentCampusIds)
-      ? of(null)
-      : this.peopleClient.setPersonCampuses(personId, new SetPersonCampusesCommand({ campusIds: [...result.campusIds] }));
-
-    const links = planChildLinks(start.currentChildIds, result.childIds);
-    const children: Observable<unknown>[] = [
-      ...links.add.map((studentId) => this.peopleClient.linkStudent(personId, new LinkStudentCommand({ studentId }))),
-      ...links.remove.map((studentId) => this.peopleClient.unlinkStudent(personId, studentId)),
-    ];
-
-    return forkJoin([roles, campuses, ...children]);
+    this.router.navigate(person ? ['/people', person.id] : ['/people', 'new']);
   }
 
   /** Asks first. The user is hidden everywhere; the server refuses a principal of a campus. */

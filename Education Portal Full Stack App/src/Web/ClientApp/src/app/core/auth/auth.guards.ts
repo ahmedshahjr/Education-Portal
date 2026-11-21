@@ -42,6 +42,15 @@ export const moduleGuard =
   () =>
     inject(ModulesService).isEnabled(moduleKey) ? true : inject(Router).createUrlTree(['/']);
 
+/** Only for a parent (their person is a parent). The server returns only their own children regardless. */
+export const parentGuard: CanActivateFn = () => (inject(RightsService).isParent() ? true : inject(Router).createUrlTree(['/']));
+
+/** Only when the signed-in user has the right in at least one module. For features that span modules. The server checks each request. */
+export const anyRightGuard =
+  (right: AccessRight): CanActivateFn =>
+  () =>
+    inject(RightsService).canAnywhere(right) ? true : inject(Router).createUrlTree(['/']);
+
 /** Only when the signed-in user has the right in the module (on any campus). The server checks it again on every request. */
 export const rightsGuard =
   (moduleKey: ModuleCode, right: AccessRight): CanActivateFn =>

@@ -1,0 +1,114 @@
+:host {
+  display: block;
+  block-size: 100%;
+}
+
+.mm-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-space-3);
+  min-block-size: calc(100dvh - var(--mm-space-6));
+}
+
+.mm-calendar__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--mm-space-3);
+}
+
+.mm-calendar__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mm-space-2);
+}
+
+.mm-calendar__title {
+  margin-block: 0;
+  margin-inline: var(--mm-space-2);
+  font-size: var(--mm-text-lg);
+  font-weight: 600;
+}
+
+.mm-calendar__status {
+  color: var(--mm-error, #b3261e);
+}
+
+.mm-calendar__grid {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  border-inline-start: 1px solid var(--mm-border-color);
+  border-block-start: 1px solid var(--mm-border-color);
+}
+
+.mm-calendar__row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  flex: 1;
+}
+
+.mm-calendar__row--head {
+  flex: 0 0 auto;
+}
+
+.mm-calendar__weekday {
+  padding-block: var(--mm-space-2);
+  padding-inline: var(--mm-space-2);
+  color: var(--mm-text-muted);
+  font-size: var(--mm-text-sm);
+  font-weight: 600;
+  text-align: start;
+  border-inline-end: 1px solid var(--mm-border-color);
+  border-block-end: 1px solid var(--mm-border-color);
+}
+
+.mm-calendar__day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-space-1);
+  min-block-size: 110px;
+  padding: var(--mm-space-2);
+  overflow: hidden;
+  border-inline-end: 1px solid var(--mm-border-color);
+  border-block-end: 1px solid var(--mm-border-color);
+}
+
+.mm-calendar__day--outside {
+  color: var(--mm-text-muted);
+  background: color-mix(in srgb, var(--mm-border-color) 25%, transparent);
+}
+
+.mm-calendar__number {
+  font-weight: 600;
+  font-size: var(--mm-text-sm);
+}
+
+.mm-calendar__item {
+  padding-block: 2px;
+  padding-inline: var(--mm-space-1);
+  overflow: hidden;
+  border-radius: var(--mm-radius-sm, 4px);
+  font-size: var(--mm-text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mm-calendar__item--holiday {
+  background: color-mix(in srgb, var(--mm-success, #2e7d32) 18%, transparent);
+}
+
+.mm-calendar__item--event {
+  background: color-mix(in srgb, var(--mm-primary, #00a1ff) 18%, transparent);
+}
+
+.mm-calendar__item--school {
+  background: color-mix(in srgb, var(--mm-warning, #b26a00) 18%, transparent);
+}
+
+.mm-calendar__more {
+  color: var(--mm-text-muted);
+  font-size: var(--mm-text-xs);
+}

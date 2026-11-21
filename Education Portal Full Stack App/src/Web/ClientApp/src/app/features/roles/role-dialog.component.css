@@ -1,0 +1,27 @@
+.mm-roles__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-space-3);
+  min-width: min(640px, 85vw);
+}
+
+.mm-roles__matrix {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 640px;
+}
+
+.mm-roles__matrix th,
+.mm-roles__matrix td {
+  padding: var(--mm-space-2);
+  border-bottom: 1px solid var(--mm-border-color);
+  text-align: center;
+}
+
+.mm-roles__matrix th[scope='row'] {
+  text-align: start;
+}
+
+.mm-roles__note {
+  color: var(--mm-text-muted);
+}

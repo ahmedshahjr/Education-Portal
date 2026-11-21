@@ -14,6 +14,9 @@ export class RightsService {
 
   readonly loaded = computed(() => this.rights() !== null);
 
+  /** True when the signed-in user's person is a parent: only parents see "My children" (R5.3). */
+  readonly isParent = computed(() => this.rights()?.isParent ?? false);
+
   /** Loads the rights after sign-in. A failure leaves the user with no rights (fails closed). */
   load(): Observable<void> {
     return this.users.getMyRights().pipe(
@@ -28,6 +31,11 @@ export class RightsService {
 
   clear(): void {
     this.rights.set(null);
+  }
+
+  /** True when the user has the right in at least one module (for features that span modules, such as the change history). */
+  canAnywhere(right: AccessRight): boolean {
+    return (this.rights()?.modules ?? []).some((m) => m.rights.some((r) => r.right === right));
   }
 
   /**
