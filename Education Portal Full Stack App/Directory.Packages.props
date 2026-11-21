@@ -44,7 +44,7 @@
     <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.6.5" />
     <PackageVersion Include="Aspire.Hosting.Azure.PostgreSQL" Version="13.6.5" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
-    <PackageVersion Include="Aspire.Hosting.Azure.AppContainers" Version="13.6.5" />
+    <PackageVersion Include="Aspire.Hosting.Azure.AppContainers" Version="17.0.0" />
     <PackageVersion Include="Aspire.Hosting.Testing" Version="13.6.5" />
     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.6.5" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.11.0" />
