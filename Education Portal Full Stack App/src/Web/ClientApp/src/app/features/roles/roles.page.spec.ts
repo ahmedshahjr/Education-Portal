@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { SchoolRoleDto } from '../../web-api-client';
+import { ModuleCode, RolePermissionDto, SchoolRoleDto } from '../../web-api-client';
 import { RolesPage } from './roles.page';
 
 const json = (body: unknown) => new Blob([JSON.stringify(body)], { type: 'application/json' });
@@ -61,17 +61,17 @@ describe('RolesPage', () => {
     expect(element.querySelector('[aria-label="Delete Registrar"]')).not.toBeNull();
   });
 
-  it('loads a built-in role into the form with its name locked and saves its description and rights', async () => {
-    const { fixture, http, page } = await render();
+  it('saves the changes a role dialog returns, then loads the list again', async () => {
+    const { http, page } = await render();
 
-    page['startEdit'](teacher as unknown as SchoolRoleDto);
-    fixture.detectChanges();
-    expect(page['form'].controls.name.disabled).toBe(true);
-    expect(page['grant']('Students', 'canApprove').value).toBe(true);
-
-    page['form'].controls.description.setValue('Teaches and marks');
-    page['grant']('Students', 'canExport').setValue(true);
-    page['save']();
+    // The dialog closes with the role's name, description and rights; the page sends them.
+    page['saveRole'](teacher as unknown as SchoolRoleDto, {
+      name: 'Teacher',
+      description: 'Teaches and marks',
+      permissions: [
+        new RolePermissionDto({ module: ModuleCode.Students, canView: true, canCreate: true, canEdit: false, canDelete: false, canApprove: true, canExport: true }),
+      ],
+    });
 
     const request = http.expectOne(`/api/SchoolRoles/${teacher.id}`);
     expect(request.request.method).toBe('PUT');
@@ -83,12 +83,10 @@ describe('RolesPage', () => {
     ]);
     request.flush(null, { status: 204, statusText: 'No Content' });
 
-    // The list loads again and the form goes back to adding a role.
+    // The list loads again.
     http.expectOne('/api/SchoolRoles').flush(json([teacher, registrar]));
     http.expectOne('/api/Modules/enabled').flush(json(['Students']));
     await vi.waitFor(() => http.expectOne('/api/Modules').flush(json([students])));
     await vi.waitFor(() => expect(page['modules']().length).toBe(1));
-    expect(page['editing']()).toBeNull();
-    expect(page['form'].controls.name.enabled).toBe(true);
   });
 });

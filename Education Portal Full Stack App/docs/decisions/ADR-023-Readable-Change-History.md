@@ -17,9 +17,11 @@ read them, and the values are raw property names. Schools need to see who change
 2. **Read API:** `GET /api/ChangeAudit` gets paging and filters (entity, user, date range, module). It needs the
    `ViewHistory` right (ADR-022) in the entry's module and campus; the tenant filter of ADR-016 stays, so a school
    reads only its own entries.
-3. **Sentences, server side:** a mapper builds the text, for example "Ahmed changed the phone of Campus North on 21 Nov
-   2026 15:04", from `IStringLocalizer` resources in English, Arabic and Urdu; times are sent as UTC and shown in the
-   user's time zone. The actor's display name is read at query time, not stored in the entry.
+3. **Sentences, in the reader's app:** the sentence is built in Angular from the entry's type, action and values, with
+   `$localize` in English, Arabic and Urdu (`audit.page.ts`). This replaces the server-side `IStringLocalizer` mapper
+   planned above: the wording lives with the other screen text, and the server only sends data. Times are sent as UTC
+   and shown in the user's time zone. The actor's sign-in name is read at query time (`GetUserNameAsync`), not stored
+   in the entry, and is sent with each row.
 4. **Angular:** the history page shows filters, paging and the sentences, and appears only for users with `ViewHistory`
    (rights guard).
 

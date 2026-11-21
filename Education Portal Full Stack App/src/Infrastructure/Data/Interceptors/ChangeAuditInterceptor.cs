@@ -45,6 +45,10 @@ public sealed class ChangeAuditInterceptor : SaveChangesInterceptor
         typeof(GradingBand),
         typeof(TimetableSlot),
         typeof(SchoolEvent),
+        typeof(SchoolRole),
+        typeof(RolePermission),
+        typeof(Campus),
+        typeof(UserDetails),
     };
 
     // Kept by the auditable-entity interceptor already; recording them again in every entry adds nothing.
@@ -56,6 +60,21 @@ public sealed class ChangeAuditInterceptor : SaveChangesInterceptor
         nameof(BaseAuditableEntity.LastModified),
         nameof(BaseAuditableEntity.LastModifiedBy),
     };
+
+    /// <summary>
+    /// Personal data (ADR-023, SEC-PII-02): the history says that these changed, never what they were or are. Names and
+    /// phone numbers of people are kept out of the audit values.
+    /// </summary>
+    private static readonly IReadOnlySet<string> PersonalDataProperties = new HashSet<string>(StringComparer.Ordinal)
+    {
+        nameof(UserDetails.FirstName),
+        nameof(UserDetails.MiddleName),
+        nameof(UserDetails.LastName),
+        nameof(UserDetails.Phone),
+    };
+
+    /// <summary>The text that stands in for a hidden personal value.</summary>
+    public const string HiddenValue = "(hidden)";
 
     private readonly IUser _user;
     private readonly TimeProvider _timeProvider;
@@ -137,6 +156,20 @@ public sealed class ChangeAuditInterceptor : SaveChangesInterceptor
             var name = property.Metadata.Name;
             if (IgnoredProperties.Contains(name) || property.Metadata.IsShadowProperty())
             {
+                continue;
+            }
+
+            if (entry.Entity is UserDetails && PersonalDataProperties.Contains(name))
+            {
+                if (entry.State == EntityState.Modified && property.IsModified && !Equals(property.OriginalValue, property.CurrentValue))
+                {
+                    changes.Add(new PropertyChange(name, HiddenValue, HiddenValue));
+                }
+                else if (entry.State is EntityState.Added or EntityState.Deleted)
+                {
+                    changes.Add(new PropertyChange(name, entry.State == EntityState.Deleted ? HiddenValue : null, entry.State == EntityState.Added ? HiddenValue : null));
+                }
+
                 continue;
             }
 

@@ -3,6 +3,7 @@ using EducationPortal.Application.Parents.Commands.UnlinkStudent;
 using EducationPortal.Application.Parents.Queries.GetChildren;
 using EducationPortal.Application.Users.Commands.CreateUserDetails;
 using EducationPortal.Application.Users.Commands.DeleteUserDetails;
+using EducationPortal.Application.Users.Commands.SavePersonAccess;
 using EducationPortal.Application.Users.Commands.SetAccountRoles;
 using EducationPortal.Application.Users.Commands.SetPersonCampuses;
 using EducationPortal.Application.Users.Commands.UpdateUserDetails;
@@ -59,6 +60,10 @@ public class UserDetails : IEndpointGroup
             .RequireAuthorization();
 
         groupBuilder.MapPut(SetPersonCampuses, "{id:guid}/campuses")
+            .RequireAuthorization()
+            .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+
+        groupBuilder.MapPut(SavePersonAccess, "{id:guid}/access")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
 
@@ -153,6 +158,16 @@ public class UserDetails : IEndpointGroup
     [EndpointSummary("Set a person's campuses")]
     [EndpointDescription("Sets exactly the campuses (campusIds) the person is assigned to. Needs the Users & Roles module.")]
     public static async Task<NoContent> SetPersonCampuses(ISender sender, Guid id, SetPersonCampusesCommand command)
+    {
+        // The route names the person; an id in the body is ignored.
+        await sender.Send(command with { PersonId = id });
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Save a person's roles and campuses together")]
+    [EndpointDescription("Sets the person's school roles and campuses in one transaction: either both change or neither does. Needs the Users & Roles module.")]
+    public static async Task<NoContent> SavePersonAccess(ISender sender, Guid id, SavePersonAccessCommand command)
     {
         // The route names the person; an id in the body is ignored.
         await sender.Send(command with { PersonId = id });

@@ -3,6 +3,7 @@ using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Security;
 using EducationPortal.Application.Modules.Common;
 using EducationPortal.Domain.Constants;
+using EducationPortal.Domain.Enums;
 
 namespace EducationPortal.Application.Users.Queries.GetMyRights;
 
@@ -14,7 +15,8 @@ namespace EducationPortal.Application.Users.Queries.GetMyRights;
 [Authorize]
 public record GetMyRightsQuery : IRequest<MyRightsDto>;
 
-public record MyRightsDto(IReadOnlyList<ModuleRightsDto> Modules);
+/// <param name="IsParent">True when the signed-in user's person is a parent: only parents see "My children" (R5.3).</param>
+public record MyRightsDto(IReadOnlyList<ModuleRightsDto> Modules, bool IsParent = false);
 
 public record ModuleRightsDto(ModuleCode Module, IReadOnlyList<RightGrantDto> Rights);
 
@@ -30,14 +32,22 @@ public class GetMyRightsQueryHandler : IRequestHandler<GetMyRightsQuery, MyRight
     private readonly ICurrentTenant _tenant;
     private readonly IModuleAccess _moduleAccess;
     private readonly ICampusAccess _campusAccess;
+    private readonly IIdentityService _identityService;
 
-    public GetMyRightsQueryHandler(IApplicationDbContext context, IUser user, ICurrentTenant tenant, IModuleAccess moduleAccess, ICampusAccess campusAccess)
+    public GetMyRightsQueryHandler(
+        IApplicationDbContext context,
+        IUser user,
+        ICurrentTenant tenant,
+        IModuleAccess moduleAccess,
+        ICampusAccess campusAccess,
+        IIdentityService identityService)
     {
         _context = context;
         _user = user;
         _tenant = tenant;
         _moduleAccess = moduleAccess;
         _campusAccess = campusAccess;
+        _identityService = identityService;
     }
 
     public async Task<MyRightsDto> Handle(GetMyRightsQuery request, CancellationToken cancellationToken)
@@ -46,13 +56,14 @@ public class GetMyRightsQueryHandler : IRequestHandler<GetMyRightsQuery, MyRight
         var schoolId = _tenant.SchoolId ?? throw new UnauthorizedAccessException();
 
         var enabled = await EnabledModules.ForTenantAsync(_context, _moduleAccess, schoolId, _tenant.IsMaster, cancellationToken);
+        var isParent = await IsParentAsync(userId, cancellationToken);
 
         // Administrators (the school's owners) and the master tenant hold every right on every campus (ADR-018).
         if (_tenant.IsMaster || (_user.Roles?.Contains(Roles.Administrator) ?? false))
         {
             var everything = AllRights.Select(r => new RightGrantDto(r, AllCampuses: true, [])).ToList();
 
-            return new MyRightsDto(enabled.Select(m => new ModuleRightsDto(m, everything)).ToList());
+            return new MyRightsDto(enabled.Select(m => new ModuleRightsDto(m, everything)).ToList(), isParent);
         }
 
         var assigned = await _campusAccess.GetAllowedCampusIdsAsync(cancellationToken);
@@ -115,7 +126,19 @@ public class GetMyRightsQueryHandler : IRequestHandler<GetMyRightsQuery, MyRight
             }
         }
 
-        return new MyRightsDto(modules);
+        return new MyRightsDto(modules, isParent);
+    }
+
+    /// <summary>True when the account's person is a parent (UserType.Parent). An account with no person is not a parent.</summary>
+    private async Task<bool> IsParentAsync(string userId, CancellationToken cancellationToken)
+    {
+        var personId = await _identityService.FindPersonIdOfAccountAsync(userId);
+        if (personId is not { } id)
+        {
+            return false;
+        }
+
+        return await _context.UserDetails.AnyAsync(u => u.Id == id && u.UserType == UserType.Parent, cancellationToken);
     }
 
     private static bool Has(bool view, bool create, bool edit, bool delete, bool approve, bool export, bool history, AccessRight right) => right switch

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { administratorGuard, authGuard, masterAdministratorGuard, moduleGuard, signedInGuard } from './core/auth/auth.guards';
+import { administratorGuard, anyRightGuard, authGuard, masterAdministratorGuard, moduleGuard, parentGuard, signedInGuard } from './core/auth/auth.guards';
+import { AccessRight } from './web-api-client';
 import { MODULE_CODES } from './core/modules/modules.service';
 
 export const routes: Routes = [
@@ -97,6 +98,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/people/people.page').then((m) => m.PeoplePage),
       },
       {
+        // A person's own page: `new` adds one, an id changes one (large entities get pages, ADR-024).
+        path: 'people/:id',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.staff)],
+        loadComponent: () => import('./features/people/person-page.component').then((m) => m.PersonPageComponent),
+      },
+      {
         path: 'roles',
         canActivate: [administratorGuard, moduleGuard(MODULE_CODES.usersRoles)],
         loadComponent: () => import('./features/roles/roles.page').then((m) => m.RolesPage),
@@ -167,12 +174,18 @@ export const routes: Routes = [
       },
       {
         path: 'audit',
-        canActivate: [administratorGuard],
+        canActivate: [anyRightGuard(AccessRight.ViewHistory)],
         loadComponent: () => import('./features/audit/audit.page').then((m) => m.AuditPage),
       },
       {
+        // The full-screen month calendar (R5.1): the school's holidays, events and school events for any signed-in user.
+        path: 'calendar',
+        canActivate: [authGuard, moduleGuard(MODULE_CODES.school)],
+        loadComponent: () => import('./features/calendar/calendar-month.page').then((m) => m.CalendarMonthPage),
+      },
+      {
         path: 'my-children',
-        canActivate: [authGuard, moduleGuard(MODULE_CODES.students)],
+        canActivate: [authGuard, parentGuard, moduleGuard(MODULE_CODES.students)],
         loadComponent: () => import('./features/my-children/my-children.page').then((m) => m.MyChildrenPage),
       },
     ],

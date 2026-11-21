@@ -18,11 +18,15 @@ public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand>
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
+    private readonly IUser _user;
+    private readonly TimeProvider _timeProvider;
 
-    public DeleteRoleCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog)
+    public DeleteRoleCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, IUser user, TimeProvider timeProvider)
     {
         _context = context;
         _auditLog = auditLog;
+        _user = user;
+        _timeProvider = timeProvider;
     }
 
     public async Task Handle(DeleteRoleCommand request, CancellationToken cancellationToken)
@@ -36,9 +40,10 @@ public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand>
                 [new ValidationFailure(nameof(request.Id), ValidationMessages.SystemRoleNotDeletable)]);
         }
 
+        // Soft delete (R3.3): the role is hidden and kept for audit; its rights are removed so it gives nothing any more.
         var rights = await _context.RolePermissions.Where(p => p.SchoolRoleId == role.Id).ToListAsync(cancellationToken);
         _context.RolePermissions.RemoveRange(rights);
-        _context.SchoolRoles.Remove(role);
+        role.Delete(_timeProvider.GetUtcNow(), _user.Id);
         await _context.SaveChangesAsync(cancellationToken);
 
         await _auditLog.WriteAsync(

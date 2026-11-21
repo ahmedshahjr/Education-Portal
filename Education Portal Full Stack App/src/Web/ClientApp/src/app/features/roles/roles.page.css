@@ -17,6 +17,12 @@ h3 {
 [role='alert'] {
   color: var(--mm-error);
 }
+.mm-roles__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-block: var(--mm-space-3);
+}
+
 .mm-roles__hint {
   color: var(--mm-text-muted);
 }

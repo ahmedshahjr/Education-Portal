@@ -1,9 +1,9 @@
 import { NavItem, NavSection } from '../../shared/models/navigation.models';
 import { MODULE_CODES } from '../modules/modules.service';
-import type { AccessRight, ModuleCode } from '../../web-api-client';
+import { AccessRight, type ModuleCode } from '../../web-api-client';
 
 /** Who sees a menu item. The server enforces the same rule on every request; the menu only hides what would be refused. */
-export type NavAccess = 'everyone' | 'administrator' | 'school-administrator' | 'master-administrator';
+export type NavAccess = 'everyone' | 'administrator' | 'school-administrator' | 'master-administrator' | 'parent';
 
 export interface AppNavItem extends NavItem {
   readonly access: NavAccess;
@@ -16,7 +16,7 @@ export interface AppNavItem extends NavItem {
 }
 
 /** Asks whether the signed-in user has a right in a module. Supplied by the layout from `RightsService`. */
-export type RightCheck = (module: ModuleCode, right: AccessRight) => boolean;
+export type RightCheck = (module: ModuleCode | undefined, right: AccessRight) => boolean;
 
 export interface AppNavSection extends NavSection {
   readonly items: readonly AppNavItem[];
@@ -43,9 +43,10 @@ export const APP_NAV_SECTIONS: readonly AppNavSection[] = [
       { id: 'exams', label: $localize`:@@nav.exams:Exams`, icon: 'check-square', route: '/exams', access: 'school-administrator', module: MODULE_CODES.exams },
       { id: 'timetable', label: $localize`:@@nav.timetable:Timetable`, icon: 'clock', route: '/timetable', access: 'school-administrator', module: MODULE_CODES.timetable },
       { id: 'events', label: $localize`:@@nav.events:Events`, icon: 'calendar', route: '/events', access: 'school-administrator', module: MODULE_CODES.school },
+      { id: 'calendar', label: $localize`:@@nav.calendar:Calendar`, icon: 'calendar', route: '/calendar', access: 'everyone', module: MODULE_CODES.school },
       { id: 'class-offerings', label: $localize`:@@nav.classOfferings:Class offerings`, icon: 'book-open', route: '/class-offerings', access: 'school-administrator', module: MODULE_CODES.school },
-      { id: 'audit', label: $localize`:@@nav.audit:Change history`, icon: 'file-text', route: '/audit', access: 'school-administrator' },
-      { id: 'my-children', label: $localize`:@@nav.myChildren:My children`, icon: 'users', route: '/my-children', access: 'everyone', module: MODULE_CODES.students },
+      { id: 'audit', label: $localize`:@@nav.audit:Change history`, icon: 'file-text', route: '/audit', access: 'everyone', right: AccessRight.ViewHistory },
+      { id: 'my-children', label: $localize`:@@nav.myChildren:My children`, icon: 'users', route: '/my-children', access: 'parent', module: MODULE_CODES.students },
     ],
   },
   {
@@ -90,15 +91,28 @@ export function visibleNavSections(
   isAdministrator: boolean,
   isMaster: boolean,
   enabledModules: ReadonlySet<string>,
-  can?: RightCheck
+  can?: RightCheck,
+  isParent = false
 ): readonly AppNavSection[] {
+  const accessAllowed = (item: AppNavItem): boolean => {
+    switch (item.access) {
+      case 'everyone':
+        return true;
+      case 'parent':
+        return isParent;
+      case 'administrator':
+        return isAdministrator;
+      case 'school-administrator':
+        return isAdministrator && !isMaster;
+      case 'master-administrator':
+        return isAdministrator && isMaster;
+    }
+  };
+
   const allowed = (item: AppNavItem): boolean =>
     (item.module === undefined || enabledModules.has(item.module)) &&
-    (item.right === undefined || can === undefined || can(item.module as ModuleCode, item.right)) &&
-    (item.access === 'everyone' ||
-      (item.access === 'administrator' && isAdministrator) ||
-      (item.access === 'school-administrator' && isAdministrator && !isMaster) ||
-      (item.access === 'master-administrator' && isAdministrator && isMaster));
+    (item.right === undefined || can === undefined || can(item.module as ModuleCode | undefined, item.right)) &&
+    accessAllowed(item);
 
   const visibleItem = (item: AppNavItem): AppNavItem | null => {
     if (!allowed(item)) {

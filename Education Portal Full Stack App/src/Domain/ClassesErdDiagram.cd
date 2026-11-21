@@ -848,5 +848,12 @@
       <FileName>ValueObjects\SchoolDetails.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="EducationPortal.Domain.Entities.Tenant" Collapsed="true">
+    <Position X="0.5" Y="19.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Tenant.cs</FileName>
+    </TypeIdentifier>
+  </Class>
   <Font Name="Calibri" Size="10" />
 </ClassDiagram>

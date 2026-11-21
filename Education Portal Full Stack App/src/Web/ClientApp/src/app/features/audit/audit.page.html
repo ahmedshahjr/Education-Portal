@@ -1,12 +1,33 @@
 <app-page-header
   title="Change history"
   i18n-title="@@audit.title"
-  subtitle="The latest changes made in the school: links, roles, subscriptions and invoices. Read only."
+  subtitle="The latest changes made in the school: links, roles, campuses and people. Read only."
   i18n-subtitle="@@audit.subtitle"
 />
 
 <mat-card class="mm-card mm-elevated">
   <mat-card-content>
+    <form class="mm-audit__filters" (ngSubmit)="applyFilters()" novalidate>
+      <label class="mm-audit__filter">
+        <span i18n="@@audit.filterRecord">Record</span>
+        <select name="entityType" [(ngModel)]="entityType">
+          <option value="" i18n="@@audit.filterAll">All records</option>
+          @for (type of entityTypes; track type) {
+            <option [value]="type"><bdi dir="ltr">{{ type }}</bdi></option>
+          }
+        </select>
+      </label>
+      <label class="mm-audit__filter">
+        <span i18n="@@audit.filterFrom">From</span>
+        <input type="date" name="fromDate" [(ngModel)]="fromDate" />
+      </label>
+      <label class="mm-audit__filter">
+        <span i18n="@@audit.filterTo">To</span>
+        <input type="date" name="toDate" [(ngModel)]="toDate" />
+      </label>
+      <button mat-flat-button type="submit" i18n="@@audit.apply">Apply</button>
+    </form>
+
     @if (loadError(); as message) {
       <app-empty-state
         icon="alert-triangle"
@@ -19,11 +40,7 @@
       />
     } @else if (entries(); as items) {
       @if (items.length === 0) {
-        <app-empty-state
-          icon="file-text"
-          title="No changes recorded yet"
-          i18n-title="@@audit.empty"
-        />
+        <app-empty-state icon="file-text" title="No changes recorded yet" i18n-title="@@audit.empty" />
       } @else {
         <div class="mm-audit__scroll">
           <table mat-table [dataSource]="items" class="mm-audit__table">
@@ -32,24 +49,29 @@
               <td mat-cell *matCellDef="let entry">{{ entry.occurredAt | localDate: 'dateTime' }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="action">
-              <th mat-header-cell *matHeaderCellDef i18n="@@audit.action">Action</th>
-              <td mat-cell *matCellDef="let entry">{{ entry.action }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="record">
-              <th mat-header-cell *matHeaderCellDef i18n="@@audit.record">Record</th>
-              <td mat-cell *matCellDef="let entry"><bdi dir="ltr">{{ entry.entityType }}</bdi></td>
-            </ng-container>
-
-            <ng-container matColumnDef="changes">
-              <th mat-header-cell *matHeaderCellDef i18n="@@audit.changes">Changes</th>
-              <td mat-cell *matCellDef="let entry"><code class="mm-audit__changes" dir="ltr">{{ entry.changes }}</code></td>
+            <ng-container matColumnDef="sentence">
+              <th mat-header-cell *matHeaderCellDef i18n="@@audit.what">What happened</th>
+              <td mat-cell *matCellDef="let entry">
+                <p class="mm-audit__sentence">
+                  <strong>{{ actor(entry) }}</strong>
+                  {{ verb(entry) }}
+                  <bdi dir="ltr">{{ entry.entityType }}</bdi>
+                </p>
+                @for (line of changeLines(entry); track $index) {
+                  <p class="mm-audit__change">{{ line }}</p>
+                }
+              </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="columns"></tr>
             <tr mat-row *matRowDef="let row; columns: columns"></tr>
           </table>
+        </div>
+
+        <div class="mm-audit__pager">
+          <button mat-button type="button" [disabled]="page() === 0" (click)="previous()" i18n="@@audit.previous">Previous</button>
+          <span class="mm-audit__count">{{ firstShown() }}–{{ firstShown() + items.length - 1 }}</span>
+          <button mat-button type="button" [disabled]="!hasNext()" (click)="next()" i18n="@@audit.next">Next</button>
         </div>
       }
     } @else {

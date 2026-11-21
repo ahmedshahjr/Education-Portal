@@ -1,0 +1,44 @@
+.mm-person-page__title {
+  margin: var(--mm-space-4) 0 var(--mm-space-3);
+  font-size: var(--mm-text-xl);
+  font-weight: 600;
+}
+
+.mm-person-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-space-3);
+  max-width: min(720px, 100%);
+}
+
+.mm-person-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--mm-space-3);
+}
+
+.mm-person-page__heading {
+  margin: var(--mm-space-2) 0 0;
+  font-size: var(--mm-text-base);
+  font-weight: 600;
+}
+
+.mm-person-page__note {
+  margin: 0;
+  color: var(--mm-text-muted);
+  font-size: var(--mm-text-sm);
+}
+
+.mm-person-page__errors {
+  color: var(--mm-error, #b3261e);
+}
+
+.mm-person-page__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--mm-space-2);
+}
+
+.mm-person-page__status {
+  color: var(--mm-text-muted);
+}
