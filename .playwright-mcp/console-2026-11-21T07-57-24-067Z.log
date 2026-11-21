@@ -1,0 +1,4 @@
+[     100ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:14877/api/Localization:1
+[     189ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:14877/api/Branding:1
+[     192ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:14877/api/Users/me:1
+[     319ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:14877/api/Subscriptions/trial-notice:1

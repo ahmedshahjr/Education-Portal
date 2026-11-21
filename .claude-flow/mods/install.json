@@ -1,12 +1,23 @@
 {
   "version": 2,
-  "installedAt": "2026-11-09T12:15:44.935Z",
+  "installedAt": "2026-11-20T16:58:10.138Z",
   "files": {
     "C:\\Users\\ahmed\\source\\repos\\Education-Portal\\.claude\\settings.json": {
       "plugins": [
         "ruflo-mods@ruflo",
         "ruflo-swarm@ruflo",
         "ruflo-console@ruflo"
+      ],
+      "marketplace": true,
+      "env": true,
+      "claudeInstalled": []
+    },
+    "C:\\Users\\ahmed\\source\\repos\\Education-Portal\\.claude\\settings.local.json": {
+      "plugins": [
+        "ruflo-mods@ruflo",
+        "ruflo-swarm@ruflo",
+        "ruflo-console@ruflo",
+        "ruflo-protector@ruflo"
       ],
       "marketplace": true,
       "env": true,
