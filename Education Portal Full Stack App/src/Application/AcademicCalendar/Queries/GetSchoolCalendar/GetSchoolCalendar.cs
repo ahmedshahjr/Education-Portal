@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using EducationPortal.Application.AcademicCalendar.Common;
 using EducationPortal.Application.Calendar.Common;
 using EducationPortal.Application.Common.Interfaces;
@@ -65,11 +66,11 @@ public class GetSchoolCalendarQueryHandler : IRequestHandler<GetSchoolCalendarQu
     {
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
-        await _campusAccess.EnsureCampusAsync(campusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.AcademicSetup, AccessRight.View, cancellationToken);
         var (from, to) = (request.From, request.To);
 
         // A user limited to some campuses sees the whole school's entries and their own campuses' (AGENTS.md section 2).
-        var allowed = await _campusAccess.GetAllowedCampusIdsAsync(cancellationToken);
+        var allowed = await _campusAccess.GetAllowedCampusIdsAsync(ModuleCode.AcademicSetup, AccessRight.View, cancellationToken);
 
         var holidays = await _context.Holidays
             .AsNoTracking()

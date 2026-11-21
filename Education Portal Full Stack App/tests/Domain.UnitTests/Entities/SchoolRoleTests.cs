@@ -9,6 +9,13 @@ public class SchoolRoleTests
 {
     private static SchoolRole Role() { var r = SchoolRole.Create(4, "Registrar"); r.Id = 7; return r; }
 
+    private static Campus MainCampus()
+    {
+        var campus = TestCampuses.MainCampus();
+        typeof(Campus).GetProperty(nameof(Campus.SchoolId))!.SetValue(campus, 4);
+        return campus;
+    }
+
     private static PortalModule Module() { var m = PortalModule.Create(ModuleCode.Fees, "Fees", "", isCore: false, sortOrder: 0); m.Id = 9; return m; }
 
     [Test]
@@ -50,7 +57,7 @@ public class SchoolRoleTests
     [Test]
     public void ShouldGivePermissionsTheRolesSchoolAndIds()
     {
-        var permission = RolePermission.Create(Role(), Module(), true, true, false, false, true, false);
+        var permission = RolePermission.Create(Role(), Module(), MainCampus(), false, true, true, false, false, true, false, false);
 
         permission.ShouldSatisfyAllConditions(
             p => p.SchoolId.ShouldBe(4),
@@ -70,23 +77,23 @@ public class SchoolRoleTests
     [TestCase(false, false, false, true, false)]
     [TestCase(false, false, false, false, true)]
     public void ShouldRefuseRightsWithoutView(bool create, bool edit, bool delete, bool approve, bool export) =>
-        Should.Throw<ArgumentException>(() => RolePermission.Create(Role(), Module(), false, create, edit, delete, approve, export));
+        Should.Throw<ArgumentException>(() => RolePermission.Create(Role(), Module(), MainCampus(), false, false, create, edit, delete, approve, export, false));
 
     [Test]
     public void ShouldBeEmptyOnlyWithoutView()
     {
-        var permission = RolePermission.Create(Role(), Module(), false, false, false, false, false, false);
+        var permission = RolePermission.Create(Role(), Module(), MainCampus(), false, false, false, false, false, false, false, false);
         permission.IsEmpty.ShouldBeTrue();
 
-        permission.Set(true, false, false, true, false, true);
+        permission.Set(true, false, false, true, false, true, false);
         permission.IsEmpty.ShouldBeFalse();
     }
 
     [Test]
     public void ShouldRefuseAnUnsavedRoleOrModule()
     {
-        Should.Throw<ArgumentOutOfRangeException>(() => RolePermission.Create(SchoolRole.Create(4, "A"), Module(), true, false, false, false, false, false));
-        Should.Throw<ArgumentOutOfRangeException>(() => RolePermission.Create(Role(), PortalModule.Create(ModuleCode.Fees, "Fees", "", false, 0), true, false, false, false, false, false));
+        Should.Throw<ArgumentOutOfRangeException>(() => RolePermission.Create(SchoolRole.Create(4, "A"), Module(), MainCampus(), false, true, false, false, false, false, false, false));
+        Should.Throw<ArgumentOutOfRangeException>(() => RolePermission.Create(Role(), PortalModule.Create(ModuleCode.Fees, "Fees", "", false, 0), MainCampus(), false, true, false, false, false, false, false, false));
     }
 
     [Test]

@@ -3,6 +3,7 @@ using EducationPortal.Application.Users.Commands.ChangePassword;
 using EducationPortal.Application.Users.Commands.SignIn;
 using EducationPortal.Application.Users.Commands.SignOut;
 using EducationPortal.Application.Users.Queries.GetCurrentUser;
+using EducationPortal.Application.Users.Queries.GetMyRights;
 using EducationPortal.Web.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Antiforgery;
@@ -28,10 +29,22 @@ public class Users : IEndpointGroup
         groupBuilder.MapGet(GetCurrentUser, "me")
             .RequireAuthorization();
 
+        groupBuilder.MapGet(GetMyRights, "me/rights")
+            .RequireAuthorization();
+
         groupBuilder.MapPost(ChangePassword, "me/password")
             .RequireAuthorization()
             .RequireRateLimiting(RateLimitPolicies.SignIn) // it checks a password, so it gets the sign-in limit
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+    }
+
+    [EndpointSummary("Get my rights")]
+    [EndpointDescription("Returns, for every module the school has, the rights the signed-in user's roles give and the campuses they hold on, for the menu and route guards. The server still checks every request. Returns 401 without a valid session.")]
+    public static async Task<Ok<MyRightsDto>> GetMyRights(ISender sender)
+    {
+        var rights = await sender.Send(new GetMyRightsQuery());
+
+        return TypedResults.Ok(rights);
     }
 
     [EndpointSummary("Change my password")]

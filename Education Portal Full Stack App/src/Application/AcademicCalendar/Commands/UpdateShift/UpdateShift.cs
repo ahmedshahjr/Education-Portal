@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using System.Globalization;
 using EducationPortal.Application.AcademicCalendar.Common;
 using EducationPortal.Application.Common.Interfaces;
@@ -55,7 +56,7 @@ public class UpdateShiftCommandHandler : IRequestHandler<UpdateShiftCommand>
         var shift = await _context.Shifts.FirstOrDefaultAsync(s => s.SchoolId == schoolId && s.PublicId == request.ShiftId, cancellationToken);
         Guard.Against.NotFound(request.ShiftId, shift);
 
-        await _campusAccess.EnsureCampusAsync(shift.CampusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(shift.CampusId, ModuleCode.AcademicSetup, AccessRight.Edit, cancellationToken);
         await ShiftRules.EnsureNameFreeAsync(_context, shift.CampusId, shift.Id, request.Name, cancellationToken);
 
         shift.Change(request.Name, request.StartTime, request.EndTime);

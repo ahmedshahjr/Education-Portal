@@ -5,4 +5,4 @@ namespace EducationPortal.Application.SchoolRoles.Common;
 public record SchoolRoleDto(Guid Id, string Name, string? Description, bool IsSystem, IReadOnlyList<RolePermissionDto> Permissions);
 
 /// <summary>What a role may do in one module, addressed by the module's code.</summary>
-public record RolePermissionDto(ModuleCode Module, bool CanView, bool CanCreate, bool CanEdit, bool CanDelete, bool CanApprove, bool CanExport);
+public record RolePermissionDto(ModuleCode Module, bool CanView, bool CanCreate, bool CanEdit, bool CanDelete, bool CanApprove, bool CanExport, bool CanViewHistory = false);

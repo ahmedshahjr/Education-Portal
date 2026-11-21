@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted.
+Accepted. Reading the entries, more audited types and readable sentences: [ADR-023](ADR-023-Readable-Change-History.md).
 
 ## Date
 

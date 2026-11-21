@@ -1,4 +1,5 @@
 using EducationPortal.Application.Common.Interfaces;
+using EducationPortal.Application.Subscriptions.Common;
 
 namespace EducationPortal.Application.SchoolRoles.Common;
 
@@ -31,7 +32,7 @@ public abstract class SchoolRoleFieldsValidator<T> : AbstractValidator<T>
             .Must(p => p.Count <= Enum.GetValues<ModuleCode>().Length)
             .Must(p => p.Select(x => x.Module).Distinct().Count() == p.Count)
             .WithMessage(_ => ValidationMessages.ModuleListedTwice)
-            .Must(p => p.All(x => x.CanView || !(x.CanCreate || x.CanEdit || x.CanDelete || x.CanApprove || x.CanExport)))
+            .Must(p => p.All(x => x.CanView || !(x.CanCreate || x.CanEdit || x.CanDelete || x.CanApprove || x.CanExport || x.CanViewHistory)))
             .WithMessage(_ => ValidationMessages.RightsNeedView)
             .CustomAsync(async (permissions, validation, cancellationToken) =>
             {
@@ -62,25 +63,36 @@ internal static class SchoolRoleStore
         var modules = await context.Modules.Where(m => enabled.Contains(m.Code)).ToListAsync(cancellationToken);
         var current = await context.RolePermissions.Where(p => p.SchoolRoleId == role.Id).ToListAsync(cancellationToken);
 
+        // The role screen gives a role's rights on every campus of the school (ADR-022). Rows made here are on the main
+        // campus with AllCampuses set; rights on single campuses come with the per-campus role editor.
+        var mainCampus = await SchoolCampuses.MainAsync(context, role.SchoolId, cancellationToken);
+
         foreach (var module in modules)
         {
-            var existing = current.FirstOrDefault(c => c.ModuleId == module.Id);
+            // A module can hold rows for several campuses (ADR-022). The screen writes one all-campuses row, so every
+            // row of the module is looked at: the row on the main campus is kept (and made all-campuses), the rest go.
+            var rows = current.Where(c => c.ModuleId == module.Id).ToList();
             var given = wanted.FirstOrDefault(w => w.Module == module.Code);
 
             if (given is null || !given.CanView)
             {
-                if (existing is not null)
-                {
-                    context.RolePermissions.Remove(existing);
-                }
+                context.RolePermissions.RemoveRange(rows);
+                continue;
             }
-            else if (existing is not null)
+
+            var keep = rows.FirstOrDefault(c => c.CampusId == mainCampus.Id);
+            context.RolePermissions.RemoveRange(rows.Where(c => c != keep));
+
+            if (keep is not null)
             {
-                existing.Set(given.CanView, given.CanCreate, given.CanEdit, given.CanDelete, given.CanApprove, given.CanExport);
+                keep.ApplyToAllCampuses();
+                keep.Set(given.CanView, given.CanCreate, given.CanEdit, given.CanDelete, given.CanApprove, given.CanExport, given.CanViewHistory);
             }
             else
             {
-                context.RolePermissions.Add(RolePermission.Create(role, module, given.CanView, given.CanCreate, given.CanEdit, given.CanDelete, given.CanApprove, given.CanExport));
+                context.RolePermissions.Add(RolePermission.Create(
+                    role, module, mainCampus, allCampuses: true,
+                    given.CanView, given.CanCreate, given.CanEdit, given.CanDelete, given.CanApprove, given.CanExport, given.CanViewHistory));
             }
         }
     }
@@ -106,10 +118,10 @@ internal static class SchoolRoleReader
                 join m in context.Modules on p.ModuleId equals m.Id
                 where p.SchoolId == schoolId && roleIds.Contains(p.SchoolRoleId)
                 orderby m.SortOrder, m.Code
-                select new { p.SchoolRoleId, m.Code, p.CanView, p.CanCreate, p.CanEdit, p.CanDelete, p.CanApprove, p.CanExport })
+                select new { p.SchoolRoleId, m.Code, p.CanView, p.CanCreate, p.CanEdit, p.CanDelete, p.CanApprove, p.CanExport, p.CanViewHistory })
             .ToListAsync(cancellationToken))
             .Where(p => enabled.Contains(p.Code))
-            .ToLookup(p => p.SchoolRoleId, p => new RolePermissionDto(p.Code, p.CanView, p.CanCreate, p.CanEdit, p.CanDelete, p.CanApprove, p.CanExport));
+            .ToLookup(p => p.SchoolRoleId, p => new RolePermissionDto(p.Code, p.CanView, p.CanCreate, p.CanEdit, p.CanDelete, p.CanApprove, p.CanExport, p.CanViewHistory));
 
         return roles.Select(r => new SchoolRoleDto(r.PublicId, r.Name, r.Description, r.IsSystem, rights[r.Id].ToList())).ToList();
     }

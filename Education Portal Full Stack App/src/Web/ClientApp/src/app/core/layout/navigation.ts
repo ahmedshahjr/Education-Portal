@@ -1,5 +1,6 @@
 import { NavItem, NavSection } from '../../shared/models/navigation.models';
 import { MODULE_CODES } from '../modules/modules.service';
+import type { AccessRight, ModuleCode } from '../../web-api-client';
 
 /** Who sees a menu item. The server enforces the same rule on every request; the menu only hides what would be refused. */
 export type NavAccess = 'everyone' | 'administrator' | 'school-administrator' | 'master-administrator';
@@ -8,9 +9,14 @@ export interface AppNavItem extends NavItem {
   readonly access: NavAccess;
   /** The module the item belongs to (a `MODULE_CODES` value). It is shown only when the module is on for the school. */
   readonly module?: string;
+  /** The right the user needs in `module` to see the item (ADR-022). Checked only when the caller passes a rights check. */
+  readonly right?: AccessRight;
   /** The items of a submenu. A submenu is shown when at least one of them is visible. */
   readonly children?: readonly AppNavItem[];
 }
+
+/** Asks whether the signed-in user has a right in a module. Supplied by the layout from `RightsService`. */
+export type RightCheck = (module: ModuleCode, right: AccessRight) => boolean;
 
 export interface AppNavSection extends NavSection {
   readonly items: readonly AppNavItem[];
@@ -83,10 +89,12 @@ export function visibleNavSections(
   sections: readonly AppNavSection[],
   isAdministrator: boolean,
   isMaster: boolean,
-  enabledModules: ReadonlySet<string>
+  enabledModules: ReadonlySet<string>,
+  can?: RightCheck
 ): readonly AppNavSection[] {
   const allowed = (item: AppNavItem): boolean =>
     (item.module === undefined || enabledModules.has(item.module)) &&
+    (item.right === undefined || can === undefined || can(item.module as ModuleCode, item.right)) &&
     (item.access === 'everyone' ||
       (item.access === 'administrator' && isAdministrator) ||
       (item.access === 'school-administrator' && isAdministrator && !isMaster) ||

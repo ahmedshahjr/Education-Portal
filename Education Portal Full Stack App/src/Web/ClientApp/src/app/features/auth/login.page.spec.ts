@@ -79,6 +79,9 @@ describe('LoginPage language after sign-in', () => {
         for (const request of backend.match('/api/Modules/enabled')) {
           request.flush(new Blob([JSON.stringify([])], { type: 'application/json' }));
         }
+        for (const request of backend.match('/api/Users/me/rights')) {
+          request.flush(new Blob([JSON.stringify({ modules: [] })], { type: 'application/json' }));
+        }
         for (const request of backend.match('/api/Branding')) {
           request.flush(new Blob([JSON.stringify(schoolBranding)], { type: 'application/json' }));
         }
@@ -122,6 +125,9 @@ describe('LoginPage branding after sign-in on the master address', () => {
       }
       for (const request of backend.match('/api/Modules/enabled')) {
         request.flush(new Blob([JSON.stringify([])], { type: 'application/json' }));
+      }
+      for (const request of backend.match('/api/Users/me/rights')) {
+        request.flush(new Blob([JSON.stringify({ modules: [] })], { type: 'application/json' }));
       }
       for (const request of backend.match('/api/Localization')) {
         request.flush(new Blob([JSON.stringify({ language: 'en', culture: 'en', languages: [] })], { type: 'application/json' }));

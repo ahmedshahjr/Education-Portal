@@ -37,7 +37,7 @@ public class GetAssessmentsQueryHandler : IRequestHandler<GetAssessmentsQuery, I
     {
         var courseId = await _context.Courses.ResolveIdAsync(request.CourseId, cancellationToken);
         var campusId = await _context.Courses.Where(c => c.Id == courseId).Select(c => c.CampusId).SingleAsync(cancellationToken);
-        await _campusAccess.EnsureCampusAsync(campusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.Exams, AccessRight.View, cancellationToken);
 
         return await _context.Assessments
             .AsNoTracking()

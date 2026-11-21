@@ -47,6 +47,7 @@ describe('ChangePasswordPage', () => {
       http.expectOne('/api/Users/me').flush(blob({ id: 'u1', email: 'head@new.local', roles: ['Administrator'], mustChangePassword: false }))
     );
     await vi.waitFor(() => http.expectOne('/api/Modules/enabled').flush(blob([])));
+    await vi.waitFor(() => http.expectOne('/api/Users/me/rights').flush(blob({ modules: [] })));
     await vi.waitFor(() => expect(navigate).toHaveBeenCalledWith('/'));
   });
 

@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using System.Globalization;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Models;
@@ -51,7 +52,7 @@ public class DeleteShiftCommandHandler : IRequestHandler<DeleteShiftCommand>
         var shift = await _context.Shifts.FirstOrDefaultAsync(s => s.SchoolId == schoolId && s.PublicId == request.ShiftId, cancellationToken);
         Guard.Against.NotFound(request.ShiftId, shift);
 
-        await _campusAccess.EnsureCampusAsync(shift.CampusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(shift.CampusId, ModuleCode.AcademicSetup, AccessRight.Delete, cancellationToken);
         shift.Delete(_timeProvider.GetUtcNow(), _user.Id);
         await _context.SaveChangesAsync(cancellationToken);
 

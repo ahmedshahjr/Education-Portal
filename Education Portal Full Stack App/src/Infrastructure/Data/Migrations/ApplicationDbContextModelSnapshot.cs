@@ -2102,6 +2102,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("AllCampuses")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("CampusId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("CanApprove")
                         .HasColumnType("boolean");
 
@@ -2118,6 +2124,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("CanView")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanViewHistory")
                         .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset>("Created")
@@ -2148,16 +2157,18 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     b.HasAlternateKey("PublicId");
 
+                    b.HasIndex("CampusId");
+
                     b.HasIndex("ModuleId");
 
                     b.HasIndex("SchoolId");
 
-                    b.HasIndex("SchoolRoleId", "ModuleId")
+                    b.HasIndex("SchoolRoleId", "ModuleId", "CampusId")
                         .IsUnique();
 
                     b.ToTable("RolePermissions", "access", t =>
                         {
-                            t.HasCheckConstraint("CK_RolePermissions_NeedView", "\"CanView\" OR NOT (\"CanCreate\" OR \"CanEdit\" OR \"CanDelete\" OR \"CanApprove\" OR \"CanExport\")");
+                            t.HasCheckConstraint("CK_RolePermissions_NeedView", "\"CanView\" OR NOT (\"CanCreate\" OR \"CanEdit\" OR \"CanDelete\" OR \"CanApprove\" OR \"CanExport\" OR \"CanViewHistory\")");
                         });
                 });
 
@@ -6140,6 +6151,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.RolePermission", b =>
                 {
+                    b.HasOne("EducationPortal.Domain.Entities.Campus", null)
+                        .WithMany()
+                        .HasForeignKey("CampusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("EducationPortal.Domain.Entities.PortalModule", null)
                         .WithMany()
                         .HasForeignKey("ModuleId")

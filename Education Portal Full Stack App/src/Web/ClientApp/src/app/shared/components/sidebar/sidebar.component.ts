@@ -5,6 +5,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { BrandingService } from '../../../core/branding/branding.service';
 import { LayoutService } from '../../../core/layout/layout.service';
 import { ModulesService } from '../../../core/modules/modules.service';
+import { RightsService } from '../../../core/rights/rights.service';
 import { APP_NAV_SECTIONS, visibleNavSections } from '../../../core/layout/navigation';
 import { NavItem } from '../../models/navigation.models';
 import { AppIconComponent } from '../app-icon/app-icon.component';
@@ -21,9 +22,16 @@ export class SidebarComponent {
   protected readonly branding = inject(BrandingService);
   private readonly auth = inject(AuthService);
   private readonly modules = inject(ModulesService);
+  private readonly rights = inject(RightsService);
 
   protected readonly sections = computed(() =>
-    visibleNavSections(APP_NAV_SECTIONS, this.auth.isAdministrator(), this.branding.isMaster(), this.modules.enabled())
+    visibleNavSections(
+      APP_NAV_SECTIONS,
+      this.auth.isAdministrator(),
+      this.branding.isMaster(),
+      this.modules.enabled(),
+      (module, right) => this.rights.can(module, right)
+    )
   );
 
   private readonly expandedGroups = signal<Record<string, boolean>>({});

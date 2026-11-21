@@ -33,7 +33,7 @@ public class GetTimetableSlotsQueryHandler : IRequestHandler<GetTimetableSlotsQu
         int? courseId = request.CourseId is { } publicId
             ? await _context.Courses.ResolveIdAsync(publicId, cancellationToken)
             : null;
-        var allowed = await _campusAccess.GetAllowedCampusIdsAsync(cancellationToken);
+        var allowed = await _campusAccess.GetAllowedCampusIdsAsync(ModuleCode.Timetable, AccessRight.View, cancellationToken);
         var allowedIds = allowed?.ToList();
 
         return await (

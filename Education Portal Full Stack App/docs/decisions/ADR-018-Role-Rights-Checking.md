@@ -1,6 +1,6 @@
 # ADR-018: Checking School Role Rights on Each Request
 
-- **Status:** Accepted
+- **Status:** Accepted. Campus-aware rights and the ViewHistory right: [ADR-022](ADR-022-Role-Rights-Per-Campus.md).
 - **Date:** 2026-11-19
 - **Builds on:** ADR-012 (module enforcement and school roles), ADR-014 (people and account roles)
 
