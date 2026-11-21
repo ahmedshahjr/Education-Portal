@@ -58,17 +58,17 @@ public class IdentityService : IIdentityService
         return await _userManager.FindByEmailAsync(email) is not null;
     }
 
-    public async Task<(Result Result, string UserId)> CreateSchoolAdministratorAsync(int schoolId, string email, string oneTimePassword)
+    public async Task<(Result Result, string UserId)> CreateSchoolAdministratorAsync(int schoolId, string email, string password, bool mustChangePassword = true)
     {
         var user = new ApplicationUser
         {
             UserName = email,
             Email = email,
             SchoolId = schoolId,
-            MustChangePassword = true,
+            MustChangePassword = mustChangePassword,
         };
 
-        var created = await _userManager.CreateAsync(user, oneTimePassword);
+        var created = await _userManager.CreateAsync(user, password);
 
         if (!created.Succeeded)
         {

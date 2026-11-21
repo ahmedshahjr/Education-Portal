@@ -534,4 +534,7 @@
   <data name="CampusListedTwice" xml:space="preserve">
     <value>Each campus can be listed only once.</value>
   </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>The two passwords do not match.</value>
+  </data>
 </root>

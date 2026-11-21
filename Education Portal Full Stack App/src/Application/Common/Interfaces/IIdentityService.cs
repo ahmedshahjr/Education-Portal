@@ -18,10 +18,11 @@ public interface IIdentityService
     Task<bool> IsEmailTakenAsync(string email);
 
     /// <summary>
-    /// Creates a school's administrator with a one-time password, checked against the password policy. The account must
-    /// replace the password before it can do anything else.
+    /// Creates a school's administrator, checked against the password policy. With <paramref name="mustChangePassword"/>
+    /// (the default) the password is a one-time password and the account must replace it before it can do anything else;
+    /// without it the administrator chose the password themselves (self-service registration).
     /// </summary>
-    Task<(Result Result, string UserId)> CreateSchoolAdministratorAsync(int schoolId, string email, string oneTimePassword);
+    Task<(Result Result, string UserId)> CreateSchoolAdministratorAsync(int schoolId, string email, string password, bool mustChangePassword = true);
 
     /// <summary>
     /// Creates the login account of a person of the school, linked to the person's record, with a one-time password the

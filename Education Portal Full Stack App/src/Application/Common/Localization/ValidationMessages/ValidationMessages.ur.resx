@@ -534,4 +534,7 @@
   <data name="CampusListedTwice" xml:space="preserve">
     <value>ہر کیمپس صرف ایک بار شامل کیا جا سکتا ہے۔</value>
   </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>دونوں پاس ورڈ مماثل نہیں ہیں۔</value>
+  </data>
 </root>

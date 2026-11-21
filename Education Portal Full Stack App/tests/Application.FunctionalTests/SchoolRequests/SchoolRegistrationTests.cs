@@ -169,7 +169,7 @@ public class SchoolRegistrationTests : TestBase
     }
 
     /// <summary>The master tenant, with a country (PK) that has a price book and the Full plan priced for it.</summary>
-    private static async Task<HttpSession> SetUpPriceBookAsync()
+    internal static async Task<HttpSession> SetUpPriceBookAsync()
     {
         await TestApp.RunAsAdministratorAsync();
         await TestApp.AddCountryAsync("PK", "Pakistan", ["en", "ur"], "en", "Asia/Karachi", "PKR");

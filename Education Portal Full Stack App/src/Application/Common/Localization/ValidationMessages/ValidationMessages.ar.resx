@@ -534,4 +534,7 @@
   <data name="CampusListedTwice" xml:space="preserve">
     <value>يمكن ذكر كل فرع مرة واحدة فقط.</value>
   </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>كلمتا المرور غير متطابقتين.</value>
+  </data>
 </root>

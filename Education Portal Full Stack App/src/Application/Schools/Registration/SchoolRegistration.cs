@@ -17,7 +17,8 @@ public sealed record SchoolRegistrationRequest(
     Guid CountryId,
     DataRegion? DataRegion,
     string AdministratorEmail,
-    string AdministratorPassword);
+    string AdministratorPassword,
+    bool AdministratorMustChangePassword = true);
 
 /// <summary>The ids of a registered school and of its first administrator, for the response and for the audit records.</summary>
 public sealed record RegisteredSchool(int Id, Guid PublicId, string AdministratorId);
@@ -61,7 +62,8 @@ public static class SchoolRegistration
         var (result, administratorId) = await identity.CreateSchoolAdministratorAsync(
             school.Id,
             request.AdministratorEmail.Trim(),
-            request.AdministratorPassword);
+            request.AdministratorPassword,
+            request.AdministratorMustChangePassword);
 
         if (!result.Succeeded)
         {

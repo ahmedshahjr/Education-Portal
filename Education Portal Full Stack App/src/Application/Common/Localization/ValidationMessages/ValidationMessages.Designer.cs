@@ -463,6 +463,15 @@ namespace EducationPortal.Application.Common.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The two passwords do not match..
+        /// </summary>
+        internal static string PasswordsDoNotMatch {
+            get {
+                return ResourceManager.GetString("PasswordsDoNotMatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to The new password must be different from the current one..
         /// </summary>
         internal static string NewPasswordSameAsCurrent {

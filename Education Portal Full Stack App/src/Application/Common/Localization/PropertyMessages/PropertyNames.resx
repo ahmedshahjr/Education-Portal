@@ -366,4 +366,7 @@
   <data name="GenderPolicy" xml:space="preserve">
     <value>Students</value>
   </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Confirm password</value>
+  </data>
 </root>

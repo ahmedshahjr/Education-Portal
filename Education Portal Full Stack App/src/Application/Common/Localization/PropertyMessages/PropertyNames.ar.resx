@@ -366,4 +366,7 @@
   <data name="GenderPolicy" xml:space="preserve">
     <value>الطلاب</value>
   </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>تأكيد كلمة المرور</value>
+  </data>
 </root>
