@@ -2,6 +2,7 @@ using EducationPortal.Application.Timetable.Commands.CreateTimetableSlot;
 using EducationPortal.Application.Timetable.Commands.UpdateTimetableSlot;
 using EducationPortal.Application.Timetable.Common;
 using EducationPortal.Application.Timetable.Queries.CheckTimetableConflicts;
+using EducationPortal.Application.Timetable.Queries.GetTimetableSlots;
 using EducationPortal.Web.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Antiforgery;
@@ -15,6 +16,9 @@ public class TimetableSlots : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
     {
+        groupBuilder.MapGet(GetTimetableSlots)
+            .RequireAuthorization();
+
         groupBuilder.MapPost(CreateTimetableSlot)
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
@@ -26,6 +30,13 @@ public class TimetableSlots : IEndpointGroup
         groupBuilder.MapPost(CheckTimetableConflicts, "conflicts")
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute());
+    }
+
+    [EndpointSummary("List the lessons")]
+    [EndpointDescription("Returns the lessons of the timetable by day and start time, optionally for one course. Needs the Timetable module and the View right.")]
+    public static async Task<Ok<IReadOnlyList<TimetableSlotDto>>> GetTimetableSlots(ISender sender, Guid? courseId)
+    {
+        return TypedResults.Ok(await sender.Send(new GetTimetableSlotsQuery { CourseId = courseId }));
     }
 
     [EndpointSummary("Add a lesson")]

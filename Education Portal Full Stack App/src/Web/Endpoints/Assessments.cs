@@ -1,4 +1,6 @@
 using EducationPortal.Application.Academics.Commands.CreateAssessment;
+using EducationPortal.Application.Academics.Common;
+using EducationPortal.Application.Academics.Queries.GetAssessments;
 using EducationPortal.Web.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Antiforgery;
@@ -12,9 +14,19 @@ public class Assessments : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
     {
+        groupBuilder.MapGet(GetAssessments)
+            .RequireAuthorization();
+
         groupBuilder.MapPost(CreateAssessment)
             .RequireAuthorization()
             .WithMetadata(new RequireAntiforgeryTokenAttribute()); // SEC-WEB-03: unsafe requests need the token
+    }
+
+    [EndpointSummary("List the assessments of a course")]
+    [EndpointDescription("Returns the assessments of one course by name. Needs the Exams module and the View right.")]
+    public static async Task<Ok<IReadOnlyList<AssessmentDto>>> GetAssessments(ISender sender, Guid courseId)
+    {
+        return TypedResults.Ok(await sender.Send(new GetAssessmentsQuery(courseId)));
     }
 
     [EndpointSummary("Add an assessment")]
