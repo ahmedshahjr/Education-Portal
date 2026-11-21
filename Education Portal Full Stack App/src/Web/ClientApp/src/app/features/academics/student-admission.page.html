@@ -1,0 +1,131 @@
+<app-page-header
+  title="Admit a student"
+  i18n-title="@@admission.title"
+  subtitle="Record a new student: the child's details, the guardian and the class applied for."
+  i18n-subtitle="@@admission.subtitle"
+></app-page-header>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    <form class="mm-ac__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.firstName">First name</mat-label>
+        <input matInput formControlName="firstName" autocomplete="off" />
+        @if (form.controls.firstName.invalid) {
+          <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.middleName">Middle name</mat-label>
+        <input matInput formControlName="middleName" autocomplete="off" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.lastName">Last name</mat-label>
+        <input matInput formControlName="lastName" autocomplete="off" />
+        @if (form.controls.lastName.invalid) {
+          <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.gender">Gender</mat-label>
+        <mat-select formControlName="gender">
+          @for (gender of genders; track gender) {
+            <mat-option [value]="gender">{{ genderLabel(gender) }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.gender.invalid) {
+          <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.dateOfBirth">Date of birth</mat-label>
+        <input matInput [matDatepicker]="birthPicker" [max]="today" formControlName="dateOfBirth" />
+        <mat-datepicker-toggle matIconSuffix [for]="birthPicker" />
+        <mat-datepicker #birthPicker />
+        @if (form.controls.dateOfBirth.invalid) {
+          <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.phone">Student phone</mat-label>
+        <input matInput type="tel" formControlName="phone" dir="ltr" autocomplete="off" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.fatherName">Father's name</mat-label>
+        <input matInput formControlName="fatherName" autocomplete="off" />
+        @if (form.controls.fatherName.invalid) {
+          <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.guardianPhone">Guardian phone</mat-label>
+        <input matInput type="tel" formControlName="guardianPhone" dir="ltr" autocomplete="off" />
+        @if (form.controls.guardianPhone.invalid) {
+          <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.nationality">Nationality</mat-label>
+        <input matInput formControlName="nationality" autocomplete="off" />
+        @if (form.controls.nationality.invalid) {
+          <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="mm-ac__wide">
+        <mat-label i18n="@@admission.address">Address</mat-label>
+        <input matInput formControlName="address" autocomplete="off" />
+        @if (form.controls.address.invalid) {
+          <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.city">City</mat-label>
+        <input matInput formControlName="city" autocomplete="off" />
+        @if (form.controls.city.invalid) {
+          <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.classApplied">Class applied for</mat-label>
+        <input matInput formControlName="classApplied" autocomplete="off" />
+        @if (form.controls.classApplied.invalid) {
+          <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.previousSchool">Previous school</mat-label>
+        <input matInput formControlName="previousSchool" autocomplete="off" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@admission.admissionDate">Admission date</mat-label>
+        <input matInput [matDatepicker]="admissionPicker" formControlName="admissionDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="admissionPicker" />
+        <mat-datepicker #admissionPicker />
+        @if (form.controls.admissionDate.invalid) {
+          <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        }
+      </mat-form-field>
+
+      @for (message of errors(); track message) {
+        <p class="mm-ac__error" role="alert">{{ message }}</p>
+      }
+
+      <div class="mm-ac__actions">
+        <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@admission.save">Admit student</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

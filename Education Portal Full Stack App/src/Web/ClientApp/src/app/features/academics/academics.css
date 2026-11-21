@@ -1,0 +1,89 @@
+/* Shared by the academic screens and their panels. Logical properties only, so right-to-left pages mirror. */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-grid-gap);
+}
+
+.mm-ac__tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-grid-gap);
+  padding-block-start: var(--mm-space-4);
+}
+
+.mm-ac__heading {
+  margin-block: 0 var(--mm-space-3);
+  font-size: var(--mm-text-base);
+  font-weight: 600;
+}
+
+.mm-ac__muted {
+  margin: 0 0 var(--mm-space-3);
+  color: var(--mm-text-muted);
+}
+
+.mm-ac__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--mm-space-2) var(--mm-space-3);
+}
+
+.mm-ac__form mat-form-field {
+  flex: 1 1 240px;
+}
+
+.mm-ac__form .mm-ac__wide {
+  flex-basis: 100%;
+}
+
+.mm-ac__actions {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  gap: var(--mm-space-2);
+}
+
+.mm-ac__error {
+  flex-basis: 100%;
+  margin: var(--mm-space-2) 0 0;
+  color: var(--mm-error);
+}
+
+.mm-ac__section {
+  margin-block: var(--mm-space-4) var(--mm-space-2);
+  font-size: var(--mm-text-sm);
+  font-weight: 600;
+  color: var(--mm-text-muted);
+}
+
+.mm-ac__bands {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-space-2);
+}
+
+.mm-ac__band {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--mm-space-2);
+}
+
+.mm-ac__band mat-form-field {
+  flex: 1 1 120px;
+}
+
+.mm-ac__table {
+  inline-size: 100%;
+  border-collapse: collapse;
+}
+
+.mm-ac__table th,
+.mm-ac__table td {
+  padding: var(--mm-space-2);
+  text-align: start;
+  border-block-end: 1px solid var(--mm-border-color);
+}

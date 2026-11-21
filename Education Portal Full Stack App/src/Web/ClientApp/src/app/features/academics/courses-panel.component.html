@@ -1,0 +1,74 @@
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (lookups.error(); as message) {
+      <p class="mm-ac__error" role="alert">{{ message }}</p>
+    }
+
+    <app-data-table
+      [data]="rows()"
+      [columns]="columns"
+      searchPlaceholder="Search courses..."
+      i18n-searchPlaceholder="@@academics.searchCourses"
+      emptyTitle="No courses yet"
+      i18n-emptyTitle="@@academics.coursesEmpty"
+      emptyDescription="Add a course to a class offering and give it a teacher."
+      i18n-emptyDescription="@@academics.coursesEmptyDescription"
+    >
+      <div table-actions>
+        @if (!adding()) {
+          <button mat-flat-button type="button" (click)="startAdd()" i18n="@@academics.addCourse">Add course</button>
+        }
+      </div>
+    </app-data-table>
+  </mat-card-content>
+</mat-card>
+
+@if (adding()) {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <h2 class="mm-ac__heading" i18n="@@academics.addCourseHeading">Add a course</h2>
+      <form class="mm-ac__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@academics.colOffering">Class</mat-label>
+          <mat-select formControlName="classOfferingId">
+            @for (offering of lookups.offerings(); track offering.id) {
+              <mat-option [value]="offering.id">{{ offeringLabel(offering) }}</mat-option>
+            }
+          </mat-select>
+          @if (form.controls.classOfferingId.hasError('required')) {
+            <mat-error i18n="@@academics.required">This field is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@academics.courseName">Course name</mat-label>
+          <input matInput formControlName="name" [maxlength]="nameMax" autocomplete="off" />
+          @if (form.controls.name.hasError('required')) {
+            <mat-error i18n="@@academics.required">This field is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@academics.colTeacher">Teacher</mat-label>
+          <mat-select formControlName="teacherId">
+            @for (teacher of lookups.teachers(); track teacher.id) {
+              <mat-option [value]="teacher.id">{{ personName(teacher) }}</mat-option>
+            }
+          </mat-select>
+          @if (form.controls.teacherId.hasError('required')) {
+            <mat-error i18n="@@academics.required">This field is required.</mat-error>
+          }
+        </mat-form-field>
+
+        @for (message of errors(); track message) {
+          <p class="mm-ac__error" role="alert">{{ message }}</p>
+        }
+
+        <div class="mm-ac__actions">
+          <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@academics.save">Save</button>
+          <button mat-button type="button" [disabled]="busy()" (click)="adding.set(false)" i18n="@@common.cancel">Cancel</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+}

@@ -125,6 +125,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/school-page/school-page.page').then((m) => m.SchoolPagePage),
       },
       {
+        path: 'academics',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.academicSetup)],
+        loadComponent: () => import('./features/academics/academics.page').then((m) => m.AcademicsPage),
+      },
+      {
+        path: 'student-admissions',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.students)],
+        loadComponent: () => import('./features/academics/student-admission.page').then((m) => m.StudentAdmissionPage),
+      },
+      {
         path: 'school-requests',
         canActivate: [masterAdministratorGuard],
         loadComponent: () =>

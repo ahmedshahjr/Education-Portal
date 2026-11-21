@@ -1,0 +1,19 @@
+<app-page-header
+  title="Courses and enrolments"
+  i18n-title="@@academics.title"
+  subtitle="The courses of each class offering with their teachers, and the students enrolled in them."
+  i18n-subtitle="@@academics.subtitle"
+></app-page-header>
+
+<mat-tab-group animationDuration="0ms" mat-stretch-tabs="false">
+  <mat-tab label="Courses" i18n-label="@@academics.tabCourses">
+    <ng-template matTabContent>
+      <div class="mm-ac__tab"><app-courses-panel /></div>
+    </ng-template>
+  </mat-tab>
+  <mat-tab label="Enrolments" i18n-label="@@academics.tabEnrolments">
+    <ng-template matTabContent>
+      <div class="mm-ac__tab"><app-enrolments-panel /></div>
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>
