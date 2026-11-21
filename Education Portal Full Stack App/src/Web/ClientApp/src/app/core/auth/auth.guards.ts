@@ -2,8 +2,9 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { BrandingService } from '../branding/branding.service';
 import { ModulesService } from '../modules/modules.service';
+import { RightsService } from '../rights/rights.service';
 import { AuthService } from './auth.service';
-import type { ModuleCode } from '../../web-api-client';
+import type { AccessRight, ModuleCode } from '../../web-api-client';
 
 /**
  * Sends visitors who are not signed in to the login page, and back here afterwards. An account that still has its
@@ -40,3 +41,9 @@ export const moduleGuard =
   (moduleKey: ModuleCode): CanActivateFn =>
   () =>
     inject(ModulesService).isEnabled(moduleKey) ? true : inject(Router).createUrlTree(['/']);
+
+/** Only when the signed-in user has the right in the module (on any campus). The server checks it again on every request. */
+export const rightsGuard =
+  (moduleKey: ModuleCode, right: AccessRight): CanActivateFn =>
+  () =>
+    inject(RightsService).can(moduleKey, right) ? true : inject(Router).createUrlTree(['/']);

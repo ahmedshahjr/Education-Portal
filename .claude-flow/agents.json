@@ -77,6 +77,19 @@
       },
       "createdAt": "2026-11-18T15:19:14.800Z",
       "domain": "hive-mind"
+    },
+    "hive-worker-1795262903233-ges1": {
+      "agentId": "hive-worker-1795262903233-ges1",
+      "agentType": "worker",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "specialist",
+        "hiveRole": "specialist"
+      },
+      "createdAt": "2026-11-21T12:08:23.233Z",
+      "domain": "hive-mind"
     }
   }
 }

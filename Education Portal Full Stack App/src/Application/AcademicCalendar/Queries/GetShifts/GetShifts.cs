@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using EducationPortal.Application.AcademicCalendar.Common;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Models;
@@ -34,10 +35,10 @@ public class GetShiftsQueryHandler : IRequestHandler<GetShiftsQuery, IReadOnlyLi
     {
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
-        await _campusAccess.EnsureCampusAsync(campusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.AcademicSetup, AccessRight.View, cancellationToken);
 
         // A user limited to some campuses sees only their shifts (AGENTS.md section 2, "Campuses per user").
-        var allowed = await _campusAccess.GetAllowedCampusIdsAsync(cancellationToken);
+        var allowed = await _campusAccess.GetAllowedCampusIdsAsync(ModuleCode.AcademicSetup, AccessRight.View, cancellationToken);
 
         return await _context.Shifts
             .AsNoTracking()

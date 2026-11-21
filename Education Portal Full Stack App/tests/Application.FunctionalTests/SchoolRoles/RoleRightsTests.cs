@@ -80,7 +80,8 @@ public class RoleRightsTests : TestBase
         await context.SaveChangesAsync();
 
         var module = await context.Modules.SingleAsync(m => m.Code == ModuleCode.Exams);
-        context.RolePermissions.Add(RolePermission.Create(role, module, canView, canCreate: false, canEdit, canDelete, canApprove, canExport));
+        var campus = await context.Campuses.SingleAsync(c => c.SchoolId == schoolId && c.Kind == CampusKind.Main);
+        context.RolePermissions.Add(RolePermission.Create(role, module, campus, allCampuses: true, canView, canCreate: false, canEdit, canDelete, canApprove, canExport, canViewHistory: false));
         context.AccountRoles.Add(AccountRole.Create(schoolId, userId, role.Id));
         await context.SaveChangesAsync();
     }

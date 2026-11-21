@@ -25,7 +25,7 @@ public class CampusAccessTests
         var identity = new Mock<IIdentityService>();
         identity.Setup(i => i.FindPersonIdOfAccountAsync(It.IsAny<string>())).ReturnsAsync(personId);
 
-        return new CampusAccess(Mock.Of<IApplicationDbContext>(), user.Object, tenant.Object, identity.Object);
+        return new CampusAccess(Mock.Of<IApplicationDbContext>(), user.Object, tenant.Object, identity.Object, Mock.Of<IRoleRights>());
     }
 
     [Test]

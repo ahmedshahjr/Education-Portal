@@ -20,4 +20,7 @@ public enum AccessRight
     Approve = 5,
 
     Export = 6,
+
+    /// <summary>May read the change history of the module (ADR-023). Needs <see cref="View"/>.</summary>
+    ViewHistory = 7,
 }

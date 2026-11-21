@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using System.Globalization;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Models;
@@ -54,7 +55,7 @@ public class DeleteCalendarEventCommandHandler : IRequestHandler<DeleteCalendarE
         var item = await _context.CalendarEvents.FirstOrDefaultAsync(h => h.SchoolId == schoolId && h.PublicId == request.EventId, cancellationToken);
         Guard.Against.NotFound(request.EventId, item);
 
-        await _campusAccess.EnsureCampusAsync(item.CampusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(item.CampusId, ModuleCode.AcademicSetup, AccessRight.Delete, cancellationToken);
         item.Delete(_timeProvider.GetUtcNow(), _user.Id);
         await _context.SaveChangesAsync(cancellationToken);
 

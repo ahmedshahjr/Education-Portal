@@ -4,6 +4,7 @@ import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { ChangePasswordCommand, CurrentUserDto, ModuleCode, SignInCommand, UsersClient } from '../../web-api-client';
 import { BrandingService } from '../branding/branding.service';
 import { ModulesService } from '../modules/modules.service';
+import { RightsService } from '../rights/rights.service';
 
 export const ADMINISTRATOR_ROLE = 'Administrator';
 
@@ -13,6 +14,7 @@ export class AuthService {
   private readonly users = inject(UsersClient);
   private readonly modules = inject(ModulesService);
   private readonly branding = inject(BrandingService);
+  private readonly rights = inject(RightsService);
   private readonly user = signal<CurrentUserDto | null>(null);
 
   readonly currentUser = this.user.asReadonly();
@@ -35,18 +37,20 @@ export class AuthService {
       switchMap((user) => {
         if (user.mustChangePassword) {
           this.modules.clear();
+          this.rights.clear();
           return of(undefined);
         }
         if (modulesFromSignIn) {
           this.modules.set(modulesFromSignIn);
-          return of(undefined);
+          return this.rights.load();
         }
-        return this.modules.load();
+        return this.modules.load().pipe(switchMap(() => this.rights.load()));
       }),
       map(() => true),
       catchError(() => {
         this.user.set(null);
         this.modules.clear();
+        this.rights.clear();
         return of(false);
       })
     );

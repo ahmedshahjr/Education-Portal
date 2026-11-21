@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using System.Globalization;
 using EducationPortal.Application.AcademicCalendar.Common;
 using EducationPortal.Application.Common.Interfaces;
@@ -63,9 +64,9 @@ public class UpdateHolidayCommandHandler : IRequestHandler<UpdateHolidayCommand>
         var item = await _context.Holidays.FirstOrDefaultAsync(h => h.SchoolId == schoolId && h.PublicId == request.HolidayId, cancellationToken);
         Guard.Against.NotFound(request.HolidayId, item);
 
-        await _campusAccess.EnsureCampusAsync(item.CampusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(item.CampusId, ModuleCode.AcademicSetup, AccessRight.Edit, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
-        await _campusAccess.EnsureCampusAsync(campusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.AcademicSetup, AccessRight.Edit, cancellationToken);
         item.Change(campusId, request.Title, request.StartDate, request.EndDate, request.Type, request.AppliesTo, request.IsTentative);
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -164,6 +164,408 @@
       "result": {
         "cancelReason": "mission cancelled from the console"
       }
+    },
+    "task-1795255753504-7myi6n": {
+      "taskId": "task-1795255753504-7myi6n",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t1] Specification: Research prior art, existing ADRs and memory",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t1",
+        "phase:S"
+      ],
+      "createdAt": "2026-11-21T10:09:13.504Z",
+      "startedAt": null,
+      "completedAt": "2026-11-21T10:14:32.579Z",
+      "result": {
+        "summary": "Prior-art research done by reading code, ADRs and memory; no tests run (t1 is research only).",
+        "exists_and_reusable": [
+          "AuthorizationBehaviour.cs: module check (campusId null), IRoleRights.HasRightAsync, Administrator/master bypass",
+          "RolePermission.cs: 6 rights, no CampusId, no ViewHistory; AccessRight enum numbers 1-6 (ViewHistory would be 7)",
+          "ICampusAccess: UserCampus only, not role-per-campus",
+          "SchoolRole: BaseAuditableEntity, hard delete, IsSystem",
+          "ChangeAuditInterceptor.AuditedTypes: commercial types only; GET /api/ChangeAudit and features/audit/audit.page exist",
+          "Angular navigation.ts uses 'school-administrator' access; auth.guards.ts has moduleGuard, no rights service",
+          "Tests to extend: SchoolRoles/RoleRightsTests, CampusAccessTests, TenantIsolationModelTests, ModuleAuthorizationTests, RoleRightsAuthorizationTests"
+        ],
+        "adrs": [
+          "ADR-012 modules and roles",
+          "ADR-016 change audit",
+          "ADR-018 role rights checking",
+          "ADR-020 latest, so Tenant ADR is ADR-021"
+        ],
+        "memory": "Ruflo education-portal had only education-portal-overview; stored phase1-research-rights-audit-existing",
+        "sources": [
+          "plan file fuzzy-lighthouse",
+          "AGENTS.md sections 2 and 7",
+          "files listed above"
+        ]
+      }
+    },
+    "task-1795255755514-36s26v": {
+      "taskId": "task-1795255755514-36s26v",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t2] Specification: Specify the requirements and acceptance criteria",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t2",
+        "phase:S"
+      ],
+      "createdAt": "2026-11-21T10:09:15.514Z",
+      "startedAt": null,
+      "completedAt": "2026-11-21T10:15:55.205Z",
+      "result": {
+        "summary": "Spec written: every requirement R1.1 to R5.3 has a testable acceptance criterion. No code or tests run.",
+        "file": "Education Portal Full Stack App/docs/specs/rights-tenants-history-calendar.md",
+        "decision": "CampusId is never null; all campuses = one row per campus"
+      }
+    },
+    "task-1795255757732-nuidoh": {
+      "taskId": "task-1795255757732-nuidoh",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t3] Architecture: Design the architecture and interfaces",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t3",
+        "phase:A"
+      ],
+      "createdAt": "2026-11-21T10:09:17.732Z",
+      "startedAt": null,
+      "completedAt": "2026-11-21T10:27:36.713Z",
+      "result": {
+        "summary": "Design written: modules, interfaces and decisions per phase. No code or tests run.",
+        "file": "Education Portal Full Stack App/docs/specs/rights-tenants-history-calendar-design.md",
+        "key_decision": "AuthorizationBehaviour checks any-campus; handlers narrow by campus via new ICampusAccess/IRoleRights overloads"
+      }
+    },
+    "task-1795255759855-k0wf3z": {
+      "taskId": "task-1795255759855-k0wf3z",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t4] Architecture: Record the decisions as ADRs and write the SOP",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t4",
+        "phase:A"
+      ],
+      "createdAt": "2026-11-21T10:09:19.855Z",
+      "startedAt": "2026-11-21T10:34:04.110Z",
+      "completedAt": "2026-11-21T10:34:48.766Z",
+      "result": {
+        "summary": "ADR per decision plus a short SOP, linked from code and the ADR index.",
+        "evidence": {
+          "files_added": [
+            "docs/decisions/ADR-021-Tenant-Above-School.md (accepted, option B)",
+            "docs/decisions/ADR-022-Role-Rights-Per-Campus.md",
+            "docs/decisions/ADR-023-Readable-Change-History.md",
+            "docs/decisions/ADR-024-Users-And-Roles-Screen-And-Create-Rule.md",
+            "docs/sop/rights-tenants-history.md"
+          ],
+          "files_changed": [
+            "docs/decisions/README.md (index rows 021-024)",
+            "ADR-012, ADR-016, ADR-018 (status lines link to the new ADRs)",
+            "src/Application/Common/Interfaces/IRoleRights.cs (doc comment links ADR-022 and the SOP)"
+          ],
+          "commands_run": "none: documentation and one XML doc comment only; dotnet build and tests not run",
+          "pending_for_pr": "readme-guard.py and architecture-diagram-guard.py will require README and diagram updates when phase 1 and 2 PRs are made"
+        }
+      }
+    },
+    "task-1795255761885-aknrxg": {
+      "taskId": "task-1795255761885-aknrxg",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t5] Pseudocode: Write the pseudocode for the core logic",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t5",
+        "phase:P"
+      ],
+      "createdAt": "2026-11-21T10:09:21.885Z",
+      "startedAt": "2026-11-21T10:34:58.965Z",
+      "completedAt": "2026-11-21T10:35:21.628Z",
+      "result": {
+        "summary": "Step-by-step pseudocode covering every requirement R1.1 to R5.3 including R2.7 to R2.9.",
+        "evidence": {
+          "files_changed": [
+            "Education Portal Full Stack App/docs/specs/rights-tenants-history-calendar-pseudocode.md (new)"
+          ],
+          "commands_run": "none (documentation only)",
+          "test_output": "n/a"
+        }
+      }
+    },
+    "task-1795255763935-nmmb1r": {
+      "taskId": "task-1795255763935-nmmb1r",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t6] Refinement: Write the failing tests first",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t6",
+        "phase:R"
+      ],
+      "createdAt": "2026-11-21T10:09:23.935Z",
+      "startedAt": "2026-11-21T10:35:28.504Z",
+      "completedAt": "2026-11-21T10:37:47.960Z",
+      "result": {
+        "summary": "Phase 1 tests written first against the ADR-022 API. They are red because the API does not exist yet (compile errors for missing members only); no assertion has run yet.",
+        "evidence": {
+          "files_added": [
+            "tests/Domain.UnitTests/Entities/RolePermissionCampusTests.cs (7 tests: R1.1, R1.2)",
+            "tests/Application.UnitTests/Campuses/CampusSetsTests.cs (5 tests: R1.4 intersection)",
+            "tests/Application.FunctionalTests/SchoolRoles/RoleRightsPerCampusTests.cs (5 tests: R1.3, other school and module-off denial)"
+          ],
+          "commands_run": "dotnet build tests/{Domain.UnitTests,Application.UnitTests,Application.FunctionalTests}",
+          "build_output": "Domain.UnitTests: CS1501 Create/Set overload, CS1061 CampusId/AllCampuses/CanViewHistory, CS0117 AccessRight.ViewHistory. Application.UnitTests: CS0103 CampusSets. Application.FunctionalTests: CS1501 Create (11 args), CS1061 IRoleRights.GetRightCampusIdsAsync. No other errors.",
+          "caveats": [
+            "Red is a compile failure, so these three test projects cannot run (including their existing tests) until t7 adds the API",
+            "Functional tests need Docker/Aspire and were not run",
+            "Not yet covered: ICampusAccess overloads with module/right, GetMyRights, Angular RightsService/rightsGuard specs; add during t7 as each piece is built"
+          ]
+        }
+      }
+    },
+    "task-1795255765948-ghd7wx": {
+      "taskId": "task-1795255765948-ghd7wx",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t7] Refinement: Implement until the tests pass",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t7",
+        "phase:R"
+      ],
+      "createdAt": "2026-11-21T10:09:25.948Z",
+      "startedAt": "2026-11-21T10:37:58.656Z",
+      "completedAt": "2026-11-21T12:42:06.114Z",
+      "result": {
+        "summary": "Phase 1 rights foundation implemented to the spec. Marked done at the user's request; the full functional suite was skipped by the user.",
+        "evidence": {
+          "commands_run": [
+            "dotnet build (solution): exit 0",
+            "dotnet test tests/Domain.UnitTests: 614 passed, 0 failed",
+            "dotnet test tests/Application.UnitTests: 468 passed, 0 failed",
+            "dotnet test tests/Application.FunctionalTests --filter SchoolRoles: 26 passed, 0 failed",
+            "dotnet test tests/Application.FunctionalTests --filter GetMyRightsTests: 6 passed, 0 failed",
+            "ng build: exit 0",
+            "ng test --watch=false: 310 passed, 5 failed (campuses.page.spec 1, schools.page.spec 4; fail on committed HEAD too, verified in a worktree)",
+            "ng test on rights.service.spec and navigation.spec: 11 passed"
+          ],
+          "files_changed": [
+            "Domain: AccessRight (ViewHistory=7), RolePermission (CampusId, AllCampuses, CanViewHistory)",
+            "Application: CampusSets, IRoleRights, ICampusAccess + CampusAccess overloads, RoleRights, GetMyRights query, SchoolRoleFields, BuiltInRoles, SchoolRoleDto",
+            "Infrastructure: SchoolRoleConfiguration, migration 20261121121301_RolePermissionCampus (temporary, to be flattened)",
+            "Web: Users endpoint GET /api/Users/me/rights",
+            "Angular: rights.service(.spec).ts, auth.guards.ts rightsGuard, navigation.ts right check (+spec), sidebar, auth.service, web-api-client.ts (generated, gitignored; regenerate)",
+            "Tests: RolePermissionCampusTests, CampusSetsTests, CampusAccessRightsTests, RoleRightsPerCampusTests, GetMyRightsTests, login/change-password specs flush rights"
+          ],
+          "not_verified": [
+            "full functional suite (skipped by user)",
+            "campus-access database tests (4 planned cases not written)",
+            "generated client regeneration from API"
+          ],
+          "known_failures_accepted": "5 Angular specs fail on HEAD too (schools page size, campus street address); separate PR"
+        }
+      }
+    },
+    "task-1795255767959-kp5bsi": {
+      "taskId": "task-1795255767959-kp5bsi",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t8] Gate: Benchmark against the baseline",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t8",
+        "phase:X"
+      ],
+      "createdAt": "2026-11-21T10:09:27.959Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795255770051-45i118": {
+      "taskId": "task-1795255770051-45i118",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t9] Gate: Security review",
+      "priority": "normal",
+      "status": "in_progress",
+      "progress": 60,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t9",
+        "phase:X"
+      ],
+      "createdAt": "2026-11-21T10:09:30.051Z",
+      "startedAt": "2026-11-21T12:43:53.539Z",
+      "completedAt": null,
+      "result": {
+        "reason": "Security review (read-only) found open issues; not resolved",
+        "findings_open": [
+          "HIGH: calendar, assessments and timetable handlers still use campus-assignment-only checks (EnsureCampusAsync(campus, ct)); per-campus role rights not enforced there",
+          "HIGH: migration backfill can leave CampusId=0 when a school has no main campus; soft-deleted main campus not excluded",
+          "MEDIUM: role screen edits an arbitrary per-campus row (FirstOrDefault by module)",
+          "MEDIUM: GetMyRights and campus lookups return soft-deleted campus ids",
+          "LOW: no Cache-Control: no-store on /api/Users/me/rights"
+        ],
+        "confirmed_ok": [
+          "/api/Users/me/rights takes no input; school from host; modules filtered"
+        ]
+      }
+    },
+    "task-1795255772115-lvm6ad": {
+      "taskId": "task-1795255772115-lvm6ad",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t10] Gate: Review the change",
+      "priority": "normal",
+      "status": "in_progress",
+      "progress": 60,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t10",
+        "phase:X"
+      ],
+      "createdAt": "2026-11-21T10:09:32.115Z",
+      "startedAt": "2026-11-21T12:43:55.138Z",
+      "completedAt": null,
+      "result": {
+        "reason": "Code review verdict Block until finding 1 is fixed",
+        "findings_open": [
+          "HIGH: SetPermissionsAsync assumes one row per role and module; per-campus rows break Set/Remove and can hit the unique index",
+          "MEDIUM: CanViewHistory defaults to false in SchoolRoleDto, so an omitted field revokes ViewHistory silently",
+          "MEDIUM: GetMyRights drops soft-deleted campuses and can return an empty CampusIds grant",
+          "MEDIUM: migration backfill, NOT NULL default 0 and Down path collapse",
+          "MEDIUM: AllCampuses row occupies the main-campus slot; semantics need ADR-022 wording or nullable CampusId",
+          "LOW: test gaps for ViewHistory via HasRightAsync, Flag(None), soft-deleted campus, EnsureCampusAsync allowed and denied paths, per-campus SetPermissions"
+        ],
+        "core_logic": "CampusSets.Intersect and the RoleRights union read correctly"
+      }
+    },
+    "task-1795255774192-5cltu7": {
+      "taskId": "task-1795255774192-5cltu7",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t11] Refinement: Run the full test suite",
+      "priority": "normal",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t11",
+        "phase:R"
+      ],
+      "createdAt": "2026-11-21T10:09:34.192Z",
+      "startedAt": null,
+      "completedAt": "2026-11-21T12:48:44.480Z",
+      "result": {
+        "summary": "Full Application.FunctionalTests suite passes after the phase 1 changes and the migration.",
+        "evidence": {
+          "command": "dotnet test tests/Application.FunctionalTests --no-build",
+          "output": "Passed!  - Failed: 0, Passed: 407, Skipped: 0, Total: 407, Duration: 4 m 45 s",
+          "related": {
+            "Domain.UnitTests": "614 passed",
+            "Application.UnitTests": "468 passed",
+            "Angular ng test": "310 passed, 5 failed, all 5 also fail on committed HEAD (accepted, see t7)"
+          },
+          "caveat": "Phase 1 is uncommitted, so CI guards and the security and code review findings (t9, t10) are still open"
+        }
+      }
+    },
+    "task-1795255776228-5dbbh6": {
+      "taskId": "task-1795255776228-5dbbh6",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t12] Completion: Integrate: build and CI",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t12",
+        "phase:C"
+      ],
+      "createdAt": "2026-11-21T10:09:36.228Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795255778259-u9h61j": {
+      "taskId": "task-1795255778259-u9h61j",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t13] Completion: Document the change",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t13",
+        "phase:C"
+      ],
+      "createdAt": "2026-11-21T10:09:38.259Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795255780375-hvr5al": {
+      "taskId": "task-1795255780375-hvr5al",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t14] Completion: Validate the result against the goal",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t14",
+        "phase:C"
+      ],
+      "createdAt": "2026-11-21T10:09:40.375Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1795255782451-nlhovp": {
+      "taskId": "task-1795255782451-nlhovp",
+      "type": "feature",
+      "description": "[msn_37932efe88c3d08c24485c98/t15] Completion: Learn: store the outcome and self-optimize",
+      "priority": "normal",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [],
+      "tags": [
+        "mission:msn_37932efe88c3d08c24485c98",
+        "task:t15",
+        "phase:C"
+      ],
+      "createdAt": "2026-11-21T10:09:42.451Z",
+      "startedAt": null,
+      "completedAt": null
     }
   },
   "version": "3.0.0"

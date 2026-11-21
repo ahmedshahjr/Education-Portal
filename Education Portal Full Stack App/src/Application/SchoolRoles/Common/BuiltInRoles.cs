@@ -18,7 +18,7 @@ public static class BuiltInRoles
     /// <summary>Each built-in role's name and the rights it starts with.</summary>
     public static IReadOnlyList<(string Name, IReadOnlyList<RolePermissionDto> Permissions)> All { get; } =
     [
-        (Principal, Enum.GetValues<ModuleCode>().Where(m => m != ModuleCode.None).Select(m => new RolePermissionDto(m, true, true, true, true, true, true)).ToList()),
+        (Principal, Enum.GetValues<ModuleCode>().Where(m => m != ModuleCode.None).Select(m => new RolePermissionDto(m, true, true, true, true, true, true, CanViewHistory: true)).ToList()),
         (Teacher, Editing(ModuleCode.Students, ModuleCode.Attendance, ModuleCode.Exams, ModuleCode.Timetable, ModuleCode.Lms)),
         (Student, Viewing(ModuleCode.Attendance, ModuleCode.Exams, ModuleCode.Timetable, ModuleCode.Lms)),
         (Parent, Viewing(ModuleCode.Students, ModuleCode.Attendance, ModuleCode.Exams, ModuleCode.Fees, ModuleCode.ParentCommunication, ModuleCode.Timetable)),

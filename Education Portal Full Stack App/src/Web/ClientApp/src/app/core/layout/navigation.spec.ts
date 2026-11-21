@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { AccessRight } from '../../web-api-client';
 import { APP_NAV_SECTIONS, AppNavSection, visibleNavSections } from './navigation';
 
 const ids = (isAdministrator: boolean, isMaster: boolean) =>
@@ -62,5 +63,20 @@ describe('visibleNavSections', () => {
     const visible = visibleNavSections(sections, false, false, new Set(['Students'])).flatMap((s) => s.items.map((i) => i.id));
     expect(visible).toEqual(['students']);
     expect(visibleNavSections(sections, false, false, new Set())).toEqual([]);
+  });
+
+  it('hides an item whose right the user does not have, and shows it when the check is not given', () => {
+    const sections: AppNavSection[] = [
+      {
+        id: 'x',
+        title: 'X',
+        items: [{ id: 'audit', label: 'Audit', icon: 'file-text', route: '/audit', access: 'everyone', module: 'School', right: 'ViewHistory' as never }],
+      },
+    ] as AppNavSection[];
+    const enabled = new Set(['School']);
+
+    expect(visibleNavSections(sections, false, false, enabled, () => false)).toEqual([]);
+    expect(visibleNavSections(sections, false, false, enabled, () => true)[0].items.map((i) => i.id)).toEqual(['audit']);
+    expect(visibleNavSections(sections, false, false, enabled).flatMap((s) => s.items.map((i) => i.id))).toEqual(['audit']);
   });
 });

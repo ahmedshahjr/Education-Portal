@@ -26,3 +26,7 @@ An ADR captures a significant architectural decision: the context that led to it
 | [ADR-018](ADR-018-Role-Rights-Checking.md) | Checking School Role Rights on Each Request | 2026-11-20 | Accepted |
 | [ADR-019](ADR-019-Academic-Grading-Timetable-And-Calendar.md) | Academic Foundations, Grading, Timetable Clash Checks and Calendar | 2026-11-20 | Accepted |
 | [ADR-020](ADR-020-Self-Service-School-Registration.md) | Self-Service School Registration and the School Without a Domain | 2026-11-21 | Accepted |
+| [ADR-021](ADR-021-Tenant-Above-School.md) | A Tenant Above the School | 2026-11-21 | Accepted |
+| [ADR-022](ADR-022-Role-Rights-Per-Campus.md) | Role Rights Per Campus and the ViewHistory Right | 2026-11-21 | Accepted |
+| [ADR-023](ADR-023-Readable-Change-History.md) | Readable Change History Shown by Permission | 2026-11-21 | Accepted |
+| [ADR-024](ADR-024-Users-And-Roles-Screen-And-Create-Rule.md) | One Users and Roles Screen, the Create Rule and Soft Delete | 2026-11-21 | Accepted |

@@ -293,6 +293,8 @@ dotnet new ca-usecase -n GetCourses  -fn Courses -ut query   -rt CoursesVm
     - Where both sides add to the same list (DbSets, `DatabaseSchemas`, `EnumLookupTables.Tables` and its indices, `.resx` entries and `ValidationMessages.Designer.cs`), keep every entry; new lookup tables go after the base branch's, with their indices shifted.
     - EF Core migrations are never merged by hand: when both sides added one, remove the branch's own migration, keep the base branch's, and run `dotnet ef migrations add` again so its snapshot matches the merged model.
 
+11. **Use Ruflo memory on every task** (decided 2026-11-21). Where Ruflo is installed (Claude Code, Ruflo/claude-flow swarms), search it before starting (`memory_search`, namespace `education-portal`) and store what the next session needs after finishing: decisions, non-obvious causes of bugs, conventions the user corrected (`memory_store`). Memory holds only what the repo does not already record, never secrets, tokens or personal data (student, parent or staff data, the user's email). Memory never overrides this file or the skills: if they disagree, this file wins and the stale memory is fixed. Assistants without Ruflo skip this rule.
+
 <!-- BEGIN GENERATED: ai skills (docs/ai/sync-ai-wrappers.py) -->
 All AI skills (same list for every tool). Read both overviews (`secure-compliance` and `engineering-standards`) first, then every skill that matches the change:
 

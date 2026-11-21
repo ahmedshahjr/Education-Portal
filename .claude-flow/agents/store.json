@@ -47,6 +47,30 @@
       "createdAt": "2026-11-17T13:33:08.946Z",
       "model": "sonnet",
       "modelRoutedBy": "default"
+    },
+    "agent-1795263275708-eb8vs5": {
+      "agentId": "agent-1795263275708-eb8vs5",
+      "agentType": "tester",
+      "name": "campus-rights-tests",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {},
+      "createdAt": "2026-11-21T12:14:36.059Z",
+      "model": "sonnet",
+      "modelRoutedBy": "router"
+    },
+    "agent-1795263276254-r5tbx1": {
+      "agentId": "agent-1795263276254-r5tbx1",
+      "agentType": "reviewer",
+      "name": "angular-failure-check",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {},
+      "createdAt": "2026-11-21T12:14:36.256Z",
+      "model": "haiku",
+      "modelRoutedBy": "router"
     }
   },
   "version": "3.0.0"

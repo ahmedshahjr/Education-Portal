@@ -1,6 +1,7 @@
 using EducationPortal.Application.Common.Exceptions;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Domain.Constants;
+using EducationPortal.Domain.Enums;
 
 namespace EducationPortal.Application.Campuses.Common;
 
@@ -13,15 +14,52 @@ public sealed class CampusAccess : ICampusAccess
     private readonly ICurrentTenant _tenant;
     private readonly IIdentityService _identityService;
 
+    private readonly IRoleRights _roleRights;
+
     private bool _loaded;
     private IReadOnlyCollection<int>? _allowed;
 
-    public CampusAccess(IApplicationDbContext context, IUser user, ICurrentTenant tenant, IIdentityService identityService)
+    public CampusAccess(IApplicationDbContext context, IUser user, ICurrentTenant tenant, IIdentityService identityService, IRoleRights roleRights)
     {
         _context = context;
         _user = user;
         _tenant = tenant;
         _identityService = identityService;
+        _roleRights = roleRights;
+    }
+
+    public async Task<IReadOnlyCollection<int>?> GetAllowedCampusIdsAsync(ModuleCode module, AccessRight right, CancellationToken cancellationToken)
+    {
+        var assigned = await GetAllowedCampusIdsAsync(cancellationToken);
+
+        // Administrators and the master tenant are not checked against roles (ADR-018), so only their assignment counts.
+        if (_tenant.IsMaster || (_user.Roles?.Contains(Roles.Administrator) ?? false))
+        {
+            return assigned;
+        }
+
+        if (_user.Id is not { } userId || _tenant.SchoolId is not { } schoolId)
+        {
+            return [];
+        }
+
+        var byRole = await _roleRights.GetRightCampusIdsAsync(userId, schoolId, module, right, cancellationToken);
+
+        return CampusSets.Intersect(assigned, byRole);
+    }
+
+    public async Task EnsureCampusAsync(int? campusId, ModuleCode module, AccessRight right, CancellationToken cancellationToken)
+    {
+        if (campusId is not { } id)
+        {
+            return;
+        }
+
+        var allowed = await GetAllowedCampusIdsAsync(module, right, cancellationToken);
+        if (allowed is not null && !allowed.Contains(id))
+        {
+            throw new ForbiddenAccessException();
+        }
     }
 
     public async Task<IReadOnlyCollection<int>?> GetAllowedCampusIdsAsync(CancellationToken cancellationToken)

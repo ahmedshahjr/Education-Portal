@@ -1,3 +1,4 @@
+using EducationPortal.Domain.Enums;
 using System.Globalization;
 using EducationPortal.Application.AcademicCalendar.Common;
 using EducationPortal.Application.Common.Interfaces;
@@ -63,7 +64,7 @@ public class CreateCalendarEventCommandHandler : IRequestHandler<CreateCalendarE
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
 
-        await _campusAccess.EnsureCampusAsync(campusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.AcademicSetup, AccessRight.Create, cancellationToken);
         var item = CalendarEvent.Create(schoolId, campusId, request.Title, request.Description, request.EventDate, request.StartTime, request.EndTime, request.Type, request.Audience);
         _context.CalendarEvents.Add(item);
         await _context.SaveChangesAsync(cancellationToken);

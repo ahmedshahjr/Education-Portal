@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs pre-bash'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);if(!fs.existsSync(f))f=p.join((e.USERPROFILE?e.USERPROFILE:e.HOME?e.HOME:'.'),a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
+            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs pre-bash'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
             "timeout": 5000
           }
         ]
@@ -38,7 +38,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs post-edit'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);if(!fs.existsSync(f))f=p.join((e.USERPROFILE?e.USERPROFILE:e.HOME?e.HOME:'.'),a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
+            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs post-edit'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
             "timeout": 10000
           }
         ]
@@ -49,7 +49,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs route'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);if(!fs.existsSync(f))f=p.join((e.USERPROFILE?e.USERPROFILE:e.HOME?e.HOME:'.'),a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
+            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs route'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
             "timeout": 10000
           }
         ]
@@ -60,12 +60,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs session-restore'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);if(!fs.existsSync(f))f=p.join((e.USERPROFILE?e.USERPROFILE:e.HOME?e.HOME:'.'),a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
+            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs session-restore'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
             "timeout": 15000
           },
           {
             "type": "command",
-            "command": "node -e \"var a='.claude/helpers/auto-memory-hook.mjs import'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);if(!fs.existsSync(f))f=p.join((e.USERPROFILE?e.USERPROFILE:e.HOME?e.HOME:'.'),a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
+            "command": "node -e \"var a='.claude/helpers/auto-memory-hook.mjs import'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
             "timeout": 30
           }
         ]
@@ -76,7 +76,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs session-end'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);if(!fs.existsSync(f))f=p.join((e.USERPROFILE?e.USERPROFILE:e.HOME?e.HOME:'.'),a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
+            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs session-end'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
             "timeout": 10000
           }
         ]
@@ -87,7 +87,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"var a='.claude/helpers/auto-memory-hook.mjs sync'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);if(!fs.existsSync(f))f=p.join((e.USERPROFILE?e.USERPROFILE:e.HOME?e.HOME:'.'),a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
+            "command": "node -e \"var a='.claude/helpers/auto-memory-hook.mjs sync'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
             "timeout": 30
           }
         ]
@@ -99,7 +99,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs session-end'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);if(!fs.existsSync(f))f=p.join((e.USERPROFILE?e.USERPROFILE:e.HOME?e.HOME:'.'),a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
+            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs session-end'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
             "timeout": 5000
           }
         ]
@@ -109,7 +109,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs session-end'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);if(!fs.existsSync(f))f=p.join((e.USERPROFILE?e.USERPROFILE:e.HOME?e.HOME:'.'),a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
+            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs session-end'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
             "timeout": 6000
           }
         ]
@@ -120,7 +120,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs post-task'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);if(!fs.existsSync(f))f=p.join((e.USERPROFILE?e.USERPROFILE:e.HOME?e.HOME:'.'),a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
+            "command": "node -e \"var a='.claude/helpers/hook-handler.cjs post-task'.split(' '),e=process.env,fs=require('fs'),p=require('path'),f;f=p.join(e.CLAUDE_PROJECT_DIR?e.CLAUDE_PROJECT_DIR:'.',a[0]);var r=require('child_process').spawnSync(process.execPath,[f].concat(a.slice(1)),{stdio:'inherit'});process.exit(r.status===null?1:r.status)\"",
             "timeout": 5000
           }
         ]
@@ -129,7 +129,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "node -e \"const fs=require('fs'),p=require('path');const d=process.env.CLAUDE_PROJECT_DIR||'.';const f=p.join(d,'.claude/helpers/statusline.cjs');const h=p.join(process.env.USERPROFILE||process.env.HOME||'.', '.claude/helpers/statusline.cjs');require(fs.existsSync(f)?f:h);\""
+    "command": "node -e \"const fs=require('fs'),p=require('path');const d=process.env.CLAUDE_PROJECT_DIR||'.';const f=p.join(d,'.claude/helpers/statusline.cjs');require(f);\""
   },
   "enabledPlugins": {
     "ruflo-mods@ruflo": true,

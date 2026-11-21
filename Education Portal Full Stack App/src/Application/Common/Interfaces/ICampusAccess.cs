@@ -1,3 +1,5 @@
+using EducationPortal.Domain.Enums;
+
 namespace EducationPortal.Application.Common.Interfaces;
 
 /// <summary>
@@ -20,4 +22,16 @@ public interface ICampusAccess
     /// whole school (no campus), which the user's role rights alone decide, so it always passes here.
     /// </summary>
     Task EnsureCampusAsync(int? campusId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The campuses where the user may use the right in the module: their assigned campuses intersected with the campuses
+    /// their roles give the right on (ADR-022). <c>null</c> means every campus.
+    /// </summary>
+    Task<IReadOnlyCollection<int>?> GetAllowedCampusIdsAsync(ModuleCode module, AccessRight right, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Throws <c>ForbiddenAccessException</c> unless the user is assigned to the campus and a role gives the right there.
+    /// <c>null</c> stands for a row of the whole school and always passes here.
+    /// </summary>
+    Task EnsureCampusAsync(int? campusId, ModuleCode module, AccessRight right, CancellationToken cancellationToken);
 }

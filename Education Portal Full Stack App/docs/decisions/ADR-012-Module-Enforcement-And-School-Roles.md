@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted.
+Accepted. Role rights become per campus in [ADR-022](ADR-022-Role-Rights-Per-Campus.md); entitlements move to the
+tenant in [ADR-021](ADR-021-Tenant-Above-School.md).
 
 ## Date
 
