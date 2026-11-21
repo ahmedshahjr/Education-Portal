@@ -1,6 +1,6 @@
 ﻿# ADR-017: Default Module Grants, Free Trial and Approval of School Requests
 
-- **Status:** Accepted
+- **Status:** Accepted. Item 4's trial length and item 5's approval-only rule are superseded in part by [ADR-020](ADR-020-Self-Service-School-Registration.md).
 - **Date:** 2026-11-15
 - **Supersedes in part:** ADR-009 (core modules always on), ADR-011 (the subscription is the only way a school gets a module)
 
@@ -24,7 +24,7 @@ A school got paid modules only through its subscription.
    Core modules are on by default; paid modules are off by default. A registering school gets each active default module as
    a **default grant** (`TenantModule` with no subscription, the whole school, no end). Changing the flag affects only schools
    that register afterwards.
-4. **Free trial.** A school that registers gets a 30-day trial of the Full plan (`SchoolRegistration.TrialDays`). The trial is
+4. **Free trial.** A school that registers gets a 3-month (90-day) trial of the Full plan (`SchoolRegistration.TrialDays`). The trial is
    a `Subscription` in status Trial, priced from the school's country's price book, so a school needs a country that has a
    price book. Default grants stay on when the trial ends; the subscription's modules are suspended by the existing billing
    rules. The banner's remaining days come from `GET /api/Subscriptions/mine` (`trialDaysRemaining`).

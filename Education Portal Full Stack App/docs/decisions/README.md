@@ -22,4 +22,7 @@ An ADR captures a significant architectural decision: the context that led to it
 | [ADR-014](ADR-014-Subscription-Management-And-Add-On-Requests.md) | Subscription Management and Add-On Requests | 2026-11-13 | Accepted |
 | [ADR-015](ADR-015-Subscription-Lifecycle-Job.md) | Daily Subscription Lifecycle Job | 2026-11-13 | Accepted |
 | [ADR-016](ADR-016-Change-Audit-For-Commercial-Records.md) | Change Audit for Commercial Records | 2026-11-13 | Accepted |
-| [ADR-017](ADR-017-Default-Module-Grants-Trial-And-School-Approval.md) | Default Module Grants, Free Trial and Approval of School Requests | 2026-11-15 | Accepted |
+| [ADR-017](ADR-017-Default-Module-Grants-Trial-And-School-Approval.md) | Default Module Grants, Free Trial and Approval of School Requests | 2026-11-15 | Accepted (in part superseded by ADR-020) |
+| [ADR-018](ADR-018-Role-Rights-Checking.md) | Checking School Role Rights on Each Request | 2026-11-20 | Accepted |
+| [ADR-019](ADR-019-Academic-Grading-Timetable-And-Calendar.md) | Academic Foundations, Grading, Timetable Clash Checks and Calendar | 2026-11-20 | Accepted |
+| [ADR-020](ADR-020-Self-Service-School-Registration.md) | Self-Service School Registration and the School Without a Domain | 2026-11-21 | Accepted |
