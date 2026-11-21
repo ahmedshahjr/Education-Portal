@@ -24,6 +24,8 @@ public class SchoolWithoutDomainTests : TestBase
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
 
+    private sealed record SignInAnswer(List<ModuleCode> Modules);
+
     private const string OwnDomain = "own-domain.localhost";
     private const string Password = "Local-Dev-Only-2026!";
 
@@ -64,6 +66,42 @@ public class SchoolWithoutDomainTests : TestBase
         modules.ShouldContain(nameof(ModuleCode.Students));
         modules.ShouldNotContain(nameof(ModuleCode.Fees));
         modules.Count.ShouldBeLessThan(Enum.GetValues<ModuleCode>().Length - 1);
+    }
+
+    [Test]
+    public async Task ShouldAnswerSignInWithTheModulesOfTheSchoolNotTheMasterTenant()
+    {
+        var school = await TestApp.AddSchoolAsync("Sign In Modules School", null);
+        await TestApp.RunAsUserAsync(school.Id, "admin@signinmodules.local", Password, [Roles.Administrator]);
+        var session = TestHttp.CreateDevelopmentSession(); // the master tenant's domain
+
+        using var response = await session.SignInAsync("admin@signinmodules.local", Password);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var answer = (await response.Content.ReadFromJsonAsync<SignInAnswer>(Json))!;
+        // The master tenant has every module; the sign-in answer is for the school the account belongs to.
+        answer.Modules.ShouldContain(ModuleCode.Students);
+        answer.Modules.ShouldNotContain(ModuleCode.Fees);
+    }
+
+    [Test]
+    public async Task ShouldKeepTheSessionOfASchoolOnTheMasterDomainWhenItChangesItsPassword()
+    {
+        var school = await TestApp.AddSchoolAsync("Password School", null);
+        using var session = await SignInOnMasterDomainAsync(school, "admin@password.local");
+
+        using var changed = await session.PostAsync("/api/Users/me/password", new
+        {
+            currentPassword = Password,
+            newPassword = "a brand new passphrase 2026",
+        });
+        changed.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+
+        // Still signed in and still acting as the school: its modules answer, and the master portal stays closed to it.
+        using var modules = await session.GetAsync("/api/Modules/enabled");
+        modules.StatusCode.ShouldBe(HttpStatusCode.OK);
+        using var schools = await session.GetAsync("/api/Schools");
+        schools.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
 
     [Test]

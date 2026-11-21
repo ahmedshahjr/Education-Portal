@@ -1,6 +1,9 @@
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Models;
+using EducationPortal.Application.Common.Security;
 using EducationPortal.Domain.Constants;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -154,8 +157,17 @@ public class IdentityService : IIdentityService
             }
         }
 
-        // The stamp changed, so this browser's cookie is renewed too; otherwise the next request would sign it out.
-        await _signInManager.RefreshSignInAsync(user);
+        // The stamp changed, so this browser's cookie is renewed too; otherwise the next request would sign it out. A school
+        // hosted on the master domain keeps its marker: a plain refresh would drop it and end the session as a tenant mismatch.
+        var current = await _signInManager.Context.AuthenticateAsync(IdentityConstants.ApplicationScheme);
+        if (current.Principal?.HasClaim(TenantClaimTypes.HostedOnMaster, "true") == true)
+        {
+            await _signInManager.SignInWithClaimsAsync(user, current.Properties, [new Claim(TenantClaimTypes.HostedOnMaster, "true")]);
+        }
+        else
+        {
+            await _signInManager.RefreshSignInAsync(user);
+        }
 
         return Result.Success();
     }
@@ -246,7 +258,7 @@ public class IdentityService : IIdentityService
             result = await _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
             if (result.Succeeded)
             {
-                await _signInManager.SignInWithClaimsAsync(user, isPersistent: false, [new System.Security.Claims.Claim(EducationPortal.Application.Common.Security.TenantClaimTypes.HostedOnMaster, "true")]);
+                await _signInManager.SignInWithClaimsAsync(user, isPersistent: false, [new Claim(TenantClaimTypes.HostedOnMaster, "true")]);
             }
         }
         else
@@ -263,7 +275,7 @@ public class IdentityService : IIdentityService
             _ => PasswordSignInStatus.Failed,
         };
 
-        return new PasswordSignInResult(status, user.Id);
+        return new PasswordSignInResult(status, user.Id, hostedOnMaster && result.Succeeded ? user.SchoolId : null);
     }
 
     public async Task SignOutAsync(string userId)

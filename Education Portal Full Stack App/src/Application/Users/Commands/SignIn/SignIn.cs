@@ -94,7 +94,11 @@ public class SignInCommandHandler : IRequestHandler<SignInCommand, SignInOutcome
             return SignInOutcome.Failed;
         }
 
-        var modules = await EnabledModules.ForTenantAsync(_context, _moduleAccess, schoolId, _tenant.IsMaster, cancellationToken);
+        // A school without a domain signs in on the master tenant's domain but acts as its own school, so the answer lists its
+        // modules, not the master's.
+        var modules = result.HostedSchoolId is { } hostedSchoolId
+            ? await EnabledModules.ForTenantAsync(_context, _moduleAccess, hostedSchoolId, isMaster: false, cancellationToken)
+            : await EnabledModules.ForTenantAsync(_context, _moduleAccess, schoolId, _tenant.IsMaster, cancellationToken);
         return new SignInOutcome(true, modules);
     }
 }

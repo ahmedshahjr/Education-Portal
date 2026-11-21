@@ -15,5 +15,7 @@ public enum PasswordSignInStatus
 /// <summary>
 /// The outcome of a password sign-in. <see cref="UserId"/> is set when the email belongs to an account,
 /// for the audit log only; callers must never tell the client whether an account exists (SEC-AUTHN-05).
+/// <see cref="HostedSchoolId"/> is set only when the account of a school without a domain signed in on the master tenant's
+/// domain: the school the session then acts as.
 /// </summary>
-public sealed record PasswordSignInResult(PasswordSignInStatus Status, string? UserId);
+public sealed record PasswordSignInResult(PasswordSignInStatus Status, string? UserId, int? HostedSchoolId = null);
