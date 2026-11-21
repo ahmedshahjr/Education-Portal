@@ -63,10 +63,20 @@ public static class TestApp
     /// <summary>Adds a school with its own domain and returns its id.</summary>
     public static async Task<EntityIds> AddSchoolAsync(string name, string? domain)
     {
-        var school = School.Create(name, domain);
+        var school = await NewSchoolAsync(name, domain);
         await AddAsync(school);
         await GrantDefaultModulesAsync(school.Id);
         return new EntityIds(school.Id, school.PublicId);
+    }
+
+    /// <summary>A school in its own new customer tenant, as a registration creates them (ADR-021).</summary>
+    private static async Task<School> NewSchoolAsync(string name, string? domain)
+    {
+        var tenant = Tenant.Create(name);
+        await AddAsync(tenant);
+        var school = School.Create(name, domain);
+        school.AssignToTenant(tenant.Id);
+        return school;
     }
 
     /// <summary>Gives a school the modules that are on by default, as a registering school gets them (CreateSchool).</summary>
@@ -89,7 +99,7 @@ public static class TestApp
     /// <summary>Adds a school with its own domain in a country and returns its id.</summary>
     public static async Task<EntityIds> AddSchoolAsync(string name, string? domain, int countryId)
     {
-        var school = School.Create(name, domain);
+        var school = await NewSchoolAsync(name, domain);
         school.AssignCountry(countryId);
         await AddAsync(school);
         await GrantDefaultModulesAsync(school.Id);

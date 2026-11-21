@@ -28,6 +28,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<School> Schools => Set<School>();
 
+    public DbSet<Tenant> Tenants => Set<Tenant>();
+
     public DbSet<BrandingImage> BrandingImages => Set<BrandingImage>();
 
     public DbSet<Country> Countries => Set<Country>();

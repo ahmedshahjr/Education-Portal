@@ -61,6 +61,20 @@ public class School : BaseSoftDeletableEntity
     /// <summary>The master tenant can never be switched off or deleted: the platform needs one.</summary>
     protected override bool CanBeDeactivated => !IsMaster;
 
+    /// <summary>
+    /// The customer (tenant) that owns this school (ADR-021). Zero until <see cref="AssignToTenant"/> sets it; registration and
+    /// seeding always set it, and the database requires it once the tenant migration is in place.
+    /// </summary>
+    public int TenantId { get; private set; }
+
+    /// <summary>Puts the school under a tenant. Only the master domain adds a school to a tenant (AddSchoolToTenant).</summary>
+    public void AssignToTenant(int tenantId)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(tenantId);
+
+        TenantId = tenantId;
+    }
+
     public string Name { get; private set; }
 
     /// <summary>

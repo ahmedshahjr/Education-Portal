@@ -36,6 +36,12 @@ public record CreateSchoolCommand : IRequest<Guid>
 
     /// <summary>A one-time password the master passes on to the administrator, who must replace it on first sign-in.</summary>
     public string AdministratorPassword { get; init; } = string.Empty;
+
+    /// <summary>
+    /// The tenant (customer) the school joins, by its public id: the master's way to add a school to an existing tenant
+    /// (AddSchoolToTenant, ADR-021). Blank: the school gets a new tenant of its own.
+    /// </summary>
+    public Guid? TenantId { get; init; }
 }
 
 public class CreateSchoolCommandValidator : AbstractValidator<CreateSchoolCommand>
@@ -126,7 +132,8 @@ public class CreateSchoolCommandHandler : IRequestHandler<CreateSchoolCommand, G
                 request.CountryId,
                 request.DataRegion,
                 request.AdministratorEmail,
-                request.AdministratorPassword),
+                request.AdministratorPassword,
+                TenantId: request.TenantId),
             token), cancellationToken);
 
         // The audit records are written after the commit, so they never describe a school that was rolled back.

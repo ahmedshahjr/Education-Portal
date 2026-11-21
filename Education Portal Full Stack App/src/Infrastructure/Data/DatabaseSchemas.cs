@@ -34,6 +34,7 @@ public static class DatabaseSchemas
         [typeof(UserCampus)] = Access,
 
         [typeof(School)] = Schools,
+        [typeof(Tenant)] = Schools,
         [typeof(Campus)] = Schools,
         [typeof(CampusPhone)] = Schools,
         [typeof(UserDetails)] = Schools,

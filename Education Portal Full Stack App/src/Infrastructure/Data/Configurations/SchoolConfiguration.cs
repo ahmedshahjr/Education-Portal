@@ -41,6 +41,13 @@ public class SchoolConfiguration : IEntityTypeConfiguration<School>
         builder.HasOne(s => s.City).WithMany().HasForeignKey(s => s.CityId).OnDelete(DeleteBehavior.Restrict);
         builder.ToTable(t => t.HasCheckConstraint("CK_Schools_AcademicYearStartMonth", "\"AcademicYearStartMonth\" BETWEEN 1 AND 12"));
 
+        // Every school belongs to a tenant (ADR-021). A tenant with schools cannot be deleted.
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(s => s.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(s => s.TenantId);
+
         // One school per domain: the domain is how a request finds its tenant (SEC-AUTHZ-10).
         builder.HasIndex(s => s.Domain).IsUnique();
 
