@@ -62,6 +62,6 @@ jobs:
       - name: SonarCloud scan and quality gate
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v8
         with:
           projectBaseDir: Theme Angular
