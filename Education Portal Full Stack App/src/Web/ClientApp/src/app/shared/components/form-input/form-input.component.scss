@@ -1,0 +1,36 @@
+.mm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.mm-field__label {
+  font-size: var(--mm-text-xs);
+  font-weight: 600;
+  color: var(--mm-text-primary);
+}
+
+.mm-field__control {
+  width: 100%;
+}
+
+/* The reveal button sits inside the outlined field, in Material's icon-suffix slot, centred on the input row.
+   Material sizes a button's svg at 24px; the lucide icon is 20px, so the button is shrunk to match. */
+.mm-field__reveal {
+  --mat-icon-button-state-layer-size: 36px;
+  --mat-icon-button-icon-size: 20px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin-inline-end: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mm-text-secondary);
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}

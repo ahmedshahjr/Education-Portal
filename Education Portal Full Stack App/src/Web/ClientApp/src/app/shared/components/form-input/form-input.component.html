@@ -1,0 +1,40 @@
+<div class="mm-field">
+  <label class="mm-field__label" [attr.for]="fieldId()">{{ label() }}</label>
+  <mat-form-field appearance="outline" class="mm-field__control">
+    <input
+      matInput
+      [id]="fieldId()"
+      [type]="effectiveType()"
+      [placeholder]="placeholder()"
+      [attr.autocomplete]="autocomplete() || null"
+      [formControl]="control()"
+    />
+    <!-- The button must be the only root element of this block: Angular Material projects it into the
+         icon-suffix slot only then, which keeps it inside the input box. -->
+    @if (revealable() && type() === 'password') {
+      <button
+        mat-icon-button
+        matIconSuffix
+        type="button"
+        class="mm-field__reveal"
+        [attr.aria-label]="revealLabel()"
+        [attr.aria-pressed]="revealed()"
+        (click)="toggleReveal()"
+      >
+        <app-icon [name]="revealed() ? 'eye-off' : 'eye'" [size]="20" />
+      </button>
+    }
+    @if (hint()) {
+      <mat-hint>{{ hint() }}</mat-hint>
+    }
+    @if (control().hasError('required')) {
+      <mat-error i18n="@@field.required">{{ label() }} is required</mat-error>
+    } @else if (control().hasError('email')) {
+      <mat-error i18n="@@field.email">Enter a valid email address</mat-error>
+    } @else if (control().hasError('min')) {
+      <mat-error i18n="@@field.min">Value must be greater than or equal to 0</mat-error>
+    } @else if (control().hasError('minlength')) {
+      <mat-error i18n="@@field.minLength">{{ label() }} is too short</mat-error>
+    }
+  </mat-form-field>
+</div>

@@ -40,6 +40,16 @@ describe('FormInputComponent password reveal', () => {
     expect(element.querySelector<HTMLInputElement>('input')!.type).toBe('password');
   });
 
+  it('puts the eye button inside the input box, in the field suffix slot', async () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+
+    const button = element.querySelector('button[aria-label="Show password"]')!;
+    expect(button.closest('.mat-mdc-form-field-icon-suffix')).not.toBeNull();
+    expect(button.closest('.mat-mdc-form-field-infix')).toBeNull();
+  });
+
   it('shows no eye button when the field is not revealable', async () => {
     const fixture = TestBed.createComponent(HostComponent);
     fixture.componentInstance.revealable.set(false);
