@@ -72,6 +72,26 @@ public class RegisterSchoolTests : TestBase
     }
 
     [Test]
+    public async Task ShouldShowTheTrialToASchoolWithoutADomainOnceItIsSignedInOnTheMasterDomain()
+    {
+        await SchoolRegistrationTests.SetUpPriceBookAsync();
+        using var register = await TestHttp.CreateDevelopmentSession().PostAsync("/api/SchoolRegistrations", Registration(await PakistanIdAsync()));
+        register.StatusCode.ShouldBe(HttpStatusCode.Created);
+        var session = TestHttp.CreateDevelopmentSession(); // the master tenant's domain
+        (await session.SignInAsync(Email, Password)).Dispose();
+
+        // The banner inside the app reads the school's own subscription: the days left of its trial.
+        using var mine = await session.GetAsync("/api/Subscriptions/mine");
+        mine.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var subscription = (await mine.Content.ReadFromJsonAsync<MySubscriptionReadModel>(Json))!;
+        subscription.TrialDaysRemaining.ShouldNotBeNull().ShouldBeInRange(SchoolRegistration.TrialDays - 1, SchoolRegistration.TrialDays);
+
+        // Signed in, the trial notice answers for the school the session acts as, not for the master tenant.
+        using var notice = await session.GetAsync("/api/Subscriptions/trial-notice");
+        (await notice.Content.ReadFromJsonAsync<TrialNoticeReadModel>(Json))!.IsTrial.ShouldBeTrue();
+    }
+
+    [Test]
     public async Task ShouldRefuseWhenThePasswordsDoNotMatch()
     {
         await SchoolRegistrationTests.SetUpPriceBookAsync();
@@ -181,6 +201,10 @@ public class RegisterSchoolTests : TestBase
     }
 
     private sealed record CountryReadModel(Guid Id, string Name);
+
+    private sealed record MySubscriptionReadModel(int? TrialDaysRemaining);
+
+    private sealed record TrialNoticeReadModel(bool IsTrial, int DaysRemaining);
 
     private sealed record SubscriptionReadModel(Guid Id, SubscriptionStatus Status, DateTimeOffset? TrialEndDate);
 }

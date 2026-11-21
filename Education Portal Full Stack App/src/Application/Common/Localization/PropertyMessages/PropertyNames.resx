@@ -165,18 +165,6 @@
   <data name="AccentColor" xml:space="preserve">
     <value>Accent colour</value>
   </data>
-  <data name="AccentColor4" xml:space="preserve">
-    <value>Accent colour</value>
-  </data>
-  <data name="AccentColor3" xml:space="preserve">
-    <value>Accent colour</value>
-  </data>
-  <data name="AccentColor2" xml:space="preserve">
-    <value>Accent colour</value>
-  </data>
-  <data name="AccentColor1" xml:space="preserve">
-    <value>Accent colour</value>
-  </data>
   <data name="SidebarColor" xml:space="preserve">
     <value>Sidebar colour</value>
   </data>

@@ -119,11 +119,4 @@ public class SchoolRoleTests
         role.Rename(" Teacher ");
         role.Name.ShouldBe("Teacher");
     }
-
-    [Test]
-    public void ShouldRefuseToDeleteOnlyASystemRole()
-    {
-        Should.NotThrow(() => SchoolRole.Create(4, "Registrar").EnsureCanBeDeleted());
-        Should.Throw<InvalidOperationException>(() => SchoolRole.CreateSystem(4, "Parent").EnsureCanBeDeleted());
-    }
 }

@@ -75,15 +75,6 @@ public class SchoolRole : BaseAuditableEntity, ITenantOwned
         Description = trimmed;
     }
 
-    /// <summary>Throws when the role may not be deleted (a system role).</summary>
-    public void EnsureCanBeDeleted()
-    {
-        if (IsSystem)
-        {
-            throw new InvalidOperationException("A built-in role cannot be deleted.");
-        }
-    }
-
     private static string CheckName(string name)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);

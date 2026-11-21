@@ -62,6 +62,9 @@ jobs:
           jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH" > "$RUNNER_TEMP/pr-body.md"
           python3 docs/ai/readme-guard.py --base "origin/$GITHUB_BASE_REF" --pr-body-file "$RUNNER_TEMP/pr-body.md"
 
+      - name: Domain class diagram matches the Domain types (ClassesErdDiagram.cd)
+        run: python3 "Education Portal Full Stack App/scripts/update-classes-erd.py" --check
+
       - name: README architecture diagram sections still exist (AGENTS.md section 7, rule 8)
         run: python3 docs/ai/architecture-diagram-guard.py --check-headings
 

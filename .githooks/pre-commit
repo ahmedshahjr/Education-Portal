@@ -26,6 +26,12 @@ if git diff --cached --name-only | grep -qE '^(README\.md|docs/ai/architecture-d
   $py docs/ai/architecture-diagram-guard.py --check-headings
 fi
 
+# The Domain class diagram follows the Domain types: update it and stage it, so it is never out of date (ClassesErdDiagram.cd).
+if git diff --cached --name-only | grep -qE '^Education Portal Full Stack App/src/Domain/.*\.cs$'; then
+  $py "Education Portal Full Stack App/scripts/update-classes-erd.py"
+  git add "Education Portal Full Stack App/src/Domain/ClassesErdDiagram.cd"
+fi
+
 if command -v gitleaks >/dev/null 2>&1; then
   gitleaks protect --staged --redact --no-banner
 else

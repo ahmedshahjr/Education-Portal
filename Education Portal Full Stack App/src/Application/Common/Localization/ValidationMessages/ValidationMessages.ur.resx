@@ -153,9 +153,6 @@
   <data name="AccentColorFormat" xml:space="preserve">
     <value>نمایاں رنگ #rrggbb کی شکل میں ہونا چاہیے۔</value>
   </data>
-  <data name="AccentColorFormat1" xml:space="preserve">
-    <value>نمایاں رنگ #rrggbb کی شکل میں ہونا چاہیے۔</value>
-  </data>
   <data name="SidebarColorFormat" xml:space="preserve">
     <value>سائیڈبار کا رنگ #rrggbb کی شکل میں ہونا چاہیے۔</value>
   </data>
@@ -171,18 +168,6 @@
   <data name="FaviconUploadAndRemove" xml:space="preserve">
     <value>نیا فیویکان اپ لوڈ کریں یا اسے ہٹائیں، دونوں نہیں۔</value>
   </data>
-  <data name="ModuleCodeFormat" xml:space="preserve">
-    <value>کوڈ بڑے انگریزی حروف، ہندسوں اور انڈر اسکور پر مشتمل ہونا چاہیے اور حرف سے شروع ہونا چاہیے، مثلاً FEES۔</value>
-  </data>
-  <data name="ModuleCodeTaken" xml:space="preserve">
-    <value>اس کوڈ کا ماڈیول پہلے سے موجود ہے۔</value>
-  </data>
-  <data name="CoreModuleAlwaysOn" xml:space="preserve">
-    <value>بنیادی ماڈیول ہر سبسکرپشن کا حصہ ہے اور ہمیشہ آن رہتا ہے۔</value>
-  </data>
-  <data name="InactiveModuleCannotBeCore" xml:space="preserve">
-    <value>ماڈیول کو بنیادی بنانے سے پہلے فعال کریں۔</value>
-  </data>
   <data name="ModuleCannotRequireItself" xml:space="preserve">
     <value>ماڈیول خود کو لازمی قرار نہیں دے سکتا۔</value>
   </data>
@@ -197,9 +182,6 @@
   </data>
   <data name="CoreModuleRequiresPaid" xml:space="preserve">
     <value>یہ ماڈیول غیر بنیادی ماڈیولز کا تقاضا کرتا ہے۔ پہلے یہ تقاضے ہٹائیں۔</value>
-  </data>
-  <data name="ModuleRequiredByOthers" xml:space="preserve">
-    <value>دوسرے ماڈیولز اس ماڈیول کا تقاضا کرتے ہیں۔ پہلے یہ تقاضے ہٹائیں۔</value>
   </data>
   <data name="RequiredModuleNotFound" xml:space="preserve">
     <value>مطلوبہ ماڈیول موجود نہیں ہے۔</value>
@@ -219,9 +201,6 @@
   <data name="CoreModuleNotSold" xml:space="preserve">
     <value>بنیادی ماڈیولز ہر سبسکرپشن میں شامل ہیں اور الگ سے فروخت نہیں ہوتے۔</value>
   </data>
-  <data name="ModuleInUse" xml:space="preserve">
-    <value>پلان یا قیمتوں کی فہرستیں یہ ماڈیول استعمال کرتی ہیں۔ پہلے اسے ان سے ہٹائیں۔</value>
-  </data>
   <data name="PriceBookCountryTaken" xml:space="preserve">
     <value>اس ملک کی قیمتوں کی فہرست پہلے سے موجود ہے۔</value>
   </data>
@@ -233,9 +212,6 @@
   </data>
   <data name="ModuleNotFound" xml:space="preserve">
     <value>ماڈیول موجود نہیں ہے۔</value>
-  </data>
-  <data name="PriceExists" xml:space="preserve">
-    <value>اس فہرست میں اُس پلان یا ماڈیول اور بلنگ کی مدت کی قیمت پہلے سے موجود ہے۔</value>
   </data>
   <data name="PriceInvalid" xml:space="preserve">
     <value>قیمت صفر یا اس سے زیادہ ہو، زیادہ سے زیادہ دو اعشاریہ مقامات کے ساتھ۔</value>
@@ -263,9 +239,6 @@
   </data>
   <data name="ModuleNotEnabledForSchool" xml:space="preserve">
     <value>اسکول کے پاس یہ ماڈیول نہیں ہے، اس لیے اس میں حقوق نہیں دیے جا سکتے۔</value>
-  </data>
-  <data name="RoleNotFound" xml:space="preserve">
-    <value>کردار موجود نہیں ہے۔</value>
   </data>
   <data name="SchoolHasNoSubscription" xml:space="preserve">
     <value>اسکول کی کوئی سبسکرپشن نہیں جس کا بل بنایا جا سکے۔</value>
@@ -356,9 +329,6 @@
   </data>
   <data name="CampusStateNotInCountry" xml:space="preserve">
     <value>ریاست اس اسکول کے ملک میں ہونی چاہیے۔</value>
-  </data>
-  <data name="CampusCityNeedsState" xml:space="preserve">
-    <value>شہر منتخب کرنے سے پہلے ریاست منتخب کریں۔</value>
   </data>
   <data name="CampusCityNotInState" xml:space="preserve">
     <value>منتخب شہر منتخب ریاست میں ہونا چاہیے۔</value>

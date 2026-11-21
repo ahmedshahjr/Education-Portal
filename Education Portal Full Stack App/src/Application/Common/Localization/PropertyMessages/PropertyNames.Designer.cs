@@ -67,42 +67,6 @@ namespace EducationPortal.Application.Common.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Accent colour.
-        /// </summary>
-        internal static string AccentColor1 {
-            get {
-                return ResourceManager.GetString("AccentColor1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Accent colour.
-        /// </summary>
-        internal static string AccentColor2 {
-            get {
-                return ResourceManager.GetString("AccentColor2", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Accent colour.
-        /// </summary>
-        internal static string AccentColor3 {
-            get {
-                return ResourceManager.GetString("AccentColor3", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Accent colour.
-        /// </summary>
-        internal static string AccentColor4 {
-            get {
-                return ResourceManager.GetString("AccentColor4", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Administrator email.
         /// </summary>
         internal static string AdministratorEmail {

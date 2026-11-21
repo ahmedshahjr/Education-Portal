@@ -67,15 +67,6 @@ namespace EducationPortal.Application.Common.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The accent colour must have the form #rrggbb..
-        /// </summary>
-        internal static string AccentColorFormat1 {
-            get {
-                return ResourceManager.GetString("AccentColorFormat1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Only a pending request can be approved or rejected..
         /// </summary>
         internal static string AddOnRequestNotPending {
@@ -135,15 +126,6 @@ namespace EducationPortal.Application.Common.Localization {
         internal static string CampusPrefixRequired {
             get {
                 return ResourceManager.GetString("CampusPrefixRequired", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A core module is part of every subscription and is always on..
-        /// </summary>
-        internal static string CoreModuleAlwaysOn {
-            get {
-                return ResourceManager.GetString("CoreModuleAlwaysOn", resourceCulture);
             }
         }
         
@@ -256,15 +238,6 @@ namespace EducationPortal.Application.Common.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Activate the module before making it core..
-        /// </summary>
-        internal static string InactiveModuleCannotBeCore {
-            get {
-                return ResourceManager.GetString("InactiveModuleCannotBeCore", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Only an open invoice can be paid or voided..
         /// </summary>
         internal static string InvoiceNotOpen {
@@ -355,24 +328,6 @@ namespace EducationPortal.Application.Common.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The code must be upper-case letters, digits and underscores, starting with a letter, for example FEES..
-        /// </summary>
-        internal static string ModuleCodeFormat {
-            get {
-                return ResourceManager.GetString("ModuleCodeFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A module with this code already exists..
-        /// </summary>
-        internal static string ModuleCodeTaken {
-            get {
-                return ResourceManager.GetString("ModuleCodeTaken", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to That module already requires this one, directly or through others, so this would create a loop..
         /// </summary>
         internal static string ModuleDependencyCycle {
@@ -396,15 +351,6 @@ namespace EducationPortal.Application.Common.Localization {
         internal static string ModuleInactive {
             get {
                 return ResourceManager.GetString("ModuleInactive", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Plans or price books use this module. Remove it from them first..
-        /// </summary>
-        internal static string ModuleInUse {
-            get {
-                return ResourceManager.GetString("ModuleInUse", resourceCulture);
             }
         }
         
@@ -441,15 +387,6 @@ namespace EducationPortal.Application.Common.Localization {
         internal static string ModuleNotInSubscription {
             get {
                 return ResourceManager.GetString("ModuleNotInSubscription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Other modules require this module. Remove those requirements first..
-        /// </summary>
-        internal static string ModuleRequiredByOthers {
-            get {
-                return ResourceManager.GetString("ModuleRequiredByOthers", resourceCulture);
             }
         }
         
@@ -553,15 +490,6 @@ namespace EducationPortal.Application.Common.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This price book already has a price for that plan or module and billing cycle..
-        /// </summary>
-        internal static string PriceExists {
-            get {
-                return ResourceManager.GetString("PriceExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to A price is zero or more, with at most two decimal places..
         /// </summary>
         internal static string PriceInvalid {
@@ -612,15 +540,6 @@ namespace EducationPortal.Application.Common.Localization {
         internal static string RoleNameTaken {
             get {
                 return ResourceManager.GetString("RoleNameTaken", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The role does not exist..
-        /// </summary>
-        internal static string RoleNotFound {
-            get {
-                return ResourceManager.GetString("RoleNotFound", resourceCulture);
             }
         }
         

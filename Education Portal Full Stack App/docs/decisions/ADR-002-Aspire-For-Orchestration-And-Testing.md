@@ -35,4 +35,4 @@ Aspire covers all of these: it orchestrates the full stack for local development
 
 **Harder:**
 - Aspire is a significant dependency that couples the template to a Microsoft-specific orchestration framework.
-- Docker (or Podman) is required for the PostgreSQL and SQL Server variants. The SQLite variant (the default) does not require Docker.
+- Docker (or Podman) is required to run the app and the functional tests, because PostgreSQL runs as a container. (The template's SQL Server and SQLite variants were removed; PostgreSQL is the only database.)
