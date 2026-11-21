@@ -1,0 +1,72 @@
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    <div class="mm-sp__head">
+      <h2 class="mm-sp__heading" i18n="@@schoolPage.profileHeading">Public page</h2>
+      @if (published()) {
+        <app-status-badge tone="success" i18n="@@schoolPage.statusPublished">Published</app-status-badge>
+      } @else {
+        <app-status-badge tone="warning" i18n="@@schoolPage.statusDraft">Draft</app-status-badge>
+      }
+    </div>
+
+    @if (!loading()) {
+      <form class="mm-sp__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <mat-form-field appearance="outline" class="mm-sp__wide">
+          <mat-label i18n="@@schoolPage.tagline">Tagline</mat-label>
+          <input matInput formControlName="tagline" [maxlength]="taglineMax" autocomplete="off" />
+          @if (form.controls.tagline.hasError('required')) {
+            <mat-error i18n="@@schoolPage.required">This field is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="mm-sp__wide">
+          <mat-label i18n="@@schoolPage.about">About the school</mat-label>
+          <textarea matInput formControlName="about" rows="6" [maxlength]="aboutMax"></textarea>
+          @if (form.controls.about.hasError('required')) {
+            <mat-error i18n="@@schoolPage.required">This field is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolPage.establishedYear">Year opened</mat-label>
+          <input matInput type="number" formControlName="establishedYear" dir="ltr" />
+          @if (form.controls.establishedYear.invalid) {
+            <mat-error i18n="@@schoolPage.yearInvalid">Enter a year from 1800 to this year.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolPage.genderPolicy">Students</mat-label>
+          <mat-select formControlName="genderPolicy">
+            @for (policy of policies; track policy) {
+              <mat-option [value]="policy">{{ policyLabel(policy) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolPage.visitingHours">Visiting hours</mat-label>
+          <input matInput formControlName="visitingHours" [maxlength]="hoursMax" autocomplete="off" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@schoolPage.virtualTour">Virtual tour link</mat-label>
+          <input matInput type="url" formControlName="virtualTourUrl" dir="ltr" autocomplete="off" />
+        </mat-form-field>
+
+        <div class="mm-sp__actions">
+          <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@schoolPage.save">Save</button>
+          @if (published()) {
+            <button mat-stroked-button type="button" [disabled]="busy()" (click)="unpublish()" i18n="@@schoolPage.unpublish">Take down</button>
+          } @else {
+            <button mat-stroked-button type="button" [disabled]="busy() || !saved()" (click)="publish()" i18n="@@schoolPage.publish">Publish</button>
+          }
+        </div>
+      </form>
+    }
+
+    @for (message of errors(); track message) {
+      <p class="mm-sp__error" role="alert">{{ message }}</p>
+    }
+  </mat-card-content>
+</mat-card>

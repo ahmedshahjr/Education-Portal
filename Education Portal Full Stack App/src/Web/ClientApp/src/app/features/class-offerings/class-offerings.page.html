@@ -19,7 +19,7 @@
     <mat-card-content>
       <app-data-table
         [data]="visibleOfferings()"
-        [columns]="columns"
+        [columns]="columns()"
         [loading]="offerings() === null"
         searchPlaceholder="Search class offerings..."
         i18n-searchPlaceholder="@@classOfferings.search"
@@ -27,7 +27,139 @@
         i18n-emptyTitle="@@classOfferings.empty"
         emptyDescription="Class offerings added for the public page appear here."
         i18n-emptyDescription="@@classOfferings.emptyDescription"
-      />
+      >
+        <div table-actions>
+          @if (editing() === null) {
+            <button mat-flat-button type="button" (click)="startAdd()" i18n="@@classOfferings.add">Add class offering</button>
+          }
+        </div>
+      </app-data-table>
     </mat-card-content>
   </mat-card>
+
+  @if (editing() !== null) {
+    <mat-card class="mm-card mm-elevated">
+      <mat-card-content>
+        <h2 class="mm-offering__heading">
+          @if (editing() === 'new') {
+            <ng-container i18n="@@classOfferings.addHeading">Add a class offering</ng-container>
+          } @else {
+            <ng-container i18n="@@classOfferings.editHeading">Edit class offering</ng-container>
+          }
+        </h2>
+        <form class="mm-offering__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@classOfferings.colCampus">Campus</mat-label>
+            <mat-select formControlName="campusId">
+              <mat-option [value]="null" i18n="@@classOfferings.allCampuses">All campuses</mat-option>
+              @for (campus of campusOptions(); track campus.id) {
+                <mat-option [value]="campus.id">{{ campus.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@classOfferings.colLevel">Class</mat-label>
+            <mat-select formControlName="level">
+              @for (level of levels; track level) {
+                <mat-option [value]="level">{{ levelLabel(level) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@classOfferings.colYear">Academic year</mat-label>
+            <input matInput formControlName="academicYear" placeholder="2026-27" dir="ltr" autocomplete="off" />
+            @if (form.controls.academicYear.invalid) {
+              <mat-error i18n="@@classOfferings.yearInvalid">Use a year like 2026 or 2026-27.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@classOfferings.currency">Currency</mat-label>
+            <input matInput formControlName="currencyCode" maxlength="3" placeholder="PKR" dir="ltr" autocomplete="off" />
+            @if (form.controls.currencyCode.invalid) {
+              <mat-error i18n="@@classOfferings.currencyInvalid">Use a three-letter currency code.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@classOfferings.colFee">Monthly fee</mat-label>
+            <input matInput type="number" min="0" formControlName="monthlyFee" dir="ltr" />
+            @if (form.controls.monthlyFee.invalid) {
+              <mat-error i18n="@@classOfferings.numberInvalid">Enter a number of 0 or more.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@classOfferings.admissionFee">Admission fee</mat-label>
+            <input matInput type="number" min="0" formControlName="admissionFee" dir="ltr" />
+            @if (form.controls.admissionFee.invalid) {
+              <mat-error i18n="@@classOfferings.numberInvalid">Enter a number of 0 or more.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@classOfferings.seatsTotal">Seats in total</mat-label>
+            <input matInput type="number" min="0" formControlName="seatsTotal" dir="ltr" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@classOfferings.colSeats">Seats left</mat-label>
+            <input matInput type="number" min="0" formControlName="seatsAvailable" dir="ltr" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@classOfferings.colStatus">Admissions</mat-label>
+            <mat-select formControlName="status">
+              @for (status of statuses; track status) {
+                <mat-option [value]="status">{{ statusLabel(status) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-checkbox formControlName="showFee" class="mm-offering__check" i18n="@@classOfferings.showFee">Show the fee on the public page</mat-checkbox>
+
+          @if (form.hasError('seats')) {
+            <p class="mm-offering__error" role="alert" i18n="@@classOfferings.seatsInvalid">The seats left cannot be more than the seats in total.</p>
+          }
+
+          <div class="mm-offering__actions">
+            <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@classOfferings.save">Save</button>
+            <button mat-button type="button" [disabled]="busy()" (click)="cancel()" i18n="@@common.cancel">Cancel</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @for (message of errors(); track message) {
+    <p class="mm-offering__error" role="alert">{{ message }}</p>
+  }
 }
+
+<ng-template #actionsCell let-offering>
+  <span class="mm-crud-actions">
+    <button
+      mat-icon-button
+      type="button"
+      [disabled]="busy() || editing() !== null"
+      aria-label="Edit this class offering"
+      i18n-aria-label="@@classOfferings.editOf"
+      (click)="startEdit(offering)"
+    >
+      <app-icon name="edit-3" [size]="16" />
+    </button>
+    <button
+      mat-icon-button
+      type="button"
+      class="mm-delete-btn"
+      [disabled]="busy() || editing() !== null"
+      aria-label="Delete this class offering"
+      i18n-aria-label="@@classOfferings.deleteOf"
+      (click)="confirmDelete(offering)"
+    >
+      <app-icon name="trash-2" [size]="16" />
+    </button>
+  </span>
+</ng-template>

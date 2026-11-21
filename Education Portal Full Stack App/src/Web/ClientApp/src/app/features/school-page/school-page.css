@@ -1,0 +1,111 @@
+/* Shared by the school page and its panels. Logical properties only, so right-to-left pages mirror. */
+
+:host {
+  display: block;
+}
+
+.mm-sp__tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-grid-gap);
+  padding-block-start: var(--mm-space-4);
+}
+
+.mm-sp__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mm-space-3);
+  margin-block-end: var(--mm-space-3);
+}
+
+.mm-sp__heading {
+  margin: 0;
+  font-size: var(--mm-text-base);
+  font-weight: 600;
+}
+
+.mm-sp__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--mm-space-2) var(--mm-space-3);
+}
+
+.mm-sp__form mat-form-field {
+  flex: 1 1 240px;
+}
+
+.mm-sp__form .mm-sp__wide {
+  flex-basis: 100%;
+}
+
+.mm-sp__actions {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  gap: var(--mm-space-2);
+  margin-block-start: var(--mm-space-2);
+}
+
+.mm-sp__error {
+  margin: var(--mm-space-2) 0 0;
+  color: var(--mm-error);
+}
+
+.mm-sp__muted {
+  margin: 0 0 var(--mm-space-3);
+  color: var(--mm-text-muted);
+}
+
+.mm-sp__checks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--mm-space-1) var(--mm-space-3);
+}
+
+.mm-sp__facility {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mm-space-2) var(--mm-space-3);
+  padding-block: var(--mm-space-1);
+  border-block-end: 1px solid var(--mm-border-color);
+}
+
+.mm-sp__facility mat-checkbox {
+  flex: 0 0 220px;
+}
+
+.mm-sp__facility mat-form-field {
+  flex: 1 1 260px;
+}
+
+.mm-sp__gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--mm-space-3);
+  margin-block-start: var(--mm-space-3);
+}
+
+.mm-sp__photo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-space-1);
+}
+
+.mm-sp__photo img {
+  inline-size: 100%;
+  block-size: 140px;
+  object-fit: cover;
+  border-radius: var(--mm-radius-md);
+  background-color: var(--mm-bg-canvas);
+}
+
+.mm-sp__photo-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mm-space-2);
+  font-size: var(--mm-text-sm);
+}

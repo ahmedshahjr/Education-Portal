@@ -120,6 +120,11 @@ export const routes: Routes = [
           import('./features/class-offerings/class-offerings.page').then((m) => m.ClassOfferingsPage),
       },
       {
+        path: 'school-page',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.school)],
+        loadComponent: () => import('./features/school-page/school-page.page').then((m) => m.SchoolPagePage),
+      },
+      {
         path: 'school-requests',
         canActivate: [masterAdministratorGuard],
         loadComponent: () =>

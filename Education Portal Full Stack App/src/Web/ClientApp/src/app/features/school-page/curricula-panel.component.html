@@ -1,0 +1,22 @@
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    <h2 class="mm-sp__heading" i18n="@@schoolPage.curriculaHeading">Curricula</h2>
+    <p class="mm-sp__muted" i18n="@@schoolPage.curriculaHelp">Choose every curriculum the school teaches. They show on the public page.</p>
+
+    @if (!loading()) {
+      <div class="mm-sp__checks">
+        @for (kind of kinds; track kind) {
+          <mat-checkbox [checked]="selected().has(kind)" (change)="toggle(kind, $event.checked)">{{ label(kind) }}</mat-checkbox>
+        }
+      </div>
+
+      <div class="mm-sp__actions">
+        <button mat-flat-button type="button" [disabled]="busy()" (click)="save()" i18n="@@schoolPage.save">Save</button>
+      </div>
+    }
+
+    @for (message of errors(); track message) {
+      <p class="mm-sp__error" role="alert">{{ message }}</p>
+    }
+  </mat-card-content>
+</mat-card>

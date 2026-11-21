@@ -1,0 +1,24 @@
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    <h2 class="mm-sp__heading" i18n="@@schoolPage.facilitiesHeading">Facilities</h2>
+    <p class="mm-sp__muted" i18n="@@schoolPage.facilitiesHelp">Tick the facilities the school has and add a short note if you like.</p>
+
+    @if (!loading()) {
+      @for (row of rows(); track row.kind) {
+        <div class="mm-sp__facility">
+          <mat-checkbox [checked]="row.has" [disabled]="busyKind() !== null" (change)="toggle(row, $event.checked)">{{ label(row.kind) }}</mat-checkbox>
+          @if (row.has) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label i18n="@@schoolPage.facilityNote">Note</mat-label>
+              <input matInput [formControl]="row.description" [maxlength]="descriptionMax" autocomplete="off" (change)="saveNote(row)" />
+            </mat-form-field>
+          }
+        </div>
+      }
+    }
+
+    @for (message of errors(); track message) {
+      <p class="mm-sp__error" role="alert">{{ message }}</p>
+    }
+  </mat-card-content>
+</mat-card>

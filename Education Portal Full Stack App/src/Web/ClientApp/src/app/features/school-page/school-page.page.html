@@ -1,0 +1,29 @@
+<app-page-header
+  title="School page"
+  i18n-title="@@schoolPage.title"
+  subtitle="What the school shows on its public page: its text, curricula, facilities and photos."
+  i18n-subtitle="@@schoolPage.subtitle"
+></app-page-header>
+
+<mat-tab-group animationDuration="0ms" mat-stretch-tabs="false">
+  <mat-tab label="Page" i18n-label="@@schoolPage.tabProfile">
+    <ng-template matTabContent>
+      <div class="mm-sp__tab"><app-profile-panel /></div>
+    </ng-template>
+  </mat-tab>
+  <mat-tab label="Curricula" i18n-label="@@schoolPage.tabCurricula">
+    <ng-template matTabContent>
+      <div class="mm-sp__tab"><app-curricula-panel /></div>
+    </ng-template>
+  </mat-tab>
+  <mat-tab label="Facilities" i18n-label="@@schoolPage.tabFacilities">
+    <ng-template matTabContent>
+      <div class="mm-sp__tab"><app-facilities-panel /></div>
+    </ng-template>
+  </mat-tab>
+  <mat-tab label="Photos" i18n-label="@@schoolPage.tabPhotos">
+    <ng-template matTabContent>
+      <div class="mm-sp__tab"><app-photos-panel /></div>
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>

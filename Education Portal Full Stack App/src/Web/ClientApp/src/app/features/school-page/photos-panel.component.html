@@ -1,0 +1,59 @@
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    <h2 class="mm-sp__heading" i18n="@@schoolPage.photosHeading">Photos</h2>
+    <p class="mm-sp__muted" i18n="@@schoolPage.photosHelp">Add PNG, JPEG or WebP photos of at most 2 MB for the public page.</p>
+
+    <form class="mm-sp__form" [formGroup]="form" novalidate>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@schoolPage.photoKind">Kind</mat-label>
+        <mat-select formControlName="kind">
+          @for (kind of kinds; track kind) {
+            <mat-option [value]="kind">{{ kindLabel(kind) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@schoolPage.photoCaption">Caption</mat-label>
+        <input matInput formControlName="caption" [maxlength]="captionMax" autocomplete="off" />
+      </mat-form-field>
+
+      <div class="mm-sp__actions">
+        <input #file type="file" hidden [accept]="accept" (change)="upload(file)" />
+        <button mat-flat-button type="button" [disabled]="busy()" (click)="file.click()" i18n="@@schoolPage.addPhoto">Add photo</button>
+      </div>
+    </form>
+
+    @for (message of errors(); track message) {
+      <p class="mm-sp__error" role="alert">{{ message }}</p>
+    }
+
+    @if (photos(); as list) {
+      @if (list.length === 0) {
+        <p class="mm-sp__muted" i18n="@@schoolPage.noPhotos">No photos yet.</p>
+      } @else {
+        <div class="mm-sp__gallery">
+          @for (photo of list; track photo.id) {
+            <figure class="mm-sp__photo">
+              <img [src]="imageUrl(photo)" [alt]="photo.caption || kindLabel(photo.kind)" loading="lazy" />
+              <figcaption class="mm-sp__photo-caption">
+                <span>{{ photo.caption || kindLabel(photo.kind) }}</span>
+                <button
+                  mat-icon-button
+                  type="button"
+                  class="mm-delete-btn"
+                  [disabled]="busy()"
+                  aria-label="Delete this photo"
+                  i18n-aria-label="@@schoolPage.deletePhoto"
+                  (click)="confirmDelete(photo)"
+                >
+                  <app-icon name="trash-2" [size]="16" />
+                </button>
+              </figcaption>
+            </figure>
+          }
+        </div>
+      }
+    }
+  </mat-card-content>
+</mat-card>

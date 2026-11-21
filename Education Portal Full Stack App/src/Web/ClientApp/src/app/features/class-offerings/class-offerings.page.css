@@ -3,3 +3,43 @@ app-campus-filter {
   margin-block-end: 16px;
   max-width: 320px;
 }
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-grid-gap);
+}
+
+.mm-offering__heading {
+  margin-block: 0 var(--mm-space-3);
+  font-size: var(--mm-text-base);
+  font-weight: 600;
+}
+
+.mm-offering__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--mm-space-2) var(--mm-space-3);
+}
+
+.mm-offering__form mat-form-field {
+  flex: 1 1 220px;
+}
+
+.mm-offering__check {
+  flex-basis: 100%;
+}
+
+.mm-offering__actions {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  gap: var(--mm-space-2);
+}
+
+.mm-offering__error {
+  flex-basis: 100%;
+  margin: var(--mm-space-2) 0 0;
+  color: var(--mm-error);
+}

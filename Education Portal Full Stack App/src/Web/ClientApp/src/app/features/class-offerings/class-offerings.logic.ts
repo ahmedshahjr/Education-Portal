@@ -1,3 +1,9 @@
+/** The academic year: four digits, or a school year such as 2026-27 (the same rule as the server). */
+export const ACADEMIC_YEAR_PATTERN = /^\d{4}(-\d{2})?$/;
+
+/** An ISO 4217 currency code: three letters (the server keeps it in capitals). */
+export const CURRENCY_PATTERN = /^[A-Za-z]{3}$/;
+
 /** The part of a class offering the list needs: a school-wide offering has no campus (`null`). */
 export interface CampusScopedRow {
   readonly campusId: string | null | undefined;
