@@ -14,8 +14,7 @@ public class Subscriptions : IEndpointGroup
             .RequireAuthorization();
 
         groupBuilder.MapGet(GetTrialNotice, "trial-notice")
-            // compliance-exception: SEC-AUTHN-01 the sign-in page shows the host school's trial notice before anyone signs in;
-            // only a flag and a day count, for the school of the host (like branding)
+            // compliance-exception: SEC-AUTHN-01 the sign-in page shows the host school's trial notice before sign-in; only a flag and a day count (like branding)
             .AllowAnonymous();
     }
 
