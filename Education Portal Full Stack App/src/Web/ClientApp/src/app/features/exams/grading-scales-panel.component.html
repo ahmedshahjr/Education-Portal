@@ -1,0 +1,93 @@
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <p class="mm-ac__error" role="alert">{{ message }}</p>
+    }
+
+    <app-data-table
+      [data]="rows()"
+      [columns]="columns"
+      [loading]="scales() === null && !loadError()"
+      searchPlaceholder="Search grading scales..."
+      i18n-searchPlaceholder="@@exams.searchScales"
+      emptyTitle="No grading scales yet"
+      i18n-emptyTitle="@@exams.scalesEmpty"
+      emptyDescription="A grading scale turns a percent into a letter and grade points. Add one to produce report cards."
+      i18n-emptyDescription="@@exams.scalesEmptyDescription"
+    >
+      <div table-actions>
+        @if (!adding()) {
+          <button mat-flat-button type="button" (click)="startAdd()" i18n="@@exams.addScale">Add grading scale</button>
+        }
+      </div>
+    </app-data-table>
+  </mat-card-content>
+</mat-card>
+
+@if (adding()) {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <h2 class="mm-ac__heading" i18n="@@exams.addScaleHeading">Add a grading scale</h2>
+      <form class="mm-ac__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <mat-form-field appearance="outline" class="mm-ac__wide">
+          <mat-label i18n="@@exams.scaleName">Name</mat-label>
+          <input matInput formControlName="name" [maxlength]="nameMax" autocomplete="off" />
+          @if (form.controls.name.hasError('required')) {
+            <mat-error i18n="@@exams.required">This field is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <p class="mm-ac__section mm-ac__wide" i18n="@@exams.bandsHeading">Bands</p>
+        <div class="mm-ac__bands mm-ac__wide" formArrayName="bands">
+          @for (band of bands.controls; track band; let index = $index) {
+            <div class="mm-ac__band" [formGroupName]="index">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label i18n="@@exams.bandFrom">From %</mat-label>
+                <input matInput type="number" min="0" max="100" formControlName="minPercent" dir="ltr" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label i18n="@@exams.bandTo">To %</mat-label>
+                <input matInput type="number" min="0" max="100" formControlName="maxPercent" dir="ltr" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label i18n="@@exams.bandLetter">Letter</mat-label>
+                <input matInput formControlName="letter" maxlength="5" autocomplete="off" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label i18n="@@exams.bandPoints">Points</mat-label>
+                <input matInput type="number" min="0" step="0.1" formControlName="points" dir="ltr" />
+              </mat-form-field>
+              <button
+                mat-icon-button
+                type="button"
+                class="mm-delete-btn"
+                [disabled]="bands.length === 1"
+                aria-label="Remove this band"
+                i18n-aria-label="@@exams.removeBand"
+                (click)="removeBand(index)"
+              >
+                <app-icon name="trash-2" [size]="16" />
+              </button>
+            </div>
+          }
+        </div>
+        <div class="mm-ac__actions">
+          <button mat-stroked-button type="button" (click)="addBand()" i18n="@@exams.addBand">Add band</button>
+        </div>
+
+        @if (bandsProblem) {
+          <p class="mm-ac__error" role="alert" i18n="@@exams.bandsProblem">Each band must end at or after where it starts, and bands cannot share a percent.</p>
+        }
+
+        @for (message of errors(); track message) {
+          <p class="mm-ac__error" role="alert">{{ message }}</p>
+        }
+
+        <div class="mm-ac__actions">
+          <button mat-flat-button type="submit" [disabled]="busy() || form.invalid || bandsProblem" i18n="@@exams.save">Save</button>
+          <button mat-button type="button" [disabled]="busy()" (click)="adding.set(false)" i18n="@@common.cancel">Cancel</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+}

@@ -1,0 +1,132 @@
+<app-page-header
+  title="Timetable"
+  i18n-title="@@timetable.title"
+  subtitle="The lessons of each course by day and time. A lesson cannot clash with another lesson of its teacher, room or class."
+  i18n-subtitle="@@timetable.subtitle"
+></app-page-header>
+
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    @if (loadError(); as message) {
+      <p class="mm-ac__error" role="alert">{{ message }}</p>
+    }
+
+    <app-data-table
+      [data]="rows()"
+      [columns]="columns()"
+      [loading]="slots() === null"
+      searchPlaceholder="Search lessons..."
+      i18n-searchPlaceholder="@@timetable.search"
+      emptyTitle="No lessons yet"
+      i18n-emptyTitle="@@timetable.empty"
+      emptyDescription="Add a lesson to put a course on the timetable."
+      i18n-emptyDescription="@@timetable.emptyDescription"
+    >
+      <div table-actions>
+        @if (editing() === null) {
+          <button mat-flat-button type="button" (click)="startAdd()" i18n="@@timetable.add">Add lesson</button>
+        }
+      </div>
+    </app-data-table>
+  </mat-card-content>
+</mat-card>
+
+@if (editing() !== null) {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <h2 class="mm-ac__heading">
+        @if (editing() === 'new') {
+          <ng-container i18n="@@timetable.addHeading">Add a lesson</ng-container>
+        } @else {
+          <ng-container i18n="@@timetable.editHeading">Edit lesson</ng-container>
+        }
+      </h2>
+      <form class="mm-ac__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@timetable.colCourse">Course</mat-label>
+          <mat-select formControlName="courseId">
+            @for (course of lookups.courses(); track course.id) {
+              <mat-option [value]="course.id">{{ course.name }}</mat-option>
+            }
+          </mat-select>
+          @if (form.controls.courseId.hasError('required')) {
+            <mat-error i18n="@@timetable.required">This field is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@timetable.colDay">Day</mat-label>
+          <mat-select formControlName="day">
+            @for (day of days; track day) {
+              <mat-option [value]="day">{{ dayLabel(day) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@timetable.starts">Starts</mat-label>
+          <input matInput type="time" formControlName="start" dir="ltr" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@timetable.ends">Ends</mat-label>
+          <input matInput type="time" formControlName="end" dir="ltr" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@timetable.colCampus">Campus</mat-label>
+          <mat-select formControlName="campusId">
+            <mat-option [value]="null" i18n="@@timetable.wholeSchool">Whole school</mat-option>
+            @for (campus of campuses(); track campus.id) {
+              <mat-option [value]="campus.id">{{ campus.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="@@timetable.colRoom">Room</mat-label>
+          <input matInput formControlName="room" [maxlength]="roomMax" autocomplete="off" />
+        </mat-form-field>
+
+        @if (form.hasError('timeRange')) {
+          <p class="mm-ac__error" role="alert" i18n="@@timetable.timeRangeInvalid">The end time must be after the start time.</p>
+        }
+
+        @if (conflicts(); as found) {
+          @if (found.length === 0) {
+            <p class="mm-ac__muted mm-ac__wide" role="status" i18n="@@timetable.noConflicts">No clashes: the lesson fits the timetable.</p>
+          } @else {
+            @for (conflict of found; track conflict.slotId) {
+              <p class="mm-ac__error" role="alert">{{ conflictLabel(conflict.kind) }}</p>
+            }
+          }
+        }
+
+        @for (message of errors(); track message) {
+          <p class="mm-ac__error" role="alert">{{ message }}</p>
+        }
+
+        <div class="mm-ac__actions">
+          <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@timetable.save">Save</button>
+          <button mat-stroked-button type="button" [disabled]="busy() || form.invalid" (click)="check()" i18n="@@timetable.check">Check for clashes</button>
+          <button mat-button type="button" [disabled]="busy()" (click)="cancel()" i18n="@@common.cancel">Cancel</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+}
+
+<ng-template #actionsCell let-lesson>
+  <span class="mm-crud-actions">
+    <button
+      mat-icon-button
+      type="button"
+      [disabled]="busy() || editing() !== null"
+      aria-label="Edit this lesson"
+      i18n-aria-label="@@timetable.editOf"
+      (click)="startEdit(lesson)"
+    >
+      <app-icon name="edit-3" [size]="16" />
+    </button>
+  </span>
+</ng-template>

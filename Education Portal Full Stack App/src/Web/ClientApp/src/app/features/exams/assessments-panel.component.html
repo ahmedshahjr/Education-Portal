@@ -1,0 +1,123 @@
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    <h2 class="mm-ac__heading" i18n="@@exams.assessmentsHeading">Assessments and scores</h2>
+    <p class="mm-ac__muted" i18n="@@exams.assessmentsHelp">Choose a course to see its assessments, add one, and record students' scores.</p>
+
+    @if (lookups.error(); as message) {
+      <p class="mm-ac__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="mm-ac__form">
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@exams.course">Course</mat-label>
+        <mat-select [formControl]="courseControl" (selectionChange)="chooseCourse($event.value)">
+          @for (course of lookups.courses(); track course.id) {
+            <mat-option [value]="course.id">{{ course.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+@if (courseId() !== '') {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      <app-data-table
+        [data]="rows()"
+        [columns]="columns"
+        [loading]="assessments() === null"
+        searchPlaceholder="Search assessments..."
+        i18n-searchPlaceholder="@@exams.searchAssessments"
+        emptyTitle="No assessments yet"
+        i18n-emptyTitle="@@exams.assessmentsEmpty"
+        emptyDescription="Add an assessment, such as a midterm, with its weight and maximum score."
+        i18n-emptyDescription="@@exams.assessmentsEmptyDescription"
+      >
+        <div table-actions>
+          @if (!adding()) {
+            <button mat-flat-button type="button" (click)="startAdd()" i18n="@@exams.addAssessment">Add assessment</button>
+          }
+        </div>
+      </app-data-table>
+    </mat-card-content>
+  </mat-card>
+
+  @if (adding()) {
+    <mat-card class="mm-card mm-elevated">
+      <mat-card-content>
+        <h2 class="mm-ac__heading" i18n="@@exams.addAssessmentHeading">Add an assessment</h2>
+        <form class="mm-ac__form" [formGroup]="assessmentForm" (ngSubmit)="saveAssessment()" novalidate>
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@exams.colAssessment">Assessment</mat-label>
+            <input matInput formControlName="name" [maxlength]="nameMax" autocomplete="off" />
+            @if (assessmentForm.controls.name.hasError('required')) {
+              <mat-error i18n="@@exams.required">This field is required.</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@exams.weightPercent">Weight (%)</mat-label>
+            <input matInput type="number" min="0" max="100" formControlName="weight" dir="ltr" />
+            @if (assessmentForm.controls.weight.invalid) {
+              <mat-error i18n="@@exams.weightInvalid">Enter a weight from 0 to 100.</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@exams.colMaximum">Maximum score</mat-label>
+            <input matInput type="number" min="0" formControlName="maximumScore" dir="ltr" />
+            @if (assessmentForm.controls.maximumScore.invalid) {
+              <mat-error i18n="@@exams.maximumInvalid">The maximum score must be above 0.</mat-error>
+            }
+          </mat-form-field>
+          <div class="mm-ac__actions">
+            <button mat-flat-button type="submit" [disabled]="busy() || assessmentForm.invalid" i18n="@@exams.save">Save</button>
+            <button mat-button type="button" [disabled]="busy()" (click)="adding.set(false)" i18n="@@common.cancel">Cancel</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if ((assessments() ?? []).length > 0) {
+    <mat-card class="mm-card mm-elevated">
+      <mat-card-content>
+        <h2 class="mm-ac__heading" i18n="@@exams.recordScoreHeading">Record a score</h2>
+        <form class="mm-ac__form" [formGroup]="scoreForm" (ngSubmit)="saveScore()" novalidate>
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@exams.colAssessment">Assessment</mat-label>
+            <mat-select formControlName="assessmentId">
+              @for (assessment of assessments() ?? []; track assessment.id) {
+                <mat-option [value]="assessment.id">{{ assessment.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@exams.student">Student</mat-label>
+            <mat-select formControlName="studentId">
+              @for (student of lookups.students(); track student.id) {
+                <mat-option [value]="student.id">{{ personName(student) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label i18n="@@exams.score">Score</mat-label>
+            <input matInput type="number" min="0" formControlName="value" dir="ltr" />
+            @if (percent() !== null) {
+              <mat-hint dir="ltr">{{ percent() }}%</mat-hint>
+            }
+            @if (scoreForm.controls.value.invalid) {
+              <mat-error i18n="@@exams.scoreInvalid">Enter a score of 0 or more.</mat-error>
+            }
+          </mat-form-field>
+          <div class="mm-ac__actions">
+            <button mat-flat-button type="submit" [disabled]="busy() || scoreForm.invalid" i18n="@@exams.saveScore">Save score</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @for (message of errors(); track message) {
+    <p class="mm-ac__error" role="alert">{{ message }}</p>
+  }
+}

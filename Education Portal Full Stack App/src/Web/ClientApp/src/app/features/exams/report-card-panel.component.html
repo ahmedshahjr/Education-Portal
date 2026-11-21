@@ -1,0 +1,75 @@
+<mat-card class="mm-card mm-elevated">
+  <mat-card-content>
+    <h2 class="mm-ac__heading" i18n="@@exams.reportCardHeading">Report card</h2>
+    <p class="mm-ac__muted" i18n="@@exams.reportCardHelp">Choose a student, their class and a grading scale to see the report card.</p>
+
+    <form class="mm-ac__form" [formGroup]="form" (ngSubmit)="show()" novalidate>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@exams.student">Student</mat-label>
+        <mat-select formControlName="studentId">
+          @for (student of lookups.students(); track student.id) {
+            <mat-option [value]="student.id">{{ personName(student) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@exams.class">Class</mat-label>
+        <mat-select formControlName="classOfferingId">
+          @for (offering of lookups.offerings(); track offering.id) {
+            <mat-option [value]="offering.id">{{ offeringLabel(offering) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n="@@exams.colScale">Grading scale</mat-label>
+        <mat-select formControlName="gradingScaleId">
+          @for (scale of scales(); track scale.id) {
+            <mat-option [value]="scale.id">{{ scale.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <div class="mm-ac__actions">
+        <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@exams.showReportCard">Show report card</button>
+      </div>
+    </form>
+
+    @for (message of errors(); track message) {
+      <p class="mm-ac__error" role="alert">{{ message }}</p>
+    }
+  </mat-card-content>
+</mat-card>
+
+@if (card(); as report) {
+  <mat-card class="mm-card mm-elevated">
+    <mat-card-content>
+      @if (report.lines.length === 0) {
+        <p class="mm-ac__muted" i18n="@@exams.reportCardEmpty">There are no courses with scores for this student yet.</p>
+      } @else {
+        <table class="mm-ac__table">
+          <thead>
+            <tr>
+              <th scope="col" i18n="@@academics.colCourse">Course</th>
+              <th scope="col" i18n="@@exams.percent">Percent</th>
+              <th scope="col" i18n="@@exams.letter">Letter</th>
+              <th scope="col" i18n="@@exams.points">Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of report.lines; track line.courseName) {
+              <tr>
+                <td>{{ line.courseName }}</td>
+                <td dir="ltr">{{ line.percent ?? '—' }}</td>
+                <td>{{ line.letter ?? '—' }}</td>
+                <td dir="ltr">{{ line.points ?? '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <p class="mm-ac__heading" dir="ltr"><ng-container i18n="@@exams.gpa">Grade point average:</ng-container> {{ report.gpa ?? '—' }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+}

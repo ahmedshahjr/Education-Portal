@@ -135,6 +135,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/academics/student-admission.page').then((m) => m.StudentAdmissionPage),
       },
       {
+        path: 'exams',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.exams)],
+        loadComponent: () => import('./features/exams/exams.page').then((m) => m.ExamsPage),
+      },
+      {
+        path: 'timetable',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.timetable)],
+        loadComponent: () => import('./features/timetable/timetable.page').then((m) => m.TimetablePage),
+      },
+      {
         path: 'school-requests',
         canActivate: [masterAdministratorGuard],
         loadComponent: () =>

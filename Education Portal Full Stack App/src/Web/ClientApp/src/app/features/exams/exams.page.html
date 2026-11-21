@@ -1,0 +1,24 @@
+<app-page-header
+  title="Exams"
+  i18n-title="@@exams.title"
+  subtitle="Grading scales, the assessments and scores of each course, and students' report cards."
+  i18n-subtitle="@@exams.subtitle"
+></app-page-header>
+
+<mat-tab-group animationDuration="0ms" mat-stretch-tabs="false">
+  <mat-tab label="Assessments and scores" i18n-label="@@exams.tabAssessments">
+    <ng-template matTabContent>
+      <div class="mm-ac__tab"><app-assessments-panel /></div>
+    </ng-template>
+  </mat-tab>
+  <mat-tab label="Grading scales" i18n-label="@@exams.tabScales">
+    <ng-template matTabContent>
+      <div class="mm-ac__tab"><app-grading-scales-panel /></div>
+    </ng-template>
+  </mat-tab>
+  <mat-tab label="Report cards" i18n-label="@@exams.tabReportCards">
+    <ng-template matTabContent>
+      <div class="mm-ac__tab"><app-report-card-panel /></div>
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>
