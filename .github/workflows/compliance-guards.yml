@@ -13,7 +13,7 @@ on:
     # 'edited' re-runs the checks when the PR description (security checklist) changes.
     types: [opened, synchronize, reopened, edited]
   push:
-    branches: [master, development, main]
+    branches: [master, development, staging, main]
   workflow_dispatch:
 
 permissions:

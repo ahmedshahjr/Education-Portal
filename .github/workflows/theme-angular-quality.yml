@@ -9,12 +9,12 @@ name: Theme Angular quality
 
 on:
   pull_request:
-    branches: [development, main]
+    branches: [development, staging, main]
     paths:
       - 'Theme Angular/**'
       - '.github/workflows/theme-angular-quality.yml'
   push:
-    branches: [development, main]
+    branches: [development, staging, main]
     paths:
       - 'Theme Angular/**'
       - '.github/workflows/theme-angular-quality.yml'
