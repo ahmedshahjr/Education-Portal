@@ -84,7 +84,14 @@ public class DevelopmentDataSeeder
         // The master tenant: exactly one, the platform owner.
         if (!await _context.Schools.AnyAsync(s => s.IsMaster))
         {
-            _context.Schools.Add(School.CreateMaster("Education Portal", MasterDomain));
+            // The master tenant owns the master school (ADR-021).
+            var masterTenant = Tenant.CreateMaster("Education Portal");
+            _context.Tenants.Add(masterTenant);
+            await _context.SaveChangesAsync();
+
+            var masterSchool = School.CreateMaster("Education Portal", MasterDomain);
+            masterSchool.AssignToTenant(masterTenant.Id);
+            _context.Schools.Add(masterSchool);
             await _context.SaveChangesAsync();
         }
 

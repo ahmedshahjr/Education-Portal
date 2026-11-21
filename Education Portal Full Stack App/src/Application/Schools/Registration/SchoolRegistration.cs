@@ -18,7 +18,8 @@ public sealed record SchoolRegistrationRequest(
     DataRegion? DataRegion,
     string AdministratorEmail,
     string AdministratorPassword,
-    bool AdministratorMustChangePassword = true);
+    bool AdministratorMustChangePassword = true,
+    Guid? TenantId = null);
 
 /// <summary>The ids of a registered school and of its first administrator, for the response and for the audit records.</summary>
 public sealed record RegisteredSchool(int Id, Guid PublicId, string AdministratorId);
@@ -48,7 +49,13 @@ public static class SchoolRegistration
     {
         var now = timeProvider.GetUtcNow();
 
+        // A school belongs to one tenant (ADR-021): the one the master names, or a new tenant for a new customer.
+        var tenantId = request.TenantId is { } publicTenantId
+            ? await context.Tenants.ResolveIdAsync(publicTenantId, cancellationToken)
+            : await CreateTenantAsync(context, request.Name, cancellationToken);
+
         var school = School.Create(request.Name, request.Domain);
+        school.AssignToTenant(tenantId);
         school.AssignCountry(await context.Countries.ResolveIdAsync(request.CountryId, cancellationToken));
         school.AssignDataRegion(request.DataRegion);
 
@@ -72,6 +79,16 @@ public static class SchoolRegistration
         }
 
         return new RegisteredSchool(school.Id, school.PublicId, administratorId);
+    }
+
+    /// <summary>Creates a customer tenant for a school that does not join an existing one, and returns its internal id.</summary>
+    private static async Task<int> CreateTenantAsync(IApplicationDbContext context, string schoolName, CancellationToken cancellationToken)
+    {
+        var tenant = Tenant.Create(schoolName);
+        context.Tenants.Add(tenant);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return tenant.Id;
     }
 
     /// <summary>

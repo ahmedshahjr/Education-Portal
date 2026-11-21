@@ -5,12 +5,12 @@
   "modVersion": "0.1.1",
   "mode": "learn",
   "guard": true,
-  "calls": 290,
+  "calls": 333,
   "blocked": 0,
   "startedAt": 1795256032644,
   "startedMs": 1795256032644,
-  "updatedAt": 1795267337339,
-  "updatedMs": 1795267337339,
+  "updatedAt": 1795268012160,
+  "updatedMs": 1795268012160,
   "summary": "Project Anatole · learn · 0 open alerts · 0 blocked · baseline learning 76%",
   "alerts": {
     "open": 0,
@@ -23,7 +23,7 @@
   "baseline": {
     "state": "learning",
     "maturity": 76,
-    "events": 880,
+    "events": 923,
     "sessions": 3,
     "firstSeenAt": 1795242899639
   },
