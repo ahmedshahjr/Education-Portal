@@ -26,7 +26,7 @@ import {
 
 /**
  * The master tenant's queue of school requests, as a table. A pending request is approved by giving the school its domain,
- * country, first administrator and a one-time password: the school is registered with its 30-day free trial. A request can
+ * country, first administrator and a one-time password: the school is registered with its 3-month (90-day) free trial. A request can
  * also be rejected, which creates nothing. The approve form opens below the table, for the request chosen.
  */
 @Component({
@@ -139,7 +139,7 @@ export class SchoolRequestsQueuePage {
       .subscribe({
         next: () => {
           this.busy.set(false);
-          this.toast.success($localize`:@@requests.approved:School approved. It has a 30-day free trial.`);
+          this.toast.success($localize`:@@requests.approved:School approved. It has a 3-month (90-day) free trial.`);
           this.approvingId.set(null);
           this.load();
         },

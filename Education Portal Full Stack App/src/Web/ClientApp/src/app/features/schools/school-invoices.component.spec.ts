@@ -34,7 +34,7 @@ async function render(invoices: unknown[]) {
   TestBed.configureTestingModule({ imports: [SchoolInvoicesComponent], providers: [provideHttpClient(), provideHttpClientTesting()] });
   const http = TestBed.inject(HttpTestingController);
   const fixture = TestBed.createComponent(SchoolInvoicesComponent);
-  fixture.componentRef.setInput('school', new SchoolSummaryDto({ id: SCHOOL, name: 'School One', domain: 'school1.com', isMaster: false, countryId: undefined }));
+  fixture.componentRef.setInput('school', new SchoolSummaryDto({ id: SCHOOL, name: 'School One', domain: 'school1.com', isMaster: false, countryId: undefined, subscriptionStatus: undefined, trialEndDate: undefined }));
   fixture.detectChanges();
   http.expectOne(`/api/Invoices?schoolId=${SCHOOL}`).flush(json(invoices));
   const element = fixture.nativeElement as HTMLElement;

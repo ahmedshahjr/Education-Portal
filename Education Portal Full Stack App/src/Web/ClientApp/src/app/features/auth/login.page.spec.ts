@@ -136,6 +136,61 @@ describe('LoginPage branding after sign-in on the master address', () => {
   });
 });
 
+describe('LoginPage trial banner and registration', () => {
+  function setup() {
+    TestBed.configureTestingModule({
+      imports: [LoginPage],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: PAGE_RELOAD, useValue: vi.fn() }],
+    });
+    const fixture = TestBed.createComponent(LoginPage);
+    return { fixture, http: TestBed.inject(HttpTestingController), element: fixture.nativeElement as HTMLElement };
+  }
+
+  const notice = (body: { isTrial: boolean; daysRemaining: number }) => new Blob([JSON.stringify(body)], { type: 'application/json' });
+
+  it("shows the school's trial days above the form while it is on its trial", async () => {
+    const { fixture, http, element } = setup();
+    await fixture.whenStable();
+
+    http.expectOne('/api/Subscriptions/trial-notice').flush(notice({ isTrial: true, daysRemaining: 42 }));
+
+    await vi.waitFor(async () => {
+      await fixture.whenStable();
+      expect(element.querySelector('.mm-trial-banner')?.textContent).toContain('42');
+    });
+  });
+
+  it('shows no banner when the school is not on a trial', async () => {
+    const { fixture, http, element } = setup();
+    await fixture.whenStable();
+
+    http.expectOne('/api/Subscriptions/trial-notice').flush(notice({ isTrial: false, daysRemaining: 0 }));
+    await fixture.whenStable();
+
+    expect(element.querySelector('.mm-trial-banner')).toBeNull();
+  });
+
+  it('shows no banner when the notice cannot be read, and sign-in still works', async () => {
+    const { fixture, http, element } = setup();
+    await fixture.whenStable();
+
+    http.expectOne('/api/Subscriptions/trial-notice').flush(null, { status: 500, statusText: 'Server Error' });
+    await fixture.whenStable();
+
+    expect(element.querySelector('.mm-trial-banner')).toBeNull();
+    expect(element.querySelector('button[type="submit"]')).not.toBeNull();
+  });
+
+  it('sends the Register school button to the self-service registration', async () => {
+    const { fixture } = setup();
+    await fixture.whenStable();
+
+    const link = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>('a.mm-auth-register')!;
+
+    expect(link.getAttribute('href')).toBe('/register-school');
+  });
+});
+
 describe('localReturnUrl', () => {
   it('keeps a path inside the app', () => {
     expect(localReturnUrl('/settings/branding')).toBe('/settings/branding');

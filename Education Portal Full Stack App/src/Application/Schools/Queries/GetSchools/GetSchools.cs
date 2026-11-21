@@ -2,6 +2,7 @@ using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Common.Models;
 using EducationPortal.Application.Common.Security;
 using EducationPortal.Domain.Constants;
+using EducationPortal.Domain.Enums;
 
 namespace EducationPortal.Application.Schools.Queries.GetSchools;
 
@@ -27,7 +28,37 @@ public record GetSchoolsQuery : IRequest<PaginatedList<SchoolSummaryDto>>
 }
 
 /// <param name="CountryId">The school's country, or <c>null</c> for the platform defaults.</param>
-public sealed record SchoolSummaryDto(Guid Id, string Name, string? Domain, bool IsMaster, Guid? CountryId);
+/// <param name="SubscriptionStatus">The status of the school's subscription that is not cancelled, or <c>null</c> when it has none
+/// (the master tenant). <see cref="Domain.Enums.SubscriptionStatus.Trial"/> is a school on its free trial, <see cref="Domain.Enums.SubscriptionStatus.Active"/> a paid school.</param>
+/// <param name="TrialEndDate">When the free trial ends, or <c>null</c> when the school has no trial.</param>
+public sealed record SchoolSummaryDto(
+    Guid Id,
+    string Name,
+    string? Domain,
+    bool IsMaster,
+    Guid? CountryId,
+    SubscriptionStatus? SubscriptionStatus,
+    DateTimeOffset? TrialEndDate);
+
+/// <summary>The one projection of a school to its summary, shared by the list and the single-school read.</summary>
+internal static class SchoolSummaryProjection
+{
+    public static IQueryable<SchoolSummaryDto> ToSummaries(this IQueryable<School> schools, IApplicationDbContext context) =>
+        schools.Select(s => new SchoolSummaryDto(
+            s.PublicId,
+            s.Name,
+            s.Domain,
+            s.IsMaster,
+            context.Countries.Where(c => c.Id == s.CountryId).Select(c => (Guid?)c.PublicId).FirstOrDefault(),
+            context.Subscriptions
+                .Where(x => x.SchoolId == s.Id && x.Status != SubscriptionStatus.Cancelled)
+                .Select(x => (SubscriptionStatus?)x.Status)
+                .FirstOrDefault(),
+            context.Subscriptions
+                .Where(x => x.SchoolId == s.Id && x.Status != SubscriptionStatus.Cancelled)
+                .Select(x => x.TrialEndDate)
+                .FirstOrDefault()));
+}
 
 public class GetSchoolsQueryValidator : AbstractValidator<GetSchoolsQuery>
 {
@@ -70,12 +101,7 @@ public class GetSchoolsQueryHandler : IRequestHandler<GetSchoolsQuery, Paginated
             .OrderByDescending(s => s.IsMaster)
             .ThenBy(s => s.Name)
             .ThenBy(s => s.Id)
-            .Select(s => new SchoolSummaryDto(
-                s.PublicId,
-                s.Name,
-                s.Domain,
-                s.IsMaster,
-                _context.Countries.Where(c => c.Id == s.CountryId).Select(c => (Guid?)c.PublicId).FirstOrDefault()));
+            .ToSummaries(_context);
 
         return await PaginatedList<SchoolSummaryDto>.CreateAsync(page, request.PageNumber, request.PageSize, cancellationToken);
     }

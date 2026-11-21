@@ -34,7 +34,7 @@ async function render(subscriptionResponse: { body?: unknown; status?: number })
   });
   const http = TestBed.inject(HttpTestingController);
   const fixture = TestBed.createComponent(SchoolSubscriptionComponent);
-  fixture.componentRef.setInput('school', new SchoolSummaryDto({ id: SCHOOL, name: 'School One', domain: 'school1.com', isMaster: false, countryId: undefined }));
+  fixture.componentRef.setInput('school', new SchoolSummaryDto({ id: SCHOOL, name: 'School One', domain: 'school1.com', isMaster: false, countryId: undefined, subscriptionStatus: undefined, trialEndDate: undefined }));
   fixture.detectChanges();
   http.expectOne('/api/Plans').flush(json(plans));
   const response = http.expectOne(url('subscription'));

@@ -24,12 +24,7 @@ public class GetSchoolQueryHandler : IRequestHandler<GetSchoolQuery, SchoolSumma
         var school = await _context.Schools
             .AsNoTracking()
             .Where(s => s.PublicId == request.SchoolId)
-            .Select(s => new SchoolSummaryDto(
-                s.PublicId,
-                s.Name,
-                s.Domain,
-                s.IsMaster,
-                _context.Countries.Where(c => c.Id == s.CountryId).Select(c => (Guid?)c.PublicId).FirstOrDefault()))
+            .ToSummaries(_context)
             .FirstOrDefaultAsync(cancellationToken);
         Guard.Against.NotFound(request.SchoolId, school);
 

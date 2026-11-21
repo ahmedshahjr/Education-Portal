@@ -13,7 +13,7 @@ function render(isMaster = false) {
   const fixture = TestBed.createComponent(SchoolProfileComponent);
   fixture.componentRef.setInput(
     'school',
-    new SchoolSummaryDto({ id: SCHOOL, name: 'School One', domain: 'school1.com', isMaster, countryId: undefined })
+    new SchoolSummaryDto({ id: SCHOOL, name: 'School One', domain: 'school1.com', isMaster, countryId: undefined, subscriptionStatus: undefined, trialEndDate: undefined })
   );
   fixture.detectChanges();
   const element = fixture.nativeElement as HTMLElement;

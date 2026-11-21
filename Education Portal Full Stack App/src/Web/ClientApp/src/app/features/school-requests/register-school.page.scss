@@ -1,0 +1,40 @@
+.mm-auth-shell {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background-color: var(--mm-bg-canvas);
+}
+
+.mm-auth-main {
+  width: min(560px, 100%);
+  padding: 24px;
+}
+
+.mm-auth-language {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mm-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mm-auth-error {
+  margin: 0;
+  font-size: var(--mm-text-sm);
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.mm-register-country {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mm-register-country__label {
+  font-size: var(--mm-text-xs);
+  font-weight: 600;
+  color: var(--mm-text-primary);
+}

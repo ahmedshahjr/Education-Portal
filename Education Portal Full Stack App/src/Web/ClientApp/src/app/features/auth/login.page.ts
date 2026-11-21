@@ -9,6 +9,8 @@ import { BrandingService } from '../../core/branding/branding.service';
 import { LocaleService } from '../../core/i18n/locale.service';
 import { FormInputComponent } from '../../shared/components/form-input/form-input.component';
 import { LanguageMenuComponent } from '../../shared/components/language-menu/language-menu.component';
+import { TrialBannerComponent } from '../../shared/components/trial-banner/trial-banner.component';
+import { SubscriptionsClient } from '../../web-api-client';
 
 /**
  * The theme's sign-in page, themed for the school that owns this domain before anyone signs in. Only that school's
@@ -16,10 +18,12 @@ import { LanguageMenuComponent } from '../../shared/components/language-menu/lan
  */
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule, RouterLink, MatCardModule, MatButtonModule, FormInputComponent, LanguageMenuComponent],
+  imports: [ReactiveFormsModule, RouterLink, MatCardModule, MatButtonModule, FormInputComponent, LanguageMenuComponent, TrialBannerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="mm-auth-shell">
+    <div class="mm-auth-page">
+      <app-trial-banner [daysRemaining]="trialDays()" />
+      <div class="mm-auth-shell">
       <section class="mm-auth-aside">
         <div class="mm-auth-brand">
           @if (branding.logoUrl(); as logoUrl) {
@@ -66,18 +70,23 @@ import { LanguageMenuComponent } from '../../shared/components/language-menu/lan
               }
 
               <button mat-flat-button type="submit" class="mm-auth-submit" [disabled]="busy()" i18n="@@login.submit">Sign in</button>
-              <p class="mm-auth-sub">
-                <a routerLink="/request-school" i18n="@@login.requestSchool">Request a school</a>
-              </p>
+              <a mat-stroked-button routerLink="/register-school" class="mm-auth-register" i18n="@@login.registerSchool">Register school</a>
             </form>
           </mat-card-content>
         </mat-card>
       </main>
+      </div>
     </div>
   `,
   styles: `
-    .mm-auth-shell {
+    .mm-auth-page {
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mm-auth-shell {
+      flex: 1;
       display: grid;
       grid-template-columns: 1.05fr 1fr;
       background-color: var(--mm-bg-canvas);
@@ -173,6 +182,10 @@ import { LanguageMenuComponent } from '../../shared/components/language-menu/lan
       margin-top: 8px;
     }
 
+    .mm-auth-register {
+      height: 48px;
+    }
+
     @media (max-width: 900px) {
       .mm-auth-shell {
         grid-template-columns: 1fr;
@@ -189,6 +202,7 @@ export class LoginPage {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly locale = inject(LocaleService);
+  private readonly subscriptions = inject(SubscriptionsClient);
   protected readonly branding = inject(BrandingService);
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
@@ -198,6 +212,16 @@ export class LoginPage {
 
   protected readonly error = signal<string | null>(null);
   protected readonly busy = signal(false);
+
+  /** The days left of the host school's free trial, or null when it has none. Shown as a banner above the sign-in form. */
+  protected readonly trialDays = signal<number | null>(null);
+
+  constructor() {
+    this.subscriptions.getTrialNotice().subscribe({
+      next: (notice) => this.trialDays.set(notice.isTrial ? notice.daysRemaining : null),
+      error: () => this.trialDays.set(null), // no banner when the notice cannot be read; sign-in does not depend on it
+    });
+  }
 
   /** After sign-in: the page asked for, else the master portal on the master's address, else the school's home. */
   private destination(): string {

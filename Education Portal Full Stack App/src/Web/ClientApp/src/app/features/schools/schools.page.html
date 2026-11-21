@@ -68,6 +68,12 @@
   }
 </ng-template>
 
+<ng-template #planCell let-school>
+  @if (plan(school); as plan) {
+    <app-status-badge [tone]="plan.tone">{{ plan.label }}</app-status-badge>
+  }
+</ng-template>
+
 <ng-template #countryCell let-school>
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mm-schools__country">
     <mat-select

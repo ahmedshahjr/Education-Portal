@@ -15,7 +15,7 @@ using Shouldly;
 namespace EducationPortal.Application.FunctionalTests.SchoolRequests;
 
 /// <summary>
-/// A school applies anonymously; the master tenant approves it, which registers the school with its 30-day free trial and
+/// A school applies anonymously; the master tenant approves it, which registers the school with its 3-month (90-day) free trial and
 /// the modules that are on by default. Rejecting creates nothing. Only the master tenant reads and decides the queue.
 /// </summary>
 public class SchoolRegistrationTests : TestBase
@@ -24,7 +24,7 @@ public class SchoolRegistrationTests : TestBase
     private const string AdministratorEmail = "admin@approved.local";
 
     [Test]
-    public async Task ShouldApproveARequestAndRegisterTheSchoolWithAThirtyDayTrial()
+    public async Task ShouldApproveARequestAndRegisterTheSchoolWithANinetyDayTrial()
     {
         var master = await SetUpPriceBookAsync();
         var requestId = await SubmitRequestAsync("Approved School");

@@ -1,0 +1,81 @@
+<div class="mm-auth-shell">
+  <main class="mm-auth-main">
+    <div class="mm-auth-language">
+      <app-language-menu />
+    </div>
+    <mat-card class="mm-card mm-elevated mm-auth-card">
+      <mat-card-content>
+        <h1 class="mm-auth-title" i18n="@@registerSchool.title">Register your school</h1>
+        <p class="mm-auth-sub" i18n="@@registerSchool.intro">
+          Create your school and its administrator account. You get a free 3-month trial, and you can sign in right away.
+        </p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" class="mm-auth-form" novalidate>
+          <app-form-input
+            label="School name"
+            i18n-label="@@registerSchool.schoolName"
+            fieldId="schoolName"
+            autocomplete="organization"
+            [control]="form.controls.schoolName"
+          />
+
+          <div class="mm-register-country">
+            <label class="mm-register-country__label" for="countryId" i18n="@@registerSchool.country">Country</label>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-select id="countryId" [formControl]="form.controls.countryId" [placeholder]="countryPlaceholder">
+                @for (country of countries(); track country.id) {
+                  <mat-option [value]="country.id">{{ country.name }}</mat-option>
+                }
+              </mat-select>
+              @if (form.controls.countryId.hasError('required')) {
+                <mat-error i18n="@@registerSchool.countryRequired">Choose your country</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <app-form-input
+            label="Your email"
+            i18n-label="@@registerSchool.email"
+            type="email"
+            fieldId="administratorEmail"
+            autocomplete="username"
+            [control]="form.controls.administratorEmail"
+          />
+          <app-form-input
+            label="Password"
+            i18n-label="@@registerSchool.password"
+            type="password"
+            fieldId="newPassword"
+            autocomplete="new-password"
+            hint="At least 15 characters. A few unrelated words make a strong, easy to remember password."
+            i18n-hint="@@registerSchool.passwordHint"
+            [revealable]="true"
+            [control]="form.controls.newPassword"
+          />
+          <app-form-input
+            label="Retype password"
+            i18n-label="@@registerSchool.repeatPassword"
+            type="password"
+            fieldId="repeatPassword"
+            autocomplete="new-password"
+            [revealable]="true"
+            [control]="form.controls.repeatPassword"
+          />
+          @if (form.hasError('mismatch') && form.controls.repeatPassword.touched) {
+            <p class="mm-auth-error" role="alert" i18n="@@registerSchool.mismatch">The two passwords do not match.</p>
+          }
+
+          @if (error(); as message) {
+            <p id="register-error" class="mm-auth-error" role="alert">{{ message }}</p>
+          }
+
+          <button mat-flat-button type="submit" class="mm-auth-submit" [disabled]="busy()" i18n="@@registerSchool.submit">
+            Create school
+          </button>
+          <a mat-button routerLink="/login" i18n="@@registerSchool.backToLogin">Back to sign in</a>
+          <a mat-button routerLink="/request-school" i18n="@@registerSchool.askForApproval">Prefer to ask the platform team first? Request a school</a>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </main>
+</div>

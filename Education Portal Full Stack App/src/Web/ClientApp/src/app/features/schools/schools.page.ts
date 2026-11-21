@@ -13,6 +13,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/componen
 import { DataTableCellContext, DataTableColumn, DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import {
   CountriesClient,
   CountryDto,
@@ -23,6 +24,7 @@ import {
   UpdateSchoolCountryCommand,
 } from '../../web-api-client';
 import { NewSchool, SchoolFormComponent } from './school-form.component';
+import { SchoolPlan, schoolPlan } from './school-plan.logic';
 
 /** How long a search waits after the last key press, in milliseconds (kept for the search box's timing). */
 export const SEARCH_DELAY_MS = 300;
@@ -47,6 +49,7 @@ const ALL_ITEMS = 100;
     EmptyStateComponent,
     AppIconComponent,
     DataTableComponent,
+    StatusBadgeComponent,
     SchoolFormComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,11 +86,13 @@ export class SchoolsPage {
 
   private readonly countryCell = viewChild.required<TemplateRef<DataTableCellContext<SchoolSummaryDto>>>('countryCell');
   private readonly nameCell = viewChild.required<TemplateRef<DataTableCellContext<SchoolSummaryDto>>>('nameCell');
+  private readonly planCell = viewChild.required<TemplateRef<DataTableCellContext<SchoolSummaryDto>>>('planCell');
   private readonly actionsCell = viewChild.required<TemplateRef<DataTableCellContext<SchoolSummaryDto>>>('actionsCell');
 
   protected readonly columns = computed<DataTableColumn<SchoolSummaryDto>[]>(() => [
     { key: 'name', header: $localize`:@@schools.school:School`, valueFn: (s) => s.name, cell: this.nameCell() },
     { key: 'domain', header: $localize`:@@schools.domain:Domain`, valueFn: (s) => s.domain },
+    { key: 'plan', header: $localize`:@@schools.plan:Plan`, valueFn: (s) => this.plan(s)?.label ?? '', cell: this.planCell() },
     { key: 'country', header: $localize`:@@schools.country:Country`, valueFn: (s) => this.countryName(s.countryId), cell: this.countryCell(), sortable: false },
     { key: 'actions', header: $localize`:@@common.actions:Actions`, sortable: false, align: 'right', cell: this.actionsCell() },
   ]);
@@ -107,6 +112,11 @@ export class SchoolsPage {
       next: (page) => this.schools.set(page.items),
       error: (error: unknown) => this.loadError.set(problemMessages(error)[0]),
     });
+  }
+
+  /** Whether the school is on its free trial or paid, for the Plan column. The master tenant has none. */
+  protected plan(school: SchoolSummaryDto): SchoolPlan | null {
+    return schoolPlan(school, new Date());
   }
 
   /** The name of a school's country, for the table's text (the row shows the country picker). */

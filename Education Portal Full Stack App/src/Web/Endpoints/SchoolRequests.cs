@@ -11,7 +11,7 @@ namespace EducationPortal.Web.Endpoints;
 
 /// <summary>
 /// The "request a school" form, and the master tenant's queue of requests. Anyone can send a request; nothing becomes active
-/// until the master tenant approves it, and approval registers the school with its 30-day free trial.
+/// until the master tenant approves it, and approval registers the school with its 3-month (90-day) free trial.
 /// </summary>
 public class SchoolRequests : IEndpointGroup
 {
@@ -52,7 +52,7 @@ public class SchoolRequests : IEndpointGroup
     }
 
     [EndpointSummary("Approve a school request")]
-    [EndpointDescription("Registers the school: its domain, country, first administrator, the modules on by default and a 30-day free trial of the Full plan. Returns the school's id. Master tenant only.")]
+    [EndpointDescription("Registers the school: its domain, country, first administrator, the modules on by default and a 3-month (90-day) free trial of the Full plan. Returns the school's id. Master tenant only.")]
     public static async Task<Ok<Guid>> ApproveSchoolRequest(ISender sender, Guid id, ApproveSchoolRequestCommand command)
     {
         // The route names the request; an id in the body is ignored.

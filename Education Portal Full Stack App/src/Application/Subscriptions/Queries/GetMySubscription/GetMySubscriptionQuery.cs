@@ -86,6 +86,6 @@ public class GetMySubscriptionQueryHandler : IRequestHandler<GetMySubscriptionQu
             return null;
         }
 
-        return Math.Max(0, (int)Math.Ceiling((trialEnd - now).TotalDays));
+        return TrialDays.Remaining(trialEnd, now);
     }
 }

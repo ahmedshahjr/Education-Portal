@@ -9,6 +9,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login.page').then((m) => m.LoginPage),
   },
   {
+    path: 'register-school',
+    title: $localize`:@@registerSchool.pageTitle:Register your school`,
+    loadComponent: () => import('./features/school-requests/register-school.page').then((m) => m.RegisterSchoolPage),
+  },
+  {
     path: 'request-school',
     title: $localize`:@@requestSchool.pageTitle:Request a school`,
     loadComponent: () => import('./features/school-requests/request-school.page').then((m) => m.RequestSchoolPage),

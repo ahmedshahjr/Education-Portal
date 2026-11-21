@@ -27,7 +27,7 @@ async function render() {
   });
   const http = TestBed.inject(HttpTestingController);
   const fixture = TestBed.createComponent(SchoolModulesComponent);
-  fixture.componentRef.setInput('school', new SchoolSummaryDto({ id: SCHOOL, name: 'School One', domain: 'school1.com', isMaster: false, countryId: undefined }));
+  fixture.componentRef.setInput('school', new SchoolSummaryDto({ id: SCHOOL, name: 'School One', domain: 'school1.com', isMaster: false, countryId: undefined, subscriptionStatus: undefined, trialEndDate: undefined }));
   fixture.detectChanges();
   http.expectOne(url('modules')).flush(json(modules));
   const element = fixture.nativeElement as HTMLElement;

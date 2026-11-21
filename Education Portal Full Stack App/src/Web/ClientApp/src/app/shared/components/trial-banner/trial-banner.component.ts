@@ -1,9 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { SubscriptionsClient } from '../../../web-api-client';
 
 /**
  * The banner across the top of a school's pages while its free trial runs: the days left. It shows nothing when the
  * school is not on a trial, and for the master tenant (which has no subscription).
+ *
+ * Inside the app it loads the school's own subscription. The sign-in page has no session, so it passes the days from the
+ * public trial notice instead (`[daysRemaining]`, `null` for no trial) and nothing is loaded here.
  */
 @Component({
   selector: 'app-trial-banner',
@@ -29,16 +32,25 @@ import { SubscriptionsClient } from '../../../web-api-client';
     }
   `,
 })
-export class TrialBannerComponent {
+export class TrialBannerComponent implements OnInit {
   private readonly subscriptions = inject(SubscriptionsClient);
 
-  /** The whole days left of the trial, or null when there is no trial. */
-  protected readonly daysLeft = signal<number | null>(null);
+  /** The days from the public trial notice (`null`: no trial). Left out, the banner loads the signed-in school's subscription. */
+  readonly daysRemaining = input<number | null | undefined>(undefined);
 
-  constructor() {
+  private readonly loaded = signal<number | null>(null);
+
+  /** The whole days left of the trial, or null when there is no trial. */
+  protected readonly daysLeft = computed(() => this.daysRemaining() ?? this.loaded());
+
+  ngOnInit(): void {
+    if (this.daysRemaining() !== undefined) {
+      return;
+    }
+
     this.subscriptions.getMySubscription().subscribe({
-      next: (mine) => this.daysLeft.set(mine.trialDaysRemaining ?? null),
-      error: () => this.daysLeft.set(null), // the master tenant has no subscription, and a failed request hides the banner
+      next: (mine) => this.loaded.set(mine.trialDaysRemaining ?? null),
+      error: () => this.loaded.set(null), // the master tenant has no subscription, and a failed request hides the banner
     });
   }
 }
