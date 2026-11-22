@@ -1,6 +1,6 @@
 ---
 name: engineering-standards
-description: Overview and index of the mandatory Education Portal engineering rules (SOLID, KISS, DRY, YAGNI, code quality, process, C# entity design, EF Core, localization and internationalization, Angular with Material Design, and rules for AI agents). Always read first, before any code, test or pipeline change, then load the matching topic skills.
+description: Overview and index of the mandatory Education Portal engineering rules (SOLID, KISS, DRY, YAGNI, code quality, process, C# entity design, EF Core, localization and internationalization, Angular with Material Design, rules for AI agents, the ticket-to-merge pipeline, testing, user documentation, Aspire and observability, PostgreSQL queries, and modules and billing). Always read first, before any code, test or pipeline change, then load the matching topic skills.
 ---
 
 # Engineering standards: overview (MUST follow)
@@ -31,6 +31,12 @@ These rules say how code in this repository is designed, written, reviewed and m
 | [localization-i18n](localization-i18n/SKILL.md) | ENG-I18N | Adding or changing any user-visible text, message, date, time, number, currency, layout direction, language or culture setting, or a translation file (backend and Angular) |
 | [angular-material-ui](angular-material-ui/SKILL.md) | ENG-UI | Changing anything in `src/Web/ClientApp`: components, templates, styles, forms, routing, services, tests |
 | [ai-agents](ai-agents/SKILL.md) | ENG-AGENT | Any AI agent or swarm working in this repo, and any code that exposes tools or APIs to an AI agent |
+| [ticket-to-merge](ticket-to-merge/SKILL.md) | ENG-FLOW | Taking one ticket from start to merged: rules, plan, branch, build, tests, gates, pull request, separate AI review, merge gate, user docs, report |
+| [testing](testing/SKILL.md) | ENG-TEST | Writing or reviewing any test: which project, denial cases, Angular specs, the Playwright whole-flow scenario, fake data |
+| [user-documentation](user-documentation/SKILL.md) | ENG-DOCS | Writing or updating end-user guides (how to create users, roles, permissions, campuses) after a feature merges |
+| [aspire-observability](aspire-observability/SKILL.md) | ENG-OPS | Adding or changing an AppHost resource, container, port, log, span, metric or health check |
+| [postgres-queries](postgres-queries/SKILL.md) | ENG-SQL | Any SQL query, database investigation, raw SQL in code, index or performance question |
+| [domain-modules-billing](domain-modules-billing/SKILL.md) | ENG-DOMAIN | A ticket touching modules, plans, prices, subscriptions, trials, invoices, payments, role rights per module or the lifecycle job |
 
 Most changes need several: a new use case usually needs design-principles, code-quality-process, csharp-entities, efcore and the compliance skills it touches.
 
