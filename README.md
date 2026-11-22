@@ -960,12 +960,18 @@ All engineering skills in the repository (generated from `docs/ai/engineering/` 
 | [engineering-standards](docs/ai/engineering/SKILL.md) | Overview | (index; see the topic skills) |
 | [ai-agents](docs/ai/engineering/ai-agents/SKILL.md) | Topic | OWASP Top 10 for LLM Applications 2025; AI RMF 1.0 (NIST AI 100-1) and Generative AI Profile (NIST AI 600-1); github/awesome-copilot agent-safety instructions (main) |
 | [angular-material-ui](docs/ai/engineering/angular-material-ui/SKILL.md) | Topic | Angular v22 guidelines (adev/src/context); angular/skills, built 2026-11-10 from angular/angular 0dafb36; angular.dev best practices for Angular v22; Angular Material 22 (Material 3 theming with mat.theme and system tokens); Material Design 3; WCAG 2.2 Level AA |
+| [aspire-observability](docs/ai/engineering/aspire-observability/SKILL.md) | Topic | Aspire 13.6; OpenTelemetry .NET docs as read on 2026-11-22 |
 | [code-quality-process](docs/ai/engineering/code-quality-process/SKILL.md) | Topic | C# 14 / .NET 10 coding conventions; dotnet/skills plugins/dotnet-test (main); google/eng-practices (main) |
 | [csharp-entities](docs/ai/engineering/csharp-entities/SKILL.md) | Topic | EF Core 10; .NET Microservices: Architecture for Containerized .NET Applications (current edition on Learn); .NET design guidelines (current on Learn); C# 14 / .NET 10 coding conventions |
 | [design-principles](docs/ai/engineering/design-principles/SKILL.md) | Topic | .NET design guidelines (current on Learn); Architect Modern Web Applications with ASP.NET Core and Azure (current edition on Learn) |
+| [domain-modules-billing](docs/ai/engineering/domain-modules-billing/SKILL.md) | Topic | ADR-009 to ADR-021 as of 2026-11-22 |
 | [efcore](docs/ai/engineering/efcore/SKILL.md) | Topic | EF Core 10; Npgsql.EntityFrameworkCore.PostgreSQL 10; dotnet/skills plugins/dotnet-data (main) |
 | [identifiers-enums](docs/ai/engineering/identifiers-enums/SKILL.md) | Topic | EF Core 10; .NET design guidelines (current on Learn); ASP.NET Core 10; Azure Architecture Center API design guidance (current on Learn) |
 | [localization-i18n](docs/ai/engineering/localization-i18n/SKILL.md) | Topic | Microsoft Learn Globalization docs (current on Learn); Engineering playbook (main); .NET 10; ASP.NET Core 10; Angular v22 guide (adev/src/content/guide/i18n); Article as read on 2026-11-12 |
+| [postgres-queries](docs/ai/engineering/postgres-queries/SKILL.md) | Topic | PostgreSQL current (18); Npgsql EF Core 10 |
+| [testing](docs/ai/engineering/testing/SKILL.md) | Topic | NUnit 4; Playwright for .NET, docs as read on 2026-11-22; Reqnroll docs as read on 2026-11-22; Aspire 13.6 |
+| [ticket-to-merge](docs/ai/engineering/ticket-to-merge/SKILL.md) | Topic | GitHub docs as read on 2026-11-22 |
+| [user-documentation](docs/ai/engineering/user-documentation/SKILL.md) | Topic | Diataxis as read on 2026-11-22 |
 <!-- END GENERATED: engineering skills -->
 
 ### Roadmap
