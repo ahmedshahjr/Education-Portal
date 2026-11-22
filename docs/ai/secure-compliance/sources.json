@@ -20,20 +20,20 @@
       "last_reviewed": "2026-11-22"
     },
     {
-      "id": "fedramp-rev5",
-      "name": "FedRAMP Rev 5 baselines (Moderate)",
-      "portal": "https://www.fedramp.gov/",
-      "tracked_version": "FedRAMP Rev 5 Moderate baseline",
+      "id": "fedramp-20x",
+      "name": "FedRAMP 20x Class C (Moderate) rules: Key Security Indicators and Consolidated Rules",
+      "portal": "https://www.fedramp.gov/20x/",
+      "tracked_version": "FedRAMP Consolidated Rules 2026, version 2026.11.02.01 (20x Class C)",
       "skills": [
         "standard-fedramp-moderate"
       ],
       "watch": {
         "type": "github-path",
-        "repo": "GSA/fedramp-automation",
-        "path": "dist/content/rev5/baselines"
+        "repo": "FedRAMP/rules",
+        "path": "fedramp-consolidated-rules.json"
       },
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-09"
+      "last_seen_sha": "64fa769510416fa75fd00a4689466094265b8083",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "owasp-top10",

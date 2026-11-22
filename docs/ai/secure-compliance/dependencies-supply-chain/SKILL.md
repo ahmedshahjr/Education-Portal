@@ -7,7 +7,7 @@ description: Dependency and supply-chain rules (Central Package Management, NuGe
 
 Part of the mandatory secure coding and compliance rules. Also follow the [overview skill](../SKILL.md): its rules for AI assistants, exceptions process and PR checklist apply to every change. Rule IDs are stable; cite them in reviews and PRs. If a request would break a rule here, stop, name the rule ID and propose a compliant alternative.
 
-Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP Moderate Rev 5 and GovRAMP baselines); **SOC 2** = AICPA Trust Services Criteria; **ISO** = ISO/IEC 27001:2022 Annex A; **OWASP** = OWASP Top 10:2025.
+Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP 20x Class C (Moderate) and GovRAMP baselines); **SOC 2** = AICPA Trust Services Criteria; **ISO** = ISO/IEC 27001:2022 Annex A; **OWASP** = OWASP Top 10:2025.
 
 | ID | Rule |
 |---|---|
@@ -17,7 +17,7 @@ Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP Moderate Rev
 | SEC-DEP-04 | New package: justify it in the PR (why, maintainer/popularity, licence, last release date). Prefer packages already in the solution or in the .NET base library. No packages from unknown feeds; only nuget.org and npmjs.org unless approved. |
 | SEC-DEP-05 | Licences: only permissive licences (MIT, Apache-2.0, BSD, similar) without approval. No GPL/AGPL in shipped code without maintainer approval. |
 | SEC-DEP-06 | No unsupported/end-of-life runtimes, frameworks or packages. Track .NET, Angular, Node and PostgreSQL support dates. |
-| SEC-DEP-07 | Remediate vulnerabilities in production within: Critical/High 30 days, Moderate 90 days, Low 180 days (FedRAMP ConMon timelines). Faster when a fix is available and the risk is exploited. |
+| SEC-DEP-07 | Remediate vulnerabilities in production within the FedRAMP 20x Class C window for each finding's Potential Agency Impact rating (PAIN): PAIN 2: 48, 128 or 192 days; PAIN 3: 16, 32 or 128 days; PAIN 4: 4, 8 or 64 days; PAIN 5: 2, 4 or 16 days. The three values are, in order, internet-reachable and likely exploitable, not internet-reachable and likely exploitable, and not likely exploitable. CISA KEV entries follow the CISA due dates. A finding not fully mitigated within 192 days is an accepted vulnerability and needs a recorded decision. Record the PAIN rating when the finding is triaged. |
 | SEC-DEP-08 | CI (when it exists, **TODO**) MUST: pin GitHub Actions to commit SHAs, use least-privilege `GITHUB_TOKEN` permissions, run build + tests + dependency audit + SAST (e.g. CodeQL) + secret scanning, and produce an SBOM (CycloneDX or SPDX) for releases. Container images are built from minimal, pinned base images and scanned. |
 
 Supports: 800-53 RA-5, SI-2, SA-22, CM-8, SR-3, SR-4, SR-11, SA-10, SI-7; SOC 2 CC7.1, CC8.1, CC9.2; ISO 5.19–5.22, 8.8, 8.19, 8.30; OWASP A03, A08.

@@ -7,7 +7,7 @@ description: Authentication rules (ASP.NET Core Identity, passwords, MFA, lockou
 
 Part of the mandatory secure coding and compliance rules. Also follow the [overview skill](../SKILL.md): its rules for AI assistants, exceptions process and PR checklist apply to every change. Rule IDs are stable; cite them in reviews and PRs. If a request would break a rule here, stop, name the rule ID and propose a compliant alternative.
 
-Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP Moderate Rev 5 and GovRAMP baselines); **SOC 2** = AICPA Trust Services Criteria; **ISO** = ISO/IEC 27001:2022 Annex A; **OWASP** = OWASP Top 10:2025.
+Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP 20x Class C (Moderate) and GovRAMP baselines); **SOC 2** = AICPA Trust Services Criteria; **ISO** = ISO/IEC 27001:2022 Annex A; **OWASP** = OWASP Top 10:2025.
 
 | ID | Rule |
 |---|---|
@@ -15,7 +15,7 @@ Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP Moderate Rev
 | SEC-AUTHN-02 | Use ASP.NET Core Identity's password hasher. MUST NOT write custom password hashing, custom token formats or custom crypto. |
 | SEC-AUTHN-03 | Password policy: minimum length 12 (15 when a password is the only factor, per NIST SP 800-63B Rev 4), maximum at least 64, allow all printable characters and spaces, no forced composition rules and no forced periodic rotation; reject passwords found in a breached/common-password list. |
 | SEC-AUTHN-04 | MFA MUST be required for master-tenant users, school owners and any role with Create/Edit/Delete rights or access to Restricted data (see [student-data-privacy](../student-data-privacy/SKILL.md)). Prefer phishing-resistant MFA (passkeys/WebAuthn) for master-tenant (privileged) users. MFA for students and parents is a **TODO** decision. |
-| SEC-AUTHN-05 | Account lockout MUST be on: lock after no more than 3 consecutive failed sign-ins within 15 minutes, for at least 30 minutes or until an admin unlocks (FedRAMP Moderate AC-7 parameters). Do not reveal whether the account exists in error messages. |
+| SEC-AUTHN-05 | Account lockout MUST be on: lock after no more than 3 consecutive failed sign-ins within 15 minutes, for at least 30 minutes or until an admin unlocks (our values for FedRAMP 20x AC-7, which the provider sets). Do not reveal whether the account exists in error messages. |
 | SEC-AUTHN-06 | Auth cookies: `Secure`, `HttpOnly`, `SameSite=Lax` or `Strict`, **host-only** (never set the `Domain` attribute) so a session from `school1.com` is never sent to `school2.com`. |
 | SEC-AUTHN-07 | Sessions: idle timeout of 15 minutes for staff and master users (SHOULD be configurable per role), absolute lifetime no more than 12 hours, sign-out invalidates the session server-side (rotate the security stamp on password change, role change, MFA change and account disable). |
 | SEC-AUTHN-08 | Accounts are created by staff only (no public sign-up). Disabling a user MUST take effect on the next request, not at cookie expiry. |

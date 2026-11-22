@@ -4,7 +4,7 @@
 #   docs/ai/engineering/sources.json        engineering guidance (Angular, Angular Material, EF Core,
 #                                           .NET docs, dotnet/skills, angular/skills, OWASP LLM, ...)
 #
-# - Sources with a GitHub feed (NIST 800-53 OSCAL, FedRAMP baselines, OWASP Top 10,
+# - Sources with a GitHub feed (NIST 800-53 OSCAL, FedRAMP 20x rules, OWASP Top 10,
 #   NIST 800-63) are compared against last_seen_sha in sources.json.
 # - Sources without a feed (GovRAMP, SOC 2, ISO 27001, OMB M-26-14, EU law, PCI DSS) are
 #   listed for a manual check on their portals.

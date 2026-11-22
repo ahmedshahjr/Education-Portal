@@ -1,6 +1,6 @@
 ---
 name: secure-compliance
-description: Overview and index of the mandatory Education Portal security and compliance rules (FedRAMP Moderate Rev 5 / NIST SP 800-53, GovRAMP, SOC 2, ISO/IEC 27001:2022, OWASP Top 10:2025, PCI DSS v4.0.1, EU law). Always read first, before any code, config, dependency, test data or pipeline change, then load the matching topic skills.
+description: Overview and index of the mandatory Education Portal security and compliance rules (FedRAMP 20x Class C (Moderate) / NIST SP 800-53, GovRAMP, SOC 2, ISO/IEC 27001:2022, OWASP Top 10:2025, PCI DSS v4.0.1, EU law). Always read first, before any code, config, dependency, test data or pipeline change, then load the matching topic skills.
 ---
 
 # Secure coding and compliance rules: overview (MUST follow)
@@ -16,7 +16,7 @@ The rules are split into one skill per topic and one skill per standard (section
 ## How to use these rules
 
 - **MUST / MUST NOT** are hard rules. **SHOULD** means do it unless there is a documented reason not to (write the reason in the PR).
-- Each section ends with the frameworks it supports. Abbreviations: **800-53** = NIST SP 800-53 Rev 5 control (used by FedRAMP Moderate Rev 5 and GovRAMP, which is built on the same baselines); **SOC 2** = AICPA Trust Services Criteria (2017, revised points of focus 2022); **ISO** = ISO/IEC 27001:2022 Annex A control; **OWASP** = OWASP Top 10:2025 category.
+- Each section ends with the frameworks it supports. Abbreviations: **800-53** = NIST SP 800-53 Rev 5 control (used by FedRAMP 20x Class C (Moderate) and GovRAMP, which is built on the same baselines); **SOC 2** = AICPA Trust Services Criteria (2017, revised points of focus 2022); **ISO** = ISO/IEC 27001:2022 Annex A control; **OWASP** = OWASP Top 10:2025 category.
 - Rule IDs are stable. Reference them in code review comments and PR descriptions.
 - When a rule and convenience conflict, the rule wins. When a rule and AGENTS.md conflict, raise it with the maintainer and fix one of the two files in the same PR.
 
@@ -66,7 +66,7 @@ One skill per standard explains what it asks of this codebase, the parameters we
 
 | Skill | Standard |
 |---|---|
-| [standard-fedramp-moderate](standard-fedramp-moderate/SKILL.md) | FedRAMP Moderate Rev 5 (NIST SP 800-53 Rev 5) |
+| [standard-fedramp-moderate](standard-fedramp-moderate/SKILL.md) | FedRAMP 20x Class C (Moderate) (NIST SP 800-53 Rev 5) |
 | [standard-govramp](standard-govramp/SKILL.md) | GovRAMP (formerly StateRAMP) |
 | [standard-soc2](standard-soc2/SKILL.md) | SOC 2 (AICPA Trust Services Criteria) |
 | [standard-iso27001](standard-iso27001/SKILL.md) | ISO/IEC 27001:2022 |
@@ -122,7 +122,7 @@ The same checklist is in `.github/pull_request_template.md`, so GitHub pre-fills
 ## 6. Keeping these rules current
 
 - The official sources behind these rules are listed in [sources.json](sources.json), each with the version the skills track (`tracked_version`) and the skills that depend on it (`skills`).
-- `.github/workflows/compliance-sources-review.yml` runs on the 1st and 16th of every month (about every 15 days) and on demand. It checks the sources that publish on GitHub (NIST SP 800-53 OSCAL catalog, FedRAMP Rev 5 baselines, OWASP Top 10, NIST SP 800-63) against the last reviewed commit, lists the portals with no feed (GovRAMP, SOC 2, ISO 27001, OMB M-21-31, EU law, PCI DSS) for a manual check with the tracked version and affected skills, and opens or updates one `compliance-review` issue.
+- `.github/workflows/compliance-sources-review.yml` runs on the 1st and 16th of every month (about every 15 days) and on demand. It checks the sources that publish on GitHub (NIST SP 800-53 OSCAL catalog, FedRAMP 20x rules, OWASP Top 10, NIST SP 800-63) against the last reviewed commit, lists the portals with no feed (GovRAMP, SOC 2, ISO 27001, OMB M-21-31, EU law, PCI DSS) for a manual check with the tracked version and affected skills, and opens or updates one `compliance-review` issue.
 - The workflow never edits the rules. Whoever reviews the issue updates the affected standard and topic skills (if needed) and `last_seen_sha` / `last_reviewed` in `sources.json` in a PR into `development`, which goes through normal review (SEC-CHG-01/02).
 - Last full review of this file: **2026-11-10**.
 
