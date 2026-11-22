@@ -17,7 +17,7 @@ R1.1  RolePermission.Create(role, module, campus, allCampuses, rights...)
 R1.2  Set(...): if ViewHistory and not View -> throw ArgumentException
       AccessRight.ViewHistory = 7; add lookup row; add CanViewHistory column (default false)
 
-R1.3  behaviour.Handle(request):
+R1.3  request rules: CheckAsync(request):
         for each attribute with Right != None (module required, else InvalidOperationException)
           skip if master tenant or Administrator
           if not IRoleRights.HasRightAsync(user, school, module, right): 403     // any campus
@@ -60,11 +60,11 @@ R1.7  no change; existing administrator tests must stay green
 R2.1  migration: create Tenants; for each School: insert Tenant(name = School.Name, IsMaster = School.IsMaster);
       School.TenantId = that tenant; move Subscription/TenantModule/Invoice SchoolId -> TenantId via school's tenant
 R2.2  unique filtered index on Tenants(IsMaster) where IsMaster = true
-R2.3  AddSchoolToTenant(tenantId, name, ...) [MasterTenant]: behaviour refuses when not on master host (403);
+R2.3  AddSchoolToTenant(tenantId, name, ...) [MasterTenant]: request rules refuse when not on master host (403);
       find tenant via filtered query (404 if absent); School.Create adds main campus; save in one transaction
 R2.4  Register(...): ExecuteInTransactionAsync { tenant = Tenant.Create; school = School.Create(first school);
         admin = create Administrator account; grant default modules to tenant (SchoolDefaultModules); trial }
-R2.5  architecture test: for every IRequest type not [AllowAnonymous]: assert it has [Authorize] with Module != None,
+R2.5  architecture test: for every request type not [AllowAnonymous]: assert it has [Authorize] with Module != None,
       or MasterTenant = true, or is in the exemption list; list failing types
 R2.6  Angular route config: add moduleGuard/rightsGuard to subscription, audit, branding, admissions
 R2.7  both registration paths create an Administrator account bound to the tenant's first school; no new role

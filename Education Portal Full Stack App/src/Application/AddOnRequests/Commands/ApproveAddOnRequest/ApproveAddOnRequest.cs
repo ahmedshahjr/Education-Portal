@@ -12,7 +12,7 @@ namespace EducationPortal.Application.AddOnRequests.Commands.ApproveAddOnRequest
 /// (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record ApproveAddOnRequestCommand(Guid Id) : IRequest;
+public record ApproveAddOnRequestCommand(Guid Id);
 
 public class ApproveAddOnRequestCommandValidator : AbstractValidator<ApproveAddOnRequestCommand>
 {
@@ -24,7 +24,7 @@ public class ApproveAddOnRequestCommandValidator : AbstractValidator<ApproveAddO
     }
 }
 
-public class ApproveAddOnRequestCommandHandler : IRequestHandler<ApproveAddOnRequestCommand>
+public class ApproveAddOnRequestCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

@@ -13,7 +13,7 @@ namespace EducationPortal.Application.SchoolPublicPage.Commands.SetCurricula;
 /// clears the set. Needs the School module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record SetCurriculaCommand : IRequest
+public record SetCurriculaCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -31,12 +31,12 @@ public class SetCurriculaCommandValidator : AbstractValidator<SetCurriculaComman
 
         RuleFor(c => c.Kinds)
             .Must(kinds => kinds.Distinct().Count() == kinds.Count)
-            .WithMessage("Each curriculum can be listed only once.")
+            .WithMessage(_ => ValidationMessages.CurriculumListedTwice)
             .When(c => c.Kinds is not null);
     }
 }
 
-public class SetCurriculaCommandHandler : IRequestHandler<SetCurriculaCommand>
+public class SetCurriculaCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

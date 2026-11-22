@@ -95,8 +95,7 @@ The baseline came from the Clean Architecture template and does not meet every r
 | Gap | Where | Rule |
 |---|---|---|
 | No ESLint (`angular-eslint`) in the Angular app | `src/Web/ClientApp` | ENG-UI-14 |
-| .NET analyzers run at the default level; `latest-recommended` currently reports CA2016 (pipeline behaviours do not forward the `CancellationToken`), CA1848/CA1873 (logging), CA1860 and CA1716 | `Directory.Build.props`, `src/Application/Common/Behaviours/`, `src/Shared/` | ENG-CODE-09 |
-| `DispatchDomainEventsInterceptor.SavingChanges` blocks on async code (synchronous EF Core override) | `src/Infrastructure/Data/Interceptors/DispatchDomainEventsInterceptor.cs` | ENG-EF-06 |
+| .NET analyzers run at the default level; `latest-recommended` currently reports CA1848/CA1873 (logging), CA1860 and CA1716 | `Directory.Build.props`, `src/Shared/` | ENG-CODE-09 |
 | `BaseEntity` and `BaseAuditableEntity` have public setters for `Id` and audit fields (template design) | `src/Domain/Common/` | ENG-ENTITY-02 |
 
 Paths in this table are relative to `Education Portal Full Stack App/`. Remove a row in the PR that fixes it.

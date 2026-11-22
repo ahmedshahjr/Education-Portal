@@ -10,9 +10,9 @@ namespace EducationPortal.Application.Countries.Queries.GetLanguages;
 /// administrators only (SEC-AUTHZ-07).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetLanguagesQuery : IRequest<IReadOnlyList<LanguageDto>>;
+public record GetLanguagesQuery;
 
-public class GetLanguagesQueryHandler : IRequestHandler<GetLanguagesQuery, IReadOnlyList<LanguageDto>>
+public class GetLanguagesQueryHandler
 {
     public Task<IReadOnlyList<LanguageDto>> Handle(GetLanguagesQuery request, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<LanguageDto>>(Language.All.Select(LanguageDto.From).ToList());

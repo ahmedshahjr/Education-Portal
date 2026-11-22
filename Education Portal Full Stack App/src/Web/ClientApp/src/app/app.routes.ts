@@ -52,6 +52,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/campuses/campuses.page').then((m) => m.CampusesPage),
       },
       {
+        // Adding a campus has its own page (like roles and people, ADR-024); it comes before any campus id route.
+        path: 'campuses/new',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.campus)],
+        loadComponent: () => import('./features/campuses/campus-page.component').then((m) => m.CampusPageComponent),
+      },
+      {
         path: 'subscription',
         canActivate: [administratorGuard],
         loadComponent: () => import('./features/subscription/my-subscription.page').then((m) => m.MySubscriptionPage),
@@ -107,6 +113,18 @@ export const routes: Routes = [
         path: 'roles',
         canActivate: [administratorGuard, moduleGuard(MODULE_CODES.usersRoles)],
         loadComponent: () => import('./features/roles/roles.page').then((m) => m.RolesPage),
+      },
+      {
+        // Changing a role has its own page too (its rights grid is too large for a dialog, ADR-024).
+        path: 'roles/:id',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.usersRoles)],
+        loadComponent: () => import('./features/roles/role-page.component').then((m) => m.RolePageComponent),
+      },
+      {
+        // Adding a role has its own page, not a dialog (requested).
+        path: 'roles/new',
+        canActivate: [administratorGuard, moduleGuard(MODULE_CODES.usersRoles)],
+        loadComponent: () => import('./features/roles/role-page.component').then((m) => m.RolePageComponent),
       },
       {
         path: 'academic-calendar',

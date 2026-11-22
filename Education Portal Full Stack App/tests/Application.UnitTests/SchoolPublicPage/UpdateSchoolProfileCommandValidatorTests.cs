@@ -8,7 +8,7 @@ namespace EducationPortal.Application.UnitTests.SchoolPublicPage;
 
 public class UpdateSchoolProfileCommandValidatorTests
 {
-    private readonly UpdateSchoolProfileCommandValidator _validator = new();
+    private readonly UpdateSchoolProfileCommandValidator _validator = new(TimeProvider.System);
 
     private static UpdateSchoolProfileCommand Valid() => new()
     {

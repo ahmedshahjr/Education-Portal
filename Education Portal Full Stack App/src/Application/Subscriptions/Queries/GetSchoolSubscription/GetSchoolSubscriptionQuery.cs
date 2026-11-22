@@ -11,9 +11,9 @@ namespace EducationPortal.Application.Subscriptions.Queries.GetSchoolSubscriptio
 /// Master tenant administrators only (SEC-AUTHZ-07), so the school id may come from the route (SEC-AUTHZ-04).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetSchoolSubscriptionQuery(Guid SchoolId) : IRequest<SubscriptionDto>;
+public record GetSchoolSubscriptionQuery(Guid SchoolId);
 
-public class GetSchoolSubscriptionQueryHandler : IRequestHandler<GetSchoolSubscriptionQuery, SubscriptionDto>
+public class GetSchoolSubscriptionQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

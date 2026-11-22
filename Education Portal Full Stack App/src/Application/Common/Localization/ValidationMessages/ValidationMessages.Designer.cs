@@ -535,6 +535,15 @@ namespace EducationPortal.Application.Common.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Choose at least one campus, or all campuses, for each module the role has rights in..
+        /// </summary>
+        internal static string RoleNeedsCampus {
+            get {
+                return ResourceManager.GetString("RoleNeedsCampus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This school already has a role with this name..
         /// </summary>
         internal static string RoleNameTaken {
@@ -1034,6 +1043,33 @@ namespace EducationPortal.Application.Common.Localization {
         internal static string CalendarRangeTooLong {
             get {
                 return ResourceManager.GetString("CalendarRangeTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Each curriculum can be listed only once.
+        /// </summary>
+        internal static string CurriculumListedTwice {
+            get {
+                return ResourceManager.GetString("CurriculumListedTwice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The photo must be a PNG, JPEG or WebP image of at most 2 MB.
+        /// </summary>
+        internal static string PhotoNotAcceptable {
+            get {
+                return ResourceManager.GetString("PhotoNotAcceptable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A request may create at most {0} people.
+        /// </summary>
+        internal static string DevelopmentDataTooManyPeople {
+            get {
+                return ResourceManager.GetString("DevelopmentDataTooManyPeople", resourceCulture);
             }
         }
         

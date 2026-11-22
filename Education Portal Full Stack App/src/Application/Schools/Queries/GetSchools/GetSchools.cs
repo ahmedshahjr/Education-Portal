@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Schools.Queries.GetSchools;
 /// one country. Master tenant administrators only (SEC-AUTHZ-07).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetSchoolsQuery : IRequest<PaginatedList<SchoolSummaryDto>>
+public record GetSchoolsQuery
 {
     /// <summary>The longest search text accepted (SEC-INPUT-01). School names are at most 200 characters.</summary>
     public const int MaxSearchLength = 100;
@@ -71,7 +71,7 @@ public class GetSchoolsQueryValidator : AbstractValidator<GetSchoolsQuery>
     }
 }
 
-public class GetSchoolsQueryHandler : IRequestHandler<GetSchoolsQuery, PaginatedList<SchoolSummaryDto>>
+public class GetSchoolsQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

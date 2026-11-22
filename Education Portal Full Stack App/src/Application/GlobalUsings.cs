@@ -1,7 +1,6 @@
 ﻿global using Ardalis.GuardClauses;
 global using Microsoft.EntityFrameworkCore;
 global using FluentValidation;
-global using MediatR;
 global using EducationPortal.Domain.Entities;
 global using EducationPortal.Domain.Enums;
 global using EducationPortal.Domain.ValueObjects;

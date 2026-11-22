@@ -12,7 +12,7 @@ namespace EducationPortal.Application.Academics.Commands.CreateGradingScale;
 
 /// <summary>Creates a grading scale of the school. Its bands must cover 0 to 100 once, with no gap and no overlap. Needs the Exams module and the Create right. Audited.</summary>
 [Authorize(Module = ModuleCode.Exams, Right = AccessRight.Create)]
-public record CreateGradingScaleCommand : IRequest<Guid>
+public record CreateGradingScaleCommand
 {
     public string Name { get; init; } = string.Empty;
 
@@ -45,7 +45,7 @@ public class CreateGradingScaleCommandValidator : AbstractValidator<CreateGradin
     }
 }
 
-public class CreateGradingScaleCommandHandler : IRequestHandler<CreateGradingScaleCommand, Guid>
+public class CreateGradingScaleCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

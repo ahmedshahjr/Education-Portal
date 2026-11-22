@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Countries.Commands.UpdateCountryRegionalSe
 /// (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record UpdateCountryRegionalSettingsCommand : IRequest
+public record UpdateCountryRegionalSettingsCommand
 {
     /// <summary>The country's public id, taken from the route.</summary>
     public Guid Id { get; init; }
@@ -43,7 +43,7 @@ public class UpdateCountryRegionalSettingsCommandValidator : AbstractValidator<U
     }
 }
 
-public class UpdateCountryRegionalSettingsCommandHandler : IRequestHandler<UpdateCountryRegionalSettingsCommand>
+public class UpdateCountryRegionalSettingsCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Countries.Commands.UpdateCountry;
 /// Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record UpdateCountryCommand : CountryFields, IRequest
+public record UpdateCountryCommand : CountryFields
 {
     /// <summary>The country's public id; the API never sees the internal key (ENG-ID-02).</summary>
     public Guid Id { get; init; }
@@ -25,7 +25,7 @@ public class UpdateCountryCommandValidator : CountryFieldsValidator<UpdateCountr
     }
 }
 
-public class UpdateCountryCommandHandler : IRequestHandler<UpdateCountryCommand>
+public class UpdateCountryCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

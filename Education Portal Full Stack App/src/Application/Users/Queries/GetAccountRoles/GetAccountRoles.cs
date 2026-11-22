@@ -9,12 +9,12 @@ namespace EducationPortal.Application.Users.Queries.GetAccountRoles;
 
 /// <summary>The public ids of the school roles a person's login account holds. Needs the Users &amp; Roles module.</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
-public record GetAccountRolesQuery : IRequest<IReadOnlyList<Guid>>
+public record GetAccountRolesQuery
 {
     public Guid PersonId { get; init; }
 }
 
-public class GetAccountRolesQueryHandler : IRequestHandler<GetAccountRolesQuery, IReadOnlyList<Guid>>
+public class GetAccountRolesQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;

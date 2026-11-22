@@ -15,7 +15,7 @@ namespace EducationPortal.Application.Schools.Commands.RegisterSchool;
 /// so it signs in on the master tenant's domain until the master gives it one (ADR-018). It is the one command that creates
 /// a school without authorization, so the endpoint is rate limited and only the master tenant's domain accepts it. Audited (SEC-LOG-03).
 /// </summary>
-public record RegisterSchoolCommand : IRequest<Guid>
+public record RegisterSchoolCommand
 {
     public string SchoolName { get; init; } = string.Empty;
 
@@ -74,7 +74,7 @@ public class RegisterSchoolCommandValidator : AbstractValidator<RegisterSchoolCo
     }
 }
 
-public class RegisterSchoolCommandHandler : IRequestHandler<RegisterSchoolCommand, Guid>
+public class RegisterSchoolCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;

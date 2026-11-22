@@ -9,7 +9,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.DeleteShift;
 
 /// <summary>Deletes a shift. The row is kept (soft delete) and hidden everywhere. Needs the Academic setup module. Audited (SEC-LOG-03).</summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Delete)]
-public record DeleteShiftCommand : IRequest
+public record DeleteShiftCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -26,7 +26,7 @@ public class DeleteShiftCommandValidator : AbstractValidator<DeleteShiftCommand>
     }
 }
 
-public class DeleteShiftCommandHandler : IRequestHandler<DeleteShiftCommand>
+public class DeleteShiftCommandHandler
 {
     private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;

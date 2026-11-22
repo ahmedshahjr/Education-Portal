@@ -9,9 +9,9 @@ namespace EducationPortal.Application.Locations.Queries.GetLocationCountries;
 /// school and not part of a module, so any signed-in user on a school or the master domain may read it.
 /// </summary>
 [Authorize]
-public record GetLocationCountriesQuery : IRequest<IReadOnlyList<LocationCountryDto>>;
+public record GetLocationCountriesQuery;
 
-public class GetLocationCountriesQueryHandler : IRequestHandler<GetLocationCountriesQuery, IReadOnlyList<LocationCountryDto>>
+public class GetLocationCountriesQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

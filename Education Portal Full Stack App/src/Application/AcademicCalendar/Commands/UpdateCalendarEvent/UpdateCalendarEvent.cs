@@ -10,7 +10,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.UpdateCalendarEv
 
 /// <summary>Changes an event on the school calendar. Needs the Academic setup module. Audited (SEC-LOG-03).</summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Edit)]
-public record UpdateCalendarEventCommand : IRequest, ICalendarEventInput
+public record UpdateCalendarEventCommand : ICalendarEventInput
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -45,7 +45,7 @@ public class UpdateCalendarEventCommandValidator : AbstractValidator<UpdateCalen
     }
 }
 
-public class UpdateCalendarEventCommandHandler : IRequestHandler<UpdateCalendarEventCommand>
+public class UpdateCalendarEventCommandHandler
 {
     private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;

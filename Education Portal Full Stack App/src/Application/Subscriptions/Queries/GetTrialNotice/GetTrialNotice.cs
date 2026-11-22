@@ -15,9 +15,9 @@ public sealed record TrialNoticeDto(bool IsTrial, int DaysRemaining);
 /// day count, no plan, price or dates. The master tenant has no trial. A school without a domain signs in on the master
 /// tenant's domain, so it shows no notice there; it sees the in-app banner after sign-in.
 /// </summary>
-public record GetTrialNoticeQuery : IRequest<TrialNoticeDto>;
+public record GetTrialNoticeQuery;
 
-public class GetTrialNoticeQueryHandler : IRequestHandler<GetTrialNoticeQuery, TrialNoticeDto>
+public class GetTrialNoticeQueryHandler
 {
     private static readonly TrialNoticeDto NoTrial = new(false, 0);
 

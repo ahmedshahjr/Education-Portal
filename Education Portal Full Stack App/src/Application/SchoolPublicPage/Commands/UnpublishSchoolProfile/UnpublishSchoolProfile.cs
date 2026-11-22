@@ -10,13 +10,13 @@ namespace EducationPortal.Application.SchoolPublicPage.Commands.UnpublishSchoolP
 
 /// <summary>Hides a school's public page from the public. The text is kept. Needs the School module. Audited (SEC-LOG-03).</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record UnpublishSchoolProfileCommand : IRequest
+public record UnpublishSchoolProfileCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
 }
 
-public class UnpublishSchoolProfileCommandHandler : IRequestHandler<UnpublishSchoolProfileCommand>
+public class UnpublishSchoolProfileCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

@@ -10,7 +10,7 @@ namespace EducationPortal.Application.SchoolPublicPage.Commands.DeleteClassOffer
 
 /// <summary>Deletes a class offering. The row is kept (soft delete) and hidden everywhere. Needs the School module. Audited (SEC-LOG-03).</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record DeleteClassOfferingCommand : IRequest
+public record DeleteClassOfferingCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -27,7 +27,7 @@ public class DeleteClassOfferingCommandValidator : AbstractValidator<DeleteClass
     }
 }
 
-public class DeleteClassOfferingCommandHandler : IRequestHandler<DeleteClassOfferingCommand>
+public class DeleteClassOfferingCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

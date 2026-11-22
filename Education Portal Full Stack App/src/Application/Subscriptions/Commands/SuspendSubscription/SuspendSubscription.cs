@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Subscriptions.Commands.SuspendSubscription
 /// (SEC-AUTHZ-07), so the school id may come from the route (SEC-AUTHZ-04). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record SuspendSubscriptionCommand(Guid SchoolId) : IRequest;
+public record SuspendSubscriptionCommand(Guid SchoolId);
 
 public class SuspendSubscriptionCommandValidator : AbstractValidator<SuspendSubscriptionCommand>
 {
@@ -27,7 +27,7 @@ public class SuspendSubscriptionCommandValidator : AbstractValidator<SuspendSubs
     }
 }
 
-public class SuspendSubscriptionCommandHandler : IRequestHandler<SuspendSubscriptionCommand>
+public class SuspendSubscriptionCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

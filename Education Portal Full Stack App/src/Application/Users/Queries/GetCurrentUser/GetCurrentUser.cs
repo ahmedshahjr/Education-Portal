@@ -6,9 +6,9 @@ namespace EducationPortal.Application.Users.Queries.GetCurrentUser;
 
 /// <summary>Returns the signed-in user's own account.</summary>
 [Authorize(AllowWhilePasswordChangeRequired = true)]
-public record GetCurrentUserQuery : IRequest<CurrentUserDto>;
+public record GetCurrentUserQuery;
 
-public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, CurrentUserDto>
+public class GetCurrentUserQueryHandler
 {
     private readonly IUser _user;
     private readonly IIdentityService _identityService;

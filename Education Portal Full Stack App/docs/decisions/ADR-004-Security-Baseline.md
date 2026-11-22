@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted. The endpoint filter for antiforgery described in the decision is now the `[ValidateAntiforgeryToken]` attribute on each unsafe controller action, see [ADR-025](ADR-025-Controllers-And-Application-Services-No-MediatR.md).
 
 ## Date
 

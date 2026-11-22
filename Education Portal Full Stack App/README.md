@@ -32,6 +32,7 @@ dotnet new install Clean.Architecture.Solution.Template
 Then, from the `./src/Application/` folder:
 
 ```bash
-dotnet new ca-usecase --name CreateCourse --feature-name Courses --usecase-type command --return-type int
-dotnet new ca-usecase -n GetCourses -fn Courses -ut query -rt CoursesVm
+# Not used: the ca-usecase template was written for the removed MediatR design (ADR-025). Copy an existing use case by hand.
+# dotnet new ca-usecase --name CreateCourse --feature-name Courses --usecase-type command --return-type int
+# dotnet new ca-usecase -n GetCourses -fn Courses -ut query -rt CoursesVm
 ```

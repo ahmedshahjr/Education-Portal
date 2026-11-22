@@ -10,7 +10,7 @@ namespace EducationPortal.Application.Schools.Queries.GetSchoolDetails;
 /// Needs the School module.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record GetSchoolDetailsQuery : IRequest<SchoolDetailsDto>
+public record GetSchoolDetailsQuery
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -30,7 +30,7 @@ public sealed record SchoolDetailsDto(
     string? Website,
     int AcademicYearStartMonth);
 
-public class GetSchoolDetailsQueryHandler : IRequestHandler<GetSchoolDetailsQuery, SchoolDetailsDto>
+public class GetSchoolDetailsQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

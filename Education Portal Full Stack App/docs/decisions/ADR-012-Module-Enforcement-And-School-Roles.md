@@ -3,7 +3,7 @@
 ## Status
 
 Accepted. Role rights become per campus in [ADR-022](ADR-022-Role-Rights-Per-Campus.md); entitlements move to the
-tenant in [ADR-021](ADR-021-Tenant-Above-School.md).
+tenant in [ADR-021](ADR-021-Tenant-Above-School.md). The `AuthorizationBehaviour` named in the body is now the request rules (`IRequestRules`), see [ADR-025](ADR-025-Controllers-And-Application-Services-No-MediatR.md).
 
 ## Date
 

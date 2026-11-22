@@ -8,9 +8,9 @@ namespace EducationPortal.Application.Campuses.Queries.GetCampusSettings;
 
 /// <summary>Reads the current school's campus code settings (whether the prefix is on, and the prefix). Needs the Campuses module.</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
-public record GetCampusSettingsQuery : IRequest<CampusSettingsDto>;
+public record GetCampusSettingsQuery;
 
-public class GetCampusSettingsQueryHandler : IRequestHandler<GetCampusSettingsQuery, CampusSettingsDto>
+public class GetCampusSettingsQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

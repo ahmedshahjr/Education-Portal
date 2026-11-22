@@ -7,6 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ToastService } from '../../shared/services/toast.service';
+import { domainValidator } from '../../shared/validation/domain-validators';
+import { emailValidator } from '../../shared/validation/email-validators';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -70,10 +72,10 @@ export class SchoolRequestsQueuePage {
   protected readonly approving = computed(() => (this.requests() ?? []).find((r) => r.id === this.approvingId()) ?? null);
 
   protected readonly form = this.formBuilder.nonNullable.group({
-    domain: ['', [Validators.required, Validators.maxLength(253)]],
+    domain: ['', [Validators.required, Validators.maxLength(253), domainValidator]],
     countryId: ['', [Validators.required]],
     dataRegion: [''],
-    administratorEmail: ['', [Validators.required, Validators.email, Validators.maxLength(256)]],
+    administratorEmail: ['', [Validators.required, Validators.maxLength(256), emailValidator]],
     administratorPassword: ['', [Validators.required, Validators.minLength(15), Validators.maxLength(128)]],
   });
 

@@ -21,7 +21,7 @@ namespace EducationPortal.Application.Modules.Commands.SetSchoolModule;
 /// only (SEC-AUTHZ-07). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record SetSchoolModuleCommand : IRequest
+public record SetSchoolModuleCommand
 {
     /// <summary>The school's public id, taken from the route (ENG-ID-02).</summary>
     public Guid SchoolId { get; init; }
@@ -54,7 +54,7 @@ public class SetSchoolModuleCommandValidator : AbstractValidator<SetSchoolModule
     }
 }
 
-public class SetSchoolModuleCommandHandler : IRequestHandler<SetSchoolModuleCommand>
+public class SetSchoolModuleCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
@@ -109,6 +109,7 @@ public class SetSchoolModuleCommandHandler : IRequestHandler<SetSchoolModuleComm
 
     private async Task TurnOnAsync(int schoolId, int moduleId, DateTimeOffset now, CancellationToken cancellationToken)
     {
+        // compliance-exception: SEC-AUTHZ-03 trusted server code: the school is named by the caller (the master tenant or a seed), and every row read is still filtered by SchoolId
         var holdsWholeSchool = await _context.TenantModules.IgnoreQueryFilters().AnyAsync(
             t => t.SchoolId == schoolId && t.ModuleId == moduleId && t.Status == TenantModuleStatus.Active
                  && t.IsSchoolWide && (t.ValidTo == null || t.ValidTo > now),
@@ -123,6 +124,7 @@ public class SetSchoolModuleCommandHandler : IRequestHandler<SetSchoolModuleComm
 
         // A default grant of the main campus that was ended is reopened, not duplicated: one such grant per module and school.
         var endedDefault = await _context.TenantModules
+            // compliance-exception: SEC-AUTHZ-03 trusted server code: the school is named by the caller (the master tenant or a seed), and every row read is still filtered by SchoolId
             .IgnoreQueryFilters()
             .SingleOrDefaultAsync(t => t.SchoolId == schoolId && t.ModuleId == moduleId && t.CampusId == mainCampus.Id && t.SubscriptionId == null, cancellationToken);
 
@@ -139,6 +141,7 @@ public class SetSchoolModuleCommandHandler : IRequestHandler<SetSchoolModuleComm
     private async Task TurnOffAsync(int schoolId, int moduleId, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var grants = await _context.TenantModules
+            // compliance-exception: SEC-AUTHZ-03 trusted server code: the school is named by the caller (the master tenant or a seed), and every row read is still filtered by SchoolId
             .IgnoreQueryFilters()
             .Where(t => t.SchoolId == schoolId && t.ModuleId == moduleId && t.Status == TenantModuleStatus.Active)
             .ToListAsync(cancellationToken);

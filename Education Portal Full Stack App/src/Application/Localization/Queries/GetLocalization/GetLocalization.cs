@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Localization.Queries.GetLocalization;
 /// localization middleware from the visitor's choice, their browser and the school's country; the school comes only
 /// from the host (SEC-AUTHZ-04). Public, like the branding: it holds nothing beyond the school's regional settings.
 /// </summary>
-public record GetLocalizationQuery : IRequest<LocalizationDto>;
+public record GetLocalizationQuery;
 
 /// <param name="Language">The ISO 639-1 code of the current language, for example <c>ur</c>.</param>
 /// <param name="Culture">The culture for dates and numbers, for example <c>ur-PK</c>.</param>
@@ -30,7 +30,7 @@ public sealed record LocalizationDto(
     string UserTimeZone,
     string? CurrencyCode);
 
-public class GetLocalizationQueryHandler : IRequestHandler<GetLocalizationQuery, LocalizationDto>
+public class GetLocalizationQueryHandler
 {
     private readonly ITenantLocaleSettings _settings;
     private readonly IRequestTimeZone _timeZone;

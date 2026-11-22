@@ -7,9 +7,9 @@ namespace EducationPortal.Application.PriceBooks.Queries.GetPriceBooks;
 
 /// <summary>Lists the price books by country, with their prices. Master tenant administrators only (SEC-AUTHZ-07).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetPriceBooksQuery : IRequest<IReadOnlyList<PriceBookDto>>;
+public record GetPriceBooksQuery;
 
-public class GetPriceBooksQueryHandler : IRequestHandler<GetPriceBooksQuery, IReadOnlyList<PriceBookDto>>
+public class GetPriceBooksQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

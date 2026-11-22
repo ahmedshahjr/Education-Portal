@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Campuses.Commands.UpdateCampus;
 /// Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
-public record UpdateCampusCommand : IRequest
+public record UpdateCampusCommand
 {
     /// <summary>The campus's public id, taken from the route (ENG-ID-02).</summary>
     public Guid CampusId { get; init; }
@@ -53,7 +53,7 @@ public class UpdateCampusCommandValidator : AbstractValidator<UpdateCampusComman
     }
 }
 
-public class UpdateCampusCommandHandler : IRequestHandler<UpdateCampusCommand>
+public class UpdateCampusCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

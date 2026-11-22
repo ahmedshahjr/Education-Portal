@@ -126,7 +126,7 @@ public class GetMyRightsTests : TestBase
     private static async Task<MyRightsDto> MyRightsAsync(int schoolId)
     {
         TestApp.UseTenant(schoolId);
-        return await TestApp.SendAsync(new GetMyRightsQuery());
+        return await TestApp.SendAsync<MyRightsDto>(new GetMyRightsQuery());
     }
 
     /// <summary>Makes the account a person of the school and assigns that person to the main campus (UserCampuses, ADR-022).</summary>

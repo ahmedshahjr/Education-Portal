@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Timetable.Queries.CheckTimetableConflicts;
 /// clash with itself. Needs the Timetable module and the View right.
 /// </summary>
 [Authorize(Module = ModuleCode.Timetable, Right = AccessRight.View)]
-public record CheckTimetableConflictsQuery : IRequest<IReadOnlyList<TimetableConflictDto>>
+public record CheckTimetableConflictsQuery
 {
     public Guid CourseId { get; init; }
 
@@ -42,7 +42,7 @@ public class CheckTimetableConflictsQueryValidator : AbstractValidator<CheckTime
     }
 }
 
-public class CheckTimetableConflictsQueryHandler : IRequestHandler<CheckTimetableConflictsQuery, IReadOnlyList<TimetableConflictDto>>
+public class CheckTimetableConflictsQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

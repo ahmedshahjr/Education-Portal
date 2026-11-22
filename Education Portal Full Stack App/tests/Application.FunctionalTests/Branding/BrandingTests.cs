@@ -200,10 +200,10 @@ public class BrandingTests : TestBase
         await TestApp.AddAsync(new BrandingImage(schoolOne.Id, BrandingImageKind.Logo, TestImages.Png));
 
         TestApp.UseTenant(schoolTwo.Id);
-        (await TestApp.SendAsync(new GetBrandingImageQuery(BrandingImageKind.Logo))).ShouldBeNull();
+        (await TestApp.SendAsync<object?>(new GetBrandingImageQuery(BrandingImageKind.Logo))).ShouldBeNull();
 
         TestApp.UseTenant(schoolOne.Id);
-        (await TestApp.SendAsync(new GetBrandingImageQuery(BrandingImageKind.Logo))).ShouldNotBeNull();
+        (await TestApp.SendAsync<object?>(new GetBrandingImageQuery(BrandingImageKind.Logo))).ShouldNotBeNull();
     }
 
     [Test]

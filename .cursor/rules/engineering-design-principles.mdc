@@ -1,5 +1,5 @@
 ---
-description: Strict design rules (SOLID, KISS, DRY, YAGNI) applied to this Clean Architecture .NET and Angular codebase. Use when designing any class, interface, MediatR handler, service or Angular component, or when deciding whether to add an abstraction. Part of the mandatory Education Portal engineering rules.
+description: Strict design rules (SOLID, KISS, DRY, YAGNI) applied to this Clean Architecture .NET and Angular codebase. Use when designing any class, interface, use case service or Angular component, or when deciding whether to add an abstraction. Part of the mandatory Education Portal engineering rules.
 globs:
 alwaysApply: false
 ---

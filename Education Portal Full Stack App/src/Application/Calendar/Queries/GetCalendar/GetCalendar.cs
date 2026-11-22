@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Calendar.Queries.GetCalendar;
 /// that reach them. Needs the School module (a core module); no right is needed to read the calendar.
 /// </summary>
 [Authorize(Module = ModuleCode.School)]
-public record GetCalendarQuery : IRequest<IReadOnlyList<SchoolEventDto>>
+public record GetCalendarQuery
 {
     public DateTimeOffset From { get; init; }
 
@@ -33,7 +33,7 @@ public class GetCalendarQueryValidator : AbstractValidator<GetCalendarQuery>
     }
 }
 
-public class GetCalendarQueryHandler : IRequestHandler<GetCalendarQuery, IReadOnlyList<SchoolEventDto>>
+public class GetCalendarQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;

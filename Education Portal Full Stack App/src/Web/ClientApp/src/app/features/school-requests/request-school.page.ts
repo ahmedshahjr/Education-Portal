@@ -7,6 +7,7 @@ import { problemMessages } from '../../core/http/problem-details';
 import { FormInputComponent } from '../../shared/components/form-input/form-input.component';
 import { LanguageMenuComponent } from '../../shared/components/language-menu/language-menu.component';
 import { SchoolRequestsClient, SubmitSchoolRequestCommand } from '../../web-api-client';
+import { emailValidator } from '../../shared/validation/email-validators';
 
 /**
  * The public "request a school" form. It only sends a request: the master tenant reviews it, and nothing is created
@@ -113,7 +114,7 @@ export class RequestSchoolPage {
   protected readonly form = inject(FormBuilder).nonNullable.group({
     schoolName: ['', [Validators.required, Validators.maxLength(200)]],
     contactName: ['', [Validators.required, Validators.maxLength(100)]],
-    contactEmail: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
+    contactEmail: ['', [Validators.required, emailValidator, Validators.maxLength(254)]],
   });
 
   protected readonly error = signal<string | null>(null);

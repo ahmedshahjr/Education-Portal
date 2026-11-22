@@ -29,6 +29,11 @@ import {
 } from '../../web-api-client';
 import { labelOf, yearStatusOptions } from './academic-calendar.labels';
 import { fromApiDate } from './academic-calendar.logic';
+import {
+  ACADEMIC_YEAR_MAX_DAYS,
+  endsOnOrAfterStartValidator,
+  spanUnderDaysValidator,
+} from '../../shared/validation/date-validators';
 
 /** A year as the table and forms use it: its dates already moved to local calendar days. */
 export interface YearRow {
@@ -129,20 +134,31 @@ export class AcademicYearsPanelComponent {
     { key: 'actions', header: $localize`:@@common.actions:Actions`, sortable: false, align: 'right', cell: this.actionsCell() },
   ]);
 
-  readonly yearForm = this.formBuilder.group({
-    name: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(20)]),
-    startDate: this.formBuilder.control<Date | null>(null, Validators.required),
-    endDate: this.formBuilder.control<Date | null>(null, Validators.required),
-    isCurrent: this.formBuilder.nonNullable.control(false),
-    status: this.formBuilder.nonNullable.control(AcademicYearStatus.Planned),
-  });
+  readonly yearForm = this.formBuilder.group(
+    {
+      name: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(20)]),
+      startDate: this.formBuilder.control<Date | null>(null, Validators.required),
+      endDate: this.formBuilder.control<Date | null>(null, Validators.required),
+      isCurrent: this.formBuilder.nonNullable.control(false),
+      status: this.formBuilder.nonNullable.control(AcademicYearStatus.Planned),
+    },
+    {
+      validators: [
+        endsOnOrAfterStartValidator('startDate', 'endDate'),
+        spanUnderDaysValidator('startDate', 'endDate', ACADEMIC_YEAR_MAX_DAYS),
+      ],
+    }
+  );
 
-  readonly termForm = this.formBuilder.group({
-    name: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(50)]),
-    sequence: this.formBuilder.nonNullable.control(1, [Validators.required, Validators.min(1), Validators.max(12)]),
-    startDate: this.formBuilder.control<Date | null>(null, Validators.required),
-    endDate: this.formBuilder.control<Date | null>(null, Validators.required),
-  });
+  readonly termForm = this.formBuilder.group(
+    {
+      name: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(50)]),
+      sequence: this.formBuilder.nonNullable.control(1, [Validators.required, Validators.min(1), Validators.max(12)]),
+      startDate: this.formBuilder.control<Date | null>(null, Validators.required),
+      endDate: this.formBuilder.control<Date | null>(null, Validators.required),
+    },
+    { validators: [endsOnOrAfterStartValidator('startDate', 'endDate')] }
+  );
 
   constructor() {
     this.load();

@@ -3,14 +3,14 @@
   "contract": "ruflo.mission-observation/1",
   "source": "ruflo-cli/missions",
   "workspaceId": "ws_48fc84af0e8a3b7e",
-  "observedAt": "2026-11-21T10:09:11.439Z",
+  "observedAt": "2026-11-22T07:55:42.059Z",
   "truncated": false,
   "missions": [
     {
       "missionId": "msn_37932efe88c3d08c24485c98",
       "objective": "Education Portal, 5 phases, each a reviewable PR into development, plan at C:\\Users\\ahmed\\.claude\\plans\\use-rufle-agents-swarms-fuzzy-lighthouse-of-bbb93ad9-4df8-4945-b6b4-ae529f2bf0e3.md. Phase 1 rights foundation: per-campus role rights (RolePermission.CampusId), ViewHistory right, own-rights API and Angular RightsService with rights-aware menu and guard. Phase 2 Tenant table above School (one …",
-      "state": "planned",
-      "revision": 2,
+      "state": "cancelled",
+      "revision": 4,
       "executionMode": "session-bound",
       "plan": {
         "revision": 1,
@@ -153,8 +153,8 @@
       "executor": null,
       "unresolvedOperations": 0,
       "blockedReason": null,
-      "lastEventSequence": 2,
-      "updatedAt": "2026-11-21T10:09:11.439Z"
+      "lastEventSequence": 4,
+      "updatedAt": "2026-11-22T07:55:42.059Z"
     },
     {
       "missionId": "msn_cb3148a74d68cbf6ccc3e5d2",

@@ -18,6 +18,7 @@ public static class SchoolDefaultModules
     public static async Task GrantAsync(IApplicationDbContext context, int schoolId, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var mainCampus = await context.Campuses
+            // compliance-exception: SEC-AUTHZ-03 trusted server code: the school is named by the caller (the master tenant or a seed), and every row read is still filtered by SchoolId
             .IgnoreQueryFilters()
             .SingleAsync(b => b.SchoolId == schoolId && b.Kind == CampusKind.Main, cancellationToken);
 
@@ -26,6 +27,7 @@ public static class SchoolDefaultModules
             .ToListAsync(cancellationToken);
 
         var alreadyGranted = await context.TenantModules
+            // compliance-exception: SEC-AUTHZ-03 trusted server code: the school is named by the caller (the master tenant or a seed), and every row read is still filtered by SchoolId
             .IgnoreQueryFilters()
             .Where(t => t.SchoolId == schoolId && t.CampusId == mainCampus.Id)
             .Select(t => t.ModuleId)

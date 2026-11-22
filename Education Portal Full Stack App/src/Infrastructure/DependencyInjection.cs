@@ -27,7 +27,6 @@ public static class DependencyInjection
         Guard.Against.Null(connectionString, message: $"Connection string '{Services.Database}' not found.");
 
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
-        builder.Services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
         // Every commercial change with its old and new values, in the same save (ADR-016).
         builder.Services.AddScoped<ISaveChangesInterceptor, ChangeAuditInterceptor>();
 

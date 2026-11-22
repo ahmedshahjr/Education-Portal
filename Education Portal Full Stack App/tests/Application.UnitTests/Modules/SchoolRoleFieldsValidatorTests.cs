@@ -76,4 +76,34 @@ public class SchoolRoleFieldsValidatorTests
         var result = await Validator(ModuleCode.Students).ValidateAsync(new Fields { Name = "A", Permissions = [Right(ModuleCode.Fees)] });
         result.IsValid.ShouldBeFalse();
     }
+
+    private static RolePermissionDto OnCampuses(ModuleCode module, params Guid[] campusIds) =>
+        new(module, true, false, false, false, false, false, false, AllCampuses: false, CampusIds: campusIds);
+
+    [Test]
+    public async Task ShouldRefuseAViewRightWithNoCampusWhenNotForAllCampuses()
+    {
+        var result = await Validator(ModuleCode.Students).ValidateAsync(new Fields { Name = "A", Permissions = [OnCampuses(ModuleCode.Students)] });
+
+        result.IsValid.ShouldBeFalse();
+        result.Errors.ShouldContain(e => e.PropertyName == nameof(Fields.Permissions));
+    }
+
+    [Test]
+    public async Task ShouldAcceptAViewRightOnOneCampus()
+    {
+        var result = await Validator(ModuleCode.Students).ValidateAsync(new Fields { Name = "A", Permissions = [OnCampuses(ModuleCode.Students, Guid.NewGuid())] });
+
+        result.IsValid.ShouldBeTrue();
+    }
+
+    [Test]
+    public async Task ShouldAcceptNoViewRightWithNoCampusWhenNotForAllCampuses()
+    {
+        var noRights = new RolePermissionDto(ModuleCode.Students, false, false, false, false, false, false, false, AllCampuses: false, CampusIds: []);
+
+        var result = await Validator(ModuleCode.Students).ValidateAsync(new Fields { Name = "A", Permissions = [noRights] });
+
+        result.IsValid.ShouldBeTrue();
+    }
 }

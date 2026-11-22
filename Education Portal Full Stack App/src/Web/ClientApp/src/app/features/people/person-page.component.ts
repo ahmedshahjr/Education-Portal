@@ -8,6 +8,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
+import { phoneValidator } from '../../shared/validation/contact-validators';
 import { ToastService } from '../../shared/services/toast.service';
 import { UserDetailsClient, UserDetailsDto, UserType } from '../../web-api-client';
 import { buildPersonChanges, needsAdmissionDetails } from './person-changes';
@@ -114,7 +115,7 @@ export class PersonPageComponent {
       middleName: [person?.middleName ?? '', [Validators.maxLength(100)]],
       lastName: [person?.lastName ?? '', [Validators.required, Validators.maxLength(100)]],
       userType: [person?.userType ?? UserType.Teacher, [Validators.required]],
-      phone: [person?.phone ?? '', [Validators.maxLength(30)]],
+      phone: [person?.phone ?? '', [Validators.maxLength(30), phoneValidator]],
       email: ['', [Validators.maxLength(256)]],
       oneTimePassword: ['', [Validators.maxLength(128)]],
       children: [[...(data?.currentChildIds ?? [])] as string[]],

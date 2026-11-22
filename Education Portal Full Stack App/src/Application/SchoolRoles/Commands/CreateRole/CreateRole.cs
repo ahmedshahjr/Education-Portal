@@ -12,7 +12,7 @@ namespace EducationPortal.Application.SchoolRoles.Commands.CreateRole;
 /// only be given in modules the school has now; audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
-public record CreateRoleCommand : SchoolRoleFields, IRequest<Guid>;
+public record CreateRoleCommand : SchoolRoleFields;
 
 public class CreateRoleCommandValidator : SchoolRoleFieldsValidator<CreateRoleCommand>
 {
@@ -29,7 +29,7 @@ public class CreateRoleCommandValidator : SchoolRoleFieldsValidator<CreateRoleCo
     }
 }
 
-public class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommand, Guid>
+public class CreateRoleCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IModuleAccess _moduleAccess;

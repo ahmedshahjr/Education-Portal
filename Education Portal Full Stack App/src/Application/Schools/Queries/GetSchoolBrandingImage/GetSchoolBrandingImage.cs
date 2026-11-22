@@ -10,7 +10,7 @@ namespace EducationPortal.Application.Schools.Queries.GetSchoolBrandingImage;
 /// administrators only (SEC-AUTHZ-07). Returns <c>null</c> when the school uses the default image.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetSchoolBrandingImageQuery(Guid SchoolId, BrandingImageKind Kind) : IRequest<BrandingImageDto?>;
+public record GetSchoolBrandingImageQuery(Guid SchoolId, BrandingImageKind Kind);
 
 public class GetSchoolBrandingImageQueryValidator : AbstractValidator<GetSchoolBrandingImageQuery>
 {
@@ -21,7 +21,7 @@ public class GetSchoolBrandingImageQueryValidator : AbstractValidator<GetSchoolB
     }
 }
 
-public class GetSchoolBrandingImageQueryHandler : IRequestHandler<GetSchoolBrandingImageQuery, BrandingImageDto?>
+public class GetSchoolBrandingImageQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

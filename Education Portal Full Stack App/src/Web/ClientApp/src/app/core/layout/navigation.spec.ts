@@ -11,7 +11,10 @@ describe('visibleNavSections', () => {
   });
 
   it('shows the customization menu and the subscription to a school administrator but not the master portal', () => {
-    expect(ids(true, false)).toEqual(['dashboard', 'subscription', 'audit', 'customization-menu']);
+    // The change history needs a right, so without a rights check it is hidden (fail closed).
+    expect(ids(true, false)).toEqual(['dashboard', 'subscription', 'customization-menu']);
+    const allowAll = () => true;
+    expect(visibleNavSections(APP_NAV_SECTIONS, true, false, new Set(), allowAll).flatMap((s) => s.items.map((i) => i.id))).toContain('audit');
   });
 
   it('shows class offerings to a school administrator only when the School module is on', () => {
@@ -77,6 +80,6 @@ describe('visibleNavSections', () => {
 
     expect(visibleNavSections(sections, false, false, enabled, () => false)).toEqual([]);
     expect(visibleNavSections(sections, false, false, enabled, () => true)[0].items.map((i) => i.id)).toEqual(['audit']);
-    expect(visibleNavSections(sections, false, false, enabled).flatMap((s) => s.items.map((i) => i.id))).toEqual(['audit']);
+    expect(visibleNavSections(sections, false, false, enabled).flatMap((s) => s.items.map((i) => i.id))).toEqual([]);
   });
 });

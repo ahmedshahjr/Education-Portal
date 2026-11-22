@@ -10,7 +10,7 @@ namespace EducationPortal.Application.SchoolPublicPage.Commands.RemoveFacility;
 
 /// <summary>Removes a facility from a school's public page. Needs the School module. Audited (SEC-LOG-03).</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record RemoveFacilityCommand : IRequest
+public record RemoveFacilityCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -26,7 +26,7 @@ public class RemoveFacilityCommandValidator : AbstractValidator<RemoveFacilityCo
     }
 }
 
-public class RemoveFacilityCommandHandler : IRequestHandler<RemoveFacilityCommand>
+public class RemoveFacilityCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

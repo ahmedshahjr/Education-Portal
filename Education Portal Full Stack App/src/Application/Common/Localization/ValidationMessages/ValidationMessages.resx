@@ -237,6 +237,9 @@
   <data name="RightsNeedView" xml:space="preserve">
     <value>Creating, editing and deleting need the right to view.</value>
   </data>
+  <data name="RoleNeedsCampus" xml:space="preserve">
+    <value>Choose at least one campus, or all campuses, for each module the role has rights in.</value>
+  </data>
   <data name="ModuleNotEnabledForSchool" xml:space="preserve">
     <value>The school does not have this module, so it cannot get rights in it.</value>
   </data>
@@ -506,5 +509,14 @@
   </data>
   <data name="PasswordsDoNotMatch" xml:space="preserve">
     <value>The two passwords do not match.</value>
+  </data>
+  <data name="CurriculumListedTwice" xml:space="preserve">
+    <value>Each curriculum can be listed only once.</value>
+  </data>
+  <data name="PhotoNotAcceptable" xml:space="preserve">
+    <value>The photo must be a PNG, JPEG or WebP image of at most 2 MB.</value>
+  </data>
+  <data name="DevelopmentDataTooManyPeople" xml:space="preserve">
+    <value>A request may create at most {0} people.</value>
   </data>
 </root>

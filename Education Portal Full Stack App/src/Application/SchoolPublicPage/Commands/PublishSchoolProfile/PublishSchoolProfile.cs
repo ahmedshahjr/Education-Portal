@@ -15,13 +15,13 @@ namespace EducationPortal.Application.SchoolPublicPage.Commands.PublishSchoolPro
 /// Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record PublishSchoolProfileCommand : IRequest
+public record PublishSchoolProfileCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
 }
 
-public class PublishSchoolProfileCommandHandler : IRequestHandler<PublishSchoolProfileCommand>
+public class PublishSchoolProfileCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

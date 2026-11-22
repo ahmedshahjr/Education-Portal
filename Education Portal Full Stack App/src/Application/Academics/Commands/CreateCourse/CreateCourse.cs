@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Academics.Commands.CreateCourse;
 
 /// <summary>Adds a course to a class offering, taught by a teacher of the school. Needs the Academic setup module. Audited.</summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Create)]
-public record CreateCourseCommand : IRequest<Guid>
+public record CreateCourseCommand
 {
     public Guid ClassOfferingId { get; init; }
 
@@ -32,7 +32,7 @@ public class CreateCourseCommandValidator : AbstractValidator<CreateCourseComman
     }
 }
 
-public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, Guid>
+public class CreateCourseCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

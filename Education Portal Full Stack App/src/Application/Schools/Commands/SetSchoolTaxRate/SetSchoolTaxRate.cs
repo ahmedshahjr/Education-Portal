@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Schools.Commands.SetSchoolTaxRate;
 /// tenant administrators only (SEC-AUTHZ-07), so the school id may come from the route (SEC-AUTHZ-04). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record SetSchoolTaxRateCommand : IRequest
+public record SetSchoolTaxRateCommand
 {
     /// <summary>The school's public id, taken from the route (ENG-ID-02).</summary>
     public Guid SchoolId { get; init; }
@@ -32,7 +32,7 @@ public class SetSchoolTaxRateCommandValidator : AbstractValidator<SetSchoolTaxRa
     }
 }
 
-public class SetSchoolTaxRateCommandHandler : IRequestHandler<SetSchoolTaxRateCommand>
+public class SetSchoolTaxRateCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

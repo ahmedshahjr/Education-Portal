@@ -19,7 +19,7 @@ namespace EducationPortal.Application.Users.Commands.CreateUserDetails;
 /// the Staff module. Audited (SEC-LOG-03) with ids only, not the name or the email.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Staff)]
-public record CreateUserDetailsCommand : UserDetailsFields, IRequest<Guid>
+public record CreateUserDetailsCommand : UserDetailsFields
 {
     /// <summary>The person's login email. Optional; when given, an account is created with <see cref="OneTimePassword"/>.</summary>
     public string? Email { get; init; }
@@ -58,7 +58,7 @@ public class CreateUserDetailsCommandValidator : UserDetailsFieldsValidator<Crea
     }
 }
 
-public class CreateUserDetailsCommandHandler : IRequestHandler<CreateUserDetailsCommand, Guid>
+public class CreateUserDetailsCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;

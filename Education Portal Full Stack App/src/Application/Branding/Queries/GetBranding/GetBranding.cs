@@ -7,9 +7,9 @@ namespace EducationPortal.Application.Branding.Queries.GetBranding;
 /// Returns the branding of the school that owns the request's domain. It runs before sign-in, so the login page is
 /// already themed (SEC-AUTHN-01 exception, listed in the PR). The school comes only from the host (SEC-AUTHZ-04).
 /// </summary>
-public record GetBrandingQuery : IRequest<BrandingDto>;
+public record GetBrandingQuery;
 
-public class GetBrandingQueryHandler : IRequestHandler<GetBrandingQuery, BrandingDto>
+public class GetBrandingQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

@@ -8,7 +8,7 @@ namespace EducationPortal.Application.Parents.Commands.UnlinkStudent;
 
 /// <summary>Removes the link between a parent and a student of the school. Needs the Staff module.</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Staff)]
-public record UnlinkStudentCommand : IRequest
+public record UnlinkStudentCommand
 {
     public Guid ParentId { get; init; }
 
@@ -24,7 +24,7 @@ public class UnlinkStudentCommandValidator : AbstractValidator<UnlinkStudentComm
     }
 }
 
-public class UnlinkStudentCommandHandler : IRequestHandler<UnlinkStudentCommand>
+public class UnlinkStudentCommandHandler
 {
     private readonly IApplicationDbContext _context;
 

@@ -205,6 +205,88 @@ public class SchoolRoleTests : TestBase
         events.ShouldContain(SecurityAuditEventType.RoleDeleted);
     }
 
+    [Test]
+    public async Task ShouldSaveARoleOnOneCampusAndShowItBack()
+    {
+        var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
+        var north = await AddCampusAsync(school.Id, "North", "0002");
+        using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
+
+        using var create = await session.PostAsync("/api/SchoolRoles", CampusBody("Registrar", [OnCampus(ModuleCode.Students, north)]));
+        create.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var id = await create.Content.ReadFromJsonAsync<Guid>(Json);
+
+        var role = (await ListAsync(session)).Single(r => r.Id == id);
+        var permission = role.Permissions.ShouldHaveSingleItem();
+        permission.AllCampuses.ShouldBeFalse();
+        permission.CampusIds.ShouldNotBeNull().ShouldBe(new[] { north });
+    }
+
+    [Test]
+    public async Task ShouldKeepOneMainCampusRowWhenARoleIsChangedToAllCampuses()
+    {
+        var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
+        var north = await AddCampusAsync(school.Id, "North", "0002");
+        using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
+        using var create = await session.PostAsync("/api/SchoolRoles", CampusBody("Registrar", [OnCampus(ModuleCode.Students, north)]));
+        var id = await create.Content.ReadFromJsonAsync<Guid>(Json);
+
+        using var update = await session.PutAsync($"/api/SchoolRoles/{id}", CampusBody("Registrar", [OnAllCampuses(ModuleCode.Students)]));
+
+        update.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        (await TestApp.CountAsync<RolePermission>()).ShouldBe(1);
+        var permission = (await ListAsync(session)).Single(r => r.Id == id).Permissions.ShouldHaveSingleItem();
+        permission.AllCampuses.ShouldBeTrue();
+    }
+
+    [Test]
+    public async Task ShouldRefuseAViewRightWithAnEmptyCampusList()
+    {
+        var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
+        using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
+
+        using var response = await session.PostAsync("/api/SchoolRoles", CampusBody("Clerk", [OnCampuses(ModuleCode.Students, [])]));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await TestApp.CountAsync<SchoolRole>()).ShouldBe(0);
+    }
+
+    [Test]
+    public async Task ShouldNotGiveRightsOnAnotherSchoolsCampus()
+    {
+        var school = await TestApp.AddSchoolAsync("School One", SchoolDomain);
+        var other = await TestApp.AddSchoolAsync("School Two", OtherSchoolDomain);
+        var otherNorth = await AddCampusAsync(other.Id, "Other North", "0002");
+        using var session = await SignInAsync(school.Id, SchoolDomain, "admin@school1.local");
+
+        using var response = await session.PostAsync("/api/SchoolRoles", CampusBody("Registrar", [OnCampus(ModuleCode.Students, otherNorth)]));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        (await TestApp.CountAsync<RolePermission>()).ShouldBe(0);
+    }
+
+    private static object CampusBody(string name, object[] permissions) => new { name, permissions };
+
+    private static object OnCampus(ModuleCode module, Guid campusId) => OnCampuses(module, [campusId]);
+
+    private static object OnCampuses(ModuleCode module, Guid[] campusIds) =>
+        new { module, canView = true, canCreate = false, canEdit = false, canDelete = false, canApprove = false, canExport = false, allCampuses = false, campusIds };
+
+    private static object OnAllCampuses(ModuleCode module) =>
+        new { module, canView = true, canCreate = false, canEdit = false, canDelete = false, canApprove = false, canExport = false, allCampuses = true, campusIds = Array.Empty<Guid>() };
+
+    private static async Task<Guid> AddCampusAsync(int schoolId, string name, string code)
+    {
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+        scope.ServiceProvider.GetRequiredService<EducationPortal.Web.Services.CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        var context = scope.ServiceProvider.GetRequiredService<EducationPortal.Infrastructure.Data.ApplicationDbContext>();
+
+        var campus = Campus.Create(schoolId, name, code);
+        context.Campuses.Add(campus);
+        await context.SaveChangesAsync();
+        return campus.PublicId;
+    }
+
     private static object Body(string name, List<RolePermissionDto> permissions, string? description = null) =>
         new { name, description, permissions = permissions.Select(p => new { module = p.Module, p.CanView, p.CanCreate, p.CanEdit, p.CanDelete, p.CanApprove, p.CanExport }) };
 

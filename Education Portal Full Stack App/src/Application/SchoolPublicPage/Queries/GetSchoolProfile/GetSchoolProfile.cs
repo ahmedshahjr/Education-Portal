@@ -9,13 +9,13 @@ namespace EducationPortal.Application.SchoolPublicPage.Queries.GetSchoolProfile;
 
 /// <summary>Reads a school's public page text. Needs the School module (AGENTS.md section 2).</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record GetSchoolProfileQuery : IRequest<SchoolProfileDto>
+public record GetSchoolProfileQuery
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
 }
 
-public class GetSchoolProfileQueryHandler : IRequestHandler<GetSchoolProfileQuery, SchoolProfileDto>
+public class GetSchoolProfileQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

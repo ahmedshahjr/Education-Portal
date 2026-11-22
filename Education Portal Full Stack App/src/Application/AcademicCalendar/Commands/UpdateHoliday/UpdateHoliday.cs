@@ -10,7 +10,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.UpdateHoliday;
 
 /// <summary>Changes a holiday on the school calendar. Needs the Academic setup module. Audited (SEC-LOG-03).</summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Edit)]
-public record UpdateHolidayCommand : IRequest, IHolidayInput
+public record UpdateHolidayCommand : IHolidayInput
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -42,7 +42,7 @@ public class UpdateHolidayCommandValidator : AbstractValidator<UpdateHolidayComm
     }
 }
 
-public class UpdateHolidayCommandHandler : IRequestHandler<UpdateHolidayCommand>
+public class UpdateHolidayCommandHandler
 {
     private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;

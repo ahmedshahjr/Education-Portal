@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -15,18 +15,12 @@ import { DataTableCellContext, DataTableColumn, DataTableComponent } from '../..
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { CreateShiftCommand, IShiftDto, ShiftDto, ShiftsClient, UpdateShiftCommand } from '../../web-api-client';
-import { fromApiTime, isTimeRangeValid, toApiTime } from './academic-calendar.logic';
+import { timeRangeValidator } from '../../shared/validation/date-validators';
+import { fromApiTime, toApiTime } from './academic-calendar.logic';
 
 /** A shift as the table shows it, with its campus name. */
 interface ShiftRow extends IShiftDto {
   readonly campusName: string;
-}
-
-/** The form's start and end times must make a range that ends after it starts. */
-function timeRangeValidator(group: AbstractControl): ValidationErrors | null {
-  const start = group.get('startTime')?.value as string;
-  const end = group.get('endTime')?.value as string;
-  return start && end && !isTimeRangeValid(start, end) ? { timeRange: true } : null;
 }
 
 /**
@@ -93,7 +87,7 @@ export class ShiftsPanelComponent {
       startTime: ['', Validators.required],
       endTime: ['', Validators.required],
     },
-    { validators: [timeRangeValidator] }
+    { validators: [timeRangeValidator('startTime', 'endTime')] }
   );
 
   constructor() {

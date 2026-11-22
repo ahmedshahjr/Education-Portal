@@ -42,9 +42,5 @@ export function fromDateInput(value: string): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-/** An event must end after it starts. Both are the values of datetime-local inputs. */
-export function endsAfterStart(startsAt: string, endsAt: string): boolean {
-  const start = new Date(startsAt).getTime();
-  const end = new Date(endsAt).getTime();
-  return !Number.isNaN(start) && !Number.isNaN(end) && end > start;
-}
+/** An event must end after it starts. Both are the values of datetime-local inputs (shared rule, see date-validators). */
+export { endsAfterStart } from '../../shared/validation/date-validators';

@@ -16,9 +16,13 @@ roles are hard-deleted.
    campuses in one transaction.
 2. **The role editor** sets name, description, the modules the school has and the rights matrix per campus, with an
    "All campuses" choice (ADR-022).
-3. **The create rule:** small entities (roles, campuses, holidays, events, shifts) are created, viewed and edited in a
-   dialog; large ones (people, schools, admissions) get pages (`/x/new`, `/x/:id`). One shared dialog wrapper keeps a
-   single pattern. Delete always uses `ConfirmDialogComponent`.
+3. **The create rule, by size:** a form is a dialog only when it fits a modal, and a page otherwise. The test is
+   `fitsDialog` (`shared/components/entity-form/form-size.ts`): at most 5 fields and, for a grid or table inside the form,
+   at most 6 rows. Anything larger gets a page (`/x/new`, `/x/:id`). Delete always uses `ConfirmDialogComponent`.
+   Applied: people are pages (many fields, a login, and lists of roles, campuses and children). Roles are pages: their
+   rights grid has a row per module, which is more than a modal holds. Campuses are pages: the add-campus form has well
+   over 5 fields (name, address, state, city, postal code, phones, map location, school number, short name, principal and
+   more). Holidays, events and shifts stay small forms and may use a dialog, judged by the same test when they change.
 4. **Soft delete** for user-deletable entities that are still hard-deleted: `SchoolRole` first (`BaseSoftDeletableEntity`,
    filters combined with the tenant filter, never a second `HasQueryFilter`). System roles stay undeletable. Other entities
    only where a user can delete them today.

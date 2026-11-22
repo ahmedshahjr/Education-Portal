@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using EducationPortal.Infrastructure.Data;
 using EducationPortal.Web.Infrastructure;
 using Scalar.AspNetCore;
@@ -77,6 +77,7 @@ if (app.Environment.IsDevelopment())
 
 app.MapDefaultEndpoints();
 app.MapEndpoints(typeof(Program).Assembly);
+app.MapControllers();
 
 // compliance-exception: SEC-AUTHN-01 serves the Angular shell, a static page without data
 app.MapFallbackToFile("index.html").AllowAnonymous();

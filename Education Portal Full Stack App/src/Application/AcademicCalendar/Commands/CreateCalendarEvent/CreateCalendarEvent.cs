@@ -13,7 +13,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.CreateCalendarEv
 /// Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Create)]
-public record CreateCalendarEventCommand : IRequest<Guid>, ICalendarEventInput
+public record CreateCalendarEventCommand : ICalendarEventInput
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -44,7 +44,7 @@ public class CreateCalendarEventCommandValidator : AbstractValidator<CreateCalen
     }
 }
 
-public class CreateCalendarEventCommandHandler : IRequestHandler<CreateCalendarEventCommand, Guid>
+public class CreateCalendarEventCommandHandler
 {
     private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
