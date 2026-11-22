@@ -19,9 +19,9 @@ public sealed record CampusLocationsDto(string? CountryName, IReadOnlyList<Campu
 /// host (SEC-AUTHZ-04). Needs the Campuses module. A school without a country has no states.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
-public record GetCampusLocationsQuery : IRequest<CampusLocationsDto>;
+public record GetCampusLocationsQuery;
 
-public class GetCampusLocationsQueryHandler : IRequestHandler<GetCampusLocationsQuery, CampusLocationsDto>
+public class GetCampusLocationsQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

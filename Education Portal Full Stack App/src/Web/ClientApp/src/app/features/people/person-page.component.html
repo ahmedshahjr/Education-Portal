@@ -59,7 +59,11 @@
         <mat-form-field appearance="outline">
           <mat-label i18n="@@people.phone">Phone</mat-label>
           <input matInput formControlName="phone" maxlength="30" autocomplete="off" dir="ltr" />
-          <mat-hint i18n="@@people.optional">Optional.</mat-hint>
+          @if (form.controls.phone.hasError('phone')) {
+            <mat-error i18n="@@people.phoneInvalid">Use digits with an optional leading +, spaces, hyphens or brackets: 7 to 15 digits.</mat-error>
+          } @else {
+            <mat-hint i18n="@@people.optional">Optional.</mat-hint>
+          }
         </mat-form-field>
       </div>
 

@@ -1,6 +1,6 @@
 ---
 name: design-principles
-description: Strict design rules (SOLID, KISS, DRY, YAGNI) applied to this Clean Architecture .NET and Angular codebase. Use when designing any class, interface, MediatR handler, service or Angular component, or when deciding whether to add an abstraction. Part of the mandatory Education Portal engineering rules.
+description: Strict design rules (SOLID, KISS, DRY, YAGNI) applied to this Clean Architecture .NET and Angular codebase. Use when designing any class, interface, use case service or Angular component, or when deciding whether to add an abstraction. Part of the mandatory Education Portal engineering rules.
 ---
 
 # Design principles: SOLID, KISS, DRY, YAGNI (MUST follow)
@@ -13,8 +13,8 @@ These principles are applied **strictly but pragmatically**: they exist to keep 
 
 | ID | Rule |
 |---|---|
-| ENG-DESIGN-01 | **Single Responsibility.** A class has one reason to change. One MediatR request = one use case = one handler; one validator per request; one Angular component per UI responsibility. Split a class when its name needs "And", "Manager" or "Helper" to describe it, or when it changes for two unrelated reasons. |
-| ENG-DESIGN-02 | **Open/Closed.** Add behaviour by adding code (a new request, handler, pipeline behaviour, strategy, `IEntityTypeConfiguration`), not by growing `switch`/`if` chains over types in existing classes. Cross-cutting concerns (validation, authorization, logging, performance) go in MediatR pipeline behaviours, not in each handler. |
+| ENG-DESIGN-01 | **Single Responsibility.** A class has one reason to change. One request type = one use case = one service class with `Handle`; one validator per request; one Angular component per UI responsibility. Split a class when its name needs "And", "Manager" or "Helper" to describe it, or when it changes for two unrelated reasons. |
+| ENG-DESIGN-02 | **Open/Closed.** Add behaviour by adding code (a new request, use case service, request rule, global filter, strategy, `IEntityTypeConfiguration`), not by growing `switch`/`if` chains over types in existing classes. Cross-cutting concerns go in one place each: authorization and validation in the request rules (`IRequestRules`), logging, performance and unhandled exceptions in the global MVC filters, not in each use case. |
 | ENG-DESIGN-03 | **Liskov Substitution.** A subtype must honour its base type's contract: no `NotImplementedException`/`NotSupportedException` overrides, no stronger preconditions, no weaker guarantees. If it cannot, it is not a subtype; use composition. |
 | ENG-DESIGN-04 | **Interface Segregation.** Interfaces are small and owned by the layer that uses them (Application declares `IUser`, `IIdentityService`, `IApplicationDbContext`). A consumer must not depend on members it does not call. Split an interface when implementers start throwing for members they cannot support. |
 | ENG-DESIGN-05 | **Dependency Inversion.** Depend on abstractions declared in the inner layer and injected through constructors. No `new` of services, no service locator (`IServiceProvider.GetService` in business code), no static mutable state, no `DateTime.Now` (inject `TimeProvider`). Composition happens only in `DependencyInjection.cs` of each layer and in `Web`. |

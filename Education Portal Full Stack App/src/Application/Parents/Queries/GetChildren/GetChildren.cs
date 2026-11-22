@@ -10,12 +10,12 @@ namespace EducationPortal.Application.Parents.Queries.GetChildren;
 
 /// <summary>The students linked to one parent of the school, for the school's staff. Needs the Staff module.</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Staff)]
-public record GetChildrenQuery : IRequest<IReadOnlyList<UserDetailsDto>>
+public record GetChildrenQuery
 {
     public Guid ParentId { get; init; }
 }
 
-public class GetChildrenQueryHandler : IRequestHandler<GetChildrenQuery, IReadOnlyList<UserDetailsDto>>
+public class GetChildrenQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

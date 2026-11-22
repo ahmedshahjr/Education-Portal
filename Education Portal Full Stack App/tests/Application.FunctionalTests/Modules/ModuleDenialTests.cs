@@ -7,7 +7,6 @@ using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Infrastructure.Data;
 using EducationPortal.Web.Services;
-using MediatR;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +17,7 @@ namespace EducationPortal.Application.FunctionalTests.Modules;
 /// <summary>
 /// A paid module's use case is refused with 403 MODULE_NOT_ENABLED when the school's subscription does not give it the
 /// module now (SEC-AUTHZ-01, SEC-AUTHZ-09). No paid module has an endpoint yet, so the test sends
-/// <see cref="FeesModuleProbe"/>, a test-only use case of the Fees module, through the real MediatR pipeline with the
+/// <see cref="FeesModuleProbe"/>, a test-only use case of the Fees module, through the real request rules and controller with the
 /// school's tenant and entitlements from the database, and turns the refusal into a response with the real exception
 /// handler.
 /// </summary>
@@ -71,7 +70,7 @@ public class ModuleDenialTests : TestBase
         await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees], campusId: campus.Id);
         await RunAsSchoolAdministratorAsync(school.Id);
 
-        // A campus-only grant counts only for that campus; the pipeline knows no campus, so it fails closed.
+        // A campus-only grant counts only for that campus; the request rules know no campus, so it fails closed.
         await Should.ThrowAsync<ModuleNotEnabledException>(() => TestApp.SendAsync(new FeesModuleProbe()));
     }
 
@@ -93,7 +92,7 @@ public class ModuleDenialTests : TestBase
         await TestApp.SubscribeAsync(school.Id, [ModuleCode.Fees]);
         await RunAsSchoolAdministratorAsync(school.Id);
 
-        (await TestApp.SendAsync(new FeesModuleProbe())).ShouldBe(FeesModuleProbe.Allowed);
+        (await TestApp.SendAsync<string>(new FeesModuleProbe())).ShouldBe(FeesModuleProbe.Allowed);
     }
 
     [Test]
@@ -101,7 +100,7 @@ public class ModuleDenialTests : TestBase
     {
         await TestApp.RunAsAdministratorAsync();
 
-        (await TestApp.SendAsync(new FeesModuleProbe())).ShouldBe(FeesModuleProbe.Allowed);
+        (await TestApp.SendAsync<string>(new FeesModuleProbe())).ShouldBe(FeesModuleProbe.Allowed);
     }
 
     /// <summary>Suspends a subscription and its modules as the master would, then drops the school's cached entitlements.</summary>
@@ -144,14 +143,14 @@ public class ModuleDenialTests : TestBase
     }
 }
 
-/// <summary>A use case of the paid Fees module, only for tests: it answers <see cref="Allowed"/> once the pipeline lets it through.</summary>
+/// <summary>A use case of the paid Fees module, only for tests: it answers <see cref="Allowed"/> once the request rules let it through.</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Fees)]
-public sealed record FeesModuleProbe : IRequest<string>
+public sealed record FeesModuleProbe
 {
     public const string Allowed = "allowed";
 }
 
-public sealed class FeesModuleProbeHandler : IRequestHandler<FeesModuleProbe, string>
+public sealed class FeesModuleProbeHandler
 {
     public Task<string> Handle(FeesModuleProbe request, CancellationToken cancellationToken) => Task.FromResult(FeesModuleProbe.Allowed);
 }

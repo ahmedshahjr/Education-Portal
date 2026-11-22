@@ -15,7 +15,7 @@ namespace EducationPortal.Application.Users.Commands.DeleteUserDetails;
 /// the Staff module. Audited (SEC-LOG-03) with the person's id only.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Staff)]
-public record DeleteUserDetailsCommand : IRequest
+public record DeleteUserDetailsCommand
 {
     /// <summary>The person's public id.</summary>
     public Guid Id { get; init; }
@@ -29,7 +29,7 @@ public class DeleteUserDetailsCommandValidator : AbstractValidator<DeleteUserDet
     }
 }
 
-public class DeleteUserDetailsCommandHandler : IRequestHandler<DeleteUserDetailsCommand>
+public class DeleteUserDetailsCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

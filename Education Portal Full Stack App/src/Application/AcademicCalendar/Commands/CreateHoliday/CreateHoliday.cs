@@ -13,7 +13,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.CreateHoliday;
 /// Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Create)]
-public record CreateHolidayCommand : IRequest<Guid>, IHolidayInput
+public record CreateHolidayCommand : IHolidayInput
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -41,7 +41,7 @@ public class CreateHolidayCommandValidator : AbstractValidator<CreateHolidayComm
     }
 }
 
-public class CreateHolidayCommandHandler : IRequestHandler<CreateHolidayCommand, Guid>
+public class CreateHolidayCommandHandler
 {
     private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;

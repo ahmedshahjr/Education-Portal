@@ -12,7 +12,7 @@ namespace EducationPortal.Application.Users.Commands.SignIn;
 /// Only accounts of the school that owns the request's domain can sign in there (AGENTS.md section 2). On success the
 /// answer carries the school's enabled modules, so the app can show its menu without another request.
 /// </summary>
-public record SignInCommand : IRequest<SignInOutcome>
+public record SignInCommand
 {
     public string Email { get; init; } = string.Empty;
 
@@ -45,7 +45,7 @@ public sealed record SignInOutcome(bool SignedIn, IReadOnlyList<ModuleCode> Modu
 /// <summary>What the sign-in endpoint returns on success: the modules the school may use, in catalogue order.</summary>
 public sealed record SignInResponse(IReadOnlyList<ModuleCode> Modules);
 
-public class SignInCommandHandler : IRequestHandler<SignInCommand, SignInOutcome>
+public class SignInCommandHandler
 {
     private readonly IIdentityService _identityService;
     private readonly ISecurityAuditLog _auditLog;

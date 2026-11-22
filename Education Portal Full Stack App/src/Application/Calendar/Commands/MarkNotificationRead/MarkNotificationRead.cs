@@ -9,7 +9,7 @@ namespace EducationPortal.Application.Calendar.Commands.MarkNotificationRead;
 /// its existence is not revealed (AGENTS.md section 2, IDOR).
 /// </summary>
 [Authorize]
-public record MarkNotificationReadCommand : IRequest
+public record MarkNotificationReadCommand
 {
     public Guid Id { get; init; }
 }
@@ -22,7 +22,7 @@ public class MarkNotificationReadCommandValidator : AbstractValidator<MarkNotifi
     }
 }
 
-public class MarkNotificationReadCommandHandler : IRequestHandler<MarkNotificationReadCommand>
+public class MarkNotificationReadCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;

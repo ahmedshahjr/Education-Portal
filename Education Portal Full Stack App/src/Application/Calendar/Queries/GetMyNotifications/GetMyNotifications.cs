@@ -6,9 +6,9 @@ namespace EducationPortal.Application.Calendar.Queries.GetMyNotifications;
 
 /// <summary>The signed-in account's newest notifications and its unread count. Only its own notifications are returned.</summary>
 [Authorize]
-public record GetMyNotificationsQuery : IRequest<NotificationsDto>;
+public record GetMyNotificationsQuery;
 
-public class GetMyNotificationsQueryHandler : IRequestHandler<GetMyNotificationsQuery, NotificationsDto>
+public class GetMyNotificationsQueryHandler
 {
     /// <summary>How many of the newest notifications one request returns.</summary>
     public const int PageSize = 50;

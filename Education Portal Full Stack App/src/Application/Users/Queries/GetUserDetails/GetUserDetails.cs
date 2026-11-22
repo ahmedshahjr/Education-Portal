@@ -12,13 +12,13 @@ namespace EducationPortal.Application.Users.Queries.GetUserDetails;
 /// request's host resolves to (SEC-AUTHZ-04). Needs the Staff module.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Staff)]
-public record GetUserDetailsQuery : IRequest<IReadOnlyList<UserDetailsDto>>
+public record GetUserDetailsQuery
 {
     /// <summary>When set, only the people of this type are listed.</summary>
     public UserType? UserType { get; init; }
 }
 
-public class GetUserDetailsQueryHandler : IRequestHandler<GetUserDetailsQuery, IReadOnlyList<UserDetailsDto>>
+public class GetUserDetailsQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

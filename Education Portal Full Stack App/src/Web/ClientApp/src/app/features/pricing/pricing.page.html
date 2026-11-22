@@ -51,7 +51,7 @@
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label i18n="@@pricing.planDescription">Description</mat-label>
-        <input matInput formControlName="description" maxlength="300" autocomplete="off" />
+        <input matInput formControlName="description" maxlength="500" autocomplete="off" />
       </mat-form-field>
       <fieldset class="mm-pricing__modules">
         <legend i18n="@@pricing.planModules">Paid modules in the plan</legend>
@@ -170,6 +170,9 @@
       <mat-form-field appearance="outline">
         <mat-label i18n="@@pricing.amount">Price</mat-label>
         <input matInput type="number" formControlName="price" min="0" dir="ltr" />
+        @if (priceForm.controls.price.hasError('price')) {
+          <mat-error i18n="@@pricing.priceInvalid">A price is zero or more, with at most two decimal places and at most 9,999,999,999,999,999.99.</mat-error>
+        }
       </mat-form-field>
       <button mat-flat-button type="submit" [disabled]="busy() || priceForm.invalid" i18n="@@pricing.savePrice">Save price</button>
     </form>

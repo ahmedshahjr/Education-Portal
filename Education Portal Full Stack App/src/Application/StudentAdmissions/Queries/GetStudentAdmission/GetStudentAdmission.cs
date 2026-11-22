@@ -4,7 +4,6 @@ using EducationPortal.Application.Common.Security;
 using EducationPortal.Application.StudentAdmissions.Dtos;
 using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace EducationPortal.Application.StudentAdmissions.Queries.GetStudentAdmission;
@@ -14,9 +13,9 @@ namespace EducationPortal.Application.StudentAdmissions.Queries.GetStudentAdmiss
 /// to, so another school's student is 404 (SEC-AUTHZ-04). Needs the Students module.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Students)]
-public record GetStudentAdmissionQuery(Guid Id) : IRequest<StudentAdmissionDto>;
+public record GetStudentAdmissionQuery(Guid Id);
 
-public class GetStudentAdmissionQueryHandler : IRequestHandler<GetStudentAdmissionQuery, StudentAdmissionDto>
+public class GetStudentAdmissionQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

@@ -1,9 +1,10 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Infrastructure.Data;
 using EducationPortal.Application.Subscriptions.Lifecycle;
+using EducationPortal.Web.Filters;
 using EducationPortal.Web.Infrastructure;
 using EducationPortal.Web.Jobs;
 using EducationPortal.Web.Services;
@@ -54,10 +55,26 @@ public static class DependencyInjection
         builder.Services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
 
+        // Controllers (ADR-025). The cross-cutting rules are global filters, run in the order of FilterOrder. The
+        // antiforgery check is an attribute on each controller (ValidateAntiforgeryToken), not global.
+        // The controllers live in this assembly. It is named here because a test host's entry assembly is the test project.
+        builder.Services.AddControllers(options =>
+            {
+                options.Filters.Add(new TypeFilterAttribute(typeof(LoggingFilter)) { Order = FilterOrder.Logging });
+                options.Filters.Add(new TypeFilterAttribute(typeof(UnhandledExceptionFilter)) { Order = FilterOrder.UnhandledException });
+                options.Filters.Add(new TypeFilterAttribute(typeof(PerformanceFilter)) { Order = FilterOrder.Performance });
+                // The API speaks JSON only: MVC would otherwise also offer text/plain and text/json.
+                options.Filters.Add(new ProducesAttribute("application/json"));
+            })
+            .AddApplicationPart(typeof(ControllerOperationIdTransformer).Assembly)
+            .AddJsonOptions(options =>
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false)));
+
         builder.Services.AddEndpointsApiExplorer();
 
         builder.Services.AddOpenApi(options =>
         {
+            options.AddOperationTransformer<ControllerOperationIdTransformer>();
             options.AddOperationTransformer<ApiExceptionOperationTransformer>();
             options.AddOperationTransformer<MultipartFormOperationTransformer>();
             options.AddSchemaTransformer<FormFileSchemaTransformer>();

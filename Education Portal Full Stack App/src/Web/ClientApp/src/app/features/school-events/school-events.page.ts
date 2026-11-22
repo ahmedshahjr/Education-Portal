@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { endsAfterStartValidator } from '../../shared/validation/date-validators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,7 +14,6 @@ import { ToastService } from '../../shared/services/toast.service';
 import { CreateSchoolEventCommand, EventAudience, SchoolEventDto, SchoolEventsClient } from '../../web-api-client';
 import {
   audienceLabel,
-  endsAfterStart,
   EVENT_AUDIENCES,
   EVENT_DESCRIPTION_MAX_LENGTH,
   EVENT_TITLE_MAX_LENGTH,
@@ -29,13 +29,6 @@ interface EventRow {
   readonly starts: string;
   readonly ends: string;
   readonly audience: string;
-}
-
-/** The event must end after it starts. */
-function endsAfterStartValidator(group: AbstractControl): ValidationErrors | null {
-  const startsAt = group.get('startsAt')?.value as string;
-  const endsAt = group.get('endsAt')?.value as string;
-  return startsAt && endsAt && !endsAfterStart(startsAt, endsAt) ? { endsBeforeStart: true } : null;
 }
 
 /**
@@ -78,7 +71,7 @@ export class SchoolEventsPage implements OnInit {
       endsAt: ['', Validators.required],
       audience: [EventAudience.All as EventAudience, Validators.required],
     },
-    { validators: [endsAfterStartValidator] }
+    { validators: [endsAfterStartValidator('startsAt', 'endsAt')] }
   );
 
   protected readonly rows = computed<readonly EventRow[]>(() =>

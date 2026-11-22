@@ -237,6 +237,9 @@
   <data name="RightsNeedView" xml:space="preserve">
     <value>بنانے، ترمیم اور حذف کے لیے دیکھنے کا حق ضروری ہے۔</value>
   </data>
+  <data name="RoleNeedsCampus" xml:space="preserve">
+    <value>جس ماڈیول میں کردار کی اجازت ہو، اس کے لیے کم از کم ایک کیمپس یا تمام کیمپس چنیں۔</value>
+  </data>
   <data name="ModuleNotEnabledForSchool" xml:space="preserve">
     <value>اسکول کے پاس یہ ماڈیول نہیں ہے، اس لیے اس میں حقوق نہیں دیے جا سکتے۔</value>
   </data>
@@ -506,5 +509,14 @@
   </data>
   <data name="PasswordsDoNotMatch" xml:space="preserve">
     <value>دونوں پاس ورڈ مماثل نہیں ہیں۔</value>
+  </data>
+  <data name="CurriculumListedTwice" xml:space="preserve">
+    <value>ہر نصاب صرف ایک بار درج کیا جا سکتا ہے۔</value>
+  </data>
+  <data name="PhotoNotAcceptable" xml:space="preserve">
+    <value>تصویر PNG، JPEG یا WebP ہونی چاہیے اور 2 MB سے زیادہ نہ ہو۔</value>
+  </data>
+  <data name="DevelopmentDataTooManyPeople" xml:space="preserve">
+    <value>ایک درخواست میں زیادہ سے زیادہ {0} افراد بنائے جا سکتے ہیں۔</value>
   </data>
 </root>

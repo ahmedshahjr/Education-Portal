@@ -16,7 +16,7 @@ namespace EducationPortal.Application.Campuses.Commands.CreateCampus;
 /// is the one the request's host resolves to (SEC-AUTHZ-04). Needs the Campuses module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
-public record CreateCampusCommand : IRequest<Guid>
+public record CreateCampusCommand
 {
     public string Name { get; init; } = string.Empty;
 
@@ -46,7 +46,7 @@ public class CreateCampusCommandValidator : AbstractValidator<CreateCampusComman
     }
 }
 
-public class CreateCampusCommandHandler : IRequestHandler<CreateCampusCommand, Guid>
+public class CreateCampusCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

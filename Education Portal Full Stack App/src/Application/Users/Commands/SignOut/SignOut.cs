@@ -9,9 +9,9 @@ namespace EducationPortal.Application.Users.Commands.SignOut;
 /// user has stops working on its next request (SEC-AUTHN-07).
 /// </summary>
 [Authorize(AllowWhilePasswordChangeRequired = true)]
-public record SignOutCommand : IRequest;
+public record SignOutCommand;
 
-public class SignOutCommandHandler : IRequestHandler<SignOutCommand>
+public class SignOutCommandHandler
 {
     private readonly IUser _user;
     private readonly IIdentityService _identityService;

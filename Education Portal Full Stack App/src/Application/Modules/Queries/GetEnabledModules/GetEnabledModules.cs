@@ -10,9 +10,9 @@ namespace EducationPortal.Application.Modules.Queries.GetEnabledModules;
 /// module on every request (SEC-AUTHZ-01); this list is only for the menu.
 /// </summary>
 [Authorize]
-public record GetEnabledModulesQuery : IRequest<IReadOnlyList<ModuleCode>>;
+public record GetEnabledModulesQuery;
 
-public class GetEnabledModulesQueryHandler : IRequestHandler<GetEnabledModulesQuery, IReadOnlyList<ModuleCode>>
+public class GetEnabledModulesQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

@@ -25,8 +25,8 @@ import { SubscriptionsClient } from '../../../web-api-client';
   styles: `
     .mm-trial-banner {
       padding: 8px 16px;
-      background-color: var(--mm-primary-container);
-      color: var(--mm-on-primary-container);
+      background-color: var(--mm-error, #b3261e);
+      color: var(--mm-on-error, #ffffff);
       font-size: var(--mm-text-sm);
       text-align: center;
     }

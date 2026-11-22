@@ -11,6 +11,9 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { ToastService } from '../../shared/services/toast.service';
+import { phoneValidator } from '../../shared/validation/contact-validators';
+import { emailValidator } from '../../shared/validation/email-validators';
+import { websiteValidator } from '../../shared/validation/website-validators';
 import {
   CampusesClient,
   CampusLocationsDto,
@@ -68,9 +71,9 @@ export class SchoolDetailsPage {
     address: ['', [Validators.maxLength(300)]],
     stateId: [''],
     cityId: [''],
-    phone: ['', [Validators.maxLength(30)]],
-    email: ['', [Validators.maxLength(254), Validators.email]],
-    website: ['', [Validators.maxLength(2048)]],
+    phone: ['', [Validators.maxLength(30), phoneValidator]],
+    email: ['', [Validators.maxLength(254), emailValidator]],
+    website: ['', [Validators.maxLength(2048), websiteValidator]],
     academicYearStartMonth: [8, [Validators.required, Validators.min(1), Validators.max(12)]],
   });
 

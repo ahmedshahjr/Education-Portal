@@ -13,7 +13,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.UpdateAcademicYe
 /// Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Edit)]
-public record UpdateAcademicYearCommand : IRequest
+public record UpdateAcademicYearCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -41,7 +41,7 @@ public class UpdateAcademicYearCommandValidator : AbstractValidator<UpdateAcadem
     }
 }
 
-public class UpdateAcademicYearCommandHandler : IRequestHandler<UpdateAcademicYearCommand>
+public class UpdateAcademicYearCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

@@ -13,7 +13,7 @@ namespace EducationPortal.Application.SchoolPublicPage.Commands.CreateClassOffer
 /// Adds a class offering to a school, for the whole school or one of its campuses. Needs the School module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record CreateClassOfferingCommand : IRequest<Guid>
+public record CreateClassOfferingCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -75,7 +75,7 @@ public class CreateClassOfferingCommandValidator : AbstractValidator<CreateClass
     }
 }
 
-public class CreateClassOfferingCommandHandler : IRequestHandler<CreateClassOfferingCommand, Guid>
+public class CreateClassOfferingCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

@@ -8,13 +8,13 @@ namespace EducationPortal.Application.SchoolPublicPage.Queries.GetCurricula;
 
 /// <summary>Lists the curricula a school shows on its public page. Needs the School module.</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record GetCurriculaQuery : IRequest<IReadOnlyList<CurriculumKind>>
+public record GetCurriculaQuery
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
 }
 
-public class GetCurriculaQueryHandler : IRequestHandler<GetCurriculaQuery, IReadOnlyList<CurriculumKind>>
+public class GetCurriculaQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

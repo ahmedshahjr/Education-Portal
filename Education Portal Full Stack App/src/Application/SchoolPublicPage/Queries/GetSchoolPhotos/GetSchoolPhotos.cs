@@ -11,13 +11,13 @@ namespace EducationPortal.Application.SchoolPublicPage.Queries.GetSchoolPhotos;
 /// Lists a school's gallery photos in their order, without the image bytes (fetched one at a time). Needs the School module.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record GetSchoolPhotosQuery : IRequest<IReadOnlyList<SchoolPhotoDto>>
+public record GetSchoolPhotosQuery
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
 }
 
-public class GetSchoolPhotosQueryHandler : IRequestHandler<GetSchoolPhotosQuery, IReadOnlyList<SchoolPhotoDto>>
+public class GetSchoolPhotosQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

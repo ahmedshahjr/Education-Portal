@@ -256,6 +256,106 @@
       "skills": ["localization-i18n"],
       "watch": null,
       "last_reviewed": "2026-11-22"
+    },
+    {
+      "id": "github-flow",
+      "name": "GitHub flow (branch, pull request, review, merge)",
+      "portal": "https://docs.github.com/get-started/using-github/github-flow",
+      "tracked_version": "GitHub docs as read on 2026-11-22",
+      "skills": ["ticket-to-merge"],
+      "watch": null,
+      "last_reviewed": "2026-11-22"
+    },
+    {
+      "id": "nunit",
+      "name": "NUnit documentation (assertions, setup fixtures)",
+      "portal": "https://docs.nunit.org/",
+      "tracked_version": "NUnit 4",
+      "skills": ["testing"],
+      "watch": null,
+      "last_reviewed": "2026-11-22"
+    },
+    {
+      "id": "playwright-dotnet",
+      "name": "Playwright for .NET (locators, auto-waiting, best practices)",
+      "portal": "https://playwright.dev/dotnet/docs/best-practices",
+      "tracked_version": "Playwright for .NET, docs as read on 2026-11-22",
+      "skills": ["testing"],
+      "watch": null,
+      "last_reviewed": "2026-11-22"
+    },
+    {
+      "id": "reqnroll",
+      "name": "Reqnroll documentation (feature files, bindings)",
+      "portal": "https://docs.reqnroll.net/",
+      "tracked_version": "Reqnroll docs as read on 2026-11-22",
+      "skills": ["testing"],
+      "watch": null,
+      "last_reviewed": "2026-11-22"
+    },
+    {
+      "id": "aspire-testing",
+      "name": "Aspire integration testing with DistributedApplicationTestingBuilder",
+      "portal": "https://aspire.dev/testing/overview/",
+      "tracked_version": "Aspire 13.6",
+      "skills": ["testing"],
+      "watch": null,
+      "last_reviewed": "2026-11-22"
+    },
+    {
+      "id": "diataxis",
+      "name": "Diataxis documentation framework (tutorials, how-to guides, reference, explanation)",
+      "portal": "https://diataxis.fr/",
+      "tracked_version": "Diataxis as read on 2026-11-22",
+      "skills": ["user-documentation"],
+      "watch": null,
+      "last_reviewed": "2026-11-22"
+    },
+    {
+      "id": "aspire-docs",
+      "name": "Aspire documentation (AppHost, resources, integrations)",
+      "portal": "https://aspire.dev",
+      "tracked_version": "Aspire 13.6",
+      "skills": ["aspire-observability"],
+      "watch": null,
+      "last_reviewed": "2026-11-22"
+    },
+    {
+      "id": "opentelemetry-dotnet",
+      "name": "OpenTelemetry .NET (logs, metrics, traces, OTLP)",
+      "portal": "https://opentelemetry.io/docs/languages/dotnet/",
+      "tracked_version": "OpenTelemetry .NET docs as read on 2026-11-22",
+      "skills": ["aspire-observability"],
+      "watch": null,
+      "last_reviewed": "2026-11-22"
+    },
+    {
+      "id": "postgresql-docs",
+      "name": "PostgreSQL documentation (SQL, EXPLAIN, information_schema, indexes)",
+      "portal": "https://www.postgresql.org/docs/current/",
+      "tracked_version": "PostgreSQL current (18)",
+      "skills": ["postgres-queries"],
+      "watch": null,
+      "last_reviewed": "2026-11-22"
+    },
+    {
+      "id": "npgsql-efcore",
+      "name": "Npgsql Entity Framework Core provider (raw SQL, naming, schemas)",
+      "portal": "https://www.npgsql.org/efcore/",
+      "tracked_version": "Npgsql EF Core 10",
+      "skills": ["postgres-queries"],
+      "watch": null,
+      "last_reviewed": "2026-11-22"
+    },
+    {
+      "id": "project-adrs-commercial",
+      "name": "Project decisions behind modules, subscriptions and billing (ADR-009 to ADR-020)",
+      "portal": "https://github.com/ahmedshahjr/Education-Portal/tree/development/Education%20Portal%20Full%20Stack%20App/docs/decisions",
+      "tracked_version": "ADR-009 to ADR-021 as of 2026-11-22",
+      "skills": ["domain-modules-billing"],
+      "watch": {"type": "github-path", "repo": "ahmedshahjr/Education-Portal", "path": "Education Portal Full Stack App/docs/decisions"},
+      "last_seen_sha": "",
+      "last_reviewed": "2026-11-22"
     }
   ]
 }

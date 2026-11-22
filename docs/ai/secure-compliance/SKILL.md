@@ -104,7 +104,7 @@ The same checklist is in `.github/pull_request_template.md`, so GitHub pre-fills
 ### Security & compliance checklist (docs/ai/secure-compliance/SKILL.md)
 - [ ] No secrets, credentials or real personal data added (SEC-SECRET-01, SEC-PII-03)
 - [ ] New/changed endpoints require auth; anonymous ones listed: … (SEC-AUTHN-01)
-- [ ] Authorization declared for each new MediatR request (module + right) (SEC-AUTHZ-01/02)
+- [ ] Authorization declared for each new use case request (module + right), checked by `IRequestRules` in its controller action (SEC-AUTHZ-01/02)
 - [ ] New tenant-owned entities have SchoolId/CampusId and query filters; no IgnoreQueryFilters (SEC-AUTHZ-03)
 - [ ] SchoolId never taken from the client; CampusId checked against the user (SEC-AUTHZ-04)
 - [ ] Denial tests: unauthenticated, other school, other campus, disabled module, missing right (SEC-AUTHZ-09)
@@ -158,9 +158,9 @@ The baseline came from the Clean Architecture template and does not meet every r
 | Development seed password `Local-Dev-Only-2026!` is in code, tests, `Web.http` and the README. It is allowed because the seed runs only in Development; the maintainer decides whether it moves to user-secrets | `src/Infrastructure/Data/DevelopmentDataSeeder.cs`, `src/Web/Web.http`, `tests/Web.AcceptanceTests/StepDefinitions/LoginStepDefinitions.cs`, `../README.md` | SEC-SECRET-01, SEC-SECRET-04, SEC-AI-03 |
 | Lockout counter has no 15-minute window. Three failures lock for 30 minutes, which is stricter (ADR-004) | `src/Infrastructure/DependencyInjection.cs` | SEC-AUTHN-05 |
 | MFA is not implemented. It must exist before any privileged account is created outside Development (ADR-004) | `src/Infrastructure/Identity/IdentityService.cs` | SEC-AUTHN-04 |
-| Password reset, invite links and disabling users are not implemented (step 2b) | `src/Web/Endpoints/Users.cs` | SEC-AUTHN-08, SEC-AUTHN-10 |
+| Password reset, invite links and disabling users are not implemented (step 2b) | `src/Web/Controllers/UsersController.cs` | SEC-AUTHN-08, SEC-AUTHN-10 |
 | The sign-in rate limit is per client address only; the per-account limit is the lockout. Tenant resolution from the request host is in place (`src/Web/Infrastructure/TenantResolution.cs`) | `src/Web` | SEC-AUTHN-09, SEC-WEB-07 |
-| Branding images (school logo and favicon) are not scanned for malware. They are limited in size, checked by file signature (PNG, JPEG, WebP, ICO only; no SVG), stored in the database and served as attachments with `nosniff`; add a scan before any other upload type is accepted | `src/Domain/Entities/BrandingImageRules.cs`, `src/Web/Endpoints/Branding.cs` | SEC-INPUT-04 |
+| Branding images (school logo and favicon) are not scanned for malware. They are limited in size, checked by file signature (PNG, JPEG, WebP, ICO only; no SVG), stored in the database and served as attachments with `nosniff`; add a scan before any other upload type is accepted | `src/Domain/Entities/BrandingImageRules.cs`, `src/Web/Controllers/BrandingController.cs` | SEC-INPUT-04 |
 | Production creation of the master tenant and of school domains is not built: Development seeds them, and other environments need EF Core migrations and a provisioning step first (step 2b) | `src/Infrastructure/Data/DevelopmentDataSeeder.cs` | SEC-CONFIG-03 |
 | No SAST (CodeQL) or SBOM yet; GitHub secret scanning push protection not confirmed | repo settings / CI | SEC-DEP-08, SEC-SECRET-03 |
 

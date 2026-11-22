@@ -7,9 +7,9 @@ namespace EducationPortal.Application.Invoices.Queries.GetInvoice;
 
 /// <summary>Returns one invoice with its lines and payments; 404 when it does not exist. Master tenant administrators only (SEC-AUTHZ-07).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetInvoiceQuery(Guid Id) : IRequest<InvoiceDto>;
+public record GetInvoiceQuery(Guid Id);
 
-public class GetInvoiceQueryHandler : IRequestHandler<GetInvoiceQuery, InvoiceDto>
+public class GetInvoiceQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

@@ -12,7 +12,7 @@ namespace EducationPortal.Application.Subscriptions.Commands.ExtendSubscription;
 /// (SEC-AUTHZ-04). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record ExtendSubscriptionCommand : IRequest
+public record ExtendSubscriptionCommand
 {
     /// <summary>The school's public id, taken from the route (ENG-ID-02).</summary>
     public Guid SchoolId { get; init; }
@@ -29,7 +29,7 @@ public class ExtendSubscriptionCommandValidator : AbstractValidator<ExtendSubscr
     }
 }
 
-public class ExtendSubscriptionCommandHandler : IRequestHandler<ExtendSubscriptionCommand>
+public class ExtendSubscriptionCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

@@ -15,7 +15,7 @@ namespace EducationPortal.Application.Users.Commands.SetAccountRoles;
 /// module. The change is recorded by the change audit.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
-public record SetAccountRolesCommand : IRequest
+public record SetAccountRolesCommand
 {
     public Guid PersonId { get; init; }
 
@@ -37,7 +37,7 @@ public class SetAccountRolesCommandValidator : AbstractValidator<SetAccountRoles
     }
 }
 
-public class SetAccountRolesCommandHandler : IRequestHandler<SetAccountRolesCommand>
+public class SetAccountRolesCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;

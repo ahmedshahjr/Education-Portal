@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Timetable.Commands.UpdateTimetableSlot;
 /// Needs the Timetable module and the Edit right. Audited.
 /// </summary>
 [Authorize(Module = ModuleCode.Timetable, Right = AccessRight.Edit)]
-public record UpdateTimetableSlotCommand : IRequest
+public record UpdateTimetableSlotCommand
 {
     public Guid Id { get; init; }
 
@@ -40,7 +40,7 @@ public class UpdateTimetableSlotCommandValidator : AbstractValidator<UpdateTimet
     }
 }
 
-public class UpdateTimetableSlotCommandHandler : IRequestHandler<UpdateTimetableSlotCommand>
+public class UpdateTimetableSlotCommandHandler
 {
     private readonly IApplicationDbContext _context;
 

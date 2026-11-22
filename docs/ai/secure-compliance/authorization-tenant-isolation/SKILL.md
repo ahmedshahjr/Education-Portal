@@ -11,8 +11,8 @@ Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP Moderate Rev
 
 | ID | Rule |
 |---|---|
-| SEC-AUTHZ-01 | Access = modules enabled for the school ∩ role rights per module (View/Create/Edit/Delete) ∩ campuses assigned to the user, plus the fixed rules in AGENTS.md section 2. Enforce it **on the server in the Application layer** (MediatR authorization behaviour / attributes). Angular hiding is only UX. |
-| SEC-AUTHZ-02 | Deny by default: every MediatR request MUST declare its module and required right. A request without an authorization declaration MUST fail a test (add an architecture test that scans for it). |
+| SEC-AUTHZ-01 | Access = modules enabled for the school ∩ role rights per module (View/Create/Edit/Delete) ∩ campuses assigned to the user, plus the fixed rules in AGENTS.md section 2. Enforce it **on the server in the Application layer** (the request rules, `IRequestRules`, which read the `[Authorize]` attribute on the request type; each controller action calls them). Angular hiding is only UX. |
+| SEC-AUTHZ-02 | Deny by default: every request type checked by the request rules MUST declare its module and required right. A request without an authorization declaration MUST fail a test (add an architecture test that scans for it). |
 | SEC-AUTHZ-03 | Every tenant-owned entity has `SchoolId` (and `CampusId` if campus-scoped) and is covered by EF Core global query filters fed by the current-user/tenant service. MUST NOT use `IgnoreQueryFilters()` except in master-tenant code paths that are explicitly authorized and audited. |
 | SEC-AUTHZ-04 | `SchoolId` comes only from the host-resolved tenant, never from the request body, query string or a client header. `CampusId` may come from the route but MUST be checked against the user's assigned campuses on every request. |
 | SEC-AUTHZ-05 | No mass assignment: commands are explicit DTOs; never bind request data straight onto entities. Fields like `SchoolId`, `CampusId`, `CreatedBy`, role and permission fields are never client-settable unless the use case is exactly about changing them and is authorized for it. |

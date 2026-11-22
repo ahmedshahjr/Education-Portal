@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Academics.Queries.GetReportCard;
 /// <see cref="ReportCardAccess"/>.
 /// </summary>
 [Authorize(Module = ModuleCode.Exams, Right = AccessRight.View)]
-public record GetReportCardQuery : IRequest<ReportCardDto>
+public record GetReportCardQuery
 {
     public Guid StudentId { get; init; }
 
@@ -23,7 +23,7 @@ public record GetReportCardQuery : IRequest<ReportCardDto>
     public Guid GradingScaleId { get; init; }
 }
 
-public class GetReportCardQueryHandler : IRequestHandler<GetReportCardQuery, ReportCardDto>
+public class GetReportCardQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;

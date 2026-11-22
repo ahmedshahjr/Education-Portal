@@ -13,7 +13,7 @@ namespace EducationPortal.Application.Subscriptions.Commands.ChangeSubscriptionP
 /// administrators only (SEC-AUTHZ-07), so the school id may come from the route (SEC-AUTHZ-04). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record ChangeSubscriptionPlanCommand : IRequest
+public record ChangeSubscriptionPlanCommand
 {
     /// <summary>The school's public id, taken from the route (ENG-ID-02).</summary>
     public Guid SchoolId { get; init; }
@@ -30,7 +30,7 @@ public class ChangeSubscriptionPlanCommandValidator : AbstractValidator<ChangeSu
     }
 }
 
-public class ChangeSubscriptionPlanCommandHandler : IRequestHandler<ChangeSubscriptionPlanCommand>
+public class ChangeSubscriptionPlanCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

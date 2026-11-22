@@ -1,3 +1,5 @@
+using System.Reflection;
+using EducationPortal.Application.Common.Security;
 using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
@@ -6,7 +8,6 @@ using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Modules.Common;
 using EducationPortal.Infrastructure.Identity;
 using EducationPortal.Web.Services;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,23 +39,51 @@ public static class TestApp
     /// <summary>The master tenant's public id, for API routes (ENG-ID-02).</summary>
     public static Guid MasterSchoolPublicId { get; private set; }
 
-    /// <summary>Sends a request as the current user, on the tenant chosen by <see cref="UseTenant"/> (the master by default).</summary>
-    public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
+    /// <summary>
+    /// Runs a use case as the current user, on the tenant chosen by <see cref="UseTenant"/> (the master by default). It applies
+    /// the same two rules the controllers' filters apply (ADR-025), the authorisation and the validation, and then calls the
+    /// use case's Handle method, so a denial test sees the same error the API returns.
+    /// </summary>
+    public static async Task<TResponse> SendAsync<TResponse>(object request)
     {
-        using var scope = CreateTenantScope();
-
-        var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
-
-        return await mediator.Send(request);
+        var result = await InvokeAsync(request);
+        return (TResponse)result!;
     }
 
-    public static async Task SendAsync(IBaseRequest request)
+    /// <summary>Runs a use case that returns nothing (see <see cref="SendAsync{TResponse}"/>).</summary>
+    public static async Task SendAsync(object request)
+    {
+        await InvokeAsync(request);
+    }
+
+    private static async Task<object?> InvokeAsync(object request)
     {
         using var scope = CreateTenantScope();
+        var services = scope.ServiceProvider;
+        var requestType = request.GetType();
 
-        var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
+        // The same rules a controller action applies to its request, before the use case runs.
+        await services.GetRequiredService<IRequestRules>().CheckAsync(request, CancellationToken.None);
 
-        await mediator.Send(request);
+        var handlerType = requestType.Assembly.GetType(requestType.FullName + "Handler")
+            ?? throw new InvalidOperationException($"No use case service for {requestType.Name}.");
+        var handler = services.GetRequiredService(handlerType);
+        var method = handlerType.GetMethod("Handle", [requestType, typeof(CancellationToken)])
+            ?? throw new InvalidOperationException($"{handlerType.Name} has no Handle method.");
+
+        try
+        {
+            var task = (Task)method.Invoke(handler, [request, CancellationToken.None])!;
+            await task;
+
+            // A use case that returns a value has a Task<T>; the result is read from it.
+            return task.GetType().IsGenericType ? task.GetType().GetProperty("Result")!.GetValue(task) : null;
+        }
+        catch (TargetInvocationException ex) when (ex.InnerException is not null)
+        {
+            System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+            throw;
+        }
     }
 
     /// <summary>Makes <see cref="SendAsync{TResponse}"/> run as if the request came to this school's domain.</summary>
@@ -245,7 +274,11 @@ public static class TestApp
         FunctionalTestSetup.ScopeFactory.CreateScope().ServiceProvider.GetRequiredService<IModuleEntitlementStore>().InvalidateAll();
 
         // Every request needs a tenant, so the master tenant is created again after each reset.
+        // The master school belongs to the master tenant (ADR-021).
+        var masterTenant = Tenant.CreateMaster("Education Portal");
+        await AddAsync(masterTenant);
         var master = School.CreateMaster("Education Portal", MasterDomain);
+        master.AssignToTenant(masterTenant.Id);
         await AddAsync(master);
 
         // The module catalogue and its dependencies are seeded data, so they are added again too.

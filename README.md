@@ -27,10 +27,10 @@ Every technology the portal uses, what it does here, and where its flow diagram 
 |---|---|---|---|---|
 | Runtime | .NET SDK and C# | 10.0.403+ | Runtime and language for every backend project. `Nullable` on, warnings are errors | [Clean Architecture layers](#clean-architecture-layers) |
 | Orchestration | .NET Aspire (AppHost) | 13.6 | Starts PostgreSQL, Vault, the observability stack, the API and Angular together, in the right order, and wires their settings | [Aspire](#aspire-orchestration-flow) |
-| API host | ASP.NET Core minimal APIs | 10 | The `webapi` host: middleware, endpoint groups in `Web/Endpoints`, serves the built Angular app in production | [Middleware pipeline](#aspnet-core-middleware-pipeline) |
+| API host | ASP.NET Core MVC controllers | 10 | The `webapi` host: middleware, one controller per feature in `Web/Controllers`, global filters in `Web/Filters`, serves the built Angular app in production | [Middleware pipeline](#aspnet-core-middleware-pipeline) |
 | API docs | OpenAPI + Scalar | Scalar 2.19 | OpenAPI document at `/openapi/v1.json` and the Scalar UI at `/scalar`, Development only | [NSwag client](#nswag-api-client-generation-flow) |
-| Use cases | MediatR | 14 | Every endpoint sends a command or query; pipeline behaviours log, authorize, validate and time it | [How a request flows](#how-a-request-flows), [authorization](#authorization-and-module-check-flow) |
-| Validation | FluentValidation | 12 | One validator per request, run by `ValidationBehaviour`; failures become 400 | [How a request flows](#how-a-request-flows) |
+| Use cases | Plain services, no mediator library (ADR-025) | n/a | Each controller action runs the request rules (sign-in, module, role, rights, campus, validation), then calls the use case service | [How a request flows](#how-a-request-flows), [authorization](#authorization-and-module-check-flow) |
+| Validation | FluentValidation | 12 | One validator per request, run by the request rules (`IRequestRules`); failures become 400 | [How a request flows](#how-a-request-flows) |
 | Mapping | Hand-written mapping in handlers | n/a | No mapping library: DTOs are built by hand in the Application layer | [How a request flows](#how-a-request-flows) |
 | Guards | Ardalis.GuardClauses | 5 | Argument and lookup checks in handlers and start-up code; `Guard.Against.NotFound` becomes 404 | [How a request flows](#how-a-request-flows) |
 | Scheduling | Quartz.NET (`Quartz`) | 4.7 | Runs the daily subscription lifecycle job inside the API, on a UTC cron schedule kept in memory | [Subscription lifecycle job](#subscription-lifecycle-job-flow) |
@@ -140,7 +140,7 @@ Functional and acceptance tests start PostgreSQL through Aspire, so Docker must 
 
 ## Architecture overview
 
-The portal is a **modular monolith**: one API, one Angular app and one PostgreSQL database, organised by Clean Architecture layers and by feature. That keeps the MVP simple to build, test and deploy. Each feature has its own folders (`Application/<Feature>/`, `Web/Endpoints/<Feature>.cs`), so one could move into its own service later if it ever needs to.
+The portal is a **modular monolith**: one API, one Angular app and one PostgreSQL database, organised by Clean Architecture layers and by feature. That keeps the MVP simple to build, test and deploy. Each feature has its own folders (`Application/<Feature>/`, `Web/Controllers/<Feature>Controller.cs`), so one could move into its own service later if it ever needs to.
 
 ### Architecture flow diagram
 
@@ -161,17 +161,17 @@ flowchart TB
         authn["5. Authentication + tenant session check<br/>cookie must belong to this school"]
         culture["6. Request culture<br/>one of the school's languages"]
         authz["7. Antiforgery + authorization"]
-        endpoint["8. Endpoint group, Web/Endpoints/Feature.cs<br/>maps HTTP to a MediatR request"]
+        controller["8. Controller, Web/Controllers/FeatureController.cs<br/>maps HTTP to a request, then runs the request rules"]
     end
 
     subgraph app["Application layer, src/Application"]
-        pipeline["9. MediatR pipeline<br/>log, exceptions, authorize module/role, validate, time"]
-        handler["10. Command or query handler<br/>use case logic"]
+        rules["9. Request rules, IRequestRules.CheckAsync<br/>sign-in, password, master, module, role, rights, campus, validation"]
+        handler["10. Use case service, Handle(request)<br/>use case logic"]
     end
 
     subgraph infra["Infrastructure layer, src/Infrastructure"]
         ctx["11. ApplicationDbContext<br/>query filters: SchoolId, CampusId, soft delete"]
-        save["12. Save interceptors<br/>audit fields, domain events"]
+        save["12. Save interceptors<br/>audit fields, change audit"]
         secrets["ISecretProvider<br/>Vault / Key Vault / AWS / GCP"]
         otel["OpenTelemetry<br/>logs, metrics, traces"]
     end
@@ -181,8 +181,9 @@ flowchart TB
 
     browser --> boot --> ui
     ui -->|"HTTP /api/... + session cookie<br/>+ X-XSRF-TOKEN"| mw
-    mw --> tenant --> authn --> culture --> authz --> endpoint
-    endpoint -->|"sender.Send(request)"| pipeline --> handler
+    mw --> tenant --> authn --> culture --> authz --> controller
+    controller -->|"1. CheckAsync(request)"| rules
+    controller -->|"2. Handle(request)"| handler
     handler -->|"LINQ / SaveChangesAsync"| ctx
     ctx --> save
     ctx <-->|"Npgsql"| db
@@ -190,8 +191,8 @@ flowchart TB
     handler -.-> otel
     host -.-> otel
     otel -.->|"OTLP"| collector
-    handler -->|"DTO or result"| endpoint
-    endpoint -->|"JSON, or ProblemDetails 400/401/403/404"| ui
+    handler -->|"DTO or result"| controller
+    controller -->|"JSON, or ProblemDetails 400/401/403/404"| ui
 ```
 
 **Walkthrough, step by step**
@@ -202,12 +203,12 @@ flowchart TB
 4. **Tenant resolution.** `TenantResolution` looks up the request's `Host` in the domain table and sets the current school. An unknown or inactive host gets 404 and nothing else runs. The school is never taken from the body, query string or a header. See [Tenant resolution flow](#tenant-resolution-flow).
 5. **Authentication and session check.** Identity reads the host-only session cookie, then `UseTenantSessionCheck` makes sure the signed-in user belongs to the school of this host. A session from `school1.com` is refused on `school2.com` and the attempt is audited. See [Sign-in flow](#sign-in-flow-aspnet-core-identity).
 6. **Request culture.** `TenantRequestLocalization` picks one of the school's languages (the visitor's cookie, then the browser, then the country default), so validation and error messages come back in that language. See [Localization flow](#localization-flow).
-7. **Antiforgery and authorization.** Unsafe requests must carry the antiforgery token; endpoint authorization requires a signed-in user unless the endpoint is explicitly anonymous.
-8. **Endpoint.** One thin endpoint group per feature turns the HTTP request into a MediatR command or query. No business logic lives here.
-9. **MediatR pipeline.** Logging, unhandled exceptions, `AuthorizationBehaviour` (role, policy and the module switch for the school, 403 when the module is off), FluentValidation (400 with errors per field) and a slow-request warning. See [How a request flows](#how-a-request-flows) and [Authorization and module check flow](#authorization-and-module-check-flow).
-10. **Handler.** The use case itself. It turns public `Guid` ids into internal `int` ids first (`ResolveIdAsync`), so another school's id is simply not found (404).
+7. **Antiforgery and authorization.** Unsafe actions carry the antiforgery token (`[ValidateAntiforgeryToken]`); controller authorization requires a signed-in user unless the action is explicitly anonymous.
+8. **Controller.** One thin controller per feature (`Web/Controllers/<Feature>Controller.cs`) turns the HTTP request into a request, builds the final request (route ids included) and calls the request rules. No business logic lives here.
+9. **Request rules.** `IRequestRules.CheckAsync` checks the sign-in, the password change, the master tenant, the module switch for the school (403 when the module is off), the role, the right and the campus, then runs the request's FluentValidation validators (400 with errors per field). The global filters in `Web/Filters` log each request, warn about a slow one and turn unhandled exceptions into ProblemDetails. See [How a request flows](#how-a-request-flows) and [Authorization and module check flow](#authorization-and-module-check-flow).
+10. **Use case service.** The use case itself, a `...Handler` class with one `Handle` method. It turns public `Guid` ids into internal `int` ids first (`ResolveIdAsync`), so another school's id is simply not found (404).
 11. **Database access.** `ApplicationDbContext` (EF Core + Npgsql) applies the global query filters, so every query is limited to the current school (and campus) and hides soft-deleted rows. Master-tenant users bypass the school filter. See [EF Core and PostgreSQL flow](#ef-core-and-postgresql-flow).
-12. **Saving.** Interceptors fill the audit fields (`Created`, `CreatedBy`, `LastModified`, `LastModifiedBy`), dispatch domain events and record old and new values of commercial rows in `ChangeAuditEntries` on `SaveChangesAsync`, all in one transaction.
+12. **Saving.** Interceptors fill the audit fields (`Created`, `CreatedBy`, `LastModified`, `LastModifiedBy`) and record old and new values of commercial rows in `ChangeAuditEntries` on `SaveChangesAsync`, all in one transaction.
 
 Alongside the request path, the database connection string and other platform secrets come from `ISecretProvider` at start-up ([Secrets flow](#secrets-flow)), and every step reports logs, metrics and traces, tagged with `tenant.id`, to one OTLP endpoint ([Observability flow](#observability-flow-opentelemetry)). Locally, the Aspire AppHost starts all of it ([The system at runtime](#the-system-at-runtime), [Aspire orchestration flow](#aspire-orchestration-flow)).
 
@@ -217,17 +218,17 @@ Every diagram in this README, what it shows, and the code it is drawn from. When
 
 | Diagram | Shows | Updated when these change |
 |---|---|---|
-| [Architecture flow diagram](#architecture-flow-diagram) | The end-to-end request path above | `src/AppHost/`, middleware calls in `src/Web/Program.cs`, pipeline behaviours added or removed, projects added or removed |
+| [Architecture flow diagram](#architecture-flow-diagram) | The end-to-end request path above | `src/AppHost/`, middleware calls in `src/Web/Program.cs`, request rules or global filters added or removed, projects added or removed |
 | [The system at runtime](#the-system-at-runtime) | Aspire resources, containers and how they connect | `src/AppHost/` |
 | [Clean Architecture layers](#clean-architecture-layers) | Projects and which references which | a `.csproj` added or removed, or its `<ProjectReference>` lines |
-| [How a request flows](#how-a-request-flows) | Endpoint to MediatR pipeline to handler to database | pipeline behaviours added or removed, `AddOpenBehavior` order in `src/Application/DependencyInjection.cs` |
-| [Multi-tenancy and permissions](#multi-tenancy-and-permissions-step-2-in-progress) | Master, schools and campuses, and the checks on every request | `TenantResolution.cs`, `TenantResolver.cs`, query filters in `ApplicationDbContext.cs`, module/role/campus checks in `AuthorizationBehaviour.cs` |
-| [User map](#user-map) | Who uses the portal (master, school administrator, school users, students and parents), what each sees and changes | `src/Web/Endpoints/Overview.cs`, `src/Application/Overview/`, role and right checks in `src/Application/Common/Behaviours/AuthorizationBehaviour.cs` |
+| [How a request flows](#how-a-request-flows) | Controller to request rules to use case service to database | request rules or their authorizer added or removed, global filters added, removed or reordered in `src/Web/Filters/` |
+| [Multi-tenancy and permissions](#multi-tenancy-and-permissions-step-2-in-progress) | Master, schools and campuses, and the checks on every request | `TenantResolution.cs`, `TenantResolver.cs`, query filters in `ApplicationDbContext.cs`, module/role/campus checks in `src/Application/Common/Security/RequestRules.cs` and `RequestAuthorizer.cs` |
+| [User map](#user-map) | Who uses the portal (master, school administrator, school users, students and parents), what each sees and changes | `src/Web/Controllers/OverviewController.cs`, `src/Application/Overview/`, role and right checks in `src/Application/Common/Security/RequestAuthorizer.cs` |
 | [Aspire orchestration flow](#aspire-orchestration-flow) | Run mode and publish mode, start order | `src/AppHost/` |
 | [ASP.NET Core middleware pipeline](#aspnet-core-middleware-pipeline) | Middleware order | `app.Use…` / `app.Map…` / `builder.…` lines in `src/Web/Program.cs` |
 | [Tenant resolution flow](#tenant-resolution-flow) | Host to school, unknown host 404, session check | `src/Web/Infrastructure/TenantResolution.cs`, `src/Infrastructure/Identity/TenantResolver.cs` |
-| [Sign-in flow](#sign-in-flow-aspnet-core-identity) | Login, cookie, lockout, `me` | routes in `src/Web/Endpoints/Users.cs`; sign-in, claim, cookie, session or lockout code in `IdentityService.cs`, `ApplicationUserClaimsPrincipalFactory.cs`, `SessionLifetime.cs` |
-| [Authorization and module check flow](#authorization-and-module-check-flow) | `[Authorize]`, roles, module switch | pipeline behaviours added or removed, module/role/policy checks in `AuthorizationBehaviour.cs` |
+| [Sign-in flow](#sign-in-flow-aspnet-core-identity) | Login, cookie, lockout, `me` | routes in `src/Web/Controllers/UsersController.cs`; sign-in, claim, cookie, session or lockout code in `IdentityService.cs`, `ApplicationUserClaimsPrincipalFactory.cs`, `SessionLifetime.cs` |
+| [Authorization and module check flow](#authorization-and-module-check-flow) | `[Authorize]`, roles, module switch | request rules or their authorizer added or removed, module/role/policy checks in `RequestAuthorizer.cs` |
 | [EF Core and PostgreSQL flow](#ef-core-and-postgresql-flow) | Query filters, interceptors, Npgsql | query filters in `ApplicationDbContext.cs`, interceptors added or removed |
 | [Secrets flow](#secrets-flow) | Secret providers, cache and retries | files added or removed in `src/Infrastructure/Secrets/` |
 | [Observability flow](#observability-flow-opentelemetry) | OTLP export and the local stack | `src/AppHost/`, files added or removed in `src/Infrastructure/Observability/` |
@@ -302,7 +303,7 @@ Dependencies point inwards. `Web` and `Infrastructure` depend on `Application`, 
 
 ```mermaid
 flowchart TB
-    web["Web<br/>endpoints, current user, error handling"]
+    web["Web<br/>controllers, filters, current user, error handling"]
     infra["Infrastructure<br/>EF Core, Identity, interceptors, seeding"]
     app["Application<br/>use cases, validators, DTOs, interfaces"]
     domain["Domain<br/>entities, value objects, enums, events"]
@@ -315,9 +316,9 @@ flowchart TB
 | Project | Contains | References |
 |---|---|---|
 | `Domain` | Entities, value objects, enums, domain events, constants | nothing |
-| `Application` | Use cases as MediatR commands and queries, FluentValidation validators, DTOs (mapped by hand), pipeline behaviours, interfaces | `Domain` |
+| `Application` | Use cases as plain services with `Handle` (no mediator library, ADR-025), request rules, FluentValidation validators, DTOs (mapped by hand), interfaces | `Domain` |
 | `Infrastructure` | `ApplicationDbContext` (EF Core + Identity), entity configurations, save interceptors, `IdentityService`, database initialiser and seed data, the secrets layer, OpenTelemetry setup (`AddObservability`) | `Application`, `Shared` |
-| `Web` | The ASP.NET Core host: endpoint groups in `Endpoints/`, `CurrentUser`, `ProblemDetailsExceptionHandler`, OpenAPI and Scalar, the Angular app | `Application`, `Infrastructure`, `ServiceDefaults` |
+| `Web` | The ASP.NET Core host: MVC controllers in `Controllers/`, global filters in `Filters/`, `CurrentUser`, `ProblemDetailsExceptionHandler`, OpenAPI and Scalar, the Angular app | `Application`, `Infrastructure`, `ServiceDefaults` |
 | `ServiceDefaults` | Health checks, HTTP resilience, service discovery | nothing |
 | `Shared` | Aspire resource names used by the AppHost, `Infrastructure` and the tests | nothing |
 | `AppHost` | Aspire orchestration (the startup project) | `Web`, `Shared` |
@@ -326,37 +327,38 @@ Use cases query the database through `IApplicationDbContext` with EF Core direct
 
 ### How a request flows
 
-Every API call takes the same path. Endpoints stay thin: they turn the HTTP request into a MediatR command or query and send it.
+Every API call takes the same path. Controllers stay thin: they turn the HTTP request into a request, run the request rules on it and call the use case service (ADR-025, no mediator library).
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant UI as Angular component
     participant Client as Generated API client
-    participant Endpoint as Web endpoint group
-    participant Pipeline as MediatR pipeline
-    participant Handler as Handler
+    participant Controller as Web controller
+    participant Rules as Request rules
+    participant Handler as Use case service
     participant Db as ApplicationDbContext
     UI->>Client: call a typed method
-    Client->>Endpoint: HTTP /api/... with the sign-in cookie
-    Endpoint->>Pipeline: sender.Send(request)
-    Pipeline->>Pipeline: log, authorize, validate, time
-    Pipeline->>Handler: Handle(request)
+    Client->>Controller: HTTP /api/... with the sign-in cookie
+    Controller->>Rules: CheckAsync(request)
+    Rules->>Rules: sign-in, password, master, module, role, rights, campus, validate
+    Rules-->>Controller: passed, or 401, 403 or 400
+    Controller->>Handler: Handle(request)
     Handler->>Db: LINQ query or SaveChangesAsync
-    Db-->>Handler: rows (auditing and domain events run on save)
-    Handler-->>Endpoint: result or DTO
-    Endpoint-->>Client: JSON, or ProblemDetails on error
+    Db-->>Handler: rows (auditing and change audit run on save)
+    Handler-->>Controller: result or DTO
+    Controller-->>Client: JSON, or ProblemDetails on error
 ```
 
-The MediatR pipeline (`src/Application/DependencyInjection.cs`) runs in this order:
+Each controller action calls `IRequestRules.CheckAsync` with the request it is about to run (`src/Application/Common/Security/RequestRules.cs`). The global MVC filters (`src/Web/Filters/`, order in `FilterOrder.cs`) wrap every action, in this order:
 
 | # | Step | What it does |
 |---|---|---|
-| 1 | `LoggingBehaviour` | Logs the request name and the user. It also logs the whole request today, which is a known gap to fix (SEC-LOG-02). |
-| 2 | `UnhandledExceptionBehaviour` | Logs any unhandled exception, then rethrows it. |
-| 3 | `AuthorizationBehaviour` | Enforces `[Authorize]`, roles and policies declared on the request class. |
-| 4 | `ValidationBehaviour` | Runs the request's FluentValidation validators. |
-| 5 | `PerformanceBehaviour` | Logs a warning when a request takes longer than 500 ms. |
+| 1 | `LoggingFilter` | Logs the request name and the user. It also logs the whole request today, which is a known gap to fix (SEC-LOG-02). |
+| 2 | `UnhandledExceptionFilter` | Logs any unhandled exception, then lets it reach the ProblemDetails handler. |
+| 3 | Request rules: authorization | `RequestAuthorizer` enforces the `[Authorize]` declared on the request type: sign-in, password change, master tenant, module, roles, policy and rights. |
+| 4 | Request rules: validation | Runs the request's FluentValidation validators; failures are 400 with the errors per field. |
+| 5 | `PerformanceFilter` | Logs a warning when a request takes longer than 500 ms. |
 
 Step 2 adds a permission check after authorization: the module is switched on for the school, the user's role allows the action, and the user is assigned to the campus.
 
@@ -375,7 +377,7 @@ Step 2 adds a permission check after authorization: the module is switched on fo
 - The Angular app lives in `src/Web/ClientApp`. In development, `npm start` runs `ng serve`, and `proxy.conf.js` forwards `/api`, `/openapi` and `/scalar` to the API, so the browser sees one site and the sign-in cookie just works.
 - The TypeScript client `src/app/web-api-client.ts` is **generated, never edited by hand, and not committed**:
   1. Building `src/Web` writes the OpenAPI document to `src/Web/openapi/v1.json`.
-  2. `npm start` and `npm run build` first run `npm run generate-api`, where NSwag (`nswag.json`) turns that document into one Angular service per endpoint group, such as `UsersClient`.
+  2. `npm start` and `npm run build` first run `npm run generate-api`, where NSwag (`nswag.json`) turns that document into one Angular service per controller, such as `UsersClient`.
 - The app is standalone and zoneless (`bootstrapApplication` in `src/main.ts`, signals for state). Its layout (sidebar, top bar, display settings) and styles come from the maintainer's theme in [`Theme Angular/`](Theme%20Angular/), which every new screen uses as its guide ([ENG-UI-17](docs/ai/engineering/angular-material-ui/SKILL.md)). Folders: `core/` (auth, HTTP interceptors, branding, layout, i18n), `shared/` (theme components), `features/` (login, home, branding, schools, countries).
 - Before the first screen renders, `BrandingService` loads `GET /api/Branding` for the current address and applies the school's accent colour, sidebar colour, logo, favicon and name. The sidebar text colour is picked for at least 4.5:1 contrast with any colour a school chooses.
 - `AuthService` signs in with `POST /api/Users/login`, then asks `GET /api/Users/me` for the signed-in user. That answer also carries a fresh antiforgery token. `sessionInterceptor` sends the session cookie with every request and redirects to `/login` when the API answers 401, except for the answers from `/api/Users/me` and `/api/Users/login`. `antiforgeryInterceptor` copies the `__Host-XSRF-TOKEN` cookie into the `X-XSRF-TOKEN` header of every unsafe request.
@@ -392,7 +394,7 @@ Step 2 adds a permission check after authorization: the module is switched on fo
 - ASP.NET Core Identity from the template (kept on purpose), with users and roles in the same PostgreSQL database.
 - Four endpoints under `/api/Users` (`login`, `logout`, `me` and `me/password`) replace the template's Identity API endpoints. Signing in sets a session cookie.
 - `CurrentUser` (in `Web`) gives the Application layer the signed-in user's id, roles and whether they must change a one-time password through `IUser`.
-- There is no public sign-up: staff create accounts. The template's register endpoint and page are removed. The master tenant creates each new school's first administrator with a **one-time password** (Schools, Add school). Until that administrator chooses their own password (`POST /api/Users/me/password`, the Angular `/change-password` page), every request except `me`, `logout` and `me/password` is refused with 403 and the code `PASSWORD_CHANGE_REQUIRED` (`AspNetUsers.MustChangePassword`, checked in `AuthorizationBehaviour`). Changing the password checks the current one and the password policy, ends the user's other sessions and is audited.
+- There is no public sign-up: staff create accounts. The template's register endpoint and page are removed. The master tenant creates each new school's first administrator with a **one-time password** (Schools, Add school). Until that administrator chooses their own password (`POST /api/Users/me/password`, the Angular `/change-password` page), every request except `me`, `logout` and `me/password` is refused with 403 and the code `PASSWORD_CHANGE_REQUIRED` (`AspNetUsers.MustChangePassword`, checked in `RequestAuthorizer`). Changing the password checks the current one and the password policy, ends the user's other sessions and is audited.
 - The security rules ask for more than the template defaults: a stronger password policy, account lockout, secure host-only cookies, session timeouts, and MFA for master users, school owners and staff who can change data ([authentication skill](docs/ai/secure-compliance/authentication/SKILL.md)). Step 2a adds the stronger password policy, lockout, secure host-only cookies, session timeouts and sign-in rate limits. The decisions are in [ADR-004](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-004-Security-Baseline.md). MFA is not built yet.
 
 ### Multi-tenancy and permissions (step 2, in progress)
@@ -422,7 +424,7 @@ flowchart TB
 - **The campus is picked inside the app.** Campuses never get their own domain. Staff, students and parents can belong to several campuses and switch between them in the app, with the campus in the route (for example `/campuses/12/students`). The server checks that campus against the user on every request.
 - **Languages come from the school's country.** The master tenant manages countries (languages offered, default language, time zone, currency) on the **Countries and languages** page and assigns each school to one on the **Schools** page. ASP.NET Core request localization, with a culture provider that knows the school, answers each request in one of that school's languages only: the visitor's choice, then the browser's, then the country's default. Server messages come from `.resx` files: error titles in `src/Web/Resources`, validation messages and the property names inside them in `src/Application/Common/Localization` (Arabic and Urdu next to English; FluentValidation's built-in messages ship in Arabic, and the portal adds Urdu) ([ADR-005](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-005-Localization-Per-Country.md)).
 - **Location data for address dropdowns.** Countries, states and cities for Saudi Arabia, the UAE, Qatar, Kuwait, Bahrain, Oman, the United States, Japan and Pakistan come from the [Countries States Cities Database](https://github.com/dr5hn/countries-states-cities-database) (see [Data sources and licences](#data-sources-and-licences)). A filtered copy is committed as `src/Infrastructure/Data/Locations/locations.json` and `LocationDataImporter` loads it on every start-up, in every environment. It is safe to run again: countries match on their ISO 3166-1 code, states on their ISO 3166-2 code (or name in the country), cities on their name in the state, and rows administrators add (`IsCustom`) are never changed. A country the master tenant already has keeps its own name, languages, time zone and currency; only `Iso3`, `PhoneCode` and `NativeName` come from the data. Two Pakistan names are overridden by ISO code: `PK-IS` is "Islamabad Capital Territory" and `PK-JK` is "Azad Jammu and Kashmir". The three US military postal regions are left out. Any signed-in user reads the cascading dropdowns: `GET /api/Locations/countries`, `GET /api/Locations/countries/{countryId}/states` and `GET /api/Locations/states/{stateId}/cities` (active rows only, by name; `State.Type` travels by name, e.g. `"Province"`). To update the data, run `dotnet run scripts/update-location-data.cs -- <commit-sha>` from `Education Portal Full Stack App` and open a PR with the diff. Responses are not cached yet.
-- **Permissions are checked on the server.** Effective access = modules the master switched on for the school ∩ the rights the user's role gives per module (View, Create, Edit, Delete) ∩ the user's campuses. The check runs in the MediatR pipeline, so hiding a button in Angular is never the only protection.
+- **Permissions are checked on the server.** Effective access = modules the master switched on for the school ∩ the rights the user's role gives per module (View, Create, Edit, Delete) ∩ the user's campuses. The check runs in the request rules that every controller action calls, so hiding a button in Angular is never the only protection.
 
 Every request to a school's domain passes these checks:
 
@@ -501,7 +503,7 @@ A campus switcher in the top bar appears to a school administrator when the scho
 - `ApplicationDbContext` (in `Infrastructure`) is the EF Core context for both Identity and the app's own tables. Entity mappings are `IEntityTypeConfiguration<T>` classes in `src/Infrastructure/Data/Configurations/`, picked up automatically.
 - Keys are `int` internally and every entity also has a unique `Guid PublicId`, the only id the API exposes (ENG-ID-01..03). Enum columns are integers with a foreign key to a lookup table seeded from the enum (`Infrastructure/Data/Lookups`, ENG-ENUM-03/04).
 - `AuditableEntityInterceptor` fills `Created`, `CreatedBy`, `LastModified` and `LastModifiedBy` on entities that inherit `BaseAuditableEntity`.
-- Entities raise domain events instead of calling services. `DispatchDomainEventsInterceptor` publishes them through MediatR just before the changes are saved.
+- Entities do not call services and raise no domain events: MediatR and the interceptor that published them were removed (ADR-025), so nothing reacts to an event.
 - `ChangeAuditInterceptor` runs last and adds a `ChangeAuditEntry` to the same save for every added, changed or removed subscription, tenant module, invoice, invoice line, payment, add-on request, module, module dependency, plan, plan module, price book and price: who (or the system), when, which row, and each changed value before and after, as jsonb ([ADR-016](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-016-Change-Audit-For-Commercial-Records.md)). The table is append-only and filtered by school.
 - Aspire passes the connection string (`ConnectionStrings__EducationPortalDb`) to the API, so there is nothing to configure locally.
 - In Development the EF Core migrations are applied on every start (`MigrateAsync`, nothing is dropped), then the location data is imported and the start-up data is seeded (`DevelopmentDataSeeder`, idempotent: modules, plans, price books, the master tenant and its administrator; no schools or people). The first migration is `InitialCreate`. Tables live in one PostgreSQL schema per feature (`identity`, `access`, `schools`, `modules`, `billing`, `audit`, `lookups`, `admissions`, `academics`; see `Data/DatabaseSchemas.cs`). Every school-owned entity implements `ITenantOwned`, and `ApplicationDbContext` gives all of them the tenant filter in one loop; two tests fail the build when an entity has a `SchoolId` without it. Modules are the fixed `ModuleCode` enum, so the master edits modules but cannot create or delete one. Outside Development the schema must be migrated by a reviewed migration script before the app starts.
@@ -541,9 +543,9 @@ The API sends OpenTelemetry logs, metrics and traces over OTLP to one endpoint, 
 | Project | What it covers | Needs |
 |---|---|---|
 | `tests/Domain.UnitTests` | Entities and value objects | nothing |
-| `tests/Application.UnitTests` | Pipeline behaviours, exceptions, validators, handlers | nothing |
+| `tests/Application.UnitTests` | Request rules, exceptions, validators, use case services | nothing |
 | `tests/Infrastructure.IntegrationTests` | Empty for now; meant for EF Core and Identity tests | nothing |
-| `tests/Application.FunctionalTests` | Use cases end to end through MediatR, against a real PostgreSQL started by `tests/TestAppHost`. Respawn clears the data between tests. | Docker |
+| `tests/Application.FunctionalTests` | Use cases end to end through the API, against a real PostgreSQL started by `tests/TestAppHost`. Respawn clears the data between tests. | Docker |
 | `tests/Web.AcceptanceTests` | Browser tests written as Reqnroll `.feature` files and run by Playwright against the whole app started by the AppHost | Docker and the Playwright browsers |
 | `src/Web/ClientApp` | Angular unit tests with Vitest | Node.js |
 
@@ -551,7 +553,7 @@ Every new use case gets functional tests proving that an unauthenticated call ge
 
 ## Technology flows
 
-One diagram per technology or major flow, drawn from the code. The end-to-end picture is the [architecture flow diagram](#architecture-flow-diagram); the runtime picture, the layers, the MediatR request path and the tenant checks are in the [architecture overview](#architecture-overview); this section adds the rest. Each diagram names the file that implements it.
+One diagram per technology or major flow, drawn from the code. The end-to-end picture is the [architecture flow diagram](#architecture-flow-diagram); the runtime picture, the layers, the request path (controllers and request rules) and the tenant checks are in the [architecture overview](#architecture-overview); this section adds the rest. Each diagram names the file that implements it.
 
 ### Aspire orchestration flow
 
@@ -631,7 +633,7 @@ sequenceDiagram
 
 ### Sign-in flow (ASP.NET Core Identity)
 
-`src/Web/Endpoints/Users.cs`, the `SignIn` use case in `src/Application/Users`, `src/Infrastructure/Identity/IdentityService.cs` and `ApplicationUserClaimsPrincipalFactory.cs`.
+`src/Web/Controllers/UsersController.cs`, the `SignIn` use case in `src/Application/Users`, `src/Infrastructure/Identity/IdentityService.cs` and `ApplicationUserClaimsPrincipalFactory.cs`.
 
 ```mermaid
 sequenceDiagram
@@ -643,7 +645,7 @@ sequenceDiagram
     participant SM as Identity SignInManager
     participant A as SecurityAuditLog
     UI->>E: email, password (rate limited per address)
-    E->>H: sender.Send(SignInCommand)
+    E->>H: CheckAsync(SignInCommand), then Handle(SignInCommand)
     H->>H: SchoolId from the host (CurrentTenant)
     H->>I: PasswordSignInAsync(schoolId, hostIsMaster, email, password)
     alt no user, or user belongs to another school<br/>(unless it is a school without a domain on the master domain)
@@ -672,12 +674,12 @@ sequenceDiagram
 
 ### Authorization and module check flow
 
-`src/Application/Common/Behaviours/AuthorizationBehaviour.cs` and `src/Application/Modules/Common/ModuleAccess.cs`. This is step 3 of the [MediatR pipeline](#how-a-request-flows), driven by the `[Authorize]` attribute on each request.
+`src/Application/Common/Security/RequestRules.cs`, `RequestAuthorizer.cs` and `src/Application/Modules/Common/ModuleAccess.cs`. This is the authorization step of the [request rules](#how-a-request-flows), driven by the `[Authorize]` attribute on each request type.
 
 ```mermaid
 flowchart TB
-    start(["MediatR request"]) --> has{"Has [Authorize]?"}
-    has -- no --> next["Next behaviour (validation)"]
+    start(["Request type from a controller action"]) --> has{"Has [Authorize]?"}
+    has -- no --> next["Next check (validation)"]
     has -- yes --> user{"Signed-in user?"}
     user -- no --> e401["401"]
     user -- yes --> otp{"One-time password not yet replaced<br/>and request not marked<br/>AllowWhilePasswordChangeRequired?"}
@@ -710,13 +712,12 @@ flowchart TB
     subgraph read["Reading"]
         guid["Request Guid id"] --> resolve["Handler resolves Guid PublicId<br/>to the int Id (ResolveIdAsync)"]
         resolve --> q
-        q["Handler LINQ query on IApplicationDbContext"] --> filters["Global query filters<br/>SchoolId = host school (master sees all)<br/>IsDeleted = false"]
+        q["Use case LINQ query on IApplicationDbContext"] --> filters["Global query filters<br/>SchoolId = host school (master sees all)<br/>IsDeleted = false"]
         filters --> npgsqlR["Npgsql: SQL to PostgreSQL<br/>(traced as Npgsql spans)"]
     end
     subgraph write["Saving"]
-        s["Handler SaveChangesAsync"] --> audit["AuditableEntityInterceptor<br/>Created, CreatedBy, LastModified, LastModifiedBy"]
-        audit --> events["DispatchDomainEventsInterceptor<br/>publishes domain events through MediatR"]
-        events --> changes["ChangeAuditInterceptor<br/>adds a ChangeAuditEntry with old and new values<br/>for each changed commercial row"]
+        s["Use case SaveChangesAsync"] --> audit["AuditableEntityInterceptor<br/>Created, CreatedBy, LastModified, LastModifiedBy"]
+        audit --> changes["ChangeAuditInterceptor<br/>adds a ChangeAuditEntry with old and new values<br/>for each changed commercial row"]
         changes --> npgsqlW["Npgsql: INSERT / UPDATE in one transaction"]
     end
     npgsqlR --> pg[("PostgreSQL<br/>EducationPortalDb")]
@@ -835,7 +836,7 @@ sequenceDiagram
 flowchart LR
     build["dotnet build src/Web"] --> doc["src/Web/openapi/v1.json<br/>(OpenAPI document)"]
     doc --> gen["npm run generate-api<br/>(runs before npm start and npm run build)"]
-    gen --> client["src/app/web-api-client.ts<br/>one service per endpoint group,<br/>e.g. UsersClient, SchoolsClient"]
+    gen --> client["src/app/web-api-client.ts<br/>one service per controller,<br/>e.g. UsersClient, SchoolsClient"]
     client --> comp["Angular components and services"]
 ```
 
@@ -869,7 +870,7 @@ flowchart TB
     run --> func["Application.FunctionalTests"]
     func --> tah["TestAppHost (Aspire.Hosting.Testing)<br/>starts a PostgreSQL container"]
     tah --> web["Web host creates the schema"]
-    web --> cases["Use cases sent through MediatR"]
+    web --> cases["Use cases called from the controllers"]
     cases --> respawn["Respawn resets the data between tests"]
     run --> acc["Web.AcceptanceTests"]
     acc --> ah["AppHost starts the whole app"]
@@ -899,7 +900,7 @@ flowchart TB
 
 Every change, by a person or an AI assistant, follows [docs/ai/secure-compliance/SKILL.md](docs/ai/secure-compliance/SKILL.md), an overview that links to one skill per topic and one per standard (FedRAMP, GovRAMP, SOC 2, ISO 27001, OWASP, EU, PCI DSS). Together they hold numbered rules (such as `SEC-AUTHZ-03`) mapped to FedRAMP Moderate Rev 5 / NIST SP 800-53, GovRAMP, SOC 2, ISO/IEC 27001:2022 and the OWASP Top 10, plus EU rules (GDPR and related law) and PCI DSS v4.0.1 rules for card payments (when fees are added). CI guards on every pull request enforce the rules that can be checked automatically. If a request would break a rule, stop and name the rule. The ones that shape everyday work:
 
-- Every endpoint needs a signed-in user, and every MediatR request declares the module and right it needs (deny by default).
+- Every endpoint needs a signed-in user, and every use case request declares the module and right it needs, and its controller action runs the request rules (deny by default).
 - The school comes only from the domain. A campus id from the route is always checked against the user.
 - Records from another school or campus return 404; a switched-off module or missing right returns 403.
 - No secrets and no real personal data in code, tests, logs, commits or pull requests. Test and demo data is synthetic.
@@ -943,7 +944,7 @@ Every change also follows [docs/ai/engineering/SKILL.md](docs/ai/engineering/SKI
 
 - **Design:** SOLID, KISS, DRY and YAGNI as strict rules, applied the way the ADRs already do (for example, handlers use `IApplicationDbContext` directly, no repository layer).
 - **Code and process:** readable over clever, tests that describe behaviour, fail fast and loud, surgical changes, small PRs, a shared definition of done, bug fixes separate from refactoring, and dependencies treated as code you don't control.
-- **Backend:** C# entities follow Microsoft's domain model guidance (private setters, guard clauses, value objects, domain events, `TimeProvider`), keys are `int` inside and `Guid` on the API, enums go over the API by name and into the database as explicit numbers with lookup tables, and EF Core follows Microsoft's performance and modelling docs (projections, no N+1, paging, async with cancellation, Fluent API, tenant query filters, migrations).
+- **Backend:** C# entities follow Microsoft's domain model guidance (private setters, guard clauses, value objects, `TimeProvider`; no domain events are dispatched, ADR-025), keys are `int` inside and `Guid` on the API, enums go over the API by name and into the database as explicit numbers with lookup tables, and EF Core follows Microsoft's performance and modelling docs (projections, no N+1, paging, async with cancellation, Fluent API, tenant query filters, migrations).
 - **Frontend:** Angular follows the Angular team's best practices (standalone, signals, native control flow, Signal Forms) and Google's Material Design 3 through Angular Material, with WCAG 2.2 AA accessibility.
 - **AI agents and swarms (including Ruflo):** human approval for high-stakes or irreversible actions, only the context a task needs, a failing test first as the target, small single-purpose tools, and strict validation, retries and fallbacks around anything an agent produces.
 
@@ -959,12 +960,18 @@ All engineering skills in the repository (generated from `docs/ai/engineering/` 
 | [engineering-standards](docs/ai/engineering/SKILL.md) | Overview | (index; see the topic skills) |
 | [ai-agents](docs/ai/engineering/ai-agents/SKILL.md) | Topic | OWASP GenAI LLM Top 10 2026 (published 2026-08-04); AI RMF 1.0 (NIST AI 100-1) and Generative AI Profile (NIST AI 600-1); github/awesome-copilot agent-safety instructions (main) |
 | [angular-material-ui](docs/ai/engineering/angular-material-ui/SKILL.md) | Topic | Angular v22 guidelines (adev/src/context); angular/skills, built 2026-11-16 from angular/angular 567ae3e; angular.dev best practices for Angular v22; Angular Material 22 (Material 3 theming with mat.theme and system tokens); Material Design 3; WCAG 2.2 Level AA |
+| [aspire-observability](docs/ai/engineering/aspire-observability/SKILL.md) | Topic | Aspire 13.6; OpenTelemetry .NET docs as read on 2026-11-22 |
 | [code-quality-process](docs/ai/engineering/code-quality-process/SKILL.md) | Topic | C# 14 / .NET 10 coding conventions; dotnet/skills plugins/dotnet-test (main); google/eng-practices (main) |
 | [csharp-entities](docs/ai/engineering/csharp-entities/SKILL.md) | Topic | EF Core 10; .NET Microservices: Architecture for Containerized .NET Applications (current edition on Learn); .NET design guidelines (current on Learn); C# 14 / .NET 10 coding conventions |
 | [design-principles](docs/ai/engineering/design-principles/SKILL.md) | Topic | .NET design guidelines (current on Learn); Architect Modern Web Applications with ASP.NET Core and Azure (current edition on Learn) |
+| [domain-modules-billing](docs/ai/engineering/domain-modules-billing/SKILL.md) | Topic | ADR-009 to ADR-021 as of 2026-11-22 |
 | [efcore](docs/ai/engineering/efcore/SKILL.md) | Topic | EF Core 10; Npgsql.EntityFrameworkCore.PostgreSQL 10; dotnet/skills plugins/dotnet-data (main) |
 | [identifiers-enums](docs/ai/engineering/identifiers-enums/SKILL.md) | Topic | EF Core 10; .NET design guidelines (current on Learn); ASP.NET Core 10; Azure Architecture Center API design guidance (current on Learn) |
 | [localization-i18n](docs/ai/engineering/localization-i18n/SKILL.md) | Topic | Microsoft Learn Globalization docs (current on Learn); Engineering playbook (main); .NET 10; ASP.NET Core 10; Angular v22 guide (adev/src/content/guide/i18n); Article as read on 2026-11-12 |
+| [postgres-queries](docs/ai/engineering/postgres-queries/SKILL.md) | Topic | PostgreSQL current (18); Npgsql EF Core 10 |
+| [testing](docs/ai/engineering/testing/SKILL.md) | Topic | NUnit 4; Playwright for .NET, docs as read on 2026-11-22; Reqnroll docs as read on 2026-11-22; Aspire 13.6 |
+| [ticket-to-merge](docs/ai/engineering/ticket-to-merge/SKILL.md) | Topic | GitHub docs as read on 2026-11-22 |
+| [user-documentation](docs/ai/engineering/user-documentation/SKILL.md) | Topic | Diataxis as read on 2026-11-22 |
 <!-- END GENERATED: engineering skills -->
 
 ### Roadmap
@@ -1001,40 +1008,21 @@ Record new or changed decisions in `AGENTS.md` in the same pull request, and wri
 Work from the inside out. Using a `Courses` feature as the example:
 
 1. **Domain:** add `src/Domain/Entities/Course.cs`, inheriting `BaseAuditableEntity` (which brings the `int Id` and the `Guid PublicId`). Give tenant-owned entities an `int SchoolId`, and also a `CampusId` if they belong to a campus. Label personal data fields with their data class.
-2. **Application:** scaffold the use cases from the `src/Application` folder:
-
-   ```cmd
-   dotnet new ca-usecase -n CreateCourse -fn Courses -ut command -rt Guid
-   dotnet new ca-usecase -n GetCourses -fn Courses -ut query -rt CoursesVm
-   ```
-
-   Each creates one file under `Courses/Commands/` or `Courses/Queries/` with the request, its validator and its handler. Validate every input in the validator. Mark the request with `[Authorize]` and, from step 2, the module and right it needs. Requests are explicit DTOs and never carry a `SchoolId`. Ids in requests and DTOs are the `Guid` public id; the handler resolves them to the `int` key.
+2. **Application:** add the use case by hand under `src/Application/Courses/`, copying an existing one such as `Academics/Commands/CreateCourse` (ADR-025 removed MediatR; the `ca-usecase` template was written for that design and is not used, not checked against the installed template). Put the request, its validator and the service class (a `...Handler` class with one `Handle(request, ct)` method) under `Courses/Commands/` or `Courses/Queries/`. Validate every input in the validator. Mark the request with `[Authorize]` and, from step 2, the module and right it needs. Requests are explicit DTOs and never carry a `SchoolId`. Ids in requests and DTOs are the `Guid` public id; the service resolves them to the `int` key.
 3. **Infrastructure:** add `DbSet<Course>` to `IApplicationDbContext` and `ApplicationDbContext`, and a `CourseConfiguration` in `Data/Configurations/`. Check that the tenant query filter covers the new entity.
-4. **Web:** add an endpoint group. It is found automatically and served under `/api/Courses`:
+4. **Web:** add a controller, `src/Web/Controllers/CoursesController.cs`, derived from `ApiControllerBase`. It is served under `/api/Courses`. Each action builds the final request, calls `IRequestRules.CheckAsync` on it, then calls the use case service. An excerpt of the real `CoursesController.cs`:
 
    ```csharp
-   public class Courses : IEndpointGroup
+   [Route("api/Courses")]
+   [Authorize]
+   public class CoursesController(IRequestRules rules, GetCoursesQueryHandler getCourses) : ApiControllerBase
    {
-       public static void Map(RouteGroupBuilder groupBuilder)
+       [HttpGet]
+       public async Task<ActionResult<IReadOnlyList<CourseDto>>> GetCourses(Guid? classOfferingId, CancellationToken cancellationToken)
        {
-           groupBuilder.RequireAuthorization();
-
-           groupBuilder.MapGet(GetCourses);
-           groupBuilder.MapPost(CreateCourse);
-       }
-
-       public static async Task<Ok<CoursesVm>> GetCourses(ISender sender)
-       {
-           var vm = await sender.Send(new GetCoursesQuery());
-
-           return TypedResults.Ok(vm);
-       }
-
-       public static async Task<Created<Guid>> CreateCourse(ISender sender, CreateCourseCommand command)
-       {
-           var id = await sender.Send(command);
-
-           return TypedResults.Created($"/{nameof(Courses)}/{id}", id);
+           var query = new GetCoursesQuery { ClassOfferingId = classOfferingId };
+           await rules.CheckAsync(query, cancellationToken);
+           return Ok(await getCourses.Handle(query, cancellationToken));
        }
    }
    ```
@@ -1076,7 +1064,7 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | Angular unit tests | `npx ng test --watch=false` in `src\Web\ClientApp` |
 | Check npm packages for known vulnerabilities | `npm audit --audit-level=high` in `src\Web\ClientApp` |
 | Install the scaffolding template (once) | `dotnet new install Clean.Architecture.Solution.Template` |
-| Scaffold a use case | `dotnet new ca-usecase -n CreateCourse -fn Courses -ut command -rt Guid` in `src\Application` |
+| Add a use case | Copy an existing one by hand, see [Adding a feature](#adding-a-feature); do not use `dotnet new ca-usecase` (written for the removed MediatR design) |
 | Install the Playwright browsers (once, after a build) | `pwsh artifacts\bin\Web.AcceptanceTests\debug\playwright.ps1 install` |
 | Trust the HTTPS development certificate (once) | `dotnet dev-certs https --trust` |
 

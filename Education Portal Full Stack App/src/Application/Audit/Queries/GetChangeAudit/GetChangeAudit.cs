@@ -13,7 +13,7 @@ namespace EducationPortal.Application.Audit.Queries.GetChangeAudit;
 /// tenant filter keeps the school's own entries (SEC-AUTHZ-03).
 /// </summary>
 [Authorize]
-public record GetChangeAuditQuery : IRequest<IReadOnlyList<ChangeAuditDto>>
+public record GetChangeAuditQuery
 {
     public int Skip { get; init; }
 
@@ -38,7 +38,7 @@ public class GetChangeAuditQueryValidator : AbstractValidator<GetChangeAuditQuer
     }
 }
 
-public class GetChangeAuditQueryHandler : IRequestHandler<GetChangeAuditQuery, IReadOnlyList<ChangeAuditDto>>
+public class GetChangeAuditQueryHandler
 {
     /// <summary>The module whose ViewHistory right shows each entity type's changes to a non-administrator.</summary>
     public static readonly IReadOnlyDictionary<string, ModuleCode> ModuleOfEntity = new Dictionary<string, ModuleCode>(StringComparer.Ordinal)

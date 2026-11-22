@@ -398,7 +398,7 @@
       "type": "feature",
       "description": "[msn_37932efe88c3d08c24485c98/t8] Gate: Benchmark against the baseline",
       "priority": "normal",
-      "status": "pending",
+      "status": "cancelled",
       "progress": 0,
       "assignedTo": [],
       "tags": [
@@ -408,14 +408,17 @@
       ],
       "createdAt": "2026-11-21T10:09:27.959Z",
       "startedAt": null,
-      "completedAt": null
+      "completedAt": "2026-11-22T07:55:22.005Z",
+      "result": {
+        "cancelReason": "mission cancelled from the console"
+      }
     },
     "task-1795255770051-45i118": {
       "taskId": "task-1795255770051-45i118",
       "type": "feature",
       "description": "[msn_37932efe88c3d08c24485c98/t9] Gate: Security review",
       "priority": "normal",
-      "status": "in_progress",
+      "status": "cancelled",
       "progress": 60,
       "assignedTo": [],
       "tags": [
@@ -425,19 +428,9 @@
       ],
       "createdAt": "2026-11-21T10:09:30.051Z",
       "startedAt": "2026-11-21T12:43:53.539Z",
-      "completedAt": null,
+      "completedAt": "2026-11-22T07:55:25.532Z",
       "result": {
-        "reason": "Security review (read-only) found open issues; not resolved",
-        "findings_open": [
-          "HIGH: calendar, assessments and timetable handlers still use campus-assignment-only checks (EnsureCampusAsync(campus, ct)); per-campus role rights not enforced there",
-          "HIGH: migration backfill can leave CampusId=0 when a school has no main campus; soft-deleted main campus not excluded",
-          "MEDIUM: role screen edits an arbitrary per-campus row (FirstOrDefault by module)",
-          "MEDIUM: GetMyRights and campus lookups return soft-deleted campus ids",
-          "LOW: no Cache-Control: no-store on /api/Users/me/rights"
-        ],
-        "confirmed_ok": [
-          "/api/Users/me/rights takes no input; school from host; modules filtered"
-        ]
+        "cancelReason": "mission cancelled from the console"
       }
     },
     "task-1795255772115-lvm6ad": {
@@ -445,7 +438,7 @@
       "type": "feature",
       "description": "[msn_37932efe88c3d08c24485c98/t10] Gate: Review the change",
       "priority": "normal",
-      "status": "in_progress",
+      "status": "cancelled",
       "progress": 60,
       "assignedTo": [],
       "tags": [
@@ -455,18 +448,9 @@
       ],
       "createdAt": "2026-11-21T10:09:32.115Z",
       "startedAt": "2026-11-21T12:43:55.138Z",
-      "completedAt": null,
+      "completedAt": "2026-11-22T07:55:27.933Z",
       "result": {
-        "reason": "Code review verdict Block until finding 1 is fixed",
-        "findings_open": [
-          "HIGH: SetPermissionsAsync assumes one row per role and module; per-campus rows break Set/Remove and can hit the unique index",
-          "MEDIUM: CanViewHistory defaults to false in SchoolRoleDto, so an omitted field revokes ViewHistory silently",
-          "MEDIUM: GetMyRights drops soft-deleted campuses and can return an empty CampusIds grant",
-          "MEDIUM: migration backfill, NOT NULL default 0 and Down path collapse",
-          "MEDIUM: AllCampuses row occupies the main-campus slot; semantics need ADR-022 wording or nullable CampusId",
-          "LOW: test gaps for ViewHistory via HasRightAsync, Flag(None), soft-deleted campus, EnsureCampusAsync allowed and denied paths, per-campus SetPermissions"
-        ],
-        "core_logic": "CampusSets.Intersect and the RoleRights union read correctly"
+        "cancelReason": "mission cancelled from the console"
       }
     },
     "task-1795255774192-5cltu7": {
@@ -504,7 +488,7 @@
       "type": "feature",
       "description": "[msn_37932efe88c3d08c24485c98/t12] Completion: Integrate: build and CI",
       "priority": "normal",
-      "status": "pending",
+      "status": "cancelled",
       "progress": 0,
       "assignedTo": [],
       "tags": [
@@ -514,14 +498,17 @@
       ],
       "createdAt": "2026-11-21T10:09:36.228Z",
       "startedAt": null,
-      "completedAt": null
+      "completedAt": "2026-11-22T07:55:30.247Z",
+      "result": {
+        "cancelReason": "mission cancelled from the console"
+      }
     },
     "task-1795255778259-u9h61j": {
       "taskId": "task-1795255778259-u9h61j",
       "type": "feature",
       "description": "[msn_37932efe88c3d08c24485c98/t13] Completion: Document the change",
       "priority": "normal",
-      "status": "pending",
+      "status": "cancelled",
       "progress": 0,
       "assignedTo": [],
       "tags": [
@@ -531,14 +518,17 @@
       ],
       "createdAt": "2026-11-21T10:09:38.259Z",
       "startedAt": null,
-      "completedAt": null
+      "completedAt": "2026-11-22T07:55:33.366Z",
+      "result": {
+        "cancelReason": "mission cancelled from the console"
+      }
     },
     "task-1795255780375-hvr5al": {
       "taskId": "task-1795255780375-hvr5al",
       "type": "feature",
       "description": "[msn_37932efe88c3d08c24485c98/t14] Completion: Validate the result against the goal",
       "priority": "normal",
-      "status": "pending",
+      "status": "cancelled",
       "progress": 0,
       "assignedTo": [],
       "tags": [
@@ -548,14 +538,17 @@
       ],
       "createdAt": "2026-11-21T10:09:40.375Z",
       "startedAt": null,
-      "completedAt": null
+      "completedAt": "2026-11-22T07:55:36.628Z",
+      "result": {
+        "cancelReason": "mission cancelled from the console"
+      }
     },
     "task-1795255782451-nlhovp": {
       "taskId": "task-1795255782451-nlhovp",
       "type": "feature",
       "description": "[msn_37932efe88c3d08c24485c98/t15] Completion: Learn: store the outcome and self-optimize",
       "priority": "normal",
-      "status": "pending",
+      "status": "cancelled",
       "progress": 0,
       "assignedTo": [],
       "tags": [
@@ -565,7 +558,10 @@
       ],
       "createdAt": "2026-11-21T10:09:42.451Z",
       "startedAt": null,
-      "completedAt": null
+      "completedAt": "2026-11-22T07:55:39.742Z",
+      "result": {
+        "cancelReason": "mission cancelled from the console"
+      }
     }
   },
   "version": "3.0.0"

@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-025](ADR-025-Controllers-And-Application-Services-No-MediatR.md) (MediatR removed, 2026-11-21). The body below is kept as the record of the original decision.
 
 ## Date
 

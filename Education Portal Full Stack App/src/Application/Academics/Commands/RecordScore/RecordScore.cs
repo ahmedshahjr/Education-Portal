@@ -15,7 +15,7 @@ namespace EducationPortal.Application.Academics.Commands.RecordScore;
 /// must lie within the assessment's maximum, and only the course's teacher (or an administrator) grades it. Audited (ADR-016).
 /// </summary>
 [Authorize(Module = ModuleCode.Exams, Right = AccessRight.Edit)]
-public record RecordScoreCommand : IRequest
+public record RecordScoreCommand
 {
     public Guid AssessmentId { get; init; }
 
@@ -34,7 +34,7 @@ public class RecordScoreCommandValidator : AbstractValidator<RecordScoreCommand>
     }
 }
 
-public class RecordScoreCommandHandler : IRequestHandler<RecordScoreCommand>
+public class RecordScoreCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

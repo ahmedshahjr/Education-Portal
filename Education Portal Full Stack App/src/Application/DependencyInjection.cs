@@ -1,5 +1,4 @@
 using System.Reflection;
-using EducationPortal.Application.Common.Behaviours;
 using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -10,6 +9,8 @@ public static class DependencyInjection
     {
         builder.Services.AddScoped<EducationPortal.Application.Common.Interfaces.IModuleAccess, EducationPortal.Application.Modules.Common.ModuleAccess>();
         builder.Services.AddScoped<EducationPortal.Application.Common.Interfaces.IRoleRights, EducationPortal.Application.SchoolRoles.Common.RoleRights>();
+        builder.Services.AddScoped<EducationPortal.Application.Common.Security.IRequestAuthorizer, EducationPortal.Application.Common.Security.RequestAuthorizer>();
+        builder.Services.AddScoped<EducationPortal.Application.Common.Security.IRequestRules, EducationPortal.Application.Common.Security.RequestRules>();
         builder.Services.AddScoped<EducationPortal.Application.Common.Interfaces.ICampusAccess, EducationPortal.Application.Campuses.Common.CampusAccess>();
         builder.Services.AddSingleton<EducationPortal.Application.Common.Interfaces.IPaymentProvider, EducationPortal.Application.Invoices.Common.ManualPaymentProvider>();
 
@@ -22,16 +23,16 @@ public static class DependencyInjection
             .ValidateOnStart();
         builder.Services.AddScoped<EducationPortal.Application.Subscriptions.Lifecycle.SubscriptionLifecycle>();
 
+
+        // Every use case is a plain service named ...Handler (ADR-025). Each is registered here so a controller can inject it.
+        foreach (var type in Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => t is { IsClass: true, IsAbstract: false } && t.Name.EndsWith("Handler", StringComparison.Ordinal)))
+        {
+            builder.Services.AddScoped(type);
+        }
+
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         EducationPortal.Application.Common.Localization.ValidationLocalization.Configure();
 
-        builder.Services.AddMediatR(cfg => {
-            cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-            cfg.AddOpenRequestPreProcessor(typeof(LoggingBehaviour<>));
-            cfg.AddOpenBehavior(typeof(UnhandledExceptionBehaviour<,>));
-            cfg.AddOpenBehavior(typeof(AuthorizationBehaviour<,>));
-            cfg.AddOpenBehavior(typeof(ValidationBehaviour<,>));
-            cfg.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
-        });
     }
 }

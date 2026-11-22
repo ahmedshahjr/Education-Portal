@@ -24,9 +24,9 @@ public sealed record MySubscriptionDto(
 /// comes from the host (SEC-AUTHZ-04); a school sees only its own rows (SEC-AUTHZ-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record GetMySubscriptionQuery : IRequest<MySubscriptionDto>;
+public record GetMySubscriptionQuery;
 
-public class GetMySubscriptionQueryHandler : IRequestHandler<GetMySubscriptionQuery, MySubscriptionDto>
+public class GetMySubscriptionQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

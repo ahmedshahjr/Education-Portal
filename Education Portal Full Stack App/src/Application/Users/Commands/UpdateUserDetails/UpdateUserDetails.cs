@@ -15,7 +15,7 @@ namespace EducationPortal.Application.Users.Commands.UpdateUserDetails;
 /// Audited (SEC-LOG-03) with the person's id only, not the name.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Staff)]
-public record UpdateUserDetailsCommand : UserDetailsFields, IRequest
+public record UpdateUserDetailsCommand : UserDetailsFields
 {
     /// <summary>The person's public id.</summary>
     public Guid Id { get; init; }
@@ -29,7 +29,7 @@ public class UpdateUserDetailsCommandValidator : UserDetailsFieldsValidator<Upda
     }
 }
 
-public class UpdateUserDetailsCommandHandler : IRequestHandler<UpdateUserDetailsCommand>
+public class UpdateUserDetailsCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

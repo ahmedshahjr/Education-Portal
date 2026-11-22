@@ -12,12 +12,12 @@ namespace EducationPortal.Application.Timetable.Queries.GetTimetableSlots;
 /// View right.
 /// </summary>
 [Authorize(Module = ModuleCode.Timetable, Right = AccessRight.View)]
-public record GetTimetableSlotsQuery : IRequest<IReadOnlyList<TimetableSlotDto>>
+public record GetTimetableSlotsQuery
 {
     public Guid? CourseId { get; init; }
 }
 
-public class GetTimetableSlotsQueryHandler : IRequestHandler<GetTimetableSlotsQuery, IReadOnlyList<TimetableSlotDto>>
+public class GetTimetableSlotsQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICampusAccess _campusAccess;

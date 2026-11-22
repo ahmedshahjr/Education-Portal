@@ -12,7 +12,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.DeleteHoliday;
 /// module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Delete)]
-public record DeleteHolidayCommand : IRequest
+public record DeleteHolidayCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -29,7 +29,7 @@ public class DeleteHolidayCommandValidator : AbstractValidator<DeleteHolidayComm
     }
 }
 
-public class DeleteHolidayCommandHandler : IRequestHandler<DeleteHolidayCommand>
+public class DeleteHolidayCommandHandler
 {
     private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;

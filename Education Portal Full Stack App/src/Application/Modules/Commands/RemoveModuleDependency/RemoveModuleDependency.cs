@@ -9,7 +9,7 @@ namespace EducationPortal.Application.Modules.Commands.RemoveModuleDependency;
 /// administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record RemoveModuleDependencyCommand(ModuleCode Code, ModuleCode RequiresCode) : IRequest;
+public record RemoveModuleDependencyCommand(ModuleCode Code, ModuleCode RequiresCode);
 
 public class RemoveModuleDependencyCommandValidator : AbstractValidator<RemoveModuleDependencyCommand>
 {
@@ -20,7 +20,7 @@ public class RemoveModuleDependencyCommandValidator : AbstractValidator<RemoveMo
     }
 }
 
-public class RemoveModuleDependencyCommandHandler : IRequestHandler<RemoveModuleDependencyCommand>
+public class RemoveModuleDependencyCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

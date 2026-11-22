@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Subscriptions.Commands.RemoveSubscriptionM
 /// Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record RemoveSubscriptionModuleCommand : IRequest
+public record RemoveSubscriptionModuleCommand
 {
     /// <summary>The school's public id, taken from the route (ENG-ID-02).</summary>
     public Guid SchoolId { get; init; }
@@ -28,7 +28,7 @@ public class RemoveSubscriptionModuleCommandValidator : AbstractValidator<Remove
     }
 }
 
-public class RemoveSubscriptionModuleCommandHandler : IRequestHandler<RemoveSubscriptionModuleCommand>
+public class RemoveSubscriptionModuleCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

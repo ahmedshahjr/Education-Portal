@@ -13,7 +13,7 @@ namespace EducationPortal.Application.Schools.Commands.UpdateSchool;
 /// (SEC-AUTHZ-04, SEC-AUTHZ-07). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record UpdateSchoolCommand : IRequest
+public record UpdateSchoolCommand
 {
     /// <summary>The school's public id (ENG-ID-02).</summary>
     public Guid SchoolId { get; init; }
@@ -57,7 +57,7 @@ public class UpdateSchoolCommandValidator : AbstractValidator<UpdateSchoolComman
     private static string Normalize(string? domain) => (domain ?? string.Empty).Trim().TrimEnd('.').ToLowerInvariant();
 }
 
-public class UpdateSchoolCommandHandler : IRequestHandler<UpdateSchoolCommand>
+public class UpdateSchoolCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

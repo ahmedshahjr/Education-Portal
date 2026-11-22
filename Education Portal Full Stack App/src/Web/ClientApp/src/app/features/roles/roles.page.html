@@ -17,7 +17,7 @@
   />
 } @else {
   <div class="mm-roles__toolbar">
-    <button mat-flat-button type="button" [disabled]="busy() || roles() === null" (click)="openDialog(null)" i18n="@@roles.add">Add role</button>
+    <button mat-flat-button type="button" [disabled]="busy() || roles() === null" (click)="addRole()" i18n="@@roles.add">Add role</button>
   </div>
 
   <mat-card class="mm-card mm-elevated">
@@ -54,7 +54,7 @@
 
 <ng-template #actionsCell let-role>
   <span class="mm-crud-actions">
-    <button mat-icon-button type="button" [disabled]="busy()" [attr.aria-label]="'Edit ' + role.name" i18n-aria-label="@@roles.editRole" (click)="$event.stopPropagation(); openDialog(role)">
+    <button mat-icon-button type="button" [disabled]="busy()" [attr.aria-label]="'Edit ' + role.name" i18n-aria-label="@@roles.editRole" (click)="$event.stopPropagation(); editRole(role)">
       <app-icon name="edit-3" [size]="16" />
     </button>
     @if (!role.isSystem) {

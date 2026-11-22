@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Parents.Commands.LinkStudent;
 /// first a parent and the second a student. Needs the Staff module. Recorded by the change audit (ADR-016).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Staff)]
-public record LinkStudentCommand : IRequest
+public record LinkStudentCommand
 {
     public Guid ParentId { get; init; }
 
@@ -30,7 +30,7 @@ public class LinkStudentCommandValidator : AbstractValidator<LinkStudentCommand>
     }
 }
 
-public class LinkStudentCommandHandler : IRequestHandler<LinkStudentCommand>
+public class LinkStudentCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

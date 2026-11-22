@@ -46,14 +46,19 @@
         <input matInput [matDatepicker]="birthPicker" [max]="today" formControlName="dateOfBirth" />
         <mat-datepicker-toggle matIconSuffix [for]="birthPicker" />
         <mat-datepicker #birthPicker />
-        @if (form.controls.dateOfBirth.invalid) {
+        @if (form.controls.dateOfBirth.hasError('required')) {
           <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        } @else if (form.hasError('birthInFuture')) {
+          <mat-error i18n="@@admission.birthInFuture">The date of birth cannot be in the future.</mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label i18n="@@admission.phone">Student phone</mat-label>
         <input matInput type="tel" formControlName="phone" dir="ltr" autocomplete="off" />
+        @if (form.controls.phone.hasError('phone')) {
+          <mat-error i18n="@@admission.phoneInvalid">Use digits with an optional leading +, spaces, hyphens or brackets: 7 to 15 digits.</mat-error>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -67,8 +72,10 @@
       <mat-form-field appearance="outline">
         <mat-label i18n="@@admission.guardianPhone">Guardian phone</mat-label>
         <input matInput type="tel" formControlName="guardianPhone" dir="ltr" autocomplete="off" />
-        @if (form.controls.guardianPhone.invalid) {
+        @if (form.controls.guardianPhone.hasError('required')) {
           <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        } @else if (form.controls.guardianPhone.hasError('phone')) {
+          <mat-error i18n="@@admission.phoneInvalid">Use digits with an optional leading +, spaces, hyphens or brackets: 7 to 15 digits.</mat-error>
         }
       </mat-form-field>
 
@@ -114,8 +121,14 @@
         <input matInput [matDatepicker]="admissionPicker" formControlName="admissionDate" />
         <mat-datepicker-toggle matIconSuffix [for]="admissionPicker" />
         <mat-datepicker #admissionPicker />
-        @if (form.controls.admissionDate.invalid) {
+        @if (form.controls.admissionDate.hasError('required')) {
           <mat-error i18n="@@admission.required">This field is required.</mat-error>
+        } @else if (form.hasError('admissionBeforeBirth')) {
+          <mat-error i18n="@@admission.admissionBeforeBirth">The admission date cannot be before the date of birth.</mat-error>
+        } @else if (form.hasError('admissionTooFar')) {
+          <mat-error i18n="@@admission.admissionTooFar">The admission date cannot be more than one year ahead.</mat-error>
+        } @else if (form.hasError('ageOutOfRange')) {
+          <mat-error i18n="@@admission.ageOutOfRange">The student must be {{ minAge }} to {{ maxAge }} years old on the admission date.</mat-error>
         }
       </mat-form-field>
 

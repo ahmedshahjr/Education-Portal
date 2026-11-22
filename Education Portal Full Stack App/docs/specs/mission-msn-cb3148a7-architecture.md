@@ -13,7 +13,7 @@ Frontend only, except where a row says otherwise. Nothing here crosses the Clean
 | Toast service | `src/app/shared/services/toast.service.ts` | One place for snackbar duration and text (AC3.x) | New |
 | Campus filter | `src/app/shared/components/campus-filter/` | Campus dropdown, shown for two or more campuses (AC4.x) | New |
 | Module guard | `src/app/core/modules/` | Client menu and route mirror of server module checks | Exists |
-| Authorization pipeline | `src/Application/Common/Behaviours/AuthorizationBehaviour.cs` | Server check of module, role and tenant (AC1.4, AC4.3) | Exists |
+| Authorization pipeline | `src/Application/Common/Security/RequestRules.cs` (called by each controller action, ADR-025; this spec called it `AuthorizationBehaviour`) | Server check of module, role and tenant (AC1.4, AC4.3) | Exists |
 
 ## 2. Interfaces
 
@@ -38,7 +38,7 @@ export interface ToastService {
 // state: 'loading' | 'ready' | 'empty' | 'error'         // AC1.2, AC1.3
 ```
 
-Server interfaces are unchanged. The campus list is `GET /api/Campuses`, which already exists (`Web/Endpoints/Campuses.cs:25`); whether it returns all of a school's campuses or only the user's is OQ5.
+Server interfaces are unchanged. The campus list is `GET /api/Campuses`, which already exists (`Web/Controllers/CampusesController.cs`); whether it returns all of a school's campuses or only the user's is OQ5.
 
 ## 3. Data flow
 
@@ -77,4 +77,4 @@ Campus selection (AC4.2 and AC4.4): the filter is client-side for rows already l
 ## 5. Records and follow-up
 
 - Decisions D1 to D6 are recorded here. The repo's change-management rules (`docs/ai/secure-compliance/change-management/SKILL.md`) require an ADR for a design decision; that ADR should be written before implementation, not in this task.
-- Verification: the document was checked against the code paths it names (`app-layout.component.ts:50`, `Web/Endpoints/Campuses.cs:25`, `AuthorizationBehaviour.cs`, the existing `trial-banner` and `shared/components` folders). No code changed and no tests were run.
+- Verification: the document was checked against the code paths it names (`app-layout.component.ts:50`, `Web/Controllers/CampusesController.cs`, `RequestRules.cs`, the existing `trial-banner` and `shared/components` folders). No code changed and no tests were run.

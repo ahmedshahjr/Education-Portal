@@ -14,7 +14,7 @@ namespace EducationPortal.Application.AcademicCalendar.Queries.GetSchoolCalendar
 /// whole school's. The range is at most about a year. Needs the Academic setup module.
 /// </summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.View)]
-public record GetSchoolCalendarQuery : IRequest<SchoolCalendarDto>
+public record GetSchoolCalendarQuery
 {
     /// <summary>The longest range one request can read.</summary>
     public const int MaxRangeInDays = 400;
@@ -49,7 +49,7 @@ public class GetSchoolCalendarQueryValidator : AbstractValidator<GetSchoolCalend
     }
 }
 
-public class GetSchoolCalendarQueryHandler : IRequestHandler<GetSchoolCalendarQuery, SchoolCalendarDto>
+public class GetSchoolCalendarQueryHandler
 {
     private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;

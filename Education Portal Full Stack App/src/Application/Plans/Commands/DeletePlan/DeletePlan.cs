@@ -11,9 +11,9 @@ namespace EducationPortal.Application.Plans.Commands.DeletePlan;
 /// book, so it can no longer be sold. Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record DeletePlanCommand(Guid Id) : IRequest;
+public record DeletePlanCommand(Guid Id);
 
-public class DeletePlanCommandHandler : IRequestHandler<DeletePlanCommand>
+public class DeletePlanCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

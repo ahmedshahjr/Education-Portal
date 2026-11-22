@@ -11,7 +11,7 @@ namespace EducationPortal.Application.PriceBooks.Commands.UpdatePriceBook;
 /// (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record UpdatePriceBookCommand : IRequest
+public record UpdatePriceBookCommand
 {
     /// <summary>The price book's public id, taken from the route.</summary>
     public Guid Id { get; init; }
@@ -34,7 +34,7 @@ public class UpdatePriceBookCommandValidator : AbstractValidator<UpdatePriceBook
     }
 }
 
-public class UpdatePriceBookCommandHandler : IRequestHandler<UpdatePriceBookCommand>
+public class UpdatePriceBookCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

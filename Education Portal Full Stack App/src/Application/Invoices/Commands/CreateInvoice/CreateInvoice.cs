@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Invoices.Commands.CreateInvoice;
 /// (SEC-AUTHZ-07), so the school id may come from the body (SEC-AUTHZ-04). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record CreateInvoiceCommand : IRequest<Guid>
+public record CreateInvoiceCommand
 {
     /// <summary>The school's public id (ENG-ID-02).</summary>
     public Guid SchoolId { get; init; }
@@ -65,7 +65,7 @@ public class CreateInvoiceCommandValidator : AbstractValidator<CreateInvoiceComm
     }
 }
 
-public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand, Guid>
+public class CreateInvoiceCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

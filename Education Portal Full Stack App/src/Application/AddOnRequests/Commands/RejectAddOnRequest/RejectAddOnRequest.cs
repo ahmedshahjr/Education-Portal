@@ -7,7 +7,7 @@ namespace EducationPortal.Application.AddOnRequests.Commands.RejectAddOnRequest;
 
 /// <summary>Rejects a pending add-on request; nothing changes in the subscription. Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record RejectAddOnRequestCommand(Guid Id) : IRequest;
+public record RejectAddOnRequestCommand(Guid Id);
 
 public class RejectAddOnRequestCommandValidator : AbstractValidator<RejectAddOnRequestCommand>
 {
@@ -19,7 +19,7 @@ public class RejectAddOnRequestCommandValidator : AbstractValidator<RejectAddOnR
     }
 }
 
-public class RejectAddOnRequestCommandHandler : IRequestHandler<RejectAddOnRequestCommand>
+public class RejectAddOnRequestCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

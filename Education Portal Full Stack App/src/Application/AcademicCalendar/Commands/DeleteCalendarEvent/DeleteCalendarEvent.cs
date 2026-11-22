@@ -12,7 +12,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.DeleteCalendarEv
 /// module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Delete)]
-public record DeleteCalendarEventCommand : IRequest
+public record DeleteCalendarEventCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -29,7 +29,7 @@ public class DeleteCalendarEventCommandValidator : AbstractValidator<DeleteCalen
     }
 }
 
-public class DeleteCalendarEventCommandHandler : IRequestHandler<DeleteCalendarEventCommand>
+public class DeleteCalendarEventCommandHandler
 {
     private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;

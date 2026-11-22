@@ -9,13 +9,13 @@ namespace EducationPortal.Application.SchoolPublicPage.Queries.GetClassOfferings
 
 /// <summary>Lists a school's class offerings (not deleted). Needs the School module.</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record GetClassOfferingsQuery : IRequest<IReadOnlyList<ClassOfferingDto>>
+public record GetClassOfferingsQuery
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
 }
 
-public class GetClassOfferingsQueryHandler : IRequestHandler<GetClassOfferingsQuery, IReadOnlyList<ClassOfferingDto>>
+public class GetClassOfferingsQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

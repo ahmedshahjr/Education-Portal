@@ -11,9 +11,9 @@ namespace EducationPortal.Application.SchoolRoles.Queries.GetRoles;
 /// host, never from the caller (SEC-AUTHZ-04). Refused with MODULE_NOT_ENABLED when the school does not have Users &amp; Roles.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
-public record GetRolesQuery : IRequest<IReadOnlyList<SchoolRoleDto>>;
+public record GetRolesQuery;
 
-public class GetRolesQueryHandler : IRequestHandler<GetRolesQuery, IReadOnlyList<SchoolRoleDto>>
+public class GetRolesQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IModuleAccess _moduleAccess;

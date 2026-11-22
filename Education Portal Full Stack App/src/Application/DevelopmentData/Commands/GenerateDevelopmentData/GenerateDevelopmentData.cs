@@ -1,3 +1,4 @@
+using System.Globalization;
 using EducationPortal.Application.Common.Security;
 using EducationPortal.Application.DevelopmentData.Common;
 using EducationPortal.Domain.Constants;
@@ -10,7 +11,7 @@ namespace EducationPortal.Application.DevelopmentData.Commands.GenerateDevelopme
 /// so one call cannot create more than <see cref="MaximumPeople"/> people.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GenerateDevelopmentDataCommand : IRequest<DevelopmentDataSummary>
+public record GenerateDevelopmentDataCommand
 {
     public int Schools { get; init; }
 
@@ -41,11 +42,11 @@ public class GenerateDevelopmentDataCommandValidator : AbstractValidator<Generat
         // The product is checked on the whole request, so many small values cannot exceed the limit either.
         RuleFor(c => c)
             .Must(c => (long)c.Schools * c.CampusesPerSchool * c.PeoplePerCampus <= MaximumPeople)
-            .WithMessage($"A request may create at most {MaximumPeople} people.");
+            .WithMessage(_ => string.Format(CultureInfo.CurrentCulture, ValidationMessages.DevelopmentDataTooManyPeople, MaximumPeople));
     }
 }
 
-public class GenerateDevelopmentDataCommandHandler : IRequestHandler<GenerateDevelopmentDataCommand, DevelopmentDataSummary>
+public class GenerateDevelopmentDataCommandHandler
 {
     private readonly IDevelopmentDataGenerator _generator;
 

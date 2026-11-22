@@ -11,7 +11,7 @@ namespace EducationPortal.Application.PriceBooks.Commands.RemovePrice;
 /// audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record RemovePriceCommand(Guid PriceBookId, string? PlanCode, ModuleCode? ModuleCode, BillingCycle BillingCycle) : IRequest;
+public record RemovePriceCommand(Guid PriceBookId, string? PlanCode, ModuleCode? ModuleCode, BillingCycle BillingCycle);
 
 public class RemovePriceCommandValidator : AbstractValidator<RemovePriceCommand>
 {
@@ -26,7 +26,7 @@ public class RemovePriceCommandValidator : AbstractValidator<RemovePriceCommand>
     }
 }
 
-public class RemovePriceCommandHandler : IRequestHandler<RemovePriceCommand>
+public class RemovePriceCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

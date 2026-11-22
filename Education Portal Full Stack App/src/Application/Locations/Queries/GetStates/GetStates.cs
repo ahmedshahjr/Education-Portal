@@ -6,7 +6,7 @@ namespace EducationPortal.Application.Locations.Queries.GetStates;
 
 /// <summary>The active states of an active country, by name, for the address dropdowns. Any signed-in user (see <see cref="Queries.GetLocationCountries.GetLocationCountriesQuery"/>).</summary>
 [Authorize]
-public record GetStatesQuery(Guid CountryId) : IRequest<IReadOnlyList<StateDto>>;
+public record GetStatesQuery(Guid CountryId);
 
 public class GetStatesQueryValidator : AbstractValidator<GetStatesQuery>
 {
@@ -16,7 +16,7 @@ public class GetStatesQueryValidator : AbstractValidator<GetStatesQuery>
     }
 }
 
-public class GetStatesQueryHandler : IRequestHandler<GetStatesQuery, IReadOnlyList<StateDto>>
+public class GetStatesQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

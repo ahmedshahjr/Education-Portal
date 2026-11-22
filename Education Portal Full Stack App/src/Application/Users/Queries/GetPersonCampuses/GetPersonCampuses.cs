@@ -8,12 +8,12 @@ namespace EducationPortal.Application.Users.Queries.GetPersonCampuses;
 
 /// <summary>The public ids of the campuses a person of the school is assigned to. Needs the Users &amp; Roles module.</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
-public record GetPersonCampusesQuery : IRequest<IReadOnlyList<Guid>>
+public record GetPersonCampusesQuery
 {
     public Guid PersonId { get; init; }
 }
 
-public class GetPersonCampusesQueryHandler : IRequestHandler<GetPersonCampusesQuery, IReadOnlyList<Guid>>
+public class GetPersonCampusesQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

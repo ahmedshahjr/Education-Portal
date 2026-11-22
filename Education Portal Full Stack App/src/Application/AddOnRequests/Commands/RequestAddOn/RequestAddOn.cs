@@ -12,7 +12,7 @@ namespace EducationPortal.Application.AddOnRequests.Commands.RequestAddOn;
 /// request (SEC-AUTHZ-04). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record RequestAddOnCommand : IRequest<Guid>
+public record RequestAddOnCommand
 {
     public ModuleCode ModuleCode { get; init; } = ModuleCode.None;
 }
@@ -43,7 +43,7 @@ public class RequestAddOnCommandValidator : AbstractValidator<RequestAddOnComman
     }
 }
 
-public class RequestAddOnCommandHandler : IRequestHandler<RequestAddOnCommand, Guid>
+public class RequestAddOnCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

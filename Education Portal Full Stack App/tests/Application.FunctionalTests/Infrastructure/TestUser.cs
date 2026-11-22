@@ -7,7 +7,7 @@ namespace EducationPortal.Application.FunctionalTests.Infrastructure;
 
 /// <summary>
 /// Identifies the caller for the test host. An HTTP request is identified by its session cookie, as in production. A test
-/// that sends a MediatR request directly has no HTTP request, so it uses the user that <see cref="TestApp"/> chose.
+/// that calls a use case directly has no HTTP request, so it uses the user that <see cref="TestApp"/> chose.
 /// </summary>
 internal sealed class TestUser(IHttpContextAccessor httpContextAccessor) : IUser
 {

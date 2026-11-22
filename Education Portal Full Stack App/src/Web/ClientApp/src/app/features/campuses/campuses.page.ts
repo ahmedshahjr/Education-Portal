@@ -1,17 +1,20 @@
-import { NgTemplateOutlet } from '@angular/common';
+﻿import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal, TemplateRef, viewChild } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { Router } from '@angular/router';
 import { ToastService } from '../../shared/services/toast.service';
 import { Observable } from 'rxjs';
 import { CampusDetailsDialogComponent } from './campus-details-dialog.component';
+import { phoneValidator } from '../../shared/validation/contact-validators';
 import { CampusLocationPickerComponent } from './campus-location-picker.component';
 import { genderPolicyOptions } from './campus-gender-policy';
+import { campusProfileOf, createCampusForm, CampusForm, MAX_PHONES } from './campus-form.base';
 import { CampusScopeService } from '../../core/campus/campus-scope.service';
 import { problemMessages } from '../../core/http/problem-details';
 import { LatLng } from '../../core/maps/google-maps';
@@ -22,40 +25,24 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import {
-  CampusDetailsInput,
   CampusDto,
   CampusesClient,
   CampusKind,
   CampusLocationsDto,
   CampusStateDto,
-  CreateCampusCommand,
-  SchoolGenderPolicy,
   UpdateCampusCommand,
   UserDetailsClient,
   UserDetailsDto,
   UserType,
 } from '../../web-api-client';
 
-/** The most phone numbers a campus can list (the server enforces the same limit). */
-const MAX_PHONES = 5;
-
-/** The campus form's phones: between one and five numbers, none blank. */
-function phonesValidator(control: AbstractControl): ValidationErrors | null {
-  const array = control as FormArray<FormControl<string>>;
-  const filled = array.controls.map((c) => c.value.trim()).filter((v) => v.length > 0);
-  if (filled.length === 0) {
-    return { required: true };
-  }
-  return filled.length > MAX_PHONES ? { maxPhones: true } : null;
-}
-
 /**
  * The school's campuses, for its administrators (the Campuses module), as a table. A row opens the campus's details in a
- * dialog; the icons edit it or delete it. A campus has a four-digit code, unique in the school, and contact and registration
- * details: the address, the state (province), the city, the postal code, one to five phone numbers, the school number, the
- * short name and the place on the map are required; the website and the principal are optional. The state and city come from
- * the school's country. The main campus is the school's registration campus: it cannot be deleted. The code prefix is set
- * under Customization, Campus codes.
+ * dialog; the icons edit it or delete it. Adding a campus has its own page (/campuses/new). A campus has a four-digit code,
+ * unique in the school, and contact and registration details: the address, the state (province), the city, the postal code,
+ * one to five phone numbers, the school number, the short name and the place on the map are required; the website and the
+ * principal are optional. The state and city come from the school's country. The main campus is the school's registration
+ * campus: it cannot be deleted. The code prefix is set under Customization, Campus codes.
  */
 @Component({
   selector: 'app-campuses-page',
@@ -85,6 +72,7 @@ export class CampusesPage {
   private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
   private readonly campusScope = inject(CampusScopeService);
+  private readonly router = inject(Router);
 
   protected readonly campuses = signal<readonly CampusDto[] | null>(null);
   protected readonly loadError = signal<string | null>(null);
@@ -93,9 +81,6 @@ export class CampusesPage {
 
   /** The campus being edited, or null. */
   protected readonly editingId = signal<string | null>(null);
-
-  /** True while the add form is open. */
-  protected readonly adding = signal(false);
 
   /** The states and cities of the school's country, or null while they load. */
   protected readonly locations = signal<CampusLocationsDto | null>(null);
@@ -133,8 +118,8 @@ export class CampusesPage {
     return (state === '' ? states : states.filter((s) => s.id === state)).flatMap((s) => s.cities);
   });
 
-  /** The form is open for adding or for editing one campus. */
-  protected readonly formOpen = computed(() => this.adding() || this.editingId() !== null);
+  /** The edit form is open while one campus is being edited. */
+  protected readonly formOpen = computed(() => this.editingId() !== null);
 
   /** The cell templates the table draws for the name, the type and the actions. */
   private readonly nameCell = viewChild.required<TemplateRef<DataTableCellContext<CampusDto>>>('nameCell');
@@ -148,33 +133,16 @@ export class CampusesPage {
       valueFn: (c) => `${c.name} ${c.displayCode}`,
       cell: this.nameCell(),
     },
+    { key: 'address', header: $localize`:@@campuses.addressColumn:Address`, valueFn: (c) => c.details.address ?? '' },
     { key: 'state', header: $localize`:@@campuses.state:State or province`, valueFn: (c) => c.details.stateName ?? '' },
     { key: 'city', header: $localize`:@@campuses.city:City`, valueFn: (c) => c.details.cityName ?? '' },
     { key: 'principal', header: $localize`:@@campuses.principal:Principal`, valueFn: (c) => c.details.principalName ?? '' },
-    { key: 'phone', header: $localize`:@@campuses.phones:Phone numbers`, valueFn: (c) => c.details.phones[0] ?? '' },
+    { key: 'phone', header: $localize`:@@campuses.phones:Phone numbers`, valueFn: (c) => c.details.phones.join(' · ') },
     { key: 'kind', header: $localize`:@@campuses.colType:Type`, valueFn: (c) => c.kind, cell: this.kindCell() },
     { key: 'actions', header: $localize`:@@common.actions:Actions`, sortable: false, align: 'right', cell: this.actionsCell() },
   ]);
 
-  readonly form = this.formBuilder.nonNullable.group({
-    name: ['', [Validators.required, Validators.maxLength(200)]],
-    localName: ['', [Validators.maxLength(200)]],
-    genderPolicy: [SchoolGenderPolicy.CoEducation],
-    address: ['', [Validators.required, Validators.maxLength(300)]],
-    stateId: ['', [Validators.required]],
-    cityId: ['', [Validators.required]],
-    postalCode: ['', [Validators.required, Validators.maxLength(10)]],
-    phones: this.formBuilder.array<FormControl<string>>(
-      [this.formBuilder.nonNullable.control('')],
-      { validators: [phonesValidator] }
-    ),
-    website: ['', [Validators.maxLength(2048)]],
-    schoolNumber: ['', [Validators.required, Validators.maxLength(50)]],
-    shortName: ['', [Validators.required, Validators.maxLength(25)]],
-    principalId: [''],
-    latitude: [null as number | null, [Validators.required, Validators.min(-90), Validators.max(90)]],
-    longitude: [null as number | null, [Validators.required, Validators.min(-180), Validators.max(180)]],
-  });
+  protected readonly form: CampusForm = createCampusForm(this.formBuilder);
 
   constructor() {
     this.load();
@@ -233,16 +201,13 @@ export class CampusesPage {
     this.dialog.open(CampusDetailsDialogComponent, { data: campus, width: '640px', autoFocus: 'dialog' });
   }
 
-  startAdd(): void {
-    this.errors.set([]);
-    this.editingId.set(null);
-    this.resetForm();
-    this.adding.set(true);
+  /** Adding a campus has its own page. */
+  protected addCampus(): void {
+    void this.router.navigate(['/campuses', 'new']);
   }
 
   startEdit(campus: CampusDto): void {
     this.errors.set([]);
-    this.adding.set(false);
     this.editingId.set(campus.id);
     const details = campus.details;
     const phones = details.phones.length > 0 ? details.phones : [''];
@@ -266,7 +231,6 @@ export class CampusesPage {
 
   protected cancel(): void {
     this.errors.set([]);
-    this.adding.set(false);
     this.editingId.set(null);
   }
 
@@ -291,7 +255,7 @@ export class CampusesPage {
 
   protected addPhone(): void {
     if (this.phones.length < MAX_PHONES) {
-      this.phones.push(this.formBuilder.nonNullable.control(''));
+      this.phones.push(this.formBuilder.nonNullable.control('', [phoneValidator]));
       this.phones.updateValueAndValidity();
     }
   }
@@ -303,46 +267,23 @@ export class CampusesPage {
     }
   }
 
+  /** Saves the campus being edited. */
   save(): void {
+    const editing = this.editingId();
+    if (editing === null) {
+      return;
+    }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const editing = this.editingId();
-    const value = this.form.getRawValue();
-    const details = new CampusDetailsInput({
-      address: value.address.trim(),
-      stateId: value.stateId,
-      cityId: value.cityId,
-      postalCode: value.postalCode.trim(),
-      phones: this.phones.controls.map((c) => c.value.trim()).filter((v) => v.length > 0),
-      website: value.website.trim() || undefined,
-      schoolNumber: value.schoolNumber.trim(),
-      shortName: value.shortName.trim(),
-      principalId: value.principalId || undefined,
-      latitude: value.latitude ?? undefined,
-      longitude: value.longitude ?? undefined,
-    });
-
     this.busy.set(true);
     this.errors.set([]);
-    const profile = {
-      name: value.name.trim(),
-      localName: value.localName.trim() || undefined,
-      genderPolicy: value.genderPolicy,
-      details,
-    };
-    const request: Observable<unknown> = editing
-      ? this.campusesClient.updateCampus(editing, new UpdateCampusCommand(profile))
-      : this.campusesClient.createCampus(new CreateCampusCommand(profile));
-
-    request.subscribe({
+    this.campusesClient.updateCampus(editing, new UpdateCampusCommand(campusProfileOf(this.form))).subscribe({
       next: () => {
         this.busy.set(false);
-        this.toast.success(editing
-            ? $localize`:@@campuses.updated:Campus saved.`
-            : $localize`:@@campuses.added:Campus added.`);
+        this.toast.success($localize`:@@campuses.updated:Campus saved.`);
         this.cancel();
         this.load();
       },
@@ -370,29 +311,10 @@ export class CampusesPage {
       });
   }
 
-  private resetForm(): void {
-    this.form.reset({
-      name: '',
-      localName: '',
-      genderPolicy: SchoolGenderPolicy.CoEducation,
-      address: '',
-      stateId: '',
-      cityId: '',
-      postalCode: '',
-      website: '',
-      schoolNumber: '',
-      shortName: '',
-      principalId: '',
-      latitude: null,
-      longitude: null,
-    });
-    this.setPhones(['']);
-  }
-
   private setPhones(numbers: readonly string[]): void {
     this.phones.clear();
     for (const number of numbers) {
-      this.phones.push(this.formBuilder.nonNullable.control(number));
+      this.phones.push(this.formBuilder.nonNullable.control(number, [phoneValidator]));
     }
     this.phones.updateValueAndValidity();
   }

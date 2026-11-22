@@ -6,7 +6,7 @@ namespace EducationPortal.Application.Locations.Queries.GetCities;
 
 /// <summary>The active cities of an active state, by name, for the address dropdowns. Any signed-in user (see <see cref="Queries.GetLocationCountries.GetLocationCountriesQuery"/>).</summary>
 [Authorize]
-public record GetCitiesQuery(Guid StateId) : IRequest<IReadOnlyList<CityDto>>;
+public record GetCitiesQuery(Guid StateId);
 
 public class GetCitiesQueryValidator : AbstractValidator<GetCitiesQuery>
 {
@@ -16,7 +16,7 @@ public class GetCitiesQueryValidator : AbstractValidator<GetCitiesQuery>
     }
 }
 
-public class GetCitiesQueryHandler : IRequestHandler<GetCitiesQuery, IReadOnlyList<CityDto>>
+public class GetCitiesQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

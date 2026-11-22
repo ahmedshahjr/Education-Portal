@@ -7,9 +7,9 @@ Domain, Application, Infrastructure, Web, Angular.
 
 ### Finding that shapes the design
 
-`AuthorizationBehaviour` runs before the handler and sees only the request type, not a campus. Campuses arrive as request
-fields, and handlers already call `ICampusAccess.EnsureCampusAsync(campusId)`. So the behaviour cannot know the campus.
-Decision: **the behaviour asks "does any campus give this right?", and the handler narrows to the campus.** The fail-closed
+The request rules (`RequestRules`, ADR-025) run before the handler and see only the request type, not a campus. Campuses arrive as request
+fields, and handlers already call `ICampusAccess.EnsureCampusAsync(campusId)`. So the request rules cannot know the campus.
+Decision: **the request rules ask "does any campus give this right?", and the handler narrows to the campus.** The fail-closed
 rule holds: no role with the right anywhere means 403 before the handler runs.
 
 ### Domain
@@ -24,7 +24,7 @@ rule holds: no role with the right anywhere means 403 before the handler runs.
 ```csharp
 public interface IRoleRights
 {
-    // Behaviour use: any campus gives the right (fail closed).
+    // Request rules use: any campus gives the right (fail closed).
     Task<bool> HasRightAsync(string userId, int schoolId, ModuleCode module, AccessRight right, CancellationToken ct);
 
     // Handler use: the campuses where the right holds. null = every campus of the school.

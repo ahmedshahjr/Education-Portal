@@ -16,9 +16,9 @@ public sealed record CampusMapSettingsDto(string? ApiKey);
 /// Reads the map settings for the campus form. Needs the Campuses module, so only a school that may manage campuses gets the key.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
-public record GetCampusMapSettingsQuery : IRequest<CampusMapSettingsDto>;
+public record GetCampusMapSettingsQuery;
 
-public class GetCampusMapSettingsQueryHandler : IRequestHandler<GetCampusMapSettingsQuery, CampusMapSettingsDto>
+public class GetCampusMapSettingsQueryHandler
 {
     /// <summary>The secret that holds the Google Maps JavaScript API key.</summary>
     public static readonly SecretKey GoogleMapsApiKey = SecretKey.Platform("google-maps-api-key");

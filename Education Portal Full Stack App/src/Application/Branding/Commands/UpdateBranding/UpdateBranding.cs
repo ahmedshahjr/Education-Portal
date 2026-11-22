@@ -10,11 +10,11 @@ namespace EducationPortal.Application.Branding.Commands.UpdateBranding;
 /// Administrators only, until roles with rights per module arrive in step 2b. The change is audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record UpdateBrandingCommand : BrandingUpdate, IRequest;
+public record UpdateBrandingCommand : BrandingUpdate;
 
 public class UpdateBrandingCommandValidator : BrandingUpdateValidator<UpdateBrandingCommand>;
 
-public class UpdateBrandingCommandHandler : IRequestHandler<UpdateBrandingCommand>
+public class UpdateBrandingCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

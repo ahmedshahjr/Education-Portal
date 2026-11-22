@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Subscriptions.Commands.AddSubscriptionModu
 /// Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record AddSubscriptionModuleCommand : IRequest
+public record AddSubscriptionModuleCommand
 {
     /// <summary>The school's public id, taken from the route (ENG-ID-02).</summary>
     public Guid SchoolId { get; init; }
@@ -28,7 +28,7 @@ public class AddSubscriptionModuleCommandValidator : AbstractValidator<AddSubscr
     }
 }
 
-public class AddSubscriptionModuleCommandHandler : IRequestHandler<AddSubscriptionModuleCommand>
+public class AddSubscriptionModuleCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

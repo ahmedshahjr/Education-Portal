@@ -14,7 +14,7 @@ namespace EducationPortal.Application.SchoolPublicPage.Commands.UploadSchoolPhot
 /// when given, is the school's own. Needs the School module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record UploadSchoolPhotoCommand : IRequest<Guid>
+public record UploadSchoolPhotoCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -48,11 +48,11 @@ public class UploadSchoolPhotoCommandValidator : AbstractValidator<UploadSchoolP
 
         RuleFor(c => c.Content)
             .Must(SchoolPhotoRules.IsAcceptable)
-            .WithMessage("The photo must be a PNG, JPEG or WebP image of at most 2 MB.");
+            .WithMessage(_ => ValidationMessages.PhotoNotAcceptable);
     }
 }
 
-public class UploadSchoolPhotoCommandHandler : IRequestHandler<UploadSchoolPhotoCommand, Guid>
+public class UploadSchoolPhotoCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

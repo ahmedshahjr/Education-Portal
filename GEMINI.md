@@ -34,12 +34,18 @@ Gemini CLI imports every skill below into context at start, so all compliance an
 @./docs/ai/engineering/SKILL.md
 @./docs/ai/engineering/ai-agents/SKILL.md
 @./docs/ai/engineering/angular-material-ui/SKILL.md
+@./docs/ai/engineering/aspire-observability/SKILL.md
 @./docs/ai/engineering/code-quality-process/SKILL.md
 @./docs/ai/engineering/csharp-entities/SKILL.md
 @./docs/ai/engineering/design-principles/SKILL.md
+@./docs/ai/engineering/domain-modules-billing/SKILL.md
 @./docs/ai/engineering/efcore/SKILL.md
 @./docs/ai/engineering/identifiers-enums/SKILL.md
 @./docs/ai/engineering/localization-i18n/SKILL.md
+@./docs/ai/engineering/postgres-queries/SKILL.md
+@./docs/ai/engineering/testing/SKILL.md
+@./docs/ai/engineering/ticket-to-merge/SKILL.md
+@./docs/ai/engineering/user-documentation/SKILL.md
 <!-- END GENERATED: ai skills -->
 
 Key rules, in short (details in AGENTS.md):

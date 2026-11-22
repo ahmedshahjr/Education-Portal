@@ -187,7 +187,7 @@ public class SubscriptionLifecycleTests : TestBase
         (await LoadAsync(subscription.Id)).Status.ShouldBe(SubscriptionStatus.Suspended);
 
         var issuedAfter = DateTimeOffset.UtcNow;
-        var invoiceId = await TestApp.SendAsync(new CreateInvoiceCommand { SchoolId = school.PublicId, NextPeriod = true });
+        var invoiceId = await TestApp.SendAsync<Guid>(new CreateInvoiceCommand { SchoolId = school.PublicId, NextPeriod = true });
         var invoice = await LoadInvoiceAsync(invoiceId);
         await TestApp.SendAsync(new RecordPaymentCommand { InvoiceId = invoiceId, Amount = invoice.Total, Method = PaymentMethod.BankTransfer, Reference = "TRX-7", ReceivedDate = DateTimeOffset.UtcNow });
 

@@ -11,7 +11,7 @@ namespace EducationPortal.Application.PriceBooks.Commands.SetPrice;
 /// Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record SetPriceCommand : IRequest
+public record SetPriceCommand
 {
     /// <summary>The price book's public id, taken from the route.</summary>
     public Guid PriceBookId { get; init; }
@@ -53,7 +53,7 @@ public class SetPriceCommandValidator : AbstractValidator<SetPriceCommand>
     }
 }
 
-public class SetPriceCommandHandler : IRequestHandler<SetPriceCommand>
+public class SetPriceCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

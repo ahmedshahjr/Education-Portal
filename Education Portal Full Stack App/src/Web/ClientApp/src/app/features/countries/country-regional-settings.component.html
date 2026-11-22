@@ -25,7 +25,7 @@
           }
         </mat-select>
         <mat-hint i18n="@@countries.weekendDaysHint">Up to three days, or none.</mat-hint>
-        @if (form.controls.weekendDays.hasError('maxlength')) {
+        @if (form.controls.weekendDays.hasError('maxWeekendDays')) {
           <mat-error i18n="@@countries.weekendDaysError">Choose at most three weekend days.</mat-error>
         }
       </mat-form-field>
@@ -33,7 +33,11 @@
       <mat-form-field appearance="outline" class="mm-regional__wide">
         <mat-label i18n="@@countries.phonePattern">Phone number pattern</mat-label>
         <input matInput formControlName="phonePattern" maxlength="200" autocomplete="off" dir="ltr" />
-        <mat-hint i18n="@@countries.phonePatternHint">Optional. A regular expression phone numbers must match, for example ^\+92\d+$.</mat-hint>
+        @if (form.controls.phonePattern.hasError('phonePattern')) {
+          <mat-error i18n="@@countries.phonePatternInvalid">Enter a regular expression of at most 200 characters that compiles.</mat-error>
+        } @else {
+          <mat-hint i18n="@@countries.phonePatternHint">Optional. A regular expression phone numbers must match, for example ^\+92\d+$.</mat-hint>
+        }
       </mat-form-field>
 
       @for (message of errors(); track message) {

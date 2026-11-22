@@ -10,7 +10,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.UpdateShift;
 
 /// <summary>Changes a shift's name and times. Its campus does not change. Needs the Academic setup module. Audited (SEC-LOG-03).</summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Edit)]
-public record UpdateShiftCommand : IRequest
+public record UpdateShiftCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -34,7 +34,7 @@ public class UpdateShiftCommandValidator : AbstractValidator<UpdateShiftCommand>
     }
 }
 
-public class UpdateShiftCommandHandler : IRequestHandler<UpdateShiftCommand>
+public class UpdateShiftCommandHandler
 {
     private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;

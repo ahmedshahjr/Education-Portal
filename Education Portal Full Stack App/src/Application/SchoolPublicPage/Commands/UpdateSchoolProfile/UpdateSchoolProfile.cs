@@ -13,7 +13,7 @@ namespace EducationPortal.Application.SchoolPublicPage.Commands.UpdateSchoolProf
 /// (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record UpdateSchoolProfileCommand : IRequest
+public record UpdateSchoolProfileCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -34,7 +34,7 @@ public record UpdateSchoolProfileCommand : IRequest
 
 public class UpdateSchoolProfileCommandValidator : AbstractValidator<UpdateSchoolProfileCommand>
 {
-    public UpdateSchoolProfileCommandValidator()
+    public UpdateSchoolProfileCommandValidator(TimeProvider timeProvider)
     {
         RuleFor(c => c.Tagline)
             .NotEmpty()
@@ -45,7 +45,7 @@ public class UpdateSchoolProfileCommandValidator : AbstractValidator<UpdateSchoo
             .MaximumLength(SchoolProfile.AboutMaxLength);
 
         RuleFor(c => c.EstablishedYear)
-            .InclusiveBetween(SchoolProfile.MinimumEstablishedYear, DateTimeOffset.UtcNow.Year)
+            .InclusiveBetween(SchoolProfile.MinimumEstablishedYear, timeProvider.GetUtcNow().Year)
             .When(c => c.EstablishedYear.HasValue);
 
         RuleFor(c => c.GenderPolicy).IsInEnum();
@@ -60,7 +60,7 @@ public class UpdateSchoolProfileCommandValidator : AbstractValidator<UpdateSchoo
     }
 }
 
-public class UpdateSchoolProfileCommandHandler : IRequestHandler<UpdateSchoolProfileCommand>
+public class UpdateSchoolProfileCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

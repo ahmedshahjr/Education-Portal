@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { domainValidator } from '../../shared/validation/domain-validators';
 import { CountryDto, DataRegion } from '../../web-api-client';
 
 /** Limits shared with the server (School.NameMaxLength, PasswordRules); the server checks everything again. */
@@ -13,8 +14,6 @@ export const PASSWORD_MIN_LENGTH = 15;
 export const PASSWORD_MAX_LENGTH = 128;
 const GENERATED_PASSWORD_LENGTH = 20;
 
-/** A host name such as school1.com: letters, digits and hyphens in dot-separated labels, no scheme, port or path. */
-const DOMAIN_PATTERN = /^(?=.{1,253}\.?$)(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.?$/;
 
 /** What the form asks to create. */
 export interface NewSchool {
@@ -165,7 +164,7 @@ export class SchoolFormComponent {
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(SCHOOL_NAME_MAX_LENGTH)]],
-    domain: ['', [Validators.required, Validators.pattern(DOMAIN_PATTERN)]],
+    domain: ['', [Validators.required, domainValidator]],
     countryId: [null as string | null],
     dataRegion: [null as DataRegion | null],
     administratorEmail: ['', [Validators.required, Validators.email, Validators.maxLength(256)]],

@@ -16,13 +16,13 @@ namespace EducationPortal.Application.Campuses.Commands.DeleteCampus;
 /// Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
-public record DeleteCampusCommand : IRequest
+public record DeleteCampusCommand
 {
     /// <summary>The campus's public id, taken from the route (ENG-ID-02).</summary>
     public Guid CampusId { get; init; }
 }
 
-public class DeleteCampusCommandHandler : IRequestHandler<DeleteCampusCommand>
+public class DeleteCampusCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

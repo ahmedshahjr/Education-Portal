@@ -12,7 +12,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.DeleteTerm;
 /// setup module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Delete)]
-public record DeleteTermCommand : IRequest
+public record DeleteTermCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -29,7 +29,7 @@ public class DeleteTermCommandValidator : AbstractValidator<DeleteTermCommand>
     }
 }
 
-public class DeleteTermCommandHandler : IRequestHandler<DeleteTermCommand>
+public class DeleteTermCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

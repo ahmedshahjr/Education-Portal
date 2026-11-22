@@ -6,7 +6,7 @@ namespace EducationPortal.Application.Branding.Queries.GetBrandingImage;
 /// Returns the logo or favicon of the school that owns the request's domain. Public, like <see cref="GetBranding.GetBrandingQuery"/>,
 /// because the login page and the browser tab show them before sign-in. Returns <c>null</c> when the school has none.
 /// </summary>
-public record GetBrandingImageQuery(BrandingImageKind Kind) : IRequest<BrandingImageDto?>;
+public record GetBrandingImageQuery(BrandingImageKind Kind);
 
 public sealed record BrandingImageDto(string ContentType, byte[] Content);
 
@@ -18,7 +18,7 @@ public class GetBrandingImageQueryValidator : AbstractValidator<GetBrandingImage
     }
 }
 
-public class GetBrandingImageQueryHandler : IRequestHandler<GetBrandingImageQuery, BrandingImageDto?>
+public class GetBrandingImageQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

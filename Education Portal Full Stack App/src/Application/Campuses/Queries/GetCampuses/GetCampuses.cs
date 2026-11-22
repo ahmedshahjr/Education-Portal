@@ -12,9 +12,9 @@ namespace EducationPortal.Application.Campuses.Queries.GetCampuses;
 /// (SEC-AUTHZ-04), so a school sees only its own campuses. Needs the Campuses module (AGENTS.md section 2).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
-public record GetCampusesQuery : IRequest<IReadOnlyList<CampusDto>>;
+public record GetCampusesQuery;
 
-public class GetCampusesQueryHandler : IRequestHandler<GetCampusesQuery, IReadOnlyList<CampusDto>>
+public class GetCampusesQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

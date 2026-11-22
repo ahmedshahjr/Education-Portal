@@ -13,7 +13,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.CreateShift;
 /// Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Create)]
-public record CreateShiftCommand : IRequest<Guid>
+public record CreateShiftCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -37,7 +37,7 @@ public class CreateShiftCommandValidator : AbstractValidator<CreateShiftCommand>
     }
 }
 
-public class CreateShiftCommandHandler : IRequestHandler<CreateShiftCommand, Guid>
+public class CreateShiftCommandHandler
 {
     private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;

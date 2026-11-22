@@ -59,6 +59,22 @@ public class RolePermissionCampusTests
     }
 
     [Test]
+    public void ShouldChangeWhetherTheRightsApplyToAllCampusesAndKeepTheCampus()
+    {
+        var campus = TestCampuses.MainCampus();
+        var permission = Create(campus, allCampuses: false, view: true);
+
+        permission.SetAllCampuses(true);
+        permission.AllCampuses.ShouldBeTrue();
+        permission.CampusId.ShouldBe(campus.Id);
+        permission.CanView.ShouldBeTrue();
+
+        permission.SetAllCampuses(false);
+        permission.AllCampuses.ShouldBeFalse();
+        permission.CampusId.ShouldBe(campus.Id);
+    }
+
+    [Test]
     public void ShouldRefuseSettingViewHistoryWithoutView()
     {
         var permission = Create();

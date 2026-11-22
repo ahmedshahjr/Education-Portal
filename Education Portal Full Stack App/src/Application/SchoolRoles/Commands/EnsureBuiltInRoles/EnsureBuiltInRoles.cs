@@ -12,9 +12,9 @@ namespace EducationPortal.Application.SchoolRoles.Commands.EnsureBuiltInRoles;
 /// starting rights for the modules the school has. Running it again changes nothing. Needs the Users &amp; Roles module.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
-public record EnsureBuiltInRolesCommand : IRequest;
+public record EnsureBuiltInRolesCommand;
 
-public class EnsureBuiltInRolesCommandHandler : IRequestHandler<EnsureBuiltInRolesCommand>
+public class EnsureBuiltInRolesCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IModuleAccess _moduleAccess;

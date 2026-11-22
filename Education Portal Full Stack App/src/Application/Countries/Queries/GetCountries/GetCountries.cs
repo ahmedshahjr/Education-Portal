@@ -8,7 +8,7 @@ namespace EducationPortal.Application.Countries.Queries.GetCountries;
 
 /// <summary>Lists the countries and their regional settings, for the master portal. Master tenant administrators only (SEC-AUTHZ-07).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetCountriesQuery : IRequest<PaginatedList<CountryDto>>
+public record GetCountriesQuery
 {
     public int PageNumber { get; init; } = 1;
 
@@ -24,7 +24,7 @@ public class GetCountriesQueryValidator : AbstractValidator<GetCountriesQuery>
     }
 }
 
-public class GetCountriesQueryHandler : IRequestHandler<GetCountriesQuery, PaginatedList<CountryDto>>
+public class GetCountriesQueryHandler
 {
     private readonly IApplicationDbContext _context;
 
