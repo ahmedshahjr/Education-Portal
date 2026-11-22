@@ -31,5 +31,5 @@ This skill is written against the versions below, recorded in [sources.json](../
 
 | Source | Version tracked | How it is checked | Last reviewed |
 |---|---|---|---|
-| [NIST SP 800-63 Digital Identity Guidelines (Rev 4)](https://pages.nist.gov/800-63-4/) | SP 800-63-4 (Rev 4) | Automatic: new commits in `usnistgov/800-63-4` | 2026-11-09 |
+| [NIST SP 800-63 Digital Identity Guidelines (Rev 4)](https://pages.nist.gov/800-63-4/) | SP 800-63-4 (Rev 4) | Automatic: new commits in `usnistgov/800-63-4` | 2026-11-22 |
 <!-- END GENERATED: sources -->

@@ -18,7 +18,7 @@ Part of the mandatory secure coding and compliance rules. This skill explains wh
 | **GDPR** (Regulation (EU) 2016/679) and UK GDPR | Student, parent and staff personal data; most students are children | Applies when serving EU/UK schools or people. Schools are usually controllers and we are their processor (Art. 28); for our own staff/admin accounts and the master portal we are a controller. **TODO** confirm roles |
 | **ePrivacy Directive** (cookie rules, Art. 5(3)) | Cookies and local storage in Angular | Strictly necessary cookies (auth session, antiforgery) need no consent; anything else does |
 | **NIS2** (Directive (EU) 2022/2555) | Cybersecurity risk management and incident reporting for covered entities | Education is not a listed sector, and a school SaaS is usually not "cloud computing service" in scope, but member states can extend scope and customers may pass duties down by contract. **TODO** legal check; the topic skills already cover NIS2 Art. 21 style measures |
-| **EU AI Act** (Regulation (EU) 2024/1689) | AI used in education is high-risk (Annex III point 3: admission, evaluating learning outcomes, steering learning, assessing education level, monitoring cheating) | No AI features exist. Adding any is a high-risk decision (SEC-EU-12) |
+| **EU AI Act** (Regulation (EU) 2024/1689) | AI used in education is high-risk (Annex III point 3: admission, evaluating learning outcomes, steering learning, assessing education level, monitoring cheating). Under the AI Omnibus (in force 27 July 2026) these Annex III obligations apply from 2 December 2027 | No AI features exist. Adding any is a high-risk decision (SEC-EU-12) |
 | **Cyber Resilience Act** (Regulation (EU) 2024/2847) | Security requirements for products with digital elements | Pure SaaS is generally outside scope unless it is the remote data processing of a product; reporting duties start 2026-09-11, main duties 2027-12-11. **TODO** legal check |
 | **Accessibility** (Web Accessibility Directive for public-sector bodies, European Accessibility Act, EN 301 549 / WCAG 2.1 AA) | Public schools are public-sector bodies and often require accessible procurement | Target WCAG 2.1 AA for the Angular app (SEC-EU-14) |
 
@@ -80,7 +80,7 @@ This skill is written against the versions below, recorded in [sources.json](../
 | Source | Version tracked | How it is checked | Last reviewed |
 |---|---|---|---|
 | [EU GDPR and EDPB guidelines (incl. children's data)](https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en) | Regulation (EU) 2016/679 and current EDPB guidelines | Manual: listed for a portal check | 2026-11-09 |
-| [EU AI Act (Regulation (EU) 2024/1689), implementation timeline and guidance](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai) | Regulation (EU) 2024/1689 | Manual: listed for a portal check | 2026-11-09 |
-| [NIS2 Directive and national transposition](https://digital-strategy.ec.europa.eu/en/policies/nis2-directive) | Directive (EU) 2022/2555 | Manual: listed for a portal check | 2026-11-09 |
-| [EU Cyber Resilience Act](https://digital-strategy.ec.europa.eu/en/policies/cyber-resilience-act) | Regulation (EU) 2024/2847 | Manual: listed for a portal check | 2026-11-09 |
+| [EU AI Act (Regulation (EU) 2024/1689), implementation timeline and guidance](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai) | Regulation (EU) 2024/1689, as amended by the AI Omnibus (in force 27 July 2026) | Manual: listed for a portal check | 2026-11-22 |
+| [NIS2 Directive and national transposition](https://digital-strategy.ec.europa.eu/en/policies/nis2-directive) | Directive (EU) 2022/2555 | Manual: listed for a portal check | 2026-11-22 |
+| [EU Cyber Resilience Act](https://digital-strategy.ec.europa.eu/en/policies/cyber-resilience-act) | Regulation (EU) 2024/2847 | Manual: listed for a portal check | 2026-11-22 |
 <!-- END GENERATED: sources -->

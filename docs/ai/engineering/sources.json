@@ -16,11 +16,11 @@
       "id": "angular-skills",
       "name": "Official Angular agent skills (angular-developer)",
       "portal": "https://angular.dev/ai/agent-skills",
-      "tracked_version": "angular/skills, built 2026-11-10 from angular/angular 0dafb36",
+      "tracked_version": "angular/skills, built 2026-11-16 from angular/angular 567ae3e",
       "skills": ["angular-material-ui"],
       "watch": {"type": "github-path", "repo": "angular/skills", "path": "angular-developer"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "last_seen_sha": "ab3d98995ca3bd3905dcc716fa9bb78b927edb55",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "angular-best-practices",
@@ -29,8 +29,8 @@
       "tracked_version": "angular.dev best practices for Angular v22",
       "skills": ["angular-material-ui"],
       "watch": {"type": "github-path", "repo": "angular/angular", "path": "adev/src/content/best-practices"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "last_seen_sha": "3f191e1fcefb87a7bf4c353f04ba4bbe463a0fc2",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "angular-material",
@@ -39,8 +39,8 @@
       "tracked_version": "Angular Material 22 (Material 3 theming with mat.theme and system tokens)",
       "skills": ["angular-material-ui"],
       "watch": {"type": "github-path", "repo": "angular/components", "path": "guides"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "last_seen_sha": "00f35c4eda2732de53db5a6af551656d9b853160",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "material-design-3",
@@ -58,7 +58,7 @@
       "tracked_version": "WCAG 2.2 Level AA",
       "skills": ["angular-material-ui"],
       "watch": null,
-      "last_reviewed": "2026-11-10"
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "ef-core-docs",
@@ -67,8 +67,8 @@
       "tracked_version": "EF Core 10",
       "skills": ["efcore", "csharp-entities", "identifiers-enums"],
       "watch": {"type": "github-path", "repo": "dotnet/EntityFramework.Docs", "path": "entity-framework/core"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "last_seen_sha": "1459c99ecffb85202e1bbcf32504d074c430bfde",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "npgsql-efcore",
@@ -77,7 +77,7 @@
       "tracked_version": "Npgsql.EntityFrameworkCore.PostgreSQL 10",
       "skills": ["efcore"],
       "watch": null,
-      "last_reviewed": "2026-11-10"
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "dotnet-skills-ef-core",
@@ -86,8 +86,8 @@
       "tracked_version": "dotnet/skills plugins/dotnet-data (main)",
       "skills": ["efcore"],
       "watch": {"type": "github-path", "repo": "dotnet/skills", "path": "plugins/dotnet-data/skills/optimizing-ef-core-queries"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "last_seen_sha": "7ce04b13cb1f1b44663fcfe271f3b4a347a719f1",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "dotnet-ddd-guidance",
@@ -96,8 +96,8 @@
       "tracked_version": ".NET Microservices: Architecture for Containerized .NET Applications (current edition on Learn)",
       "skills": ["csharp-entities"],
       "watch": {"type": "github-path", "repo": "dotnet/docs", "path": "docs/architecture/microservices/microservice-ddd-cqrs-patterns"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "last_seen_sha": "d1368cbdf739b094da4d47b47384a440188c5276",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "dotnet-design-guidelines",
@@ -106,8 +106,8 @@
       "tracked_version": ".NET design guidelines (current on Learn)",
       "skills": ["csharp-entities", "design-principles", "identifiers-enums"],
       "watch": {"type": "github-path", "repo": "dotnet/docs", "path": "docs/standard/design-guidelines"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "last_seen_sha": "156931bb4ec1e81b028c76ea983553f2e9778bdd",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "dotnet-architectural-principles",
@@ -116,8 +116,8 @@
       "tracked_version": "Architect Modern Web Applications with ASP.NET Core and Azure (current edition on Learn)",
       "skills": ["design-principles"],
       "watch": {"type": "github-path", "repo": "dotnet/docs", "path": "docs/architecture/modern-web-apps-azure/architectural-principles.md"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "last_seen_sha": "5f9447d0dd2463e2aea869414572387a4cdc3727",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "csharp-coding-conventions",
@@ -126,8 +126,8 @@
       "tracked_version": "C# 14 / .NET 10 coding conventions",
       "skills": ["code-quality-process", "csharp-entities"],
       "watch": {"type": "github-path", "repo": "dotnet/docs", "path": "docs/csharp/fundamentals/coding-style"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "last_seen_sha": "1305b6668958bac14f1ef97e2b8c154094258b36",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "dotnet-skills-testing",
@@ -136,8 +136,8 @@
       "tracked_version": "dotnet/skills plugins/dotnet-test (main)",
       "skills": ["code-quality-process"],
       "watch": {"type": "github-path", "repo": "dotnet/skills", "path": "plugins/dotnet-test/skills/test-anti-patterns"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "last_seen_sha": "e191d40e12424533bf60573b91e5c41d04c50640",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "google-eng-practices",
@@ -146,18 +146,18 @@
       "tracked_version": "google/eng-practices (main)",
       "skills": ["code-quality-process"],
       "watch": {"type": "github-path", "repo": "google/eng-practices", "path": "review"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "last_seen_sha": "50d0e521c4d1761edf2edbb811945c5d0b8ec445",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "owasp-llm-top10",
       "name": "OWASP Top 10 for LLM Applications",
-      "portal": "https://genai.owasp.org/llm-top-10/",
-      "tracked_version": "OWASP Top 10 for LLM Applications 2025",
+      "portal": "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/",
+      "tracked_version": "OWASP GenAI LLM Top 10 2026 (published 2026-08-04)",
       "skills": ["ai-agents"],
-      "watch": {"type": "github-path", "repo": "OWASP/www-project-top-10-for-large-language-model-applications", "path": "2_0_vulns"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "watch": {"type": "github-path", "repo": "GenAI-Security-Project/GenAI-LLM-Top10", "path": "2026/final"},
+      "last_seen_sha": "7e144e05142b2105faa1603178a1163a2a34df24",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "nist-ai-rmf",
@@ -166,7 +166,7 @@
       "tracked_version": "AI RMF 1.0 (NIST AI 100-1) and Generative AI Profile (NIST AI 600-1)",
       "skills": ["ai-agents"],
       "watch": null,
-      "last_reviewed": "2026-11-10"
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "awesome-copilot-agent-safety",
@@ -175,8 +175,8 @@
       "tracked_version": "github/awesome-copilot agent-safety instructions (main)",
       "skills": ["ai-agents"],
       "watch": {"type": "github-path", "repo": "github/awesome-copilot", "path": "instructions/agent-safety.instructions.md"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-10"
+      "last_seen_sha": "03290d78d09ab9356705376b3bddc0864755fa48",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "aspnetcore-minimal-api-json",
@@ -185,8 +185,8 @@
       "tracked_version": "ASP.NET Core 10",
       "skills": ["identifiers-enums"],
       "watch": {"type": "github-path", "repo": "dotnet/AspNetCore.Docs", "path": "aspnetcore/fundamentals/minimal-apis"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-11"
+      "last_seen_sha": "5c60da992dc673d75e63db2df4c4fde948a18777",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "azure-api-design",
@@ -205,8 +205,8 @@
       "tracked_version": "Microsoft Learn Globalization docs (current on Learn)",
       "skills": ["localization-i18n"],
       "watch": {"type": "github-path", "repo": "MicrosoftDocs/globalization", "path": "globalization"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-12"
+      "last_seen_sha": "d95974f9a31f34220fd63b4d6c3938033144517b",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "cse-playbook-i18n",
@@ -215,8 +215,8 @@
       "tracked_version": "Engineering playbook (main)",
       "skills": ["localization-i18n"],
       "watch": {"type": "github-path", "repo": "microsoft/code-with-engineering-playbook", "path": "docs/non-functional-requirements/internationalization.md"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-12"
+      "last_seen_sha": "ae79ac7fe29208dada7bc97f400be4ba75124457",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "dotnet-globalization",
@@ -225,8 +225,8 @@
       "tracked_version": ".NET 10",
       "skills": ["localization-i18n"],
       "watch": {"type": "github-path", "repo": "dotnet/docs", "path": "docs/core/extensions/globalization.md"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-12"
+      "last_seen_sha": "156931bb4ec1e81b028c76ea983553f2e9778bdd",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "aspnetcore-localization",
@@ -235,8 +235,8 @@
       "tracked_version": "ASP.NET Core 10",
       "skills": ["localization-i18n"],
       "watch": {"type": "github-path", "repo": "dotnet/AspNetCore.Docs", "path": "aspnetcore/fundamentals/localization"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-12"
+      "last_seen_sha": "a1d124d19a61600d49393756cafbcb73ba0dc15e",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "angular-i18n",
@@ -245,8 +245,8 @@
       "tracked_version": "Angular v22 guide (adev/src/content/guide/i18n)",
       "skills": ["localization-i18n"],
       "watch": {"type": "github-path", "repo": "angular/angular", "path": "adev/src/content/guide/i18n"},
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-12"
+      "last_seen_sha": "aaa471b799ff613042cd3795b5b35effc878f6bf",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "poeditor-angular-i18n",
@@ -255,7 +255,7 @@
       "tracked_version": "Article as read on 2026-11-12",
       "skills": ["localization-i18n"],
       "watch": null,
-      "last_reviewed": "2026-11-12"
+      "last_reviewed": "2026-11-22"
     }
   ]
 }

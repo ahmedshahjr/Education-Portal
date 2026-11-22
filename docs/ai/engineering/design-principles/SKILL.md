@@ -49,6 +49,6 @@ This skill is written against the versions below, recorded in [sources.json](../
 
 | Source | Version tracked | How it is checked | Last reviewed |
 |---|---|---|---|
-| [Microsoft .NET Framework design guidelines (naming, type and member design)](https://learn.microsoft.com/dotnet/standard/design-guidelines/) | .NET design guidelines (current on Learn) | Automatic: new commits in `dotnet/docs/docs/standard/design-guidelines` | 2026-11-10 |
-| [Microsoft architectural principles (SOLID, DRY, separation of concerns, persistence ignorance)](https://learn.microsoft.com/dotnet/architecture/modern-web-apps-azure/architectural-principles) | Architect Modern Web Applications with ASP.NET Core and Azure (current edition on Learn) | Automatic: new commits in `dotnet/docs/docs/architecture/modern-web-apps-azure/architectural-principles.md` | 2026-11-10 |
+| [Microsoft .NET Framework design guidelines (naming, type and member design)](https://learn.microsoft.com/dotnet/standard/design-guidelines/) | .NET design guidelines (current on Learn) | Automatic: new commits in `dotnet/docs/docs/standard/design-guidelines` | 2026-11-22 |
+| [Microsoft architectural principles (SOLID, DRY, separation of concerns, persistence ignorance)](https://learn.microsoft.com/dotnet/architecture/modern-web-apps-azure/architectural-principles) | Architect Modern Web Applications with ASP.NET Core and Azure (current edition on Learn) | Automatic: new commits in `dotnet/docs/docs/architecture/modern-web-apps-azure/architectural-principles.md` | 2026-11-22 |
 <!-- END GENERATED: sources -->

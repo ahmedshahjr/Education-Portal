@@ -7,7 +7,7 @@ description: Rules for AI coding agents and agent swarms working in this repo, a
 
 Part of the mandatory engineering rules. Also follow the [overview skill](../SKILL.md): its precedence, exceptions and PR checklist apply to every change. Rule IDs are stable; cite them in reviews and PRs. If a request would break a rule here, stop, name the rule ID and propose an alternative.
 
-Applies to every AI assistant and to every agent in a swarm (Ruflo/claude-flow coordinators and workers, Copilot coding agent, Codex, Gemini, Cursor agents). A swarm is held to the same rules as a single agent: each worker loads AGENTS.md and the matching skills, and the coordinator is responsible for the combined result. The compliance rules for AI assistants (SEC-AI-01 to SEC-AI-10) also apply. Based on the [OWASP Top 10 for LLM Applications](https://genai.owasp.org/llm-top-10/) (especially LLM06 Excessive Agency and LLM05 Improper Output Handling) and the [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework).
+Applies to every AI assistant and to every agent in a swarm (Ruflo/claude-flow coordinators and workers, Copilot coding agent, Codex, Gemini, Cursor agents). A swarm is held to the same rules as a single agent: each worker loads AGENTS.md and the matching skills, and the coordinator is responsible for the combined result. The compliance rules for AI assistants (SEC-AI-01 to SEC-AI-10) also apply. Based on the [OWASP Top 10 for LLM Applications](https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/) (especially LLM03:2026 Excessive Agency and LLM10:2026 Improper Output Handling) and the [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework).
 
 ## Human-in-the-loop (HITL)
 
@@ -54,7 +54,7 @@ This skill is written against the versions below, recorded in [sources.json](../
 
 | Source | Version tracked | How it is checked | Last reviewed |
 |---|---|---|---|
-| [OWASP Top 10 for LLM Applications](https://genai.owasp.org/llm-top-10/) | OWASP Top 10 for LLM Applications 2025 | Automatic: new commits in `OWASP/www-project-top-10-for-large-language-model-applications/2_0_vulns` | 2026-11-10 |
-| [NIST AI Risk Management Framework and Generative AI Profile](https://www.nist.gov/itl/ai-risk-management-framework) | AI RMF 1.0 (NIST AI 100-1) and Generative AI Profile (NIST AI 600-1) | Manual: listed for a portal check | 2026-11-10 |
-| [github/awesome-copilot community instructions: agent safety](https://github.com/github/awesome-copilot) | github/awesome-copilot agent-safety instructions (main) | Automatic: new commits in `github/awesome-copilot/instructions/agent-safety.instructions.md` | 2026-11-10 |
+| [OWASP Top 10 for LLM Applications](https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/) | OWASP GenAI LLM Top 10 2026 (published 2026-08-04) | Automatic: new commits in `GenAI-Security-Project/GenAI-LLM-Top10/2026/final` | 2026-11-22 |
+| [NIST AI Risk Management Framework and Generative AI Profile](https://www.nist.gov/itl/ai-risk-management-framework) | AI RMF 1.0 (NIST AI 100-1) and Generative AI Profile (NIST AI 600-1) | Manual: listed for a portal check | 2026-11-22 |
+| [github/awesome-copilot community instructions: agent safety](https://github.com/github/awesome-copilot) | github/awesome-copilot agent-safety instructions (main) | Automatic: new commits in `github/awesome-copilot/instructions/agent-safety.instructions.md` | 2026-11-22 |
 <!-- END GENERATED: sources -->

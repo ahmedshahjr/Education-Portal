@@ -47,8 +47,8 @@ This skill is written against the versions below, recorded in [sources.json](../
 
 | Source | Version tracked | How it is checked | Last reviewed |
 |---|---|---|---|
-| [Microsoft EF Core documentation (performance, querying, modeling, saving, migrations, testing)](https://learn.microsoft.com/ef/core/) | EF Core 10 | Automatic: new commits in `dotnet/EntityFramework.Docs/entity-framework/core` | 2026-11-10 |
-| [Microsoft .NET Framework design guidelines (naming, type and member design)](https://learn.microsoft.com/dotnet/standard/design-guidelines/) | .NET design guidelines (current on Learn) | Automatic: new commits in `dotnet/docs/docs/standard/design-guidelines` | 2026-11-10 |
-| [ASP.NET Core minimal APIs: JSON options, parameter binding and OpenAPI metadata (enums as strings)](https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis/responses?view=aspnetcore-10.0#configure-json-serialization-options) | ASP.NET Core 10 | Automatic: new commits in `dotnet/AspNetCore.Docs/aspnetcore/fundamentals/minimal-apis` | 2026-11-11 |
+| [Microsoft EF Core documentation (performance, querying, modeling, saving, migrations, testing)](https://learn.microsoft.com/ef/core/) | EF Core 10 | Automatic: new commits in `dotnet/EntityFramework.Docs/entity-framework/core` | 2026-11-22 |
+| [Microsoft .NET Framework design guidelines (naming, type and member design)](https://learn.microsoft.com/dotnet/standard/design-guidelines/) | .NET design guidelines (current on Learn) | Automatic: new commits in `dotnet/docs/docs/standard/design-guidelines` | 2026-11-22 |
+| [ASP.NET Core minimal APIs: JSON options, parameter binding and OpenAPI metadata (enums as strings)](https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis/responses?view=aspnetcore-10.0#configure-json-serialization-options) | ASP.NET Core 10 | Automatic: new commits in `dotnet/AspNetCore.Docs/aspnetcore/fundamentals/minimal-apis` | 2026-11-22 |
 | [Azure Architecture Center: best practices for RESTful web API design (do not expose internal implementation or mirror the database)](https://learn.microsoft.com/azure/architecture/best-practices/api-design) | Azure Architecture Center API design guidance (current on Learn) | Automatic: new commits in `MicrosoftDocs/architecture-center/docs/best-practices/api-design.md` | 2026-11-11 |
 <!-- END GENERATED: sources -->

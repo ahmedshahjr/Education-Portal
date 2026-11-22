@@ -23,7 +23,7 @@ FedRAMP is the US federal government's security authorization program for cloud 
 | IA-5(1) | Password length and breached-password checks per NIST SP 800-63B | SEC-AUTHN-03 |
 | SC-8, SC-13 | TLS everywhere; FIPS 140-validated cryptographic modules in deployed environments | SEC-CRYPTO-02/03 |
 | RA-5, SI-2 | Fix vulnerabilities: High/Critical 30 days, Moderate 90 days, Low 180 days | SEC-DEP-07 |
-| AU-11 | Retention per OMB M-21-31 (exact period **TODO**) | SEC-LOG-06 |
+| AU-11 | Retention per OMB M-26-14, which rescinds M-21-31 (exact period **TODO**) | SEC-LOG-06 |
 
 ## FedRAMP-specific engineering duties
 
@@ -120,8 +120,8 @@ This skill is written against the versions below, recorded in [sources.json](../
 
 | Source | Version tracked | How it is checked | Last reviewed |
 |---|---|---|---|
-| [NIST SP 800-53 Rev 5 catalog (OSCAL)](https://csrc.nist.gov/projects/risk-management/sp800-53-controls/release-search) | SP 800-53 Rev 5 (latest release in the OSCAL catalog) | Automatic: new commits in `usnistgov/oscal-content/nist.gov/SP800-53/rev5` | 2026-11-09 |
+| [NIST SP 800-53 Rev 5 catalog (OSCAL)](https://csrc.nist.gov/projects/risk-management/sp800-53-controls/release-search) | SP 800-53 Rev 5.2.0 (released 27 Aug 2025; OSCAL catalog 5.2.0, last changed 2026-10-22) | Automatic: new commits in `usnistgov/oscal-content/nist.gov/SP800-53/rev5` | 2026-11-22 |
 | [FedRAMP Rev 5 baselines (Moderate)](https://www.fedramp.gov/) | FedRAMP Rev 5 Moderate baseline | Automatic: new commits in `GSA/fedramp-automation/dist/content/rev5/baselines` | 2026-11-09 |
-| [NIST SP 800-63 Digital Identity Guidelines (Rev 4)](https://pages.nist.gov/800-63-4/) | SP 800-63-4 (Rev 4) | Automatic: new commits in `usnistgov/800-63-4` | 2026-11-09 |
-| [OMB M-21-31 logging requirements (referenced by FedRAMP AU-11)](https://www.whitehouse.gov/omb/information-for-agencies/memoranda/) | OMB M-21-31 (2021) | Manual: listed for a portal check | 2026-11-09 |
+| [NIST SP 800-63 Digital Identity Guidelines (Rev 4)](https://pages.nist.gov/800-63-4/) | SP 800-63-4 (Rev 4) | Automatic: new commits in `usnistgov/800-63-4` | 2026-11-22 |
+| [OMB M-26-14 logging requirements (rescinds OMB M-21-31; referenced by FedRAMP AU-11)](https://www.whitehouse.gov/omb/information-for-agencies/memoranda/) | OMB M-26-14 (22 May 2026), rescinds OMB M-21-31 (2021) | Manual: listed for a portal check | 2026-11-22 |
 <!-- END GENERATED: sources -->

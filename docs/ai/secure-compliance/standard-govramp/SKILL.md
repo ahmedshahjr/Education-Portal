@@ -37,6 +37,6 @@ This skill is written against the versions below, recorded in [sources.json](../
 
 | Source | Version tracked | How it is checked | Last reviewed |
 |---|---|---|---|
-| [NIST SP 800-53 Rev 5 catalog (OSCAL)](https://csrc.nist.gov/projects/risk-management/sp800-53-controls/release-search) | SP 800-53 Rev 5 (latest release in the OSCAL catalog) | Automatic: new commits in `usnistgov/oscal-content/nist.gov/SP800-53/rev5` | 2026-11-09 |
-| [GovRAMP (formerly StateRAMP) program and baselines](https://govramp.org/) | GovRAMP program and security baselines (NIST SP 800-53 Rev 5 based) | Manual: listed for a portal check | 2026-11-09 |
+| [NIST SP 800-53 Rev 5 catalog (OSCAL)](https://csrc.nist.gov/projects/risk-management/sp800-53-controls/release-search) | SP 800-53 Rev 5.2.0 (released 27 Aug 2025; OSCAL catalog 5.2.0, last changed 2026-10-22) | Automatic: new commits in `usnistgov/oscal-content/nist.gov/SP800-53/rev5` | 2026-11-22 |
+| [GovRAMP (formerly StateRAMP) program and baselines](https://govramp.org/) | GovRAMP program and security baselines (NIST SP 800-53 Rev 5 based) | Manual: listed for a portal check | 2026-11-22 |
 <!-- END GENERATED: sources -->

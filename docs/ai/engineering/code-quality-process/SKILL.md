@@ -41,7 +41,7 @@ This skill is written against the versions below, recorded in [sources.json](../
 
 | Source | Version tracked | How it is checked | Last reviewed |
 |---|---|---|---|
-| [Microsoft C# coding conventions and identifier naming](https://learn.microsoft.com/dotnet/csharp/fundamentals/coding-style/coding-conventions) | C# 14 / .NET 10 coding conventions | Automatic: new commits in `dotnet/docs/docs/csharp/fundamentals/coding-style` | 2026-11-10 |
-| [Microsoft .NET agent skills: test-anti-patterns](https://github.com/dotnet/skills) | dotnet/skills plugins/dotnet-test (main) | Automatic: new commits in `dotnet/skills/plugins/dotnet-test/skills/test-anti-patterns` | 2026-11-10 |
-| [Google engineering practices (code review, small changes)](https://google.github.io/eng-practices/) | google/eng-practices (main) | Automatic: new commits in `google/eng-practices/review` | 2026-11-10 |
+| [Microsoft C# coding conventions and identifier naming](https://learn.microsoft.com/dotnet/csharp/fundamentals/coding-style/coding-conventions) | C# 14 / .NET 10 coding conventions | Automatic: new commits in `dotnet/docs/docs/csharp/fundamentals/coding-style` | 2026-11-22 |
+| [Microsoft .NET agent skills: test-anti-patterns](https://github.com/dotnet/skills) | dotnet/skills plugins/dotnet-test (main) | Automatic: new commits in `dotnet/skills/plugins/dotnet-test/skills/test-anti-patterns` | 2026-11-22 |
+| [Google engineering practices (code review, small changes)](https://google.github.io/eng-practices/) | google/eng-practices (main) | Automatic: new commits in `google/eng-practices/review` | 2026-11-22 |
 <!-- END GENERATED: sources -->
