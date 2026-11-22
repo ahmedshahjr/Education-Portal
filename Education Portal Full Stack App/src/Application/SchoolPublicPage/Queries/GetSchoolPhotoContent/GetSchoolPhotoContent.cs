@@ -12,7 +12,7 @@ namespace EducationPortal.Application.SchoolPublicPage.Queries.GetSchoolPhotoCon
 /// answers 404. Needs the School module.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record GetSchoolPhotoContentQuery : IRequest<SchoolPhotoContentDto?>
+public record GetSchoolPhotoContentQuery
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -20,7 +20,7 @@ public record GetSchoolPhotoContentQuery : IRequest<SchoolPhotoContentDto?>
     public Guid PhotoId { get; init; }
 }
 
-public class GetSchoolPhotoContentQueryHandler : IRequestHandler<GetSchoolPhotoContentQuery, SchoolPhotoContentDto?>
+public class GetSchoolPhotoContentQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

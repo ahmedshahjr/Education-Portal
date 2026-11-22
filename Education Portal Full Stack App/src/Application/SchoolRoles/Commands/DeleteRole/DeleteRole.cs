@@ -12,9 +12,9 @@ namespace EducationPortal.Application.SchoolRoles.Commands.DeleteRole;
 /// a built-in role cannot be deleted; audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
-public record DeleteRoleCommand(Guid Id) : IRequest;
+public record DeleteRoleCommand(Guid Id);
 
-public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand>
+public class DeleteRoleCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

@@ -7,7 +7,7 @@ namespace EducationPortal.Application.SchoolRequests.Commands.SubmitSchoolReques
 /// The public "request a school" form. Anyone can send it, so it is the one command without authorization. It creates a
 /// pending request only: no account, no school and no domain until the master tenant approves it (AGENTS.md, section 2).
 /// </summary>
-public record SubmitSchoolRequestCommand : IRequest<Guid>
+public record SubmitSchoolRequestCommand
 {
     public string SchoolName { get; init; } = string.Empty;
 
@@ -36,7 +36,7 @@ public class SubmitSchoolRequestCommandValidator : AbstractValidator<SubmitSchoo
 
 }
 
-public class SubmitSchoolRequestCommandHandler(IApplicationDbContext context) : IRequestHandler<SubmitSchoolRequestCommand, Guid>
+public class SubmitSchoolRequestCommandHandler(IApplicationDbContext context)
 {
     public async Task<Guid> Handle(SubmitSchoolRequestCommand request, CancellationToken cancellationToken)
     {

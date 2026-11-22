@@ -11,9 +11,9 @@ namespace EducationPortal.Application.Modules.Queries.GetSchoolModules;
 /// school id may come from the route (SEC-AUTHZ-04, SEC-AUTHZ-07).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetSchoolModulesQuery(Guid SchoolId) : IRequest<IReadOnlyList<SchoolModuleDto>>;
+public record GetSchoolModulesQuery(Guid SchoolId);
 
-public class GetSchoolModulesQueryHandler : IRequestHandler<GetSchoolModulesQuery, IReadOnlyList<SchoolModuleDto>>
+public class GetSchoolModulesQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IModuleAccess _moduleAccess;

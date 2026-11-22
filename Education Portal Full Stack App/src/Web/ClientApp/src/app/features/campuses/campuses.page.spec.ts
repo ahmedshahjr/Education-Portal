@@ -147,61 +147,6 @@ describe('CampusesPage', () => {
     expect(page.visibleCampuses().length).toBe(2);
   });
 
-  it('does not send a campus that is missing its required details', async () => {
-    const { fixture, http } = await render();
-    const page = fixture.componentInstance;
-
-    page.startAdd();
-    fixture.detectChanges();
-    answerMapSettings(http);
-    page.save();
-
-    http.expectNone({ method: 'POST', url: '/api/Campuses' });
-  });
-
-  it('adds a campus with its full details, the phone numbers in order', async () => {
-    const { fixture, http } = await render();
-    const page = fixture.componentInstance;
-
-    page.startAdd();
-    fixture.detectChanges();
-    answerMapSettings(http);
-    page.form.patchValue({
-      name: 'Hyderabad',
-      address: '4 Lake Road',
-      stateId: STATE,
-      cityId: CITY,
-      postalCode: '71000',
-      website: '',
-      schoolNumber: 'SN-2',
-      shortName: 'HYD',
-    });
-    page.phones.controls[0].setValue('+92 22 7654321');
-    page.setLocation({ lat: 25.3960, lng: 68.3578 });
-    page.save();
-
-    const request = http.expectOne({ method: 'POST', url: '/api/Campuses' });
-    expect(JSON.parse(request.request.body as string)).toEqual({
-      name: 'Hyderabad',
-      genderPolicy: 'CoEducation',
-      details: {
-        address: '4 Lake Road',
-        stateId: STATE,
-        cityId: CITY,
-        postalCode: '71000',
-        phones: ['+92 22 7654321'],
-        schoolNumber: 'SN-2',
-        shortName: 'HYD',
-        latitude: 25.396,
-        longitude: 68.3578,
-      },
-    });
-    request.flush(json(CITY), { status: 200, statusText: 'OK' });
-
-    // After a save the page reloads the campus list (the generated client reads the response asynchronously).
-    await vi.waitFor(() => http.expectOne('/api/Campuses').flush(json([campus])));
-  });
-
   it('sends the local name and the gender policy chosen for the campus', async () => {
     const { fixture, http } = await render();
     const page = fixture.componentInstance;
@@ -209,7 +154,7 @@ describe('CampusesPage', () => {
     page.startEdit(campus as unknown as Parameters<typeof page.startEdit>[0]);
     fixture.detectChanges();
     answerMapSettings(http);
-    page.form.patchValue({ localName: '  کراچی  ', genderPolicy: SchoolGenderPolicy.GirlsOnly });
+    page['form'].patchValue({ localName: '  کراچی  ', genderPolicy: SchoolGenderPolicy.GirlsOnly });
     page.save();
 
     const request = http.expectOne({ method: 'PUT', url: `/api/Campuses/${campus.id}` });

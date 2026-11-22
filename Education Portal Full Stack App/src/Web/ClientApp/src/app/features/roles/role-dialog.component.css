@@ -22,6 +22,30 @@
   text-align: start;
 }
 
+/* The campus choice of a module (ADR-022): one column, with a box for all campuses and one per campus. */
+.mm-roles__campuses {
+  text-align: start;
+}
+
+.mm-roles__campus {
+  display: flex;
+  align-items: center;
+  gap: var(--mm-space-2);
+}
+
 .mm-roles__note {
   color: var(--mm-text-muted);
+}
+
+.mm-roles__select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mm-space-2);
+  font-weight: 600;
+}
+
+.mm-roles__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--mm-space-2);
 }

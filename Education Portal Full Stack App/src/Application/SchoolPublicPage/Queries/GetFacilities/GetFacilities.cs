@@ -9,13 +9,13 @@ namespace EducationPortal.Application.SchoolPublicPage.Queries.GetFacilities;
 
 /// <summary>Lists the facilities a school shows on its public page. Needs the School module.</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record GetFacilitiesQuery : IRequest<IReadOnlyList<SchoolFacilityDto>>
+public record GetFacilitiesQuery
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
 }
 
-public class GetFacilitiesQueryHandler : IRequestHandler<GetFacilitiesQuery, IReadOnlyList<SchoolFacilityDto>>
+public class GetFacilitiesQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

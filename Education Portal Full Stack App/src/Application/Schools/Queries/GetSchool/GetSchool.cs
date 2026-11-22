@@ -8,9 +8,9 @@ namespace EducationPortal.Application.Schools.Queries.GetSchool;
 
 /// <summary>Reads one school (name, domain, country). A master-tenant use case, so the school id may come from the route (SEC-AUTHZ-04, SEC-AUTHZ-07).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetSchoolQuery(Guid SchoolId) : IRequest<SchoolSummaryDto>;
+public record GetSchoolQuery(Guid SchoolId);
 
-public class GetSchoolQueryHandler : IRequestHandler<GetSchoolQuery, SchoolSummaryDto>
+public class GetSchoolQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

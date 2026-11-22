@@ -12,7 +12,7 @@ namespace EducationPortal.Application.Schools.Commands.UpdateSchoolDetails;
 /// the school. The city must be in the school's country. Needs the School module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record UpdateSchoolDetailsCommand : IRequest
+public record UpdateSchoolDetailsCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -66,7 +66,7 @@ public class UpdateSchoolDetailsCommandValidator : AbstractValidator<UpdateSchoo
     }
 }
 
-public class UpdateSchoolDetailsCommandHandler : IRequestHandler<UpdateSchoolDetailsCommand>
+public class UpdateSchoolDetailsCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, TemplateRef, viewChild } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,6 +11,7 @@ import { AppIconComponent } from '../../shared/components/app-icon/app-icon.comp
 import { DataTableCellContext, DataTableColumn, DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { ToastService } from '../../shared/services/toast.service';
+import { timeRangeValidator } from '../../shared/validation/date-validators';
 import {
   CampusDto,
   CampusesClient,
@@ -24,7 +25,7 @@ import {
   Weekday,
 } from '../../web-api-client';
 import { AcademicsLookups } from '../academics/academics-lookups.service';
-import { fromApiTime, isTimeRangeValid, toApiTime } from '../academic-calendar/academic-calendar.logic';
+import { fromApiTime, toApiTime } from '../academic-calendar/academic-calendar.logic';
 import { compareLessons, conflictLabel, ROOM_MAX_LENGTH, WEEKDAYS, weekdayLabel } from './timetable.logic';
 
 /** A lesson as the table shows it. */
@@ -32,13 +33,6 @@ interface LessonRow extends ITimetableSlotDto {
   readonly dayName: string;
   readonly times: string;
   readonly campusName: string;
-}
-
-/** The end time must come after the start time. */
-function timeRangeValidator(group: AbstractControl): ValidationErrors | null {
-  const start = group.get('start')?.value as string;
-  const end = group.get('end')?.value as string;
-  return start && end && !isTimeRangeValid(start, end) ? { timeRange: true } : null;
 }
 
 /**
@@ -114,7 +108,7 @@ export class TimetablePage implements OnInit {
       campusId: [null as string | null],
       room: ['', Validators.maxLength(ROOM_MAX_LENGTH)],
     },
-    { validators: [timeRangeValidator] }
+    { validators: [timeRangeValidator('start', 'end')] }
   );
 
   ngOnInit(): void {

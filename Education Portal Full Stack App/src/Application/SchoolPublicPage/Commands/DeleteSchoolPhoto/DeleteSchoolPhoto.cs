@@ -9,7 +9,7 @@ namespace EducationPortal.Application.SchoolPublicPage.Commands.DeleteSchoolPhot
 
 /// <summary>Deletes a gallery photo. The row is kept (soft delete) and hidden everywhere. Needs the School module. Audited (SEC-LOG-03).</summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record DeleteSchoolPhotoCommand : IRequest
+public record DeleteSchoolPhotoCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -26,7 +26,7 @@ public class DeleteSchoolPhotoCommandValidator : AbstractValidator<DeleteSchoolP
     }
 }
 
-public class DeleteSchoolPhotoCommandHandler : IRequestHandler<DeleteSchoolPhotoCommand>
+public class DeleteSchoolPhotoCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

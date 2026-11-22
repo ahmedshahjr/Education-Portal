@@ -7,9 +7,9 @@ namespace EducationPortal.Application.Modules.Queries.GetModules;
 
 /// <summary>Lists the module catalogue in sort order, with what each module requires. Master tenant administrators only (SEC-AUTHZ-07).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetModulesQuery : IRequest<IReadOnlyList<ModuleDto>>;
+public record GetModulesQuery;
 
-public class GetModulesQueryHandler : IRequestHandler<GetModulesQuery, IReadOnlyList<ModuleDto>>
+public class GetModulesQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

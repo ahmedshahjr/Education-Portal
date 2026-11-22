@@ -13,7 +13,7 @@ namespace EducationPortal.Application.Users.Commands.SavePersonAccess;
 /// command (<see cref="SetAccountRolesCommand"/>, <see cref="SetPersonCampusesCommand"/>). Needs the Users &amp; Roles module.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
-public record SavePersonAccessCommand : IRequest
+public record SavePersonAccessCommand
 {
     public Guid PersonId { get; init; }
 
@@ -22,24 +22,25 @@ public record SavePersonAccessCommand : IRequest
     public IReadOnlyList<Guid> CampusIds { get; init; } = [];
 }
 
-public class SavePersonAccessCommandHandler : IRequestHandler<SavePersonAccessCommand>
+public class SavePersonAccessCommandHandler(
+    IApplicationDbContext context,
+    IRequestRules rules,
+    SetAccountRolesCommandHandler setAccountRoles,
+    SetPersonCampusesCommandHandler setPersonCampuses)
 {
-    private readonly IApplicationDbContext _context;
-    private readonly ISender _sender;
-
-    public SavePersonAccessCommandHandler(IApplicationDbContext context, ISender sender)
-    {
-        _context = context;
-        _sender = sender;
-    }
-
     public async Task Handle(SavePersonAccessCommand request, CancellationToken cancellationToken)
     {
         // Inside one transaction: if the account has no login, or a role or campus is not the school's, nothing is saved.
-        await _context.ExecuteInTransactionAsync(async token =>
+        // Each part is checked and run as its own use case, so its rules apply exactly as they do on their own.
+        await context.ExecuteInTransactionAsync(async token =>
         {
-            await _sender.Send(new SetAccountRolesCommand { PersonId = request.PersonId, RoleIds = request.RoleIds }, token);
-            await _sender.Send(new SetPersonCampusesCommand { PersonId = request.PersonId, CampusIds = request.CampusIds }, token);
+            var roles = new SetAccountRolesCommand { PersonId = request.PersonId, RoleIds = request.RoleIds };
+            await rules.CheckAsync(roles, token);
+            await setAccountRoles.Handle(roles, token);
+
+            var campuses = new SetPersonCampusesCommand { PersonId = request.PersonId, CampusIds = request.CampusIds };
+            await rules.CheckAsync(campuses, token);
+            await setPersonCampuses.Handle(campuses, token);
 
             return true;
         }, cancellationToken);

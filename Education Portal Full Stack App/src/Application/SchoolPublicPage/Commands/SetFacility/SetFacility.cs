@@ -13,7 +13,7 @@ namespace EducationPortal.Application.SchoolPublicPage.Commands.SetFacility;
 /// each kind at most once. Needs the School module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record SetFacilityCommand : IRequest
+public record SetFacilityCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -35,7 +35,7 @@ public class SetFacilityCommandValidator : AbstractValidator<SetFacilityCommand>
     }
 }
 
-public class SetFacilityCommandHandler : IRequestHandler<SetFacilityCommand>
+public class SetFacilityCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

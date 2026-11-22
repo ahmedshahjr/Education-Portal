@@ -1,0 +1,52 @@
+.mm-campuses__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--mm-space-2);
+}
+
+.mm-campuses__error {
+  margin: var(--mm-space-2) 0 0;
+  color: var(--mm-error);
+}
+
+.mm-campuses__form--details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--mm-space-3);
+  width: 100%;
+}
+
+.mm-campuses__phones {
+  grid-column: 1 / -1;
+  border: 1px solid var(--mm-border-color);
+  border-radius: var(--mm-radius-md);
+  padding: var(--mm-space-2) var(--mm-space-3);
+}
+
+.mm-campuses__phone-row {
+  display: flex;
+  align-items: center;
+  gap: var(--mm-space-2);
+}
+
+.mm-campuses__form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--mm-space-2);
+}
+
+.mm-campuses__location {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--mm-space-2);
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mm-campuses__location legend {
+  padding: 0;
+  margin-block-end: var(--mm-space-2);
+  font-weight: 500;
+}

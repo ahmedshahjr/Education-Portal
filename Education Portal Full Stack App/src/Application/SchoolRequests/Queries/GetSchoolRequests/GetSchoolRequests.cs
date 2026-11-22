@@ -13,9 +13,9 @@ public sealed record SchoolRequestDto(Guid Id, string SchoolName, string Contact
 /// (SEC-AUTHZ-07): the contact email is personal data of the requester (SEC-PII-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetSchoolRequestsQuery : IRequest<IReadOnlyList<SchoolRequestDto>>;
+public record GetSchoolRequestsQuery;
 
-public class GetSchoolRequestsQueryHandler : IRequestHandler<GetSchoolRequestsQuery, IReadOnlyList<SchoolRequestDto>>
+public class GetSchoolRequestsQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

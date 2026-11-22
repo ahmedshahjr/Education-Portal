@@ -8,7 +8,7 @@ namespace EducationPortal.Application.Localization.Commands.ChangeLanguage;
 /// layer's job. Anyone may switch, before or after sign-in; only the school's own languages are accepted.
 /// </summary>
 /// <param name="Language">An ISO 639-1 code, for example <c>ar</c>.</param>
-public record ChangeLanguageCommand(string Language) : IRequest<string>;
+public record ChangeLanguageCommand(string Language);
 
 public class ChangeLanguageCommandValidator : AbstractValidator<ChangeLanguageCommand>
 {
@@ -22,7 +22,7 @@ public class ChangeLanguageCommandValidator : AbstractValidator<ChangeLanguageCo
     }
 }
 
-public class ChangeLanguageCommandHandler : IRequestHandler<ChangeLanguageCommand, string>
+public class ChangeLanguageCommandHandler
 {
     private readonly IUser _user;
     private readonly IIdentityService _identityService;

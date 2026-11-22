@@ -8,7 +8,6 @@ using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
 using EducationPortal.Domain.ValueObjects;
 using FluentValidation;
-using MediatR;
 
 namespace EducationPortal.Application.StudentAdmissions.Commands.CreateStudentAdmission;
 
@@ -18,7 +17,7 @@ namespace EducationPortal.Application.StudentAdmissions.Commands.CreateStudentAd
 /// Audited (SEC-LOG-03) with the ids only, never the name or the family's details.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Students)]
-public record CreateStudentAdmissionCommand : IRequest<Guid>
+public record CreateStudentAdmissionCommand
 {
     public string FirstName { get; init; } = string.Empty;
 
@@ -99,7 +98,7 @@ public class CreateStudentAdmissionCommandValidator : AbstractValidator<CreateSt
     }
 }
 
-public class CreateStudentAdmissionCommandHandler : IRequestHandler<CreateStudentAdmissionCommand, Guid>
+public class CreateStudentAdmissionCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

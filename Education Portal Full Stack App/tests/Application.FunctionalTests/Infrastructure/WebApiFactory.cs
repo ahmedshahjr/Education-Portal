@@ -28,7 +28,7 @@ public class WebApiFactory(string connectionString) : WebApplicationFactory<Prog
                 .RemoveAll<IUser>()
                 .AddScoped<IUser, TestUser>()
                 // A test-only use case of the paid Fees module, so the module refusal can be checked end to end (ModuleDenialTests).
-                .AddTransient<MediatR.IRequestHandler<Modules.FeesModuleProbe, string>, Modules.FeesModuleProbeHandler>();
+                .AddTransient<Modules.FeesModuleProbeHandler>();
         });
     }
 }

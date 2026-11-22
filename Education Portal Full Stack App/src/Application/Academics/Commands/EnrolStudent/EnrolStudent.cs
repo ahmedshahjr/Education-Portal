@@ -10,7 +10,7 @@ namespace EducationPortal.Application.Academics.Commands.EnrolStudent;
 
 /// <summary>Enrols a student of the school in a class offering, once. Needs the Academic setup module.</summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Create)]
-public record EnrolStudentCommand : IRequest<Guid>
+public record EnrolStudentCommand
 {
     public Guid StudentId { get; init; }
 
@@ -26,7 +26,7 @@ public class EnrolStudentCommandValidator : AbstractValidator<EnrolStudentComman
     }
 }
 
-public class EnrolStudentCommandHandler : IRequestHandler<EnrolStudentCommand, Guid>
+public class EnrolStudentCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

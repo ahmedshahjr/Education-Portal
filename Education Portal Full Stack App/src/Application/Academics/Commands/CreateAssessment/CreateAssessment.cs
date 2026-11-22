@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Academics.Commands.CreateAssessment;
 /// assessments cannot add up to more than 100. The teacher of the course (or an administrator) adds it. Needs the Exams module.
 /// </summary>
 [Authorize(Module = ModuleCode.Exams, Right = AccessRight.Create)]
-public record CreateAssessmentCommand : IRequest<Guid>
+public record CreateAssessmentCommand
 {
     public Guid CourseId { get; init; }
 
@@ -36,7 +36,7 @@ public class CreateAssessmentCommandValidator : AbstractValidator<CreateAssessme
     }
 }
 
-public class CreateAssessmentCommandHandler : IRequestHandler<CreateAssessmentCommand, Guid>
+public class CreateAssessmentCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

@@ -14,7 +14,7 @@ namespace EducationPortal.Application.SchoolPublicPage.Commands.UpdateClassOffer
 /// create it again. Needs the School module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record UpdateClassOfferingCommand : IRequest
+public record UpdateClassOfferingCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -70,7 +70,7 @@ public class UpdateClassOfferingCommandValidator : AbstractValidator<UpdateClass
     }
 }
 
-public class UpdateClassOfferingCommandHandler : IRequestHandler<UpdateClassOfferingCommand>
+public class UpdateClassOfferingCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

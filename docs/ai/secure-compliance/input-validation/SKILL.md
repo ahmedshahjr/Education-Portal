@@ -11,7 +11,7 @@ Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP Moderate Rev
 
 | ID | Rule |
 |---|---|
-| SEC-INPUT-01 | Every command and query with input has a FluentValidation validator run by the MediatR pipeline: type, length, range, format and allowed values. Validate on the server even if Angular validates too. |
+| SEC-INPUT-01 | Every command and query with input has a FluentValidation validator run by the request rules (`IRequestRules.CheckAsync`, called by each controller action): type, length, range, format and allowed values. Validate on the server even if Angular validates too. |
 | SEC-INPUT-02 | Data access only through EF Core LINQ or parameterized SQL (`FromSql` / `ExecuteSql` with interpolation, which parameterizes). MUST NOT build SQL with string concatenation or `FromSqlRaw`/`ExecuteSqlRaw` with user input. |
 | SEC-INPUT-03 | Angular: rely on Angular's built-in escaping. MUST NOT use `bypassSecurityTrust*`, `innerHTML` with untrusted data, `eval`, `new Function` or dynamic script injection. |
 | SEC-INPUT-04 | File uploads (if added): size limit, allow-listed content types checked by content not just extension, random server-side file names, stored outside the web root, malware scan before use, served with `Content-Disposition: attachment` unless an image is re-encoded. |

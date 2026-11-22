@@ -8,12 +8,12 @@ namespace EducationPortal.Application.Academics.Queries.GetCourses;
 
 /// <summary>The school's courses, by name, optionally for one class offering. Needs the Academic setup module and the View right.</summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.View)]
-public record GetCoursesQuery : IRequest<IReadOnlyList<CourseDto>>
+public record GetCoursesQuery
 {
     public Guid? ClassOfferingId { get; init; }
 }
 
-public class GetCoursesQueryHandler : IRequestHandler<GetCoursesQuery, IReadOnlyList<CourseDto>>
+public class GetCoursesQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ToastService } from '../../shared/services/toast.service';
+import { priceValidator } from '../../shared/validation/money-validators';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -14,6 +15,9 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { BillingCycle, CountriesClient, CountryDto, CreatePlanCommand, CreatePriceBookCommand, ModuleCode, ModuleDto, ModulesClient, PlanDto, PlansClient, PriceBookDto, PriceBooksClient, PriceDto, SetPriceCommand } from '../../web-api-client';
+
+/** The most characters a plan description can have (Plan.DescriptionMaxLength). */
+const PLAN_DESCRIPTION_MAX_LENGTH = 500;
 
 /**
  * The master tenant's pricing: the plans (named bundles of paid modules) and one price book per country, with the price of
@@ -62,7 +66,7 @@ export class PricingPage {
   protected readonly planForm = this.formBuilder.nonNullable.group({
     code: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[A-Z][A-Z0-9_]*$/)]],
     name: ['', [Validators.required, Validators.maxLength(100)]],
-    description: ['', [Validators.maxLength(300)]],
+    description: ['', [Validators.maxLength(PLAN_DESCRIPTION_MAX_LENGTH)]],
     modules: [[] as ModuleCode[]],
   });
 
@@ -77,7 +81,7 @@ export class PricingPage {
     planCode: [''],
     moduleCode: [null as ModuleCode | null],
     billingCycle: [BillingCycle.Monthly as BillingCycle, [Validators.required]],
-    price: [0, [Validators.required, Validators.min(0)]],
+    price: [0, [Validators.required, Validators.min(0), priceValidator]],
   });
 
   constructor() {

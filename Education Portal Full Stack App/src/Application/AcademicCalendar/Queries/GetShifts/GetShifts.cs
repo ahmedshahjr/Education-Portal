@@ -9,7 +9,7 @@ namespace EducationPortal.Application.AcademicCalendar.Queries.GetShifts;
 
 /// <summary>Lists the shifts of the school's campuses, or of one campus, by start time. Needs the Academic setup module.</summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.View)]
-public record GetShiftsQuery : IRequest<IReadOnlyList<ShiftDto>>
+public record GetShiftsQuery
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -18,7 +18,7 @@ public record GetShiftsQuery : IRequest<IReadOnlyList<ShiftDto>>
     public Guid? CampusId { get; init; }
 }
 
-public class GetShiftsQueryHandler : IRequestHandler<GetShiftsQuery, IReadOnlyList<ShiftDto>>
+public class GetShiftsQueryHandler
 {
     private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;

@@ -18,7 +18,7 @@ namespace EducationPortal.Application.Schools.Commands.CreateSchool;
 /// (SEC-AUTHZ-07); the master tenant itself is only ever created by seeding. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record CreateSchoolCommand : IRequest<Guid>
+public record CreateSchoolCommand
 {
     public string Name { get; init; } = string.Empty;
 
@@ -104,7 +104,7 @@ public class CreateSchoolCommandValidator : AbstractValidator<CreateSchoolComman
     private static string Normalize(string? domain) => (domain ?? string.Empty).Trim().TrimEnd('.').ToLowerInvariant();
 }
 
-public class CreateSchoolCommandHandler : IRequestHandler<CreateSchoolCommand, Guid>
+public class CreateSchoolCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;

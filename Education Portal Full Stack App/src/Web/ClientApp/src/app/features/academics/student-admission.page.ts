@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -10,7 +10,45 @@ import { MatSelectModule } from '@angular/material/select';
 import { problemMessages } from '../../core/http/problem-details';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { ToastService } from '../../shared/services/toast.service';
+import { ageOn, dayNumber } from '../../shared/validation/date-validators';
+import { phoneValidator } from '../../shared/validation/contact-validators';
 import { CreateStudentAdmissionCommand, Gender, StudentAdmissionsClient } from '../../web-api-client';
+
+/** The youngest and oldest a student can be on the admission date (StudentProfile.MinimumAgeYears and MaximumAgeYears). */
+export const MIN_STUDENT_AGE = 3;
+export const MAX_STUDENT_AGE = 30;
+
+/** The admission date may be this many days after today (StudentProfile.MaximumAdmissionDaysAhead). */
+const MAX_ADMISSION_DAYS_AHEAD = 366;
+
+/**
+ * The date rules the server applies to a student (StudentProfile and the admission command): the birth date is not in the
+ * future, the admission date is not before the birth date nor more than 366 days ahead, and the student is 3 to 30 years old
+ * on the admission date. The errors are on the group, so the admission date field can show them.
+ */
+export function studentDatesValidator(today: Date): ValidatorFn {
+  return (group: AbstractControl): ValidationErrors | null => {
+    const birth = group.get('dateOfBirth')?.value as Date | null;
+    const admission = group.get('admissionDate')?.value as Date | null;
+    const errors: Record<string, true> = {};
+    if (birth && dayNumber(birth) > dayNumber(today)) {
+      errors['birthInFuture'] = true;
+    }
+    if (admission && birth && dayNumber(admission) < dayNumber(birth)) {
+      errors['admissionBeforeBirth'] = true;
+    }
+    if (admission && dayNumber(admission) > dayNumber(today) + MAX_ADMISSION_DAYS_AHEAD) {
+      errors['admissionTooFar'] = true;
+    }
+    if (admission && birth && dayNumber(birth) <= dayNumber(admission)) {
+      const age = ageOn(birth, admission);
+      if (age < MIN_STUDENT_AGE || age > MAX_STUDENT_AGE) {
+        errors['ageOutOfRange'] = true;
+      }
+    }
+    return Object.keys(errors).length > 0 ? errors : null;
+  };
+}
 
 /** The limits the server checks (StudentProfile), repeated here so the form says what is wrong before it is sent. */
 export const NAME_MAX_LENGTH = 100;
@@ -68,16 +106,19 @@ export class StudentAdmissionPage {
     lastName: ['', [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
     gender: [null as Gender | null, Validators.required],
     dateOfBirth: [null as Date | null, Validators.required],
-    phone: [''],
+    phone: ['', [phoneValidator]],
     fatherName: ['', [Validators.required, Validators.maxLength(FATHER_NAME_MAX_LENGTH)]],
-    guardianPhone: ['', Validators.required],
+    guardianPhone: ['', [Validators.required, phoneValidator]],
     nationality: ['', [Validators.required, Validators.maxLength(NATIONALITY_MAX_LENGTH)]],
     address: ['', [Validators.required, Validators.maxLength(ADDRESS_MAX_LENGTH)]],
     city: ['', [Validators.required, Validators.maxLength(CITY_MAX_LENGTH)]],
     classApplied: ['', [Validators.required, Validators.maxLength(CLASS_MAX_LENGTH)]],
     previousSchool: ['', Validators.maxLength(PREVIOUS_SCHOOL_MAX_LENGTH)],
     admissionDate: [new Date() as Date | null, Validators.required],
-  });
+  }, { validators: [studentDatesValidator(new Date())] });
+
+  protected readonly minAge = MIN_STUDENT_AGE;
+  protected readonly maxAge = MAX_STUDENT_AGE;
 
   protected readonly busy = signal(false);
   protected readonly errors = signal<readonly string[]>([]);

@@ -1,0 +1,1 @@
+{"id":"mwrin0-1","at":1795334033814,"rule":"PR-011","owasp":["T13","T3"],"severity":"medium","action":"notified","tool":"Agent","summary":"an agent spawn that escalates permissions or is of a type never used (Agent · head teammate)","fp":"e27b285cfba4","state":"open","session":"mwrin0k9","count":2}

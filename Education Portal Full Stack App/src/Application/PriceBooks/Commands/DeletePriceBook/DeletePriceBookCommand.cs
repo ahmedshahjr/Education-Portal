@@ -10,9 +10,9 @@ namespace EducationPortal.Application.PriceBooks.Commands.DeletePriceBook;
 /// price book. Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record DeletePriceBookCommand(Guid Id) : IRequest;
+public record DeletePriceBookCommand(Guid Id);
 
-public class DeletePriceBookCommandHandler : IRequestHandler<DeletePriceBookCommand>
+public class DeletePriceBookCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

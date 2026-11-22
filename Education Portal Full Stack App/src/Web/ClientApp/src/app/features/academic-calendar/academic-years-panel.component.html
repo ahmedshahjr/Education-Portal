@@ -64,6 +64,11 @@
               <mat-error i18n="@@academicCalendar.datesRequired">Choose a start and an end date.</mat-error>
             }
           </mat-form-field>
+          @if (yearForm.hasError('endsBeforeStart')) {
+            <p class="mm-academic__error" role="alert" i18n="@@academicCalendar.endBeforeStart">The end date cannot be before the start date.</p>
+          } @else if (yearForm.hasError('spanTooLong')) {
+            <p class="mm-academic__error" role="alert" i18n="@@academicCalendar.yearTooLong">An academic year must be under two years long.</p>
+          }
 
           @if (editingYear() === 'new') {
             <mat-checkbox formControlName="isCurrent" i18n="@@academicCalendar.makeCurrent">Make this the current year</mat-checkbox>
@@ -156,6 +161,9 @@
               <mat-date-range-picker #termPicker [startAt]="year.startDate" />
               <mat-hint i18n="@@academicCalendar.termInsideYear">Inside the academic year, without overlapping another term.</mat-hint>
             </mat-form-field>
+            @if (termForm.hasError('endsBeforeStart')) {
+              <p class="mm-academic__error" role="alert" i18n="@@academicCalendar.endBeforeStart">The end date cannot be before the start date.</p>
+            }
 
             <div class="mm-academic__actions">
               <button mat-flat-button type="submit" [disabled]="busy() || termForm.invalid" i18n="@@academicCalendar.save">Save</button>

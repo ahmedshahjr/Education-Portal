@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Users.Commands.ChangePassword;
 /// ends the user's other sessions (SEC-AUTHN-07) and is audited (SEC-LOG-03).
 /// </summary>
 [Authorize(AllowWhilePasswordChangeRequired = true)]
-public record ChangePasswordCommand : IRequest
+public record ChangePasswordCommand
 {
     public string CurrentPassword { get; init; } = string.Empty;
 
@@ -35,7 +35,7 @@ public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCo
     }
 }
 
-public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand>
+public class ChangePasswordCommandHandler
 {
     private readonly IUser _user;
     private readonly IIdentityService _identityService;

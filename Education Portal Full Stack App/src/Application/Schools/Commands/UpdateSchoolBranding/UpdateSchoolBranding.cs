@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Schools.Commands.UpdateSchoolBranding;
 /// from the route here and nowhere else (SEC-AUTHZ-04, SEC-AUTHZ-07). The change is audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record UpdateSchoolBrandingCommand : BrandingUpdate, IRequest
+public record UpdateSchoolBrandingCommand : BrandingUpdate
 {
     /// <summary>The school's public id (ENG-ID-02).</summary>
     public Guid SchoolId { get; init; }
@@ -25,7 +25,7 @@ public class UpdateSchoolBrandingCommandValidator : BrandingUpdateValidator<Upda
     }
 }
 
-public class UpdateSchoolBrandingCommandHandler : IRequestHandler<UpdateSchoolBrandingCommand>
+public class UpdateSchoolBrandingCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

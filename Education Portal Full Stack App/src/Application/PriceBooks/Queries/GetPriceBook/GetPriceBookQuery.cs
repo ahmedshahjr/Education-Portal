@@ -7,9 +7,9 @@ namespace EducationPortal.Application.PriceBooks.Queries.GetPriceBook;
 
 /// <summary>Returns one price book with its prices. Master tenant administrators only (SEC-AUTHZ-07).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetPriceBookQuery(Guid Id) : IRequest<PriceBookDto>;
+public record GetPriceBookQuery(Guid Id);
 
-public class GetPriceBookQueryHandler : IRequestHandler<GetPriceBookQuery, PriceBookDto>
+public class GetPriceBookQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

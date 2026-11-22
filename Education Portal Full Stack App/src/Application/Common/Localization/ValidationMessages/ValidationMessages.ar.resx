@@ -237,6 +237,9 @@
   <data name="RightsNeedView" xml:space="preserve">
     <value>يتطلب الإنشاء والتعديل والحذف صلاحية العرض.</value>
   </data>
+  <data name="RoleNeedsCampus" xml:space="preserve">
+    <value>اختر فرعا واحدا على الأقل، أو جميع الفروع، لكل وحدة للدور فيها صلاحيات.</value>
+  </data>
   <data name="ModuleNotEnabledForSchool" xml:space="preserve">
     <value>لا تملك المدرسة هذه الوحدة، لذا لا يمكن منح صلاحيات فيها.</value>
   </data>
@@ -506,5 +509,14 @@
   </data>
   <data name="PasswordsDoNotMatch" xml:space="preserve">
     <value>كلمتا المرور غير متطابقتين.</value>
+  </data>
+  <data name="CurriculumListedTwice" xml:space="preserve">
+    <value>يمكن إدراج كل منهج مرة واحدة فقط.</value>
+  </data>
+  <data name="PhotoNotAcceptable" xml:space="preserve">
+    <value>يجب أن تكون الصورة بصيغة PNG أو JPEG أو WebP وبحجم لا يتجاوز 2 ميغابايت.</value>
+  </data>
+  <data name="DevelopmentDataTooManyPeople" xml:space="preserve">
+    <value>لا يمكن أن ينشئ الطلب أكثر من {0} شخص.</value>
   </data>
 </root>

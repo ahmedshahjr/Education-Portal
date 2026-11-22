@@ -1,7 +1,5 @@
-﻿using MediatR;
+﻿namespace EducationPortal.Domain.Common;
 
-namespace EducationPortal.Domain.Common;
-
-public abstract class BaseEvent : INotification
+public abstract class BaseEvent
 {
 }

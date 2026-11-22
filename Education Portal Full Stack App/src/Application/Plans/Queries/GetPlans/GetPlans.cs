@@ -7,9 +7,9 @@ namespace EducationPortal.Application.Plans.Queries.GetPlans;
 
 /// <summary>Lists the plans by name, with their paid modules. Master tenant administrators only (SEC-AUTHZ-07).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetPlansQuery : IRequest<IReadOnlyList<PlanDto>>;
+public record GetPlansQuery;
 
-public class GetPlansQueryHandler : IRequestHandler<GetPlansQuery, IReadOnlyList<PlanDto>>
+public class GetPlansQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

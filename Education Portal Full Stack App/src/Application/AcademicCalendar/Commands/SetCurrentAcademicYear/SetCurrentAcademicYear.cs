@@ -12,7 +12,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.SetCurrentAcadem
 /// closed year cannot be made current. Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Edit)]
-public record SetCurrentAcademicYearCommand : IRequest
+public record SetCurrentAcademicYearCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -29,7 +29,7 @@ public class SetCurrentAcademicYearCommandValidator : AbstractValidator<SetCurre
     }
 }
 
-public class SetCurrentAcademicYearCommandHandler : IRequestHandler<SetCurrentAcademicYearCommand>
+public class SetCurrentAcademicYearCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

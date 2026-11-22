@@ -8,9 +8,9 @@ namespace EducationPortal.Application.Academics.Queries.GetGradingScales;
 
 /// <summary>The school's grading scales, by name, each with its bands in order. Needs the Exams module and the View right.</summary>
 [Authorize(Module = ModuleCode.Exams, Right = AccessRight.View)]
-public record GetGradingScalesQuery : IRequest<IReadOnlyList<GradingScaleDto>>;
+public record GetGradingScalesQuery;
 
-public class GetGradingScalesQueryHandler : IRequestHandler<GetGradingScalesQuery, IReadOnlyList<GradingScaleDto>>
+public class GetGradingScalesQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

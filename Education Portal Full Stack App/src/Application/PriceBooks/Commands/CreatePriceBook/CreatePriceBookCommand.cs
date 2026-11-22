@@ -10,7 +10,7 @@ namespace EducationPortal.Application.PriceBooks.Commands.CreatePriceBook;
 /// administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record CreatePriceBookCommand : IRequest<Guid>
+public record CreatePriceBookCommand
 {
     /// <summary>ISO 3166-1 alpha-2 code, for example <c>PK</c>. It cannot be changed later.</summary>
     public string CountryCode { get; init; } = string.Empty;
@@ -32,7 +32,7 @@ public class CreatePriceBookCommandValidator : AbstractValidator<CreatePriceBook
     }
 }
 
-public class CreatePriceBookCommandHandler : IRequestHandler<CreatePriceBookCommand, Guid>
+public class CreatePriceBookCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

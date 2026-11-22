@@ -19,7 +19,7 @@ namespace EducationPortal.Application.SchoolRequests.Commands.ApproveSchoolReque
 /// without its school. Master tenant administrators only (SEC-AUTHZ-07). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record ApproveSchoolRequestCommand : IRequest<Guid>
+public record ApproveSchoolRequestCommand
 {
     /// <summary>The request's public id, taken from the route (ENG-ID-02).</summary>
     public Guid RequestId { get; init; }
@@ -62,7 +62,7 @@ public class ApproveSchoolRequestCommandValidator : AbstractValidator<ApproveSch
     private static string Normalize(string? domain) => (domain ?? string.Empty).Trim().TrimEnd('.').ToLowerInvariant();
 }
 
-public class ApproveSchoolRequestCommandHandler : IRequestHandler<ApproveSchoolRequestCommand, Guid>
+public class ApproveSchoolRequestCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;

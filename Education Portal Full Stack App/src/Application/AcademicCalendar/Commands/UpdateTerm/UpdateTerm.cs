@@ -12,7 +12,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.UpdateTerm;
 /// Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Edit)]
-public record UpdateTermCommand : IRequest
+public record UpdateTermCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -38,7 +38,7 @@ public class UpdateTermCommandValidator : AbstractValidator<UpdateTermCommand>
     }
 }
 
-public class UpdateTermCommandHandler : IRequestHandler<UpdateTermCommand>
+public class UpdateTermCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

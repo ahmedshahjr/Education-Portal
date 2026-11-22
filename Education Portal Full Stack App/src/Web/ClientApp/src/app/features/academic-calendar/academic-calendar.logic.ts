@@ -45,6 +45,4 @@ export function fromApiTime(value: string | null | undefined): string {
 }
 
 /** True when a time range is complete and ends after it starts (`HH:mm` strings compare in order). */
-export function isTimeRangeValid(start: string, end: string): boolean {
-  return start !== '' && end !== '' && end > start;
-}
+export { isTimeRangeValid } from '../../shared/validation/date-validators';

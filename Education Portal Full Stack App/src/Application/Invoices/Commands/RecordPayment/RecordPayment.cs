@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Invoices.Commands.RecordPayment;
 /// Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record RecordPaymentCommand : IRequest<Guid>
+public record RecordPaymentCommand
 {
     /// <summary>The invoice's public id, taken from the route (ENG-ID-02).</summary>
     public Guid InvoiceId { get; init; }
@@ -69,7 +69,7 @@ public class RecordPaymentCommandValidator : AbstractValidator<RecordPaymentComm
     }
 }
 
-public class RecordPaymentCommandHandler : IRequestHandler<RecordPaymentCommand, Guid>
+public class RecordPaymentCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IPaymentProvider _provider;

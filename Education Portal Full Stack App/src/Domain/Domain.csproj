@@ -5,8 +5,6 @@
     <AssemblyName>EducationPortal.Domain</AssemblyName>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MediatR.Contracts" />
-  </ItemGroup>
+  <ItemGroup>  </ItemGroup>
 
 </Project>

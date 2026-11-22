@@ -11,7 +11,7 @@ namespace EducationPortal.Application.SchoolRoles.Commands.UpdateRole;
 /// hides it, SEC-AUTHZ-03). Rights in modules the school does not have now are kept untouched; audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
-public record UpdateRoleCommand(Guid Id) : SchoolRoleFields, IRequest;
+public record UpdateRoleCommand(Guid Id) : SchoolRoleFields;
 
 public class UpdateRoleCommandValidator : SchoolRoleFieldsValidator<UpdateRoleCommand>
 {
@@ -41,7 +41,7 @@ public class UpdateRoleCommandValidator : SchoolRoleFieldsValidator<UpdateRoleCo
     }
 }
 
-public class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand>
+public class UpdateRoleCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IModuleAccess _moduleAccess;

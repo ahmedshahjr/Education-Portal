@@ -8,7 +8,7 @@ namespace EducationPortal.Application.Countries.Commands.CreateCountry;
 
 /// <summary>Adds a country that schools can be assigned to. Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record CreateCountryCommand : CountryFields, IRequest<Guid>
+public record CreateCountryCommand : CountryFields
 {
     /// <summary>The ISO 3166-1 alpha-2 code, for example <c>PK</c>. It cannot be changed later.</summary>
     public string Code { get; init; } = string.Empty;
@@ -27,7 +27,7 @@ public class CreateCountryCommandValidator : CountryFieldsValidator<CreateCountr
     }
 }
 
-public class CreateCountryCommandHandler : IRequestHandler<CreateCountryCommand, Guid>
+public class CreateCountryCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

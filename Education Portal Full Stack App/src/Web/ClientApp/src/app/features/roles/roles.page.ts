@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastService } from '../../shared/services/toast.service';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { problemMessages } from '../../core/http/problem-details';
 import { moduleText, ModuleTextPipe } from '../../core/i18n/module-text.pipe';
@@ -12,16 +13,9 @@ import { DataTableCellContext, DataTableColumn, DataTableComponent } from '../..
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
-import {
-  CreateRoleCommand,
-  ModuleDto,
-  ModulesClient,
-  SchoolRoleDto,
-  SchoolRolesClient,
-  UpdateRoleCommand,
-} from '../../web-api-client';
+import { CreateRoleCommand, ModuleCode, SchoolRoleDto, SchoolRolesClient, UpdateRoleCommand, ModulesClient } from '../../web-api-client';
 import { Right, RIGHT_KEYS } from './role-rights';
-import { RoleDialogComponent, RoleDialogData, RoleDialogResult } from './role-dialog.component';
+import type { RoleModule } from './role-form.base';
 
 /**
  * The school's roles and what each one may do in each of its modules, as a table with one column per module. Adding and
@@ -49,9 +43,11 @@ export class RolesPage {
   private readonly modulesClient = inject(ModulesClient);
   private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
 
   protected readonly roles = signal<readonly SchoolRoleDto[] | null>(null);
-  protected readonly modules = signal<readonly ModuleDto[]>([]);
+  /** The modules the school has, by code. Names come from the code, so the master-only module catalogue is not needed. */
+  protected readonly modules = signal<readonly RoleModule[]>([]);
   protected readonly loadError = signal<string | null>(null);
   protected readonly busy = signal(false);
   protected readonly errors = signal<readonly string[]>([]);
@@ -92,42 +88,21 @@ export class RolesPage {
       next: (roles) => this.roles.set(roles),
       error: (error: unknown) => this.loadError.set(problemMessages(error)[0]),
     });
+    // Any signed-in user of the school may read the modules it has (GET /api/Modules is the master's catalogue only).
     this.modulesClient.getEnabledModules().subscribe({
-      next: (codes) => {
-        this.modulesClient.getModules().subscribe({
-          next: (modules) => {
-            const enabled = new Set(codes);
-            this.modules.set(modules.filter((m) => enabled.has(m.code)));
-          },
-        });
-      },
+      next: (codes: ModuleCode[]) => this.modules.set(codes.map((code) => ({ code }))),
+      error: (error: unknown) => this.loadError.set(problemMessages(error)[0]),
     });
   }
 
-  /** Opens the role dialog: a new role, or the role in the row. */
-  protected openDialog(role: SchoolRoleDto | null): void {
-    this.errors.set([]);
-    const data: RoleDialogData = { role, modules: this.modules() };
-    this.dialog
-      .open<RoleDialogComponent, RoleDialogData, RoleDialogResult>(RoleDialogComponent, { data, width: '720px', autoFocus: 'first-tabbable' })
-      .afterClosed()
-      .subscribe((result) => {
-        if (result) {
-          this.saveRole(role, result);
-        }
-      });
+  /** Adding a role has its own page: `/roles/new`. */
+  protected addRole(): void {
+    this.router.navigate(['/roles', 'new']);
   }
 
-  /** Adds the role, or saves the changes to the role it was opened for. */
-  private saveRole(role: SchoolRoleDto | null, result: RoleDialogResult): void {
-    const fields = { name: result.name, description: result.description, permissions: result.permissions };
-
-    this.run(
-      role
-        ? this.rolesClient.updateRole(role.id, new UpdateRoleCommand({ ...fields, id: role.id }))
-        : this.rolesClient.createRole(new CreateRoleCommand(fields)),
-      role ? $localize`:@@roles.saved:Role saved.` : $localize`:@@roles.added:Role added.`
-    );
+  /** Changing a role has its own page too: a role's rights are a grid too large for a dialog (ADR-024). */
+  protected editRole(role: SchoolRoleDto): void {
+    this.router.navigate(['/roles', role.id]);
   }
 
   protected confirmDelete(role: SchoolRoleDto): void {

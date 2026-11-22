@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Subscriptions.Commands.ReactivateSubscript
 /// (SEC-AUTHZ-07), so the school id may come from the route (SEC-AUTHZ-04). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record ReactivateSubscriptionCommand(Guid SchoolId) : IRequest;
+public record ReactivateSubscriptionCommand(Guid SchoolId);
 
 public class ReactivateSubscriptionCommandValidator : AbstractValidator<ReactivateSubscriptionCommand>
 {
@@ -27,7 +27,7 @@ public class ReactivateSubscriptionCommandValidator : AbstractValidator<Reactiva
     }
 }
 
-public class ReactivateSubscriptionCommandHandler : IRequestHandler<ReactivateSubscriptionCommand>
+public class ReactivateSubscriptionCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

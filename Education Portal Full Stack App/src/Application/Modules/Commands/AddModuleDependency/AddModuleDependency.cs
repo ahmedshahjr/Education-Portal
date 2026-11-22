@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Modules.Commands.AddModuleDependency;
 /// core module would require a paid one. Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record AddModuleDependencyCommand : IRequest
+public record AddModuleDependencyCommand
 {
     /// <summary>The module that needs the other one, taken from the route.</summary>
     public ModuleCode Code { get; init; } = ModuleCode.None;
@@ -69,7 +69,7 @@ public class AddModuleDependencyCommandValidator : AbstractValidator<AddModuleDe
     }
 }
 
-public class AddModuleDependencyCommandHandler : IRequestHandler<AddModuleDependencyCommand>
+public class AddModuleDependencyCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

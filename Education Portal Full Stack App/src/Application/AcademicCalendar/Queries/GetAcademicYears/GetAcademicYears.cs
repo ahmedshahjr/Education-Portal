@@ -8,13 +8,13 @@ namespace EducationPortal.Application.AcademicCalendar.Queries.GetAcademicYears;
 
 /// <summary>Lists a school's academic years, newest first, each with its terms in order. Needs the Academic setup module.</summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.View)]
-public record GetAcademicYearsQuery : IRequest<IReadOnlyList<AcademicYearDto>>
+public record GetAcademicYearsQuery
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
 }
 
-public class GetAcademicYearsQueryHandler : IRequestHandler<GetAcademicYearsQuery, IReadOnlyList<AcademicYearDto>>
+public class GetAcademicYearsQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

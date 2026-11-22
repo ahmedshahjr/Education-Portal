@@ -16,13 +16,13 @@ namespace EducationPortal.Application.SchoolRequests.Commands.RejectSchoolReques
 /// administrators only (SEC-AUTHZ-07). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record RejectSchoolRequestCommand : IRequest
+public record RejectSchoolRequestCommand
 {
     /// <summary>The request's public id, taken from the route (ENG-ID-02).</summary>
     public Guid RequestId { get; init; }
 }
 
-public class RejectSchoolRequestCommandHandler : IRequestHandler<RejectSchoolRequestCommand>
+public class RejectSchoolRequestCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

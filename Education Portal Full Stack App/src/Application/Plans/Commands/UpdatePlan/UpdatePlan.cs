@@ -12,7 +12,7 @@ namespace EducationPortal.Application.Plans.Commands.UpdatePlan;
 /// (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record UpdatePlanCommand : PlanFields, IRequest
+public record UpdatePlanCommand : PlanFields
 {
     /// <summary>The plan's public id, taken from the route.</summary>
     public Guid Id { get; init; }
@@ -28,7 +28,7 @@ public class UpdatePlanCommandValidator : PlanFieldsValidator<UpdatePlanCommand>
     }
 }
 
-public class UpdatePlanCommandHandler : IRequestHandler<UpdatePlanCommand>
+public class UpdatePlanCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

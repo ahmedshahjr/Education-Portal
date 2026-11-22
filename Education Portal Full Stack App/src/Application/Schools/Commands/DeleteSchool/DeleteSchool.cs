@@ -14,9 +14,9 @@ namespace EducationPortal.Application.Schools.Commands.DeleteSchool;
 /// (SEC-AUTHZ-04, SEC-AUTHZ-07). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record DeleteSchoolCommand(Guid SchoolId) : IRequest;
+public record DeleteSchoolCommand(Guid SchoolId);
 
-public class DeleteSchoolCommandHandler : IRequestHandler<DeleteSchoolCommand>
+public class DeleteSchoolCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

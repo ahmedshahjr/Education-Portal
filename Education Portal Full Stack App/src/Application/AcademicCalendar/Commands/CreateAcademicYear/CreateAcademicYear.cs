@@ -12,7 +12,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.CreateAcademicYe
 /// overlap another year. Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Create)]
-public record CreateAcademicYearCommand : IRequest<Guid>
+public record CreateAcademicYearCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -36,7 +36,7 @@ public class CreateAcademicYearCommandValidator : AbstractValidator<CreateAcadem
     }
 }
 
-public class CreateAcademicYearCommandHandler : IRequestHandler<CreateAcademicYearCommand, Guid>
+public class CreateAcademicYearCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

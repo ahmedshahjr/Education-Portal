@@ -42,7 +42,11 @@
           <mat-form-field appearance="outline">
             <mat-label i18n="@@requests.domain">Domain</mat-label>
             <input matInput formControlName="domain" maxlength="253" autocomplete="off" dir="ltr" />
-            <mat-hint i18n="@@requests.domainHint">For example school1.com. It is set by the master tenant.</mat-hint>
+            @if (form.controls.domain.hasError('domain')) {
+              <mat-error i18n="@@requests.domainInvalid">Enter a host name such as school1.com, without http:// or a path.</mat-error>
+            } @else {
+              <mat-hint i18n="@@requests.domainHint">For example school1.com. It is set by the master tenant.</mat-hint>
+            }
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label i18n="@@requests.country">Country</mat-label>
@@ -65,6 +69,9 @@
           <mat-form-field appearance="outline">
             <mat-label i18n="@@requests.adminEmail">Administrator email</mat-label>
             <input matInput type="email" formControlName="administratorEmail" maxlength="256" autocomplete="off" dir="ltr" />
+            @if (form.controls.administratorEmail.hasError('email')) {
+              <mat-error i18n="@@requests.adminEmailInvalid">Enter a valid email address.</mat-error>
+            }
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label i18n="@@requests.adminPassword">One-time password</mat-label>

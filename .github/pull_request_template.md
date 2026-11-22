@@ -23,7 +23,7 @@ Tick each item or explain why it does not apply.
 
 - [ ] No secrets, credentials or real personal data added (SEC-SECRET-01, SEC-PII-03)
 - [ ] New/changed endpoints require auth; anonymous ones listed here (SEC-AUTHN-01)
-- [ ] Authorization declared for each new MediatR request (module + right) (SEC-AUTHZ-01/02)
+- [ ] Authorization declared for each new use case request (module + right), checked by `IRequestRules` in its controller action (SEC-AUTHZ-01/02)
 - [ ] New tenant-owned entities have SchoolId/CampusId and query filters; no IgnoreQueryFilters (SEC-AUTHZ-03)
 - [ ] SchoolId never taken from the client; CampusId checked against the user (SEC-AUTHZ-04)
 - [ ] Denial tests: unauthenticated, other school, other campus, disabled module, missing right (SEC-AUTHZ-09)

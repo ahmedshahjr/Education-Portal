@@ -9,7 +9,7 @@ namespace EducationPortal.Application.AddOnRequests.Queries.GetAddOnRequests;
 /// master tenant acts on). Master tenant administrators only (SEC-AUTHZ-07).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetAddOnRequestsQuery(AddOnRequestStatus? Status = null) : IRequest<IReadOnlyList<AddOnRequestDto>>;
+public record GetAddOnRequestsQuery(AddOnRequestStatus? Status = null);
 
 public class GetAddOnRequestsQueryValidator : AbstractValidator<GetAddOnRequestsQuery>
 {
@@ -19,7 +19,7 @@ public class GetAddOnRequestsQueryValidator : AbstractValidator<GetAddOnRequests
     }
 }
 
-public class GetAddOnRequestsQueryHandler : IRequestHandler<GetAddOnRequestsQuery, IReadOnlyList<AddOnRequestDto>>
+public class GetAddOnRequestsQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

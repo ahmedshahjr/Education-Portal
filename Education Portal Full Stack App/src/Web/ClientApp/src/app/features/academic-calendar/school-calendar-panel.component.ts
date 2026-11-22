@@ -52,6 +52,11 @@ import {
   labelOf,
 } from './academic-calendar.labels';
 import { coversDay, dateKey, fromApiDate, fromApiTime, isTimeRangeValid, monthRange, toApiTime } from './academic-calendar.logic';
+import {
+  endsOnOrAfterStartValidator,
+  HOLIDAY_MAX_DAYS,
+  spanUnderDaysValidator,
+} from '../../shared/validation/date-validators';
 import { SchoolCalendarApi } from './school-calendar.api';
 
 /**
@@ -223,15 +228,23 @@ export class SchoolCalendarPanelComponent {
     };
   };
 
-  readonly holidayForm = this.formBuilder.group({
-    title: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(200)]),
-    campusId: this.formBuilder.nonNullable.control(''),
-    startDate: this.formBuilder.control<Date | null>(null, Validators.required),
-    endDate: this.formBuilder.control<Date | null>(null, Validators.required),
-    type: this.formBuilder.nonNullable.control(HolidayType.Public),
-    appliesTo: this.formBuilder.nonNullable.control(HolidayAudience.Both),
-    isTentative: this.formBuilder.nonNullable.control(false),
-  });
+  readonly holidayForm = this.formBuilder.group(
+    {
+      title: this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(200)]),
+      campusId: this.formBuilder.nonNullable.control(''),
+      startDate: this.formBuilder.control<Date | null>(null, Validators.required),
+      endDate: this.formBuilder.control<Date | null>(null, Validators.required),
+      type: this.formBuilder.nonNullable.control(HolidayType.Public),
+      appliesTo: this.formBuilder.nonNullable.control(HolidayAudience.Both),
+      isTentative: this.formBuilder.nonNullable.control(false),
+    },
+    {
+      validators: [
+        endsOnOrAfterStartValidator('startDate', 'endDate'),
+        spanUnderDaysValidator('startDate', 'endDate', HOLIDAY_MAX_DAYS),
+      ],
+    }
+  );
 
   readonly eventForm = this.formBuilder.group(
     {

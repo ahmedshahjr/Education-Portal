@@ -17,9 +17,9 @@ public sealed record SchoolCampusOverviewDto(Guid Id, string Name, string? Domai
 /// master, so this is the one place that reads every school's campuses.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetSchoolCampusOverviewQuery : IRequest<IReadOnlyList<SchoolCampusOverviewDto>>;
+public record GetSchoolCampusOverviewQuery;
 
-public class GetSchoolCampusOverviewQueryHandler : IRequestHandler<GetSchoolCampusOverviewQuery, IReadOnlyList<SchoolCampusOverviewDto>>
+public class GetSchoolCampusOverviewQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

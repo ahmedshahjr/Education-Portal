@@ -1,0 +1,98 @@
+@if (editing) {
+  <app-page-header
+    [title]="'Edit ' + role!.name"
+    subtitle="Change the role's name, description and what it may do in each module."
+    i18n-subtitle="@@roles.subtitle"
+  />
+} @else {
+  <app-page-header
+    title="Add a role"
+    i18n-title="@@roles.addHeading"
+    subtitle="Name the role and choose what it may do in each module."
+    i18n-subtitle="@@roles.subtitle"
+  />
+}
+
+@if (loadError(); as message) {
+  <p class="mm-roles__error" role="alert">{{ message }}</p>
+}
+
+@if (!loading()) {
+<form class="mm-roles__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-form-field appearance="outline">
+    <mat-label i18n="@@roles.name">Role name</mat-label>
+    <input matInput formControlName="name" maxlength="100" autocomplete="off" />
+    @if (form.controls.name.hasError('required')) {
+      <mat-error i18n="@@roles.required">This field is required.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label i18n="@@roles.description">Description</mat-label>
+    <textarea matInput formControlName="description" maxlength="500" rows="2"></textarea>
+    <mat-hint i18n="@@roles.descriptionHint">Optional. What the role is for.</mat-hint>
+  </mat-form-field>
+
+  <label class="mm-roles__select-all">
+    <input type="checkbox" #all [checked]="allSelected()" (change)="selectAll(all.checked)" />
+    <span i18n="@@roles.selectAll">Select all modules and rights</span>
+  </label>
+
+  <table class="mm-roles__matrix" aria-label="Rights per module" i18n-aria-label="@@roles.matrixLabel">
+    <thead>
+      <tr>
+        <th scope="col" i18n="@@roles.module">Module</th>
+        @for (right of rights; track right.key) {
+          <th scope="col">{{ right.label }}</th>
+        }
+        @if (multiCampus) {
+          <th scope="col" i18n="@@roles.campuses">Campuses</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (module of modules; track module.code) {
+        <tr>
+          <th scope="row">{{ module | moduleText }}</th>
+          @for (right of rights; track right.key) {
+            <td>
+              <input type="checkbox" [formControl]="grant(module.code, right.key)" [attr.aria-label]="(module | moduleText) + ' ' + right.label" />
+            </td>
+          }
+          @if (multiCampus) {
+            <td class="mm-roles__campuses">
+              <label class="mm-roles__campus">
+                <input type="checkbox" [formControl]="allCampusesGrant(module.code)" />
+                <span i18n="@@roles.allCampuses">All campuses</span>
+              </label>
+              @if (!allCampusesGrant(module.code).value) {
+                @for (campus of campuses; track campus.id) {
+                  <label class="mm-roles__campus">
+                    <input type="checkbox" [formControl]="campusGrant(module.code, campus.id)" />
+                    <span>{{ campus.name }}</span>
+                  </label>
+                }
+              }
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <p class="mm-roles__note" i18n="@@roles.viewNote">Every right includes View. A user's campuses decide where the rights apply.</p>
+
+  @for (message of errors(); track message) {
+    <p class="mm-roles__error" role="alert">{{ message }}</p>
+  }
+
+  <div class="mm-roles__actions">
+    <a mat-button routerLink="/roles" i18n="@@common.cancel">Cancel</a>
+    @if (editing) {
+      <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@roles.save">Save role</button>
+    } @else {
+      <button mat-flat-button type="submit" [disabled]="busy() || form.invalid" i18n="@@roles.add">Add role</button>
+    }
+  </div>
+</form>
+}

@@ -108,8 +108,8 @@ def triggers(base: str, files: list[tuple[str, str]]) -> list[str]:
             found.append(f"{path}: request pipeline (How a request flows)")
         elif status in ADDED_OR_REMOVED and path.endswith(".csproj"):
             found.append(f"{path}: project added or removed (Repository layout, Clean Architecture layers)")
-        elif status in ADDED_OR_REMOVED and rel is not None and re.fullmatch(r"src/Web/Endpoints/[^/]+\.cs", rel):
-            found.append(f"{path}: endpoint group added or removed (Architecture overview)")
+        elif status in ADDED_OR_REMOVED and rel is not None and re.fullmatch(r"src/Web/Controllers/[^/]+Controller\.cs", rel):
+            found.append(f"{path}: controller added or removed (Architecture overview)")
         elif status in ADDED_OR_REMOVED and rel is not None and re.fullmatch(r"src/Domain/Entities/[^/]+\.cs", rel):
             found.append(f"{path}: entity added or removed (Architecture overview, Data and database)")
         elif status in ADDED_OR_REMOVED and rel is not None and rel.startswith("docs/decisions/"):

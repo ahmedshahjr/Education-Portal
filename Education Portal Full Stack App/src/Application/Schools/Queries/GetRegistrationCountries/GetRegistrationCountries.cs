@@ -10,9 +10,9 @@ public sealed record RegistrationCountryDto(Guid Id, string Name);
 /// The countries the public registration form offers: those with a price book, because the trial is priced from it. Only the
 /// name and public id are returned. Open without sign-in, on the master tenant's domain only (like registration itself).
 /// </summary>
-public record GetRegistrationCountriesQuery : IRequest<IReadOnlyList<RegistrationCountryDto>>;
+public record GetRegistrationCountriesQuery;
 
-public class GetRegistrationCountriesQueryHandler : IRequestHandler<GetRegistrationCountriesQuery, IReadOnlyList<RegistrationCountryDto>>
+public class GetRegistrationCountriesQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Timetable.Commands.CreateTimetableSlot;
 /// booked at that time (ADR-019). Needs the Timetable module and the Create right. Audited.
 /// </summary>
 [Authorize(Module = ModuleCode.Timetable, Right = AccessRight.Create)]
-public record CreateTimetableSlotCommand : IRequest<Guid>
+public record CreateTimetableSlotCommand
 {
     public Guid CourseId { get; init; }
 
@@ -40,7 +40,7 @@ public class CreateTimetableSlotCommandValidator : AbstractValidator<CreateTimet
     }
 }
 
-public class CreateTimetableSlotCommandHandler : IRequestHandler<CreateTimetableSlotCommand, Guid>
+public class CreateTimetableSlotCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

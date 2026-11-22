@@ -14,7 +14,7 @@ namespace EducationPortal.Application.Calendar.Commands.CreateSchoolEvent;
 /// and the Create right. Audited.
 /// </summary>
 [Authorize(Module = ModuleCode.School, Right = AccessRight.Create)]
-public record CreateSchoolEventCommand : IRequest<Guid>
+public record CreateSchoolEventCommand
 {
     public string Title { get; init; } = string.Empty;
 
@@ -38,7 +38,7 @@ public class CreateSchoolEventCommandValidator : AbstractValidator<CreateSchoolE
     }
 }
 
-public class CreateSchoolEventCommandHandler : IRequestHandler<CreateSchoolEventCommand, Guid>
+public class CreateSchoolEventCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

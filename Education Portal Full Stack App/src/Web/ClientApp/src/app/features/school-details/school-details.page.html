@@ -83,6 +83,9 @@
         <mat-form-field appearance="outline">
           <mat-label i18n="@@schoolDetails.phone">Phone</mat-label>
           <input matInput formControlName="phone" maxlength="30" autocomplete="off" dir="ltr" />
+          @if (form.controls.phone.hasError('phone')) {
+            <mat-error i18n="@@schoolDetails.phoneInvalid">Use digits with an optional leading +, spaces, hyphens or brackets: 7 to 15 digits.</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -96,6 +99,9 @@
         <mat-form-field appearance="outline">
           <mat-label i18n="@@schoolDetails.website">Website</mat-label>
           <input matInput formControlName="website" maxlength="2048" autocomplete="off" dir="ltr" />
+          @if (form.controls.website.hasError('website')) {
+            <mat-error i18n="@@schoolDetails.websiteInvalid">Enter a full web address that starts with http:// or https://.</mat-error>
+          }
         </mat-form-field>
 
         @for (message of errors(); track message) {

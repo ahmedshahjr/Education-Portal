@@ -15,7 +15,7 @@ namespace EducationPortal.Application.Campuses.Commands.UpdateCampusSettings;
 /// Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.Campus)]
-public record UpdateCampusSettingsCommand : IRequest
+public record UpdateCampusSettingsCommand
 {
     public bool PrefixEnabled { get; init; }
 
@@ -39,7 +39,7 @@ public class UpdateCampusSettingsCommandValidator : AbstractValidator<UpdateCamp
     }
 }
 
-public class UpdateCampusSettingsCommandHandler : IRequestHandler<UpdateCampusSettingsCommand>
+public class UpdateCampusSettingsCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

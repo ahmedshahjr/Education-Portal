@@ -10,7 +10,7 @@ namespace EducationPortal.Application.Invoices.Commands.VoidInvoice;
 /// invoiced again. A paid invoice cannot be voided. Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record VoidInvoiceCommand(Guid Id) : IRequest;
+public record VoidInvoiceCommand(Guid Id);
 
 public class VoidInvoiceCommandValidator : AbstractValidator<VoidInvoiceCommand>
 {
@@ -22,7 +22,7 @@ public class VoidInvoiceCommandValidator : AbstractValidator<VoidInvoiceCommand>
     }
 }
 
-public class VoidInvoiceCommandHandler : IRequestHandler<VoidInvoiceCommand>
+public class VoidInvoiceCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

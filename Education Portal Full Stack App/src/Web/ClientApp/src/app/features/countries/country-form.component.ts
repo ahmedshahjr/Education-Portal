@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CountryDto, LanguageDto } from '../../web-api-client';
 import { supportedValues } from './country-format';
+import { defaultLanguageValidator } from '../../shared/validation/country-validators';
 
 /** What the form asks to save. The code is only sent when a country is added. */
 export interface CountryChanges {
@@ -166,7 +167,7 @@ export class CountryFormComponent {
     code: ['', [Validators.required, Validators.pattern(/^[A-Za-z]{2}$/)]],
     name: ['', [Validators.required, Validators.maxLength(100)]],
     languages: [[] as string[], [Validators.required]],
-    defaultLanguage: ['', [Validators.required]],
+    defaultLanguage: ['', [Validators.required, defaultLanguageValidator]],
     timeZoneId: ['', [Validators.required]],
     currencyCode: ['', [Validators.required, Validators.pattern(/^[A-Z]{3}$/)]],
   });

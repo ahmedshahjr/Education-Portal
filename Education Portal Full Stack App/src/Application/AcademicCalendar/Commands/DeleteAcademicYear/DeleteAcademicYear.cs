@@ -12,7 +12,7 @@ namespace EducationPortal.Application.AcademicCalendar.Commands.DeleteAcademicYe
 /// current year. Needs the Academic setup module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Module = ModuleCode.AcademicSetup, Right = AccessRight.Delete)]
-public record DeleteAcademicYearCommand : IRequest
+public record DeleteAcademicYearCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -29,7 +29,7 @@ public class DeleteAcademicYearCommandValidator : AbstractValidator<DeleteAcadem
     }
 }
 
-public class DeleteAcademicYearCommandHandler : IRequestHandler<DeleteAcademicYearCommand>
+public class DeleteAcademicYearCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

@@ -12,9 +12,9 @@ namespace EducationPortal.Application.Parents.Queries.GetMyChildren;
 /// one-time password (the authorization behaviour refuses the request otherwise).
 /// </summary>
 [Authorize(Module = ModuleCode.Students)]
-public record GetMyChildrenQuery : IRequest<IReadOnlyList<UserDetailsDto>>;
+public record GetMyChildrenQuery;
 
-public class GetMyChildrenQueryHandler : IRequestHandler<GetMyChildrenQuery, IReadOnlyList<UserDetailsDto>>
+public class GetMyChildrenQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;

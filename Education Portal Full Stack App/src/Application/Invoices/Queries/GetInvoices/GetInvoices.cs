@@ -10,9 +10,9 @@ namespace EducationPortal.Application.Invoices.Queries.GetInvoices;
 /// only (SEC-AUTHZ-07), so the school id may come from the query string (SEC-AUTHZ-04).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetInvoicesQuery(Guid? SchoolId) : IRequest<IReadOnlyList<InvoiceDto>>;
+public record GetInvoicesQuery(Guid? SchoolId);
 
-public class GetInvoicesQueryHandler : IRequestHandler<GetInvoicesQuery, IReadOnlyList<InvoiceDto>>
+public class GetInvoicesQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

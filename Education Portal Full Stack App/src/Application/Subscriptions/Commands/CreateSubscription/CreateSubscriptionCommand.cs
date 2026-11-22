@@ -15,7 +15,7 @@ namespace EducationPortal.Application.Subscriptions.Commands.CreateSubscription;
 /// may come from the route (SEC-AUTHZ-04). Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record CreateSubscriptionCommand : IRequest<Guid>
+public record CreateSubscriptionCommand
 {
     /// <summary>The school's public id, taken from the route (ENG-ID-02).</summary>
     public Guid SchoolId { get; init; }
@@ -66,7 +66,7 @@ public class CreateSubscriptionCommandValidator : AbstractValidator<CreateSubscr
     }
 }
 
-public class CreateSubscriptionCommandHandler : IRequestHandler<CreateSubscriptionCommand, Guid>
+public class CreateSubscriptionCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

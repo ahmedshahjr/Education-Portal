@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Modules.Commands.UpdateModule;
 /// The code never changes. Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record UpdateModuleCommand : ModuleFields, IRequest
+public record UpdateModuleCommand : ModuleFields
 {
     /// <summary>The module's code, taken from the route.</summary>
     public ModuleCode Code { get; init; } = ModuleCode.None;
@@ -50,7 +50,7 @@ public class UpdateModuleCommandValidator : ModuleFieldsValidator<UpdateModuleCo
          select d.Id).AnyAsync(cancellationToken);
 }
 
-public class UpdateModuleCommandHandler : IRequestHandler<UpdateModuleCommand>
+public class UpdateModuleCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

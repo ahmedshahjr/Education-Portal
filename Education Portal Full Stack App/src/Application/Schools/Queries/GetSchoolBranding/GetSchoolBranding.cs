@@ -8,7 +8,7 @@ namespace EducationPortal.Application.Schools.Queries.GetSchoolBranding;
 
 /// <summary>Returns any school's branding, for the master portal. Master tenant administrators only (SEC-AUTHZ-07).</summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record GetSchoolBrandingQuery(Guid SchoolId) : IRequest<BrandingDto>;
+public record GetSchoolBrandingQuery(Guid SchoolId);
 
 public class GetSchoolBrandingQueryValidator : AbstractValidator<GetSchoolBrandingQuery>
 {
@@ -18,7 +18,7 @@ public class GetSchoolBrandingQueryValidator : AbstractValidator<GetSchoolBrandi
     }
 }
 
-public class GetSchoolBrandingQueryHandler : IRequestHandler<GetSchoolBrandingQuery, BrandingDto>
+public class GetSchoolBrandingQueryHandler
 {
     private readonly IApplicationDbContext _context;
 

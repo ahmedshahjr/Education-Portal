@@ -27,7 +27,7 @@ function loadRows(screen, query):                                      # AC1.2, 
         state = READY(response.items)
 ```
 
-Server side (AC1.4): every new use case declares `[Authorize(Module = ...)]`. `AuthorizationBehaviour` refuses a disabled module with `MODULE_NOT_ENABLED`; the client menu only hides it.
+Server side (AC1.4): every new use case declares `[Authorize(Module = ...)]`. The request rules (`RequestRules`) refuse a disabled module with `MODULE_NOT_ENABLED`; the client menu only hides it.
 
 ## 2. Trial banner (AC2.1 to AC2.4)
 

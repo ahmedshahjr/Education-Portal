@@ -11,7 +11,7 @@ namespace EducationPortal.Application.Plans.Commands.CreatePlan;
 /// book. Master tenant administrators only (SEC-AUTHZ-07); audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record CreatePlanCommand : PlanFields, IRequest<Guid>
+public record CreatePlanCommand : PlanFields
 {
     /// <summary>The stable code, for example <c>STARTER</c>. It cannot be changed later.</summary>
     public string Code { get; init; } = string.Empty;
@@ -29,7 +29,7 @@ public class CreatePlanCommandValidator : PlanFieldsValidator<CreatePlanCommand>
     }
 }
 
-public class CreatePlanCommandHandler : IRequestHandler<CreatePlanCommand, Guid>
+public class CreatePlanCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

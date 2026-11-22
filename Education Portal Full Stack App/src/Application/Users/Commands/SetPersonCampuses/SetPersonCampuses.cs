@@ -15,7 +15,7 @@ namespace EducationPortal.Application.Users.Commands.SetPersonCampuses;
 /// "Campuses per user"). Needs the Users &amp; Roles module. The change is recorded by the change audit.
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.UsersRoles)]
-public record SetPersonCampusesCommand : IRequest
+public record SetPersonCampusesCommand
 {
     public Guid PersonId { get; init; }
 
@@ -38,7 +38,7 @@ public class SetPersonCampusesCommandValidator : AbstractValidator<SetPersonCamp
     }
 }
 
-public class SetPersonCampusesCommandHandler : IRequestHandler<SetPersonCampusesCommand>
+public class SetPersonCampusesCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;

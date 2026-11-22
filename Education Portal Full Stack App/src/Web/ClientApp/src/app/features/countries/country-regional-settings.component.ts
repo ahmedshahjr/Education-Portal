@@ -1,6 +1,12 @@
 import { formatDate } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, LOCALE_ID, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  MAX_WEEKEND_DAYS,
+  PHONE_PATTERN_MAX_LENGTH,
+  phonePatternValidator,
+  weekendDaysValidator,
+} from '../../shared/validation/country-validators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -21,8 +27,6 @@ const DAYS: readonly DayOfWeek[] = [
   DayOfWeek.Saturday,
 ];
 
-/** The most weekend days a country can have (the server enforces the same). */
-export const MAX_WEEKEND_DAYS = 3;
 
 /**
  * A country's regional settings (master portal): how many decimals its currency shows, an optional pattern phone numbers
@@ -56,9 +60,9 @@ export class CountryRegionalSettingsComponent {
 
   readonly form = this.formBuilder.nonNullable.group({
     currencyDecimals: [2, [Validators.required, Validators.min(0), Validators.max(4)]],
-    phonePattern: ['', [Validators.maxLength(200)]],
+    phonePattern: ['', [Validators.maxLength(PHONE_PATTERN_MAX_LENGTH), phonePatternValidator]],
     weekStartDay: [DayOfWeek.Monday, Validators.required],
-    weekendDays: [[DayOfWeek.Saturday, DayOfWeek.Sunday] as DayOfWeek[], [Validators.maxLength(MAX_WEEKEND_DAYS)]],
+    weekendDays: [[DayOfWeek.Saturday, DayOfWeek.Sunday] as DayOfWeek[], [weekendDaysValidator]],
   });
 
   constructor() {

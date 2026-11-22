@@ -55,13 +55,21 @@ import { AppIconComponent } from '../app-icon/app-icon.component';
     }
   `,
   styles: `
+    /* Centred on the same 40px line as the icon buttons beside it, so it does not sit higher. */
     .mm-language-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 40px;
+      line-height: 1;
+      vertical-align: middle;
       color: var(--mm-text-secondary);
     }
 
     .mm-language-btn__name {
-      margin-inline-start: 6px;
+      margin-inline-start: 2px;
       font-size: var(--mm-text-sm);
+      line-height: 1;
     }
   `,
 })

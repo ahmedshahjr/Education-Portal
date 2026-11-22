@@ -13,7 +13,7 @@ namespace EducationPortal.Application.Users.Queries.GetMyRights;
 /// campus on every request (SEC-AUTHZ-01, SEC-AUTHZ-02). The school comes from the host, never from the client.
 /// </summary>
 [Authorize]
-public record GetMyRightsQuery : IRequest<MyRightsDto>;
+public record GetMyRightsQuery;
 
 /// <param name="IsParent">True when the signed-in user's person is a parent: only parents see "My children" (R5.3).</param>
 public record MyRightsDto(IReadOnlyList<ModuleRightsDto> Modules, bool IsParent = false);
@@ -23,7 +23,7 @@ public record ModuleRightsDto(ModuleCode Module, IReadOnlyList<RightGrantDto> Ri
 /// <summary>A right and where it holds: every campus of the school, or the listed campuses (public ids).</summary>
 public record RightGrantDto(AccessRight Right, bool AllCampuses, IReadOnlyList<Guid> CampusIds);
 
-public class GetMyRightsQueryHandler : IRequestHandler<GetMyRightsQuery, MyRightsDto>
+public class GetMyRightsQueryHandler
 {
     private static readonly AccessRight[] AllRights = Enum.GetValues<AccessRight>().Where(r => r != AccessRight.None).ToArray();
 

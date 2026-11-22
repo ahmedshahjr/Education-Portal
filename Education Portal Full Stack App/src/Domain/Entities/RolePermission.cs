@@ -93,8 +93,11 @@ public class RolePermission : BaseAuditableEntity, ITenantOwned
         CanViewHistory = canViewHistory;
     }
 
-    /// <summary>Makes the rights apply to every campus of the school (ADR-022). The row keeps the campus it was made on.</summary>
-    public void ApplyToAllCampuses() => AllCampuses = true;
+    /// <summary>
+    /// Sets whether the rights apply to every campus of the school (ADR-022). The row keeps the campus it was made on, so
+    /// with <paramref name="allCampuses"/> false it applies to that campus only.
+    /// </summary>
+    public void SetAllCampuses(bool allCampuses) => AllCampuses = allCampuses;
 
     /// <summary>True when the role has no right at all in the module, so the row is not needed.</summary>
     public bool IsEmpty => !CanView;

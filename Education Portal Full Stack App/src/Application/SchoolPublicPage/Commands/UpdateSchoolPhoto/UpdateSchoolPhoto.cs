@@ -13,7 +13,7 @@ namespace EducationPortal.Application.SchoolPublicPage.Commands.UpdateSchoolPhot
 /// kind of a photo do not change: delete it and upload again. Needs the School module. Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, Module = ModuleCode.School)]
-public record UpdateSchoolPhotoCommand : IRequest
+public record UpdateSchoolPhotoCommand
 {
     /// <summary>The school's public id. The master tenant must send it; a school user may leave it out.</summary>
     public Guid? SchoolId { get; init; }
@@ -42,12 +42,12 @@ public class UpdateSchoolPhotoCommandValidator : AbstractValidator<UpdateSchoolP
 
         RuleFor(c => c.Content)
             .Must(SchoolPhotoRules.IsAcceptable)
-            .WithMessage("The photo must be a PNG, JPEG or WebP image of at most 2 MB.")
+            .WithMessage(_ => ValidationMessages.PhotoNotAcceptable)
             .When(c => c.Content is not null);
     }
 }
 
-public class UpdateSchoolPhotoCommandHandler : IRequestHandler<UpdateSchoolPhotoCommand>
+public class UpdateSchoolPhotoCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

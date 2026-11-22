@@ -12,7 +12,7 @@ namespace EducationPortal.Application.Academics.Queries.GetAssessments;
 /// View right.
 /// </summary>
 [Authorize(Module = ModuleCode.Exams, Right = AccessRight.View)]
-public record GetAssessmentsQuery(Guid CourseId) : IRequest<IReadOnlyList<AssessmentDto>>;
+public record GetAssessmentsQuery(Guid CourseId);
 
 public class GetAssessmentsQueryValidator : AbstractValidator<GetAssessmentsQuery>
 {
@@ -22,7 +22,7 @@ public class GetAssessmentsQueryValidator : AbstractValidator<GetAssessmentsQuer
     }
 }
 
-public class GetAssessmentsQueryHandler : IRequestHandler<GetAssessmentsQuery, IReadOnlyList<AssessmentDto>>
+public class GetAssessmentsQueryHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ICampusAccess _campusAccess;

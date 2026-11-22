@@ -12,7 +12,7 @@ namespace EducationPortal.Application.Schools.Commands.UpdateSchoolCountry;
 /// Audited (SEC-LOG-03).
 /// </summary>
 [Authorize(Roles = Roles.Administrator, MasterTenant = true)]
-public record UpdateSchoolCountryCommand : IRequest
+public record UpdateSchoolCountryCommand
 {
     /// <summary>The school's public id (ENG-ID-02).</summary>
     public Guid SchoolId { get; init; }
@@ -34,7 +34,7 @@ public class UpdateSchoolCountryCommandValidator : AbstractValidator<UpdateSchoo
     }
 }
 
-public class UpdateSchoolCountryCommandHandler : IRequestHandler<UpdateSchoolCountryCommand>
+public class UpdateSchoolCountryCommandHandler
 {
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;

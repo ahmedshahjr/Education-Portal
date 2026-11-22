@@ -3,7 +3,7 @@
 ## Status
 
 Accepted by the maintainer on 2026-11-21. Amends [ADR-012](ADR-012-Module-Enforcement-And-School-Roles.md) and
-[ADR-018](ADR-018-Role-Rights-Checking.md).
+[ADR-018](ADR-018-Role-Rights-Checking.md). The `AuthorizationBehaviour` named in the context and the decision is now the request rules (`IRequestRules`), see [ADR-025](ADR-025-Controllers-And-Application-Services-No-MediatR.md).
 
 ## Context
 
@@ -30,10 +30,10 @@ learn it from request fields.
 6. Use cases move to the campus-aware overload one at a time, each with its denial test, as ADR-018 section 4 already
    allows.
 
-7. **One shape per module, written by the role screen.** A module has either one all-campuses row (the screen always
-   writes this, on the school's main campus) or per-campus rows (the data model allows them, the screen does not create
-   them). Saving a role's rights replaces every row of the module, so no stale per-campus row survives. Per-campus
-   editing in the screen is a later step.
+7. **Per-campus rows, written by the role screen.** The role screen writes a module's rights per campus: one all-campuses
+   row on the school's main campus, or one row per campus the role names. Saving a role's rights diffs the module's rows:
+   rows of campuses the module no longer names are removed, rows of named campuses are updated, and a named campus without
+   a row gets one. The all-campuses row always stays on the main campus.
 
 ## Consequences
 

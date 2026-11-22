@@ -111,7 +111,8 @@ export function visibleNavSections(
 
   const allowed = (item: AppNavItem): boolean =>
     (item.module === undefined || enabledModules.has(item.module)) &&
-    (item.right === undefined || can === undefined || can(item.module as ModuleCode | undefined, item.right)) &&
+    // An item that needs a right is hidden unless the caller can answer the question (fail closed).
+    (item.right === undefined || (can !== undefined && can(item.module as ModuleCode | undefined, item.right))) &&
     accessAllowed(item);
 
   const visibleItem = (item: AppNavItem): AppNavItem | null => {
