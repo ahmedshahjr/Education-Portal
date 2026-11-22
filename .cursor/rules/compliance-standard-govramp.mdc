@@ -1,5 +1,5 @@
 ---
-description: What GovRAMP (formerly StateRAMP, for US state and local government) requires of this codebase and how it reuses the FedRAMP Moderate / NIST SP 800-53 Rev 5 rules. Use when preparing for state or local government customers or GovRAMP evidence. Part of the mandatory Education Portal compliance rules.
+description: What GovRAMP (formerly StateRAMP, for US state and local government) requires of this codebase and how it reuses the FedRAMP 20x Class C / NIST SP 800-53 Rev 5 rules. Use when preparing for state or local government customers or GovRAMP evidence. Part of the mandatory Education Portal compliance rules.
 globs:
 alwaysApply: false
 ---

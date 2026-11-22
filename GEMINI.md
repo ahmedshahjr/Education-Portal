@@ -4,7 +4,7 @@ All project instructions live in [AGENTS.md](AGENTS.md), imported below. Edit AG
 
 @./AGENTS.md
 
-**MUST FOLLOW:** the security and compliance rules in [docs/ai/secure-compliance/SKILL.md](docs/ai/secure-compliance/SKILL.md) (FedRAMP Moderate Rev 5 / NIST SP 800-53, GovRAMP, SOC 2, ISO 27001, OWASP Top 10, PCI DSS, EU law). They are imported below so they are always in context. If a request breaks a rule, stop and name the rule ID.
+**MUST FOLLOW:** the security and compliance rules in [docs/ai/secure-compliance/SKILL.md](docs/ai/secure-compliance/SKILL.md) (FedRAMP 20x Class C (Moderate) / NIST SP 800-53, GovRAMP, SOC 2, ISO 27001, OWASP Top 10, PCI DSS, EU law). They are imported below so they are always in context. If a request breaks a rule, stop and name the rule ID.
 
 **MUST FOLLOW:** the engineering rules in [docs/ai/engineering/SKILL.md](docs/ai/engineering/SKILL.md) (SOLID/KISS/DRY/YAGNI, code quality and process, C# entities, EF Core, Angular with Material Design, AI agents). They are imported below too. Security and compliance rules win when the two disagree.
 

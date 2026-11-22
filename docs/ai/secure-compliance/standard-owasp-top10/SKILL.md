@@ -70,5 +70,5 @@ This skill is written against the versions below, recorded in [sources.json](../
 
 | Source | Version tracked | How it is checked | Last reviewed |
 |---|---|---|---|
-| [OWASP Top 10](https://owasp.org/Top10/) | OWASP Top 10:2025 | Automatic: new commits in `OWASP/Top10` | 2026-11-09 |
+| [OWASP Top 10](https://top10.owasp.org/) | OWASP Top 10:2025 | Automatic: new commits in `OWASP/Top10` | 2026-11-22 |
 <!-- END GENERATED: sources -->

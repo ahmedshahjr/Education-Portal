@@ -898,7 +898,7 @@ flowchart TB
 
 ### Security and compliance rules
 
-Every change, by a person or an AI assistant, follows [docs/ai/secure-compliance/SKILL.md](docs/ai/secure-compliance/SKILL.md), an overview that links to one skill per topic and one per standard (FedRAMP, GovRAMP, SOC 2, ISO 27001, OWASP, EU, PCI DSS). Together they hold numbered rules (such as `SEC-AUTHZ-03`) mapped to FedRAMP Moderate Rev 5 / NIST SP 800-53, GovRAMP, SOC 2, ISO/IEC 27001:2022 and the OWASP Top 10, plus EU rules (GDPR and related law) and PCI DSS v4.0.1 rules for card payments (when fees are added). CI guards on every pull request enforce the rules that can be checked automatically. If a request would break a rule, stop and name the rule. The ones that shape everyday work:
+Every change, by a person or an AI assistant, follows [docs/ai/secure-compliance/SKILL.md](docs/ai/secure-compliance/SKILL.md), an overview that links to one skill per topic and one per standard (FedRAMP, GovRAMP, SOC 2, ISO 27001, OWASP, EU, PCI DSS). Together they hold numbered rules (such as `SEC-AUTHZ-03`) mapped to FedRAMP 20x Class C (Moderate) / NIST SP 800-53, GovRAMP, SOC 2, ISO/IEC 27001:2022 and the OWASP Top 10, plus EU rules (GDPR and related law) and PCI DSS v4.0.1 rules for card payments (when fees are added). CI guards on every pull request enforce the rules that can be checked automatically. If a request would break a rule, stop and name the rule. The ones that shape everyday work:
 
 - Every endpoint needs a signed-in user, and every use case request declares the module and right it needs, and its controller action runs the request rules (deny by default).
 - The school comes only from the domain. A campus id from the route is always checked against the user.
@@ -925,11 +925,11 @@ All compliance skills in the repository (generated from `docs/ai/secure-complian
 | [dependencies-supply-chain](docs/ai/secure-compliance/dependencies-supply-chain/SKILL.md) | Topic | (rules only; see the standard skills) |
 | [error-handling](docs/ai/secure-compliance/error-handling/SKILL.md) | Topic | (rules only; see the standard skills) |
 | [input-validation](docs/ai/secure-compliance/input-validation/SKILL.md) | Topic | (rules only; see the standard skills) |
-| [logging-audit](docs/ai/secure-compliance/logging-audit/SKILL.md) | Topic | OMB M-21-31 (2021) |
+| [logging-audit](docs/ai/secure-compliance/logging-audit/SKILL.md) | Topic | OMB M-26-14 (22 May 2026), rescinds OMB M-21-31 (2021) |
 | [security-testing](docs/ai/secure-compliance/security-testing/SKILL.md) | Topic | (rules only; see the standard skills) |
-| [standard-eu](docs/ai/secure-compliance/standard-eu/SKILL.md) | Standard | Regulation (EU) 2016/679 and current EDPB guidelines; Regulation (EU) 2024/1689; Directive (EU) 2022/2555; Regulation (EU) 2024/2847 |
-| [standard-fedramp-moderate](docs/ai/secure-compliance/standard-fedramp-moderate/SKILL.md) | Standard | SP 800-53 Rev 5 (latest release in the OSCAL catalog); FedRAMP Rev 5 Moderate baseline; SP 800-63-4 (Rev 4); OMB M-21-31 (2021) |
-| [standard-govramp](docs/ai/secure-compliance/standard-govramp/SKILL.md) | Standard | SP 800-53 Rev 5 (latest release in the OSCAL catalog); GovRAMP program and security baselines (NIST SP 800-53 Rev 5 based) |
+| [standard-eu](docs/ai/secure-compliance/standard-eu/SKILL.md) | Standard | Regulation (EU) 2016/679 and current EDPB guidelines; Regulation (EU) 2024/1689, as amended by the AI Omnibus (in force 27 July 2026); Directive (EU) 2022/2555; Regulation (EU) 2024/2847 |
+| [standard-fedramp-moderate](docs/ai/secure-compliance/standard-fedramp-moderate/SKILL.md) | Standard | SP 800-53 Rev 5.2.0 (released 27 Aug 2025; OSCAL catalog 5.2.0, last changed 2026-10-22); FedRAMP Consolidated Rules 2026, version 2026.11.02.01 (20x Class C); SP 800-63-4 (Rev 4); OMB M-26-14 (22 May 2026), rescinds OMB M-21-31 (2021) |
+| [standard-govramp](docs/ai/secure-compliance/standard-govramp/SKILL.md) | Standard | SP 800-53 Rev 5.2.0 (released 27 Aug 2025; OSCAL catalog 5.2.0, last changed 2026-10-22); GovRAMP program and security baselines (NIST SP 800-53 Rev 5 based) |
 | [standard-iso27001](docs/ai/secure-compliance/standard-iso27001/SKILL.md) | Standard | ISO/IEC 27001:2022 (with Amd 1:2024) |
 | [standard-owasp-top10](docs/ai/secure-compliance/standard-owasp-top10/SKILL.md) | Standard | OWASP Top 10:2025 |
 | [standard-pci-dss](docs/ai/secure-compliance/standard-pci-dss/SKILL.md) | Standard | PCI DSS v4.0.1 (June 2024); SAQ A v4.0.1 (January 2025 revision) |
@@ -958,8 +958,8 @@ All engineering skills in the repository (generated from `docs/ai/engineering/` 
 | Skill | Kind | Sources and versions tracked |
 |---|---|---|
 | [engineering-standards](docs/ai/engineering/SKILL.md) | Overview | (index; see the topic skills) |
-| [ai-agents](docs/ai/engineering/ai-agents/SKILL.md) | Topic | OWASP Top 10 for LLM Applications 2025; AI RMF 1.0 (NIST AI 100-1) and Generative AI Profile (NIST AI 600-1); github/awesome-copilot agent-safety instructions (main) |
-| [angular-material-ui](docs/ai/engineering/angular-material-ui/SKILL.md) | Topic | Angular v22 guidelines (adev/src/context); angular/skills, built 2026-11-10 from angular/angular 0dafb36; angular.dev best practices for Angular v22; Angular Material 22 (Material 3 theming with mat.theme and system tokens); Material Design 3; WCAG 2.2 Level AA |
+| [ai-agents](docs/ai/engineering/ai-agents/SKILL.md) | Topic | OWASP GenAI LLM Top 10 2026 (published 2026-08-04); AI RMF 1.0 (NIST AI 100-1) and Generative AI Profile (NIST AI 600-1); github/awesome-copilot agent-safety instructions (main) |
+| [angular-material-ui](docs/ai/engineering/angular-material-ui/SKILL.md) | Topic | Angular v22 guidelines (adev/src/context); angular/skills, built 2026-11-16 from angular/angular 567ae3e; angular.dev best practices for Angular v22; Angular Material 22 (Material 3 theming with mat.theme and system tokens); Material Design 3; WCAG 2.2 Level AA |
 | [aspire-observability](docs/ai/engineering/aspire-observability/SKILL.md) | Topic | Aspire 13.6; OpenTelemetry .NET docs as read on 2026-11-22 |
 | [code-quality-process](docs/ai/engineering/code-quality-process/SKILL.md) | Topic | C# 14 / .NET 10 coding conventions; dotnet/skills plugins/dotnet-test (main); google/eng-practices (main) |
 | [csharp-entities](docs/ai/engineering/csharp-entities/SKILL.md) | Topic | EF Core 10; .NET Microservices: Architecture for Containerized .NET Applications (current edition on Learn); .NET design guidelines (current on Learn); C# 14 / .NET 10 coding conventions |

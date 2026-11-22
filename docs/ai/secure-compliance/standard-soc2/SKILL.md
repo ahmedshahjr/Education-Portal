@@ -57,5 +57,5 @@ This skill is written against the versions below, recorded in [sources.json](../
 
 | Source | Version tracked | How it is checked | Last reviewed |
 |---|---|---|---|
-| [AICPA SOC 2 Trust Services Criteria](https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2) | 2017 Trust Services Criteria with revised points of focus (2022) | Manual: listed for a portal check | 2026-11-09 |
+| [AICPA SOC 2 Trust Services Criteria](https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2) | 2017 Trust Services Criteria with revised points of focus (2022) | Manual: listed for a portal check | 2026-11-22 |
 <!-- END GENERATED: sources -->

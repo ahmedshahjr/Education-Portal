@@ -1,6 +1,6 @@
 ---
 name: standard-govramp
-description: What GovRAMP (formerly StateRAMP, for US state and local government) requires of this codebase and how it reuses the FedRAMP Moderate / NIST SP 800-53 Rev 5 rules. Use when preparing for state or local government customers or GovRAMP evidence. Part of the mandatory Education Portal compliance rules.
+description: What GovRAMP (formerly StateRAMP, for US state and local government) requires of this codebase and how it reuses the FedRAMP 20x Class C / NIST SP 800-53 Rev 5 rules. Use when preparing for state or local government customers or GovRAMP evidence. Part of the mandatory Education Portal compliance rules.
 ---
 
 # GovRAMP (MUST follow)
@@ -15,7 +15,7 @@ GovRAMP (formerly StateRAMP) is a non-profit program that verifies the security 
 
 ## What this means for the code
 
-- The code-level controls are the same NIST SP 800-53 Rev 5 controls as FedRAMP Moderate. Follow the [standard-fedramp-moderate](../standard-fedramp-moderate/SKILL.md) skill and its mapping table; it applies to GovRAMP as written.
+- The code-level controls are the same NIST SP 800-53 Rev 5 controls as FedRAMP 20x Class C (Moderate). Follow the [standard-fedramp-moderate](../standard-fedramp-moderate/SKILL.md) skill and its mapping table; it applies to GovRAMP as written.
 - Target impact level (Low, Moderate, High) is a **TODO** maintainer decision. These rules are written for Moderate.
 - State and local customers (schools, districts) often add their own data privacy agreements for student data. Those can add requirements on top of [student-data-privacy](../student-data-privacy/SKILL.md); record them there when the maintainer shares them.
 
@@ -37,6 +37,6 @@ This skill is written against the versions below, recorded in [sources.json](../
 
 | Source | Version tracked | How it is checked | Last reviewed |
 |---|---|---|---|
-| [NIST SP 800-53 Rev 5 catalog (OSCAL)](https://csrc.nist.gov/projects/risk-management/sp800-53-controls/release-search) | SP 800-53 Rev 5 (latest release in the OSCAL catalog) | Automatic: new commits in `usnistgov/oscal-content/nist.gov/SP800-53/rev5` | 2026-11-09 |
-| [GovRAMP (formerly StateRAMP) program and baselines](https://govramp.org/) | GovRAMP program and security baselines (NIST SP 800-53 Rev 5 based) | Manual: listed for a portal check | 2026-11-09 |
+| [NIST SP 800-53 Rev 5 catalog (OSCAL)](https://csrc.nist.gov/projects/risk-management/sp800-53-controls/release-search) | SP 800-53 Rev 5.2.0 (released 27 Aug 2025; OSCAL catalog 5.2.0, last changed 2026-10-22) | Automatic: new commits in `usnistgov/oscal-content/nist.gov/SP800-53/rev5` | 2026-11-22 |
+| [GovRAMP (formerly StateRAMP) program and baselines](https://govramp.org/) | GovRAMP program and security baselines (NIST SP 800-53 Rev 5 based) | Manual: listed for a portal check | 2026-11-22 |
 <!-- END GENERATED: sources -->

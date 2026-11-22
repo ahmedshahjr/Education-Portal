@@ -1,5 +1,5 @@
 ---
-description: What FedRAMP Moderate Rev 5 (NIST SP 800-53 Rev 5 Moderate baseline) requires of this codebase, the FedRAMP-specific parameters we apply, and which topic skills implement each control. Use when working on anything security-related or preparing FedRAMP evidence. Part of the mandatory Education Portal compliance rules.
+description: What FedRAMP 20x Class C (Moderate) requires of this codebase (its Key Security Indicators, mapped to NIST SP 800-53 Rev 5 controls), the values we set for it, and which topic skills implement each control. Use when working on anything security-related or preparing FedRAMP evidence. Part of the mandatory Education Portal compliance rules.
 globs:
 alwaysApply: false
 ---

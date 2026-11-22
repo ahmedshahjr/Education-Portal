@@ -6,7 +6,7 @@
       "id": "nist-800-53",
       "name": "NIST SP 800-53 Rev 5 catalog (OSCAL)",
       "portal": "https://csrc.nist.gov/projects/risk-management/sp800-53-controls/release-search",
-      "tracked_version": "SP 800-53 Rev 5 (latest release in the OSCAL catalog)",
+      "tracked_version": "SP 800-53 Rev 5.2.0 (released 27 Aug 2025; OSCAL catalog 5.2.0, last changed 2026-10-22)",
       "skills": [
         "standard-fedramp-moderate",
         "standard-govramp"
@@ -16,29 +16,29 @@
         "repo": "usnistgov/oscal-content",
         "path": "nist.gov/SP800-53/rev5"
       },
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-09"
+      "last_seen_sha": "f0de6d8d8c059d374f15e0ae07508d82e370fc1d",
+      "last_reviewed": "2026-11-22"
     },
     {
-      "id": "fedramp-rev5",
-      "name": "FedRAMP Rev 5 baselines (Moderate)",
-      "portal": "https://www.fedramp.gov/",
-      "tracked_version": "FedRAMP Rev 5 Moderate baseline",
+      "id": "fedramp-20x",
+      "name": "FedRAMP 20x Class C (Moderate) rules: Key Security Indicators and Consolidated Rules",
+      "portal": "https://www.fedramp.gov/20x/",
+      "tracked_version": "FedRAMP Consolidated Rules 2026, version 2026.11.02.01 (20x Class C)",
       "skills": [
         "standard-fedramp-moderate"
       ],
       "watch": {
         "type": "github-path",
-        "repo": "GSA/fedramp-automation",
-        "path": "dist/content/rev5/baselines"
+        "repo": "FedRAMP/rules",
+        "path": "fedramp-consolidated-rules.json"
       },
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-09"
+      "last_seen_sha": "64fa769510416fa75fd00a4689466094265b8083",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "owasp-top10",
       "name": "OWASP Top 10",
-      "portal": "https://owasp.org/Top10/",
+      "portal": "https://top10.owasp.org/",
       "tracked_version": "OWASP Top 10:2025",
       "skills": [
         "standard-owasp-top10"
@@ -48,8 +48,8 @@
         "repo": "OWASP/Top10",
         "path": ""
       },
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-09"
+      "last_seen_sha": "3a31f35346c3f4e90f350395124382fa53af2afe",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "nist-800-63",
@@ -65,8 +65,8 @@
         "repo": "usnistgov/800-63-4",
         "path": ""
       },
-      "last_seen_sha": "",
-      "last_reviewed": "2026-11-09"
+      "last_seen_sha": "4f2487bb81adecdc84ccaac6920bf0b500b379ae",
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "govramp",
@@ -77,7 +77,7 @@
         "standard-govramp"
       ],
       "watch": null,
-      "last_reviewed": "2026-11-09"
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "soc2",
@@ -88,7 +88,7 @@
         "standard-soc2"
       ],
       "watch": null,
-      "last_reviewed": "2026-11-09"
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "iso27001",
@@ -103,15 +103,15 @@
     },
     {
       "id": "omb-m-21-31",
-      "name": "OMB M-21-31 logging requirements (referenced by FedRAMP AU-11)",
+      "name": "OMB M-26-14 logging requirements (rescinds OMB M-21-31; referenced by FedRAMP AU-11)",
       "portal": "https://www.whitehouse.gov/omb/information-for-agencies/memoranda/",
-      "tracked_version": "OMB M-21-31 (2021)",
+      "tracked_version": "OMB M-26-14 (22 May 2026), rescinds OMB M-21-31 (2021)",
       "skills": [
         "logging-audit",
         "standard-fedramp-moderate"
       ],
       "watch": null,
-      "last_reviewed": "2026-11-09"
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "eu-gdpr",
@@ -129,12 +129,12 @@
       "id": "eu-ai-act",
       "name": "EU AI Act (Regulation (EU) 2024/1689), implementation timeline and guidance",
       "portal": "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai",
-      "tracked_version": "Regulation (EU) 2024/1689",
+      "tracked_version": "Regulation (EU) 2024/1689, as amended by the AI Omnibus (in force 27 July 2026)",
       "skills": [
         "standard-eu"
       ],
       "watch": null,
-      "last_reviewed": "2026-11-09"
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "eu-nis2",
@@ -145,7 +145,7 @@
         "standard-eu"
       ],
       "watch": null,
-      "last_reviewed": "2026-11-09"
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "eu-cra",
@@ -156,7 +156,7 @@
         "standard-eu"
       ],
       "watch": null,
-      "last_reviewed": "2026-11-09"
+      "last_reviewed": "2026-11-22"
     },
     {
       "id": "pci-dss",
