@@ -31,3 +31,4 @@ An ADR captures a significant architectural decision: the context that led to it
 | [ADR-023](ADR-023-Readable-Change-History.md) | Readable Change History Shown by Permission | 2026-11-21 | Accepted |
 | [ADR-024](ADR-024-Users-And-Roles-Screen-And-Create-Rule.md) | One Users and Roles Screen, the Create Rule and Soft Delete | 2026-11-21 | Accepted |
 | [ADR-025](ADR-025-Controllers-And-Application-Services-No-MediatR.md) | Controllers and Application Services, No MediatR | 2026-11-21 | Accepted |
+| [ADR-026](ADR-026-Row-Level-Security-And-Tenant-Column.md) | Tenant Column, Row-Level Security and the Master Bypass | 2026-11-23 | Accepted |

@@ -84,6 +84,20 @@ public static class TenantResolution
 
                     context.User = new ClaimsPrincipal(new ClaimsIdentity());
                 }
+                else if (tenant.IsMaster)
+                {
+                    // The master bypass (SEC-AUTHZ-13, ADR-026): only a signed-in master session, and every API call
+                    // under it is audited, so cross-tenant access can be traced. Anonymous requests never get it.
+                    context.RequestServices.GetRequiredService<CurrentTenant>().GrantMasterBypass();
+
+                    if (context.Request.Path.StartsWithSegments("/api"))
+                    {
+                        await context.RequestServices.GetRequiredService<ISecurityAuditLog>().WriteAsync(
+                            SecurityAuditEventType.MasterTenantAccess,
+                            SecurityAuditOutcome.Success,
+                            targetType: "Api");
+                    }
+                }
             }
 
             await next();

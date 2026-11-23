@@ -72,7 +72,7 @@ public class RoleRightsTests : TestBase
     private static async Task GiveRoleAsync(int schoolId, string userId, bool canView, bool canEdit, bool canDelete, bool canApprove = false, bool canExport = false)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var role = SchoolRole.Create(schoolId, "Grader");
@@ -90,7 +90,7 @@ public class RoleRightsTests : TestBase
     private static async Task<bool> CheckAsync(int schoolId, string userId, AccessRight right)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(schoolId, IsMaster: false));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(schoolId, isMaster: false));
         var rights = scope.ServiceProvider.GetRequiredService<IRoleRights>();
 
         return await rights.HasRightAsync(userId, schoolId, ModuleCode.Exams, right, CancellationToken.None);

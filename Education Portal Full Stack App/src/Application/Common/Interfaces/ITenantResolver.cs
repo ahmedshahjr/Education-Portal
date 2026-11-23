@@ -12,4 +12,8 @@ public interface ITenantResolver
     Task<ResolvedTenant?> ResolveSchoolWithoutDomainAsync(int schoolId, CancellationToken cancellationToken);
 }
 
-public sealed record ResolvedTenant(int SchoolId, bool IsMaster);
+/// <summary>
+/// The school and tenant a request resolved to. <paramref name="TenantId"/> is the tenant that owns the school, which the
+/// database row-level security reads from the session (ADR-026).
+/// </summary>
+public sealed record ResolvedTenant(int SchoolId, int TenantId, bool IsMaster);

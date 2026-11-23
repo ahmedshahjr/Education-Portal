@@ -54,19 +54,23 @@ public sealed class SubscriptionLifecycleJob : IJob
         await using var scope = scopeFactory.CreateAsyncScope();
         var services = scope.ServiceProvider;
 
-        var masterId = await services.GetRequiredService<IApplicationDbContext>().Schools
+        var master = await services.GetRequiredService<IApplicationDbContext>().Schools
             .Where(s => s.IsMaster)
-            .Select(s => (int?)s.Id)
+            .Select(s => new { s.Id, s.TenantId })
             .SingleOrDefaultAsync(cancellationToken);
 
-        if (masterId is null)
+        if (master is null)
         {
             // No master tenant yet (an empty database): nothing may manage subscriptions, so do nothing (fail closed).
             services.GetRequiredService<ILogger<SubscriptionLifecycleJob>>().LogWarning("Subscription lifecycle skipped: there is no master tenant");
             return null;
         }
 
-        services.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(masterId.Value, IsMaster: true));
+        // The job is a system actor acting as the master tenant on its own scope (ADR-015, ADR-026). It is not a request, so it
+        // gets the master bypass here and nowhere else.
+        var currentTenant = services.GetRequiredService<CurrentTenant>();
+        currentTenant.Set(new ResolvedTenant(master.Id, master.TenantId, IsMaster: true));
+        currentTenant.GrantMasterBypass();
 
         return await services.GetRequiredService<SubscriptionLifecycle>().RunAsync(now, cancellationToken);
     }

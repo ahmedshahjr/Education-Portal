@@ -159,23 +159,23 @@ public class ChangeAuditTests : TestBase
         var one = await AddSubscribedSchoolAsync(master, countryId, "School One", SchoolDomain);
         var two = await AddSubscribedSchoolAsync(master, countryId, "School Two", "school2.localhost");
 
-        var seen = await ReadAsync(new ResolvedTenant(one.Id, IsMaster: false));
+        var seen = await ReadAsync(TestApp.Resolve(one.Id, isMaster: false));
 
         seen.ShouldNotBeEmpty();
         seen.ShouldAllBe(e => e.SchoolId == one.Id); // no other school's, and no platform rows such as plans or prices
-        (await ReadAsync(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true))).ShouldContain(e => e.SchoolId == two.Id);
+        (await ReadAsync(TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true))).ShouldContain(e => e.SchoolId == two.Id);
     }
 
     /// <summary>The entries for one entity type (all when null), oldest first, as the master tenant reads them.</summary>
     private static async Task<List<ChangeAuditEntry>> EntriesAsync(string? entityType) =>
-        (await ReadAsync(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true)))
+        (await ReadAsync(TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true)))
             .Where(e => entityType == null || e.EntityType == entityType)
             .ToList();
 
     private static async Task<List<ChangeAuditEntry>> ReadAsync(ResolvedTenant tenant)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(tenant);
+        TestApp.SetTenant(scope.ServiceProvider, tenant);
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         return await context.ChangeAuditEntries.AsNoTracking().OrderBy(e => e.Id).ToListAsync();

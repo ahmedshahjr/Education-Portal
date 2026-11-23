@@ -133,7 +133,7 @@ public class GetMyRightsTests : TestBase
     private static async Task AssignMainCampusAsync(int schoolId, string userId)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
@@ -153,7 +153,7 @@ public class GetMyRightsTests : TestBase
     private static async Task<Guid> MainCampusPublicIdAsync(int schoolId)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         return await context.Campuses.Where(c => c.SchoolId == schoolId && c.Kind == CampusKind.Main).Select(c => c.PublicId).SingleAsync();
@@ -163,7 +163,7 @@ public class GetMyRightsTests : TestBase
     private static async Task GiveRoleAsync(int schoolId, string userId, bool allCampuses, bool canEdit)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var role = SchoolRole.Create(schoolId, "Grader");

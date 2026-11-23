@@ -130,10 +130,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<Notification> Notifications => Set<Notification>();
 
 
-    // Read by the query filters on every query, so each request sees its own tenant (ENG-EF-10).
+    // Read by the query filters on every query, so each request sees its own school and tenant (ENG-EF-10).
     private int? CurrentSchoolId => _tenant.SchoolId;
 
-    private bool IsMasterTenant => _tenant.IsMaster;
+    private int? CurrentTenantId => _tenant.TenantId;
+
+    private bool BypassTenantFilters => _tenant.BypassesTenantFilters;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -147,18 +149,24 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         // Last, so every entity type of the model, the lookup tables included, is in its feature schema.
         builder.ApplyFeatureSchemas();
 
-        // Tenant isolation (SEC-AUTHZ-03): a school sees only its own rows, the master tenant sees every school's. With
-        // no resolved tenant, CurrentSchoolId is null and nothing matches.
-        // Every entity that implements ITenantOwned gets the same filter, so a new school-owned entity cannot miss it. A test
-        // (TenantIsolationModelTests) fails when an entity has a SchoolId but no ITenantOwned.
+        // Tenant isolation (SEC-AUTHZ-03, ADR-026). Every ITenantOwned row has a TenantId column that the database fills from
+        // its school (a trigger, so the application cannot choose it). The row is visible only to its own school inside its
+        // own tenant; a master session sees every row. With no resolved school, nothing matches.
+        // Every entity that implements ITenantOwned gets the same column, foreign key, index and filter here, so a new
+        // school-owned entity cannot miss them. Tests (TenantIsolationModelTests) fail when one is missing.
         foreach (var entityType in builder.Model.GetEntityTypes().Where(t => typeof(ITenantOwned).IsAssignableFrom(t.ClrType)).ToList())
         {
+            var entity = builder.Entity(entityType.ClrType);
+            entity.Property<int>(ITenantOwned.TenantColumn).IsRequired();
+            entity.HasOne(typeof(Tenant)).WithMany().HasForeignKey(ITenantOwned.TenantColumn).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(ITenantOwned.TenantColumn, nameof(ITenantOwned.SchoolId));
+
             entityType.SetQueryFilter(TenantFilter(entityType.ClrType));
         }
 
         // The audit trail has no school for entries the system writes, so its SchoolId is nullable and it is not ITenantOwned.
         builder.Entity<ChangeAuditEntry>()
-            .HasQueryFilter(e => IsMasterTenant || e.SchoolId == CurrentSchoolId);
+            .HasQueryFilter(e => BypassTenantFilters || e.SchoolId == CurrentSchoolId);
 
         // Every entity's Guid PublicId is an alternate key (a unique constraint), the only identity the API exposes. The
         // int Id stays the primary key for joins and foreign keys (ENG-ID-01, ENG-ID-02).
@@ -205,15 +213,25 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         }, cancellationToken);
     }
 
-    /// <summary>The tenant filter of an <see cref="ITenantOwned"/> entity: the master tenant sees every row, a school its own.</summary>
+    /// <summary>
+    /// The tenant filter of an <see cref="ITenantOwned"/> entity: a master session sees every row; any other request sees the
+    /// rows of its own school, and only while the row's tenant is the school's tenant (ADR-026).
+    /// </summary>
     private LambdaExpression TenantFilter(Type entityClrType)
     {
         var entity = Expression.Parameter(entityClrType, "e");
         var self = Expression.Constant(this);
-        var isMaster = Expression.Property(self, nameof(IsMasterTenant));
+        var bypass = Expression.Property(self, nameof(BypassTenantFilters));
         var rowSchool = Expression.Convert(Expression.Property(entity, nameof(ITenantOwned.SchoolId)), typeof(int?));
         var sameSchool = Expression.Equal(rowSchool, Expression.Property(self, nameof(CurrentSchoolId)));
-        return Expression.Lambda(Expression.OrElse(isMaster, sameSchool), entity);
+        // EF.Property reads the shadow column, which has no CLR property on the entity (ADR-026).
+        var tenantColumn = Expression.Call(
+            typeof(EF).GetMethod(nameof(EF.Property))!.MakeGenericMethod(typeof(int)),
+            entity,
+            Expression.Constant(ITenantOwned.TenantColumn));
+        var rowTenant = Expression.Convert(tenantColumn, typeof(int?));
+        var sameTenant = Expression.Equal(rowTenant, Expression.Property(self, nameof(CurrentTenantId)));
+        return Expression.Lambda(Expression.OrElse(bypass, Expression.AndAlso(sameTenant, sameSchool)), entity);
     }
 
     /// <summary>

@@ -126,7 +126,7 @@ public class SchoolWithoutDomainTests : TestBase
     private static async Task<int> CountAllCampusesAsync(params int[] schoolIds)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(schoolIds[0], IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(schoolIds[0], isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         return await context.Campuses.CountAsync(c => schoolIds.Contains(c.SchoolId));
     }

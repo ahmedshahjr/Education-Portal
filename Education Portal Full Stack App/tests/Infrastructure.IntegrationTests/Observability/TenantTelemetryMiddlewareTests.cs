@@ -120,7 +120,11 @@ public class TenantTelemetryMiddlewareTests : IDisposable
 
     private sealed record FakeTenant(int? SchoolId) : ICurrentTenant
     {
+        public int? TenantId => null;
+
         public bool IsMaster => false;
+
+        public bool BypassesTenantFilters => false;
     }
 
     private sealed class ActivityFeature(Activity activity) : IHttpActivityFeature

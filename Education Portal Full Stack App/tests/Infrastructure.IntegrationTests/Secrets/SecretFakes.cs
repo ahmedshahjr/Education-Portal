@@ -67,7 +67,11 @@ internal sealed class FakeCurrentTenant(int? schoolId) : ICurrentTenant
 {
     public int? SchoolId { get; } = schoolId;
 
+    public int? TenantId => null;
+
     public bool IsMaster => false;
+
+    public bool BypassesTenantFilters => false;
 }
 
 /// <summary>Records every rendered log message and its exception.</summary>

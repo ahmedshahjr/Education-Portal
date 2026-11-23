@@ -206,7 +206,7 @@ public class SubscriptionLifecycleTests : TestBase
         var school = await TestApp.AddSchoolAsync("Some School", "some.localhost");
 
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(school.Id, IsMaster: false));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(school.Id, isMaster: false));
 
         await Should.ThrowAsync<ForbiddenAccessException>(() =>
             scope.ServiceProvider.GetRequiredService<SubscriptionLifecycle>().RunAsync(Start, CancellationToken.None));
@@ -280,14 +280,14 @@ public class SubscriptionLifecycleTests : TestBase
     private static async Task<bool> HasModuleAsync(int schoolId, ModuleCode code)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(schoolId, IsMaster: false));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(schoolId, isMaster: false));
         return await scope.ServiceProvider.GetRequiredService<IModuleAccess>().HasModuleAsync(schoolId, code, null, CancellationToken.None);
     }
 
     private static IServiceScope MasterScope()
     {
         var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         return scope;
     }
 }

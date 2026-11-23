@@ -27,7 +27,7 @@ public class GenerateDevelopmentDataTests : TestBase
         await TestApp.AddCountryAsync("PK", "Pakistan", ["en", "ur"], "ur", "Asia/Karachi", "PKR");
 
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var plan = Plan.Create(PricingCatalog.Full, "Full", "");
@@ -46,7 +46,7 @@ public class GenerateDevelopmentDataTests : TestBase
     public async Task ShouldCreateAnAdministratorWithTheDefaultEmailAndPasswordForEachGeneratedSchool()
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
 
         var summary = await scope.ServiceProvider.GetRequiredService<IDevelopmentDataGenerator>()
             .GenerateAsync(new DevelopmentDataRequest(Schools: 2, CampusesPerSchool: 1, PeoplePerCampus: 0, CountryCode: "PK", Seed: 42), CancellationToken.None);

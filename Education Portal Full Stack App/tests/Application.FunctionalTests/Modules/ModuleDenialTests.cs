@@ -107,7 +107,7 @@ public class ModuleDenialTests : TestBase
     private static async Task SuspendAsync(Guid subscriptionId, int schoolId)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var subscription = await context.Subscriptions.Include(s => s.Modules).SingleAsync(s => s.PublicId == subscriptionId);

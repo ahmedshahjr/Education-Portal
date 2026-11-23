@@ -79,6 +79,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -93,6 +96,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("SchoolId", "Name")
                         .IsUnique()
                         .HasFilter("\"IsDeleted\" = false");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("AcademicYears", "academics", t =>
                         {
@@ -129,6 +134,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolRoleId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -140,6 +148,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("SchoolRoleId");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.HasIndex("SchoolId", "UserId", "SchoolRoleId")
                         .IsUnique();
@@ -182,6 +192,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -193,6 +206,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("SchoolId", "ModuleId")
                         .IsUnique()
                         .HasFilter("\"Status\" = 1");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("AddOnRequests", "billing");
                 });
@@ -273,6 +288,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<DateTimeOffset>("SubmittedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -286,6 +304,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Level");
 
                     b.HasIndex("Status");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.HasIndex("SchoolId", "Status", "SubmittedAt");
 
@@ -333,6 +353,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("Weight")
                         .HasPrecision(5, 2)
                         .HasColumnType("numeric(5,2)");
@@ -344,6 +367,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("CourseId");
 
                     b.HasIndex("SchoolId", "CourseId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("Assessments", "academics");
                 });
@@ -386,6 +411,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Version")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -399,6 +427,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     b.HasIndex("SchoolId", "Kind")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("BrandingImages", "schools");
                 });
@@ -460,6 +490,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<TimeOnly?>("StartTime")
                         .HasColumnType("time without time zone");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -479,6 +512,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Type");
 
                     b.HasIndex("SchoolId", "EventDate");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("CalendarEvents", "academics", t =>
                         {
@@ -581,6 +616,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int?>("StateId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Website")
                         .HasMaxLength(2048)
                         .HasColumnType("character varying(2048)");
@@ -607,6 +645,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("SchoolId", "Code")
                         .IsUnique()
                         .HasFilter("\"IsDeleted\" = false");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("Campuses", "schools", t =>
                         {
@@ -639,6 +679,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -647,6 +690,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     b.HasIndex("CampusId", "Position")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("CampusPhones", "schools");
                 });
@@ -693,6 +738,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -704,6 +752,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Status");
 
                     b.HasIndex("SchoolId", "ScheduledAt");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("CampusVisits", "admissions");
                 });
@@ -897,6 +947,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -906,6 +959,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Level");
 
                     b.HasIndex("Status");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.HasIndex("SchoolId", "CampusId", "Level", "AcademicYear")
                         .IsUnique()
@@ -1076,6 +1131,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("TeacherUserDetailsId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -1089,6 +1147,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("SchoolId", "ClassOfferingId");
 
                     b.HasIndex("SchoolId", "TeacherUserDetailsId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("Courses", "academics");
                 });
@@ -1133,6 +1193,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -1142,6 +1205,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("SchoolId");
 
                     b.HasIndex("EnquiryId", "OccurredAt");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("EnquiryFollowUps", "admissions");
                 });
@@ -1178,6 +1243,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("StudentUserDetailsId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -1185,6 +1253,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("ClassOfferingId");
 
                     b.HasIndex("StudentUserDetailsId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.HasIndex("SchoolId", "StudentUserDetailsId", "ClassOfferingId")
                         .IsUnique();
@@ -1238,6 +1308,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -1245,6 +1318,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("GradingScaleId");
 
                     b.HasIndex("SchoolId", "GradingScaleId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("GradingBands", "academics");
                 });
@@ -1280,12 +1355,17 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
 
                     b.HasIndex("SchoolId", "Name")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("GradingScales", "academics");
                 });
@@ -1343,6 +1423,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -1362,6 +1445,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Type");
 
                     b.HasIndex("SchoolId", "StartDate");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("Holidays", "academics", t =>
                         {
@@ -1444,6 +1529,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasPrecision(5, 2)
                         .HasColumnType("numeric(5,2)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("Total")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
@@ -1468,6 +1556,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_Invoices_PeriodInvoicedOnce")
                         .HasFilter("\"Status\" <> 3");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("Invoices", "billing", t =>
                         {
@@ -1503,6 +1593,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -1510,6 +1603,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("InvoiceId");
 
                     b.HasIndex("SchoolId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("InvoiceLines", "billing");
                 });
@@ -1599,6 +1694,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -1609,6 +1707,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasAlternateKey("PublicId");
 
                     b.HasIndex("SchoolEventId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.HasIndex("SchoolId", "RecipientAccountId", "Created");
 
@@ -1647,6 +1747,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("StudentUserDetailsId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -1656,6 +1759,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("StudentUserDetailsId");
 
                     b.HasIndex("SchoolId", "StudentUserDetailsId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.HasIndex("SchoolId", "ParentUserDetailsId", "StudentUserDetailsId")
                         .IsUnique();
@@ -1718,6 +1823,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -1727,6 +1835,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Method");
 
                     b.HasIndex("SchoolId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("Payments", "billing", t =>
                         {
@@ -2075,6 +2185,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SubscriptionId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -2084,6 +2197,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasFilter("\"SentAt\" IS NULL");
 
                     b.HasIndex("SchoolId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.HasIndex("SubscriptionId", "PeriodEnd", "DaysBefore")
                         .IsUnique();
@@ -2153,6 +2268,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolRoleId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -2162,6 +2280,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("ModuleId");
 
                     b.HasIndex("SchoolId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.HasIndex("SchoolRoleId", "ModuleId", "CampusId")
                         .IsUnique();
@@ -2345,6 +2465,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -2353,6 +2476,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     b.HasIndex("SchoolId", "Kind")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("SchoolCurricula", "schools");
                 });
@@ -2396,6 +2521,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<DateTimeOffset>("StartsAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -2408,6 +2536,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Audience");
 
                     b.HasIndex("SchoolId", "StartsAt");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("SchoolEvents", "communication");
                 });
@@ -2445,6 +2575,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -2453,6 +2586,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     b.HasIndex("SchoolId", "Kind")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("SchoolFacilities", "schools");
                 });
@@ -2517,6 +2652,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Version")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -2531,6 +2669,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Kind");
 
                     b.HasIndex("SchoolId", "SortOrder");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("SchoolPhotos", "schools");
                 });
@@ -2583,6 +2723,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("VirtualTourUrl")
                         .HasMaxLength(2048)
                         .HasColumnType("character varying(2048)");
@@ -2599,6 +2742,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     b.HasIndex("SchoolId")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("SchoolProfiles", "schools");
                 });
@@ -2730,6 +2875,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<DateTimeOffset>("SubmittedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Title")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -2743,6 +2891,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Relation");
 
                     b.HasIndex("Status");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.HasIndex("SchoolId", "Status", "SubmittedAt");
 
@@ -2802,12 +2952,17 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
 
                     b.HasIndex("SchoolId", "Name")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("SchoolRoles", "access");
                 });
@@ -2844,6 +2999,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("Value")
                         .HasPrecision(7, 2)
                         .HasColumnType("numeric(7,2)");
@@ -2856,6 +3014,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     b.HasIndex("AssessmentId", "EnrolmentId")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("Scores", "academics");
                 });
@@ -2977,6 +3137,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time without time zone");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -2986,6 +3149,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("CampusId", "Name")
                         .IsUnique()
                         .HasFilter("\"IsDeleted\" = false");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("Shifts", "academics", t =>
                         {
@@ -3125,6 +3290,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("UserDetailsId")
                         .HasColumnType("integer");
 
@@ -3138,6 +3306,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserDetailsId")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("StudentProfiles", "schools");
                 });
@@ -3199,6 +3369,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset?>("TrialEndDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -3217,6 +3390,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasFilter("\"Status\" <> 5");
 
                     b.HasIndex("Status");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("Subscriptions", "billing", t =>
                         {
@@ -3320,6 +3495,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int?>("SubscriptionId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset>("ValidFrom")
                         .HasColumnType("timestamp with time zone");
 
@@ -3337,6 +3515,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Status");
 
                     b.HasIndex("SchoolId", "ModuleId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.HasIndex("SchoolId", "ModuleId", "CampusId")
                         .IsUnique()
@@ -3404,6 +3584,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -3413,6 +3596,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("AcademicYearId", "Sequence")
                         .IsUnique()
                         .HasFilter("\"IsDeleted\" = false");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("Terms", "academics", t =>
                         {
@@ -3467,6 +3652,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<TimeOnly>("Start")
                         .HasColumnType("time without time zone");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -3480,6 +3668,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("SchoolId", "CourseId");
 
                     b.HasIndex("SchoolId", "Day");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("TimetableSlots", "academics");
                 });
@@ -3513,6 +3703,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("UserDetailsId")
                         .HasColumnType("integer");
 
@@ -3523,6 +3716,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("CampusId");
 
                     b.HasIndex("SchoolId");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.HasIndex("UserDetailsId", "CampusId")
                         .IsUnique();
@@ -3586,6 +3781,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("SchoolId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("UserType")
                         .HasColumnType("integer");
 
@@ -3596,6 +3794,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("UserType");
 
                     b.HasIndex("SchoolId", "UserType");
+
+                    b.HasIndex("TenantId", "SchoolId");
 
                     b.ToTable("UserDetails", "schools");
                 });
@@ -5100,6 +5300,11 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         {
                             Id = 63,
                             Name = "SchoolDetailsChanged"
+                        },
+                        new
+                        {
+                            Id = 64,
+                            Name = "MasterTenantAccess"
                         });
                 });
 
@@ -5697,6 +5902,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("Status")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.AccountRole", b =>
@@ -5705,6 +5916,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SchoolRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("EducationPortal.Infrastructure.Identity.ApplicationUser", null)
@@ -5731,6 +5948,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.AddOnRequestStatus>", null)
                         .WithMany()
                         .HasForeignKey("Status")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -5769,6 +5992,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("Status")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.Assessment", b =>
@@ -5777,6 +6006,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -5791,6 +6026,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.School", null)
                         .WithMany()
                         .HasForeignKey("SchoolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -5812,6 +6053,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.CalendarEventType>", null)
@@ -5856,6 +6103,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("StateId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("City");
 
                     b.Navigation("PrincipalUserDetails");
@@ -5875,6 +6128,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Campus");
@@ -5903,6 +6162,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.VisitStatus>", null)
                         .WithMany()
                         .HasForeignKey("Status")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -5951,6 +6216,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("Status")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.Country", b =>
@@ -5980,6 +6251,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("TeacherUserDetailsId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.EnquiryFollowUp", b =>
@@ -6002,6 +6279,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Enquiry");
                 });
 
@@ -6018,6 +6301,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("StudentUserDetailsId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.GradingBand", b =>
@@ -6026,6 +6315,21 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany("Bands")
                         .HasForeignKey("GradingScaleId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EducationPortal.Domain.Entities.GradingScale", b =>
+                {
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -6046,6 +6350,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.HolidayType>", null)
@@ -6074,6 +6384,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.InvoiceLine", b =>
@@ -6087,6 +6403,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.School", null)
                         .WithMany()
                         .HasForeignKey("SchoolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -6116,6 +6438,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("SchoolEvent");
                 });
 
@@ -6130,6 +6458,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.UserDetails", null)
                         .WithMany()
                         .HasForeignKey("StudentUserDetailsId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -6151,6 +6485,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.School", null)
                         .WithMany()
                         .HasForeignKey("SchoolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -6219,6 +6559,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.RolePermission", b =>
@@ -6245,6 +6591,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SchoolRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -6287,6 +6639,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.SchoolEvent", b =>
@@ -6294,6 +6652,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.EventAudience>", null)
                         .WithMany()
                         .HasForeignKey("Audience")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -6310,6 +6674,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -6331,6 +6701,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.SchoolProfile", b =>
@@ -6345,6 +6721,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -6381,6 +6763,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("Status")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.SchoolRole", b =>
@@ -6389,6 +6777,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -6403,6 +6797,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.Enrolment", null)
                         .WithMany()
                         .HasForeignKey("EnrolmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -6435,6 +6835,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.State", b =>
@@ -6464,6 +6870,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("EducationPortal.Domain.Entities.UserDetails", "UserDetails")
@@ -6505,6 +6917,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("Status")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.TenantModule", b =>
@@ -6538,6 +6956,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Subscription");
                 });
 
@@ -6553,6 +6977,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -6574,6 +7004,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasForeignKey("Day")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationPortal.Domain.Entities.UserCampus", b =>
@@ -6590,6 +7026,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("EducationPortal.Domain.Entities.UserDetails", null)
                         .WithMany()
                         .HasForeignKey("UserDetailsId")
@@ -6603,6 +7045,12 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationPortal.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.UserType>", null)

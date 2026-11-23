@@ -170,7 +170,7 @@ flowchart TB
     end
 
     subgraph infra["Infrastructure layer, src/Infrastructure"]
-        ctx["11. ApplicationDbContext<br/>query filters: SchoolId, CampusId, soft delete"]
+        ctx["11. ApplicationDbContext<br/>query filters: TenantId, SchoolId, CampusId, soft delete"]
         save["12. Save interceptors<br/>audit fields, change audit"]
         secrets["ISecretProvider<br/>Vault / Key Vault / AWS / GCP"]
         otel["OpenTelemetry<br/>logs, metrics, traces"]
@@ -207,7 +207,7 @@ flowchart TB
 8. **Controller.** One thin controller per feature (`Web/Controllers/<Feature>Controller.cs`) turns the HTTP request into a request, builds the final request (route ids included) and calls the request rules. No business logic lives here.
 9. **Request rules.** `IRequestRules.CheckAsync` checks the sign-in, the password change, the master tenant, the module switch for the school (403 when the module is off), the role, the right and the campus, then runs the request's FluentValidation validators (400 with errors per field). The global filters in `Web/Filters` log each request, warn about a slow one and turn unhandled exceptions into ProblemDetails. See [How a request flows](#how-a-request-flows) and [Authorization and module check flow](#authorization-and-module-check-flow).
 10. **Use case service.** The use case itself, a `...Handler` class with one `Handle` method. It turns public `Guid` ids into internal `int` ids first (`ResolveIdAsync`), so another school's id is simply not found (404).
-11. **Database access.** `ApplicationDbContext` (EF Core + Npgsql) applies the global query filters, so every query is limited to the current school (and campus) and hides soft-deleted rows. Master-tenant users bypass the school filter. See [EF Core and PostgreSQL flow](#ef-core-and-postgresql-flow).
+11. **Database access.** `ApplicationDbContext` (EF Core + Npgsql) applies the global query filters, so every query is limited to the current tenant and school (and campus) and hides soft-deleted rows. Only a signed-in master-tenant session bypasses them, and PostgreSQL row-level security repeats the tenant check on every connection. See [EF Core and PostgreSQL flow](#ef-core-and-postgresql-flow).
 12. **Saving.** Interceptors fill the audit fields (`Created`, `CreatedBy`, `LastModified`, `LastModifiedBy`) and record old and new values of commercial rows in `ChangeAuditEntries` on `SaveChangesAsync`, all in one transaction.
 
 Alongside the request path, the database connection string and other platform secrets come from `ISecretProvider` at start-up ([Secrets flow](#secrets-flow)), and every step reports logs, metrics and traces, tagged with `tenant.id`, to one OTLP endpoint ([Observability flow](#observability-flow-opentelemetry)). Locally, the Aspire AppHost starts all of it ([The system at runtime](#the-system-at-runtime), [Aspire orchestration flow](#aspire-orchestration-flow)).
@@ -406,19 +406,20 @@ The rules live in [AGENTS.md, section 2](AGENTS.md#2-multi-tenancy-and-permissio
 ```mermaid
 flowchart TB
     master["Master tenant<br/>platform owner, own domain"]
+    tenantA["Tenant A<br/>a customer, one or more schools"]
     school1["School 1<br/>school1.com"]
     school2["School 2<br/>school2.com"]
     campus1["Main campus"]
     campus2["North campus"]
     campus3["City campus"]
-    master --> school1
-    master --> school2
+    tenantA --> school1
+    tenantA --> school2
     school1 --> campus1
     school1 --> campus2
     school2 --> campus3
 ```
 
-- **One shared database.** Rows owned by a school have a `SchoolId`, and campus data also has a `CampusId`. EF Core global query filters add those conditions to every query, so handlers never filter by tenant by hand. Only explicitly authorized and audited master-tenant use cases read across schools.
+- **One shared database, three layers of isolation** (decided 2026-11-23, [ADR-026](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-026-Row-Level-Security-And-Tenant-Column.md)). A tenant (the customer) owns one or more schools, and a school has one or more campuses. Every tenant-owned row has a `TenantId`, filled by a database trigger from its school (so no code chooses it), a `SchoolId`, and campus-scoped rows a `CampusId`. (1) EF Core global query filters match the request's tenant and school on every `ITenantOwned` entity, so handlers never filter by tenant by hand. (2) PostgreSQL row-level security (`FORCE`d, policy `TenantIsolation`) reads the tenant that `TenantSessionInterceptor` sets on each connection, so a query that forgets the filter still sees nothing of another tenant. (3) The trigger `TenantFromSchool` refuses a row that moves to another school. Only a signed-in master-tenant session on the master domain bypasses the filters and row-level security; every API call under it is audited as `MasterTenantAccess`. Row-level security binds only a database role that is not a superuser, so production connects with such a role.
 - **The domain picks the school.** Each school has its own domain. Before any endpoint runs, the API looks up the request's host in a domain table, and an unknown domain gets 404 with nothing served. The master portal has its own domain. The school is never taken from the request body, query string or a header. For local development, `localhost` is the master tenant; other schools are created through the API or the development data endpoint.
 - **The user must belong to that school.** The school in the user's sign-in must match the domain's school on every request; a mismatch is rejected and audited. Sign-in cookies are host-only, so a session from `school1.com` is never sent to `school2.com`.
 - **The campus is picked inside the app.** Campuses never get their own domain. Staff, students and parents can belong to several campuses and switch between them in the app, with the campus in the route (for example `/campuses/12/students`). The server checks that campus against the user on every request.
@@ -616,7 +617,7 @@ sequenceDiagram
     else any other path
         M->>R: ResolveAsync(host)
         R->>Db: lower-case host, trailing dot removed,<br/>Domain = host AND IsActive
-        Db-->>R: SchoolId, IsMaster (or nothing)
+        Db-->>R: SchoolId, TenantId, IsMaster (or nothing)
         alt no active school for the host
             R-->>M: null
             M-->>B: 404, nothing else
@@ -626,6 +627,10 @@ sequenceDiagram
             M->>S: next middlewares
             opt signed in and SchoolId claim differs from the host's school
                 S->>S: TenantMismatch audit event, request treated as anonymous
+            end
+            opt signed in on the master host, session still matches the master
+                S->>T: GrantMasterBypass (only here, after the session check)
+                S->>S: MasterTenantAccess audit event for each /api call
             end
         end
     end
@@ -712,20 +717,21 @@ flowchart TB
     subgraph read["Reading"]
         guid["Request Guid id"] --> resolve["Handler resolves Guid PublicId<br/>to the int Id (ResolveIdAsync)"]
         resolve --> q
-        q["Use case LINQ query on IApplicationDbContext"] --> filters["Global query filters<br/>SchoolId = host school (master sees all)<br/>IsDeleted = false"]
+        q["Use case LINQ query on IApplicationDbContext"] --> filters["Global query filters<br/>TenantId and SchoolId = host's (master session sees all)<br/>IsDeleted = false"]
         filters --> npgsqlR["Npgsql: SQL to PostgreSQL<br/>(traced as Npgsql spans)"]
+        session["TenantSessionInterceptor<br/>sets app.tenant_id and app.tenant_bypass<br/>on every physical connection"] -.-> npgsqlR
     end
     subgraph write["Saving"]
         s["Use case SaveChangesAsync"] --> audit["AuditableEntityInterceptor<br/>Created, CreatedBy, LastModified, LastModifiedBy"]
         audit --> changes["ChangeAuditInterceptor<br/>adds a ChangeAuditEntry with old and new values<br/>for each changed commercial row"]
         changes --> npgsqlW["Npgsql: INSERT / UPDATE in one transaction"]
     end
-    npgsqlR --> pg[("PostgreSQL<br/>EducationPortalDb")]
+    npgsqlR --> pg[("PostgreSQL<br/>EducationPortalDb<br/>row-level security: policy TenantIsolation,<br/>trigger TenantFromSchool")]
     npgsqlW --> pg
     init["Development start-up:<br/>apply migrations, import locations, seed (nothing dropped)"] --> pg
 ```
 
-The tenant filters cover `BrandingImage`, `Subscription`, `TenantModule`, `Campus`, `Invoice`, `InvoiceLine`, `Payment`, `AddOnRequest`, `RenewalReminder`, `ChangeAuditEntry`, `SchoolRole`, `RolePermission` and `UserDetails` today. Every new school-owned entity is added to them (AGENTS.md section 2).
+Every `ITenantOwned` entity gets a `TenantId` column (a foreign key to `Tenants`, filled from its school by the trigger), the tenant and school query filter, and a row-level security policy in the same migration (`TenantRowLevelSecurity`, [ADR-026](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-026-Row-Level-Security-And-Tenant-Column.md)). The exemptions are `ApplicationUser` (sign-in must find the user before a tenant is known) and `ChangeAuditEntry` (its school is nullable), each named with its reason in `TenantIsolationModelTests`. Tests prove that another tenant reads and writes nothing, including at database level with a non-superuser role (`TenantRowLevelSecurityTests`). A new tenant-owned entity follows AGENTS.md section 2.
 
 ### Secrets flow
 
