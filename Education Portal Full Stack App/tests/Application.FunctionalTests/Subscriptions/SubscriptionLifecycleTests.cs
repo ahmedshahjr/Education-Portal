@@ -23,8 +23,9 @@ public class SubscriptionLifecycleTests : TestBase
 {
     private const int GraceDays = 30;
 
-    // Today at 09:00 UTC: module access is also checked against the real clock, so the periods must be current.
-    private static readonly DateTimeOffset Start = new DateTimeOffset(DateTime.UtcNow.Date, TimeSpan.Zero).AddHours(9);
+    // Yesterday at 09:00 UTC: module access is also checked against the real clock, so the periods must already be current
+    // at any time of day (a start later today would not be in its period before that hour).
+    private static readonly DateTimeOffset Start = new DateTimeOffset(DateTime.UtcNow.Date.AddDays(-1), TimeSpan.Zero).AddHours(9);
 
     [Test]
     public async Task ShouldEndATrialAfterItsEndDateWithoutSuspendingItsModules()

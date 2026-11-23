@@ -14,10 +14,12 @@ namespace EducationPortal.Infrastructure.Data;
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
 {
     private readonly ICurrentTenant _tenant;
+    private readonly ITenantSystemScope _systemScope;
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ICurrentTenant tenant) : base(options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ICurrentTenant tenant, ITenantSystemScope systemScope) : base(options)
     {
         _tenant = tenant;
+        _systemScope = systemScope;
     }
 
     /// <summary>The security audit log. The application only ever adds to it (SEC-LOG-05).</summary>
@@ -135,7 +137,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     private int? CurrentTenantId => _tenant.TenantId;
 
-    private bool BypassTenantFilters => _tenant.BypassesTenantFilters;
+    // The EF filters and the PostgreSQL session setting (TenantSessionInterceptor) lift together: a system scope, such as
+    // self-service registration, must read and write the rows it creates in other tenants' names (ADR-026).
+    private bool BypassTenantFilters => _tenant.BypassesTenantFilters || _systemScope.IsActive;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
