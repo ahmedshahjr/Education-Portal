@@ -323,6 +323,8 @@ flowchart TB
 | `Shared` | Aspire resource names used by the AppHost, `Infrastructure` and the tests | nothing |
 | `AppHost` | Aspire orchestration (the startup project) | `Web`, `Shared` |
 
+The test projects under `tests/` sit outside these layers. `Application.FunctionalTests` and `Infrastructure.IntegrationTests` run the real pipeline and database, and the project has no unit test projects (project rule, 2026-11-23).
+
 Use cases query the database through `IApplicationDbContext` with EF Core directly. There is no repository layer ([ADR-001](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-001-Use-EFCore-In-Application-Layer.md)).
 
 ### How a request flows
