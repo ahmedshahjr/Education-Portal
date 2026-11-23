@@ -13,6 +13,7 @@ A multi-tenant education portal for schools, built as an MVP.
 
 - [Tech stack](#tech-stack) and [repository layout](#repository-layout)
 - [Run it locally](#run-it-locally)
+- [User guide](docs/user-guide/README.md) for school staff: sign in, schools, campuses, users and roles
 - [Architecture overview](#architecture-overview), starting with the end-to-end [architecture flow diagram](#architecture-flow-diagram) and its step-by-step walkthrough, then a [flow diagram for each technology](#technology-flows) (all listed in the [diagram index](#diagram-index), kept current by [CI](#keeping-the-diagrams-current))
 - [Development process](#development-process), including the [security and compliance rules](#security-and-compliance-rules) and the [engineering rules](#engineering-rules)
 - [Configuration and ports](#configuration-and-ports)
@@ -69,6 +70,7 @@ docs/ai/readme-guard.py           CI check that a PR changing technologies, flow
 docs/ai/architecture-diagram-guard.py
                                   CI check that a PR changing wired-up code also updates the README diagram that draws it
 docs/ai/review-checklist-guard.py CI check that every PR answers and ticks the six review questions (REVIEW-01..06)
+docs/user-guide/                  End-user guide: one page per task, English for now (see its README)
 docs/ai/secure-compliance/        Mandatory security and compliance rules: overview, one skill per topic and per standard
 docs/ai/engineering/              Mandatory engineering rules: SOLID/KISS/DRY/YAGNI, code quality and process, C# entities,
                                     EF Core, Angular with Material Design, AI agents and swarms
