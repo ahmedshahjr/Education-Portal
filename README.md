@@ -52,7 +52,7 @@ Every technology the portal uses, what it does here, and where its flow diagram 
 | API client | NSwag | latest (npm) | Generates the typed TypeScript client from the OpenAPI document | [NSwag client](#nswag-api-client-generation-flow) |
 | Backend tests | NUnit, Shouldly, Respawn, `Aspire.Hosting.Testing` | NUnit 5, Respawn 7, Aspire 13.6 | Integration and functional tests against a real PostgreSQL (no unit tests) | [Tests](#test-flow) |
 | Acceptance tests | Playwright + Reqnroll | Playwright 1.64, Reqnroll 3.3 | Browser tests from `.feature` files against the whole app | [Tests](#test-flow) |
-| Frontend tests | Vitest with jsdom | Vitest 5 | Angular component specs, including the translation coverage check | [Tests](#test-flow) |
+| Frontend tests | Vitest with jsdom | Vitest 5 | Angular integration tests (real services, HTTP boundary stubbed), including the translation coverage check; functional scenarios in Web.AcceptanceTests | [Tests](#test-flow) |
 | Compliance guards | Git pre-commit hook, GitHub Actions, Python 3.9+ scripts | n/a | Secure-coding checks on every commit and PR; twice-monthly review of the official sources behind the rules | [Compliance guards](#compliance-guards-flow) |
 | Cloud publish | Aspire Azure Container Apps + Azure PostgreSQL packages | 13.6 | The AppHost can publish to Azure Container Apps; actual hosting and CI/CD are still open (AGENTS.md section 9) | [Aspire](#aspire-orchestration-flow) |
 
@@ -548,7 +548,7 @@ The API sends OpenTelemetry logs, metrics and traces over OTLP to one endpoint, 
 | `tests/Infrastructure.IntegrationTests` | EF Core configuration, Identity, data, secrets and observability wiring against the real provider | Docker |
 | `tests/Application.FunctionalTests` | Use cases end to end through the API (validators, handlers, rules, tenancy, modules, rights), against a real PostgreSQL started by `tests/TestAppHost`. Respawn clears the data between tests. Also the architecture guard for tenant-owned entities. | Docker |
 | `tests/Web.AcceptanceTests` | Browser tests written as Reqnroll `.feature` files and run by Playwright against the whole app started by the AppHost | Docker and the Playwright browsers |
-| `src/Web/ClientApp` | Angular component and service specs with Vitest | Node.js |
+| `src/Web/ClientApp` | Angular integration specs with Vitest (components and services with the real HTTP client); no unit specs (project rule, 2026-11-23) | Node.js |
 
 Every new use case gets functional tests proving that an unauthenticated call gets 401, another school 404, another campus 404, a switched-off module 403 and a missing role right 403.
 
@@ -881,7 +881,7 @@ flowchart TB
     run --> acc["Web.AcceptanceTests"]
     acc --> ah["AppHost starts the whole app"]
     ah --> pw["Reqnroll .feature steps drive<br/>Playwright browsers"]
-    ng(["npx ng test --watch=false"]) --> vitest["Vitest + jsdom<br/>components, services, translation coverage"]
+    ng(["npx ng test --watch=false"]) --> vitest["Vitest + jsdom<br/>integration specs: components, services, translation coverage"]
 ```
 
 ### Compliance guards flow
