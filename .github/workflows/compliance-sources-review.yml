@@ -8,6 +8,9 @@
 #   NIST 800-63) are compared against last_seen_sha in sources.json.
 # - Sources without a feed (GovRAMP, SOC 2, ISO 27001, OMB M-26-14, EU law, PCI DSS) are
 #   listed for a manual check on their portals.
+# - Every source may carry status (current by default; superseded, withdrawn or retired), superseded_by,
+#   and valid_until (reports and certificates). The run lists retired or superseded sources, expired
+#   reports and certificates, and renewals due within 60 days.
 # - Every line shows the version the skills track (tracked_version) and the skills to update
 #   (skills), both from sources.json. sync-ai-wrappers.py --check makes sure every standard-*
 #   skill and every engineering skill has a source, so every skill is covered.
@@ -50,7 +53,10 @@ jobs:
           unchanged=""
           failed=""
           manual=""
+          retired=""
+          renewal=""
           new_shas="{}"
+          now_s=$(date -u +%s)
 
           for sources_path in $SOURCES_PATHS; do
           family=$(basename "$(dirname "$sources_path")")
@@ -67,6 +73,28 @@ jobs:
             version=$(jq -r '.tracked_version // "not recorded"' <<<"$src")
             skills=$(jq -r '(.skills // []) | map("`" + . + "`") | join(", ")' <<<"$src")
             info=" (${family}; tracked: ${version}; skills: ${skills:-none})"
+
+            # Retired, superseded or expired: a source whose status is not "current", or a report or
+            # certificate whose valid_until date has passed. Reports and certificates expiring within
+            # 60 days are listed as renewal due.
+            status=$(jq -r '.status // "current"' <<<"$src")
+            superseded=$(jq -r '.superseded_by // ""' <<<"$src")
+            valid_until=$(jq -r '.valid_until // ""' <<<"$src")
+            if [ "$status" != "current" ]; then
+              note=""
+              if [ -n "$superseded" ]; then
+                note="; superseded by ${superseded}"
+              fi
+              retired+="- [ ] **${name}**${info}: status \`${status}\`${note}. Update the skills listed above and sources.json"$'\n'
+            fi
+            if [ -n "$valid_until" ]; then
+              until_s=$(date -u -d "$valid_until" +%s)
+              if [ "$until_s" -lt "$now_s" ]; then
+                retired+="- [ ] **${name}**${info}: expired on ${valid_until}. Request the successor report or certificate"$'\n'
+              elif [ "$until_s" -lt "$((now_s + 60 * 86400))" ]; then
+                renewal+="- [ ] **${name}**${info}: expires on ${valid_until}; renewal due within 60 days"$'\n'
+              fi
+            fi
 
             if [ "$type" != "github-path" ]; then
               manual+="- [ ] **${name}**${info}: check ${portal} for new versions, amendments or guidance"$'\n'
@@ -103,6 +131,12 @@ jobs:
             echo
             echo "### Changed or not yet baselined"
             echo "${changed:-None.}"
+            echo
+            echo "### Retired, superseded or expired"
+            echo "${retired:-None.}"
+            echo
+            echo "### Renewal due within 60 days"
+            echo "${renewal:-None.}"
             echo
             echo "### Could not check automatically"
             echo "${failed:-None.}"

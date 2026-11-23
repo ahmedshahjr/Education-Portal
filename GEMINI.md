@@ -29,6 +29,7 @@ Gemini CLI imports every skill below into context at start, so all compliance an
 @./docs/ai/secure-compliance/standard-owasp-top10/SKILL.md
 @./docs/ai/secure-compliance/standard-pci-dss/SKILL.md
 @./docs/ai/secure-compliance/standard-soc2/SKILL.md
+@./docs/ai/secure-compliance/standard-third-party-assurance/SKILL.md
 @./docs/ai/secure-compliance/student-data-privacy/SKILL.md
 @./docs/ai/secure-compliance/web-api-hardening/SKILL.md
 @./docs/ai/engineering/SKILL.md

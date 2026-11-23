@@ -168,6 +168,230 @@
       ],
       "watch": null,
       "last_reviewed": "2026-11-10"
+    },
+    {
+      "id": "assurance-soc1-type1",
+      "name": "SOC 1 Type 1 report (supplier financial system controls, point in time)",
+      "portal": "https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-1",
+      "kind": "report",
+      "tracked_version": "Report to request; date and scope of the supplier's current report not recorded",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-soc2-type2",
+      "name": "SOC 2 Type 2 report (supplier independent security assessment)",
+      "portal": "https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2",
+      "kind": "report",
+      "tracked_version": "Report to request; period of the supplier's current report not recorded",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-etsi-319-119",
+      "name": "ETSI EN 319 and 119 series, conformity assessment under eIDAS",
+      "portal": "https://www.etsi.org/standards",
+      "kind": "certificate",
+      "tracked_version": "Certificate to request (only if qualified trust services are used)",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-pci-dss-aoc",
+      "name": "PCI DSS v4.0.1 and Attestation of Compliance (AoC)",
+      "portal": "https://www.pcisecuritystandards.org/",
+      "kind": "report",
+      "tracked_version": "PCI DSS v4.0.1 (June 2024); AoC to request, annual",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-pentest",
+      "name": "Penetration testing report (supplier)",
+      "portal": "https://owasp.org/www-project-web-security-testing-guide/",
+      "kind": "report",
+      "tracked_version": "Report to request; date of the supplier's latest test not recorded",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-ibeta-level-1",
+      "name": "iBeta Level 1 report (biometric presentation attack detection)",
+      "portal": "https://www.ibeta.com/",
+      "kind": "report",
+      "tracked_version": "Report to request; tested against ISO/IEC 30107-3:2023",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-ibeta-level-2",
+      "name": "iBeta Level 2 report (biometric presentation attack detection)",
+      "portal": "https://www.ibeta.com/",
+      "kind": "report",
+      "tracked_version": "Report to request; tested against ISO/IEC 30107-3:2023",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-ibeta-level-3",
+      "name": "iBeta Level 3 report (biometric presentation attack detection)",
+      "portal": "https://www.ibeta.com/",
+      "kind": "report",
+      "tracked_version": "Report to request; tested against ISO/IEC 30107-3:2023",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-iso-27001-cert",
+      "name": "ISO/IEC 27001:2022 certificate (supplier ISMS)",
+      "portal": "https://www.iso.org/standard/27001",
+      "kind": "certificate",
+      "tracked_version": "ISO/IEC 27001:2022 (with Amd 1:2024); supplier certificate to request",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-iso-22301",
+      "name": "ISO 22301:2019 certificate (business continuity)",
+      "portal": "https://www.iso.org/standard/75106.html",
+      "kind": "certificate",
+      "tracked_version": "ISO 22301:2019; a revision is at committee draft stage (not yet published)",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-iso-27017",
+      "name": "ISO/IEC 27017 certificate (cloud security controls)",
+      "portal": "https://www.iso.org/standard/43757.html",
+      "kind": "certificate",
+      "tracked_version": "ISO/IEC 27017:2015; a 2026 edition is reported in search results, not confirmed",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-iso-27018",
+      "name": "ISO/IEC 27018 certificate (PII protection in public clouds)",
+      "portal": "https://www.iso.org/standard/76559.html",
+      "kind": "certificate",
+      "tracked_version": "ISO/IEC 27018:2019; a 2025 edition is reported in search results, not confirmed",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-iso-31000",
+      "name": "ISO 31000:2018 certificate or report (risk management)",
+      "portal": "https://www.iso.org/standard/65694.html",
+      "kind": "certificate",
+      "tracked_version": "ISO 31000:2018; not verified online",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-iso-9001",
+      "name": "ISO 9001:2015 certificate (quality management)",
+      "portal": "https://www.iso.org/standard/62085.html",
+      "kind": "certificate",
+      "tracked_version": "ISO 9001:2015; revision ISO 9001:2026 reported as published, not confirmed",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": "ISO 9001:2026 (reported, to verify)",
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-iso-29115",
+      "name": "ISO/IEC 29115:2013 (entity authentication assurance framework)",
+      "portal": "https://www.iso.org/standard/45138.html",
+      "kind": "standard",
+      "tracked_version": "ISO/IEC 29115:2013; amendment ISO/IEC 29115:2013/DAmd 1 at draft stage",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
+    },
+    {
+      "id": "assurance-iso-29003",
+      "name": "ISO/IEC 29003:2018 (identity proofing and verification)",
+      "portal": "https://www.iso.org/standard/62290.html",
+      "kind": "standard",
+      "tracked_version": "ISO/IEC 29003:2018; not verified online",
+      "status": "current",
+      "valid_until": null,
+      "superseded_by": null,
+      "skills": [
+        "standard-third-party-assurance"
+      ],
+      "last_reviewed": "2026-11-23"
     }
   ]
 }
