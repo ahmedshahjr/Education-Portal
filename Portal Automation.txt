@@ -65,7 +65,7 @@ Infrastructure (EF config, schema mapping, enum lookup tables, dotnet ef migrati
 i18n ids, client-side mirror of every server validation, moduleGuard) -> translations
 (en, ar, ur).
 - Write the failing test first for each use case, then the code. The coder also writes
-  the unit, functional and Angular tests listed in Step 4.
+  the integration, functional and Angular tests listed in Step 4 (no unit tests, ENG-TEST-00).
 - While building, run only the tests just touched (filtered), never the whole suite.
 - Surgical changes only. No unrelated refactoring.
 - Never weaken tenant isolation, never call HasQueryFilter twice, never hand-edit
@@ -74,10 +74,10 @@ i18n ids, client-side mirror of every server validation, moduleGuard) -> transla
 STEP 4 - TESTS (agent: e2e-runner; tester or dotnet-test:code-testing-implementer only
 to fill a gap)
 From the coder in Step 3. Check its AC -> test list against the plan; send gaps back once.
-- Unit: Domain.UnitTests (entities), Application.UnitTests (validators, handlers,
-  rules): valid case, each rejected case, each boundary.
-- Functional: Application.FunctionalTests per use case, including the denial cases.
-- Angular unit tests, and the translations spec must pass.
+- Integration: Infrastructure.IntegrationTests for each new entity, configuration or filter.
+- Functional: Application.FunctionalTests per use case (validators, handlers, rules):
+  valid case, each rejected case, each boundary, and the denial cases.
+- Angular specs, and the translations spec must pass.
 From e2e-runner:
 - Playwright + Reqnroll in tests/Web.AcceptanceTests: ONE scenario for the whole flow in
   the ticket (sign in on a school domain such as demo.localhost, every screen of the

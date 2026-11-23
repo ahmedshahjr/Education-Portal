@@ -357,7 +357,7 @@
       "portal": "https://www.iso.org/standard/62085.html",
       "kind": "certificate",
       "tracked_version": "ISO 9001:2015; revision ISO 9001:2026 reported as published, not confirmed",
-      "status": "current",
+      "status": "to-verify",
       "valid_until": null,
       "superseded_by": "ISO 9001:2026 (reported, to verify)",
       "skills": [

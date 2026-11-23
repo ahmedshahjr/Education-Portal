@@ -194,11 +194,11 @@ jobs:
         working-directory: ${{ env.SOLUTION_DIR }}
         run: dotnet build --no-restore
 
-      - name: Unit, integration and functional tests
+      - name: Integration and functional tests
         shell: bash
         working-directory: ${{ env.SOLUTION_DIR }}
         run: |
           set -euo pipefail
-          for p in tests/Domain.UnitTests tests/Application.UnitTests tests/Infrastructure.IntegrationTests tests/Application.FunctionalTests; do
+          for p in tests/Infrastructure.IntegrationTests tests/Application.FunctionalTests; do
             dotnet test "$p" --no-build
           done

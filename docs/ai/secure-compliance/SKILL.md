@@ -140,7 +140,7 @@ Rules that can be checked by a machine are enforced, so non-compliant changes ca
 | README guard | `docs/ai/readme-guard.py` (CI on PRs; run by hand before pushing) | PRs that change technologies, flows, setup or configuration without updating `README.md` (AGENTS.md section 7, rule 8); a `README: not needed - <reason>` line in the PR description skips it for review |
 | Secret scan | gitleaks in CI (and pre-commit if installed) | Secrets in new commits (SEC-SECRET-01/03) |
 | Dependency audit | CI: `dotnet list package --vulnerable`, `npm audit --audit-level=high` | Known vulnerable packages (SEC-DEP-02/03) |
-| Build and tests | CI: `dotnet build` (warnings are errors), unit, integration and functional tests | Broken builds and failing tenant-isolation tests (SEC-CHG-03) |
+| Build and tests | CI: `dotnet build` (warnings are errors), integration and functional tests | Broken builds and failing tenant-isolation tests (SEC-CHG-03) |
 | Dependabot | `.github/dependabot.yml` | Stale NuGet, npm and Actions dependencies (SEC-DEP-06/07) |
 
 - Workflow: `.github/workflows/compliance-guards.yml`, on every PR and push to `development` and `main`.

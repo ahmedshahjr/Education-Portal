@@ -3,14 +3,14 @@ using EducationPortal.Domain.Entities;
 using NUnit.Framework;
 using Shouldly;
 
-namespace EducationPortal.Domain.UnitTests.Common;
+namespace EducationPortal.Application.FunctionalTests.Tenancy;
 
 /// <summary>
 /// The architecture rule behind tenant isolation (SEC-AUTHZ-03): a school-owned entity says so with ITenantOwned, and the
 /// database context then gives it the tenant query filter. An entity with a SchoolId that does not implement the interface
-/// would silently skip the filter, so this test fails the build for it.
+/// would silently skip the filter, so this test fails the build for it. Reads the Domain types only, no database.
 /// </summary>
-public class TenantOwnedTests
+public class TenantOwnedEntityTests
 {
     /// <summary>Entities whose SchoolId is on purpose not a plain int. Each needs a reason.</summary>
     private static readonly Type[] NullableSchoolIdExceptions =
@@ -20,7 +20,8 @@ public class TenantOwnedTests
     ];
 
     private static IEnumerable<Type> EntityTypes() =>
-        typeof(BaseEntity).Assembly.GetTypes().Where(t => t is { IsClass: true, IsAbstract: false } && typeof(BaseEntity).IsAssignableFrom(t) || t == typeof(ChangeAuditEntry));
+        typeof(BaseEntity).Assembly.GetTypes()
+            .Where(t => t is { IsClass: true, IsAbstract: false } && typeof(BaseEntity).IsAssignableFrom(t) || t == typeof(ChangeAuditEntry));
 
     [Test]
     public void EveryEntityWithASchoolIdShouldImplementITenantOwned()

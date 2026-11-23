@@ -14,7 +14,7 @@ Framework abbreviations: **800-53** = NIST SP 800-53 Rev 5 (FedRAMP 20x Class C 
 | SEC-TEST-01 | Tenant/campus/module denial tests for every use case (SEC-AUTHZ-09). |
 | SEC-TEST-02 | Architecture tests: Domain/Application do not reference Infrastructure; every request type checked by the request rules has an authorization declaration; every tenant-owned entity has `SchoolId` and a query filter. |
 | SEC-TEST-03 | Tests for the hardening rules: security headers present, antiforgery required on unsafe methods, Scalar/OpenAPI not reachable outside Development, lockout after failed sign-ins, cookie flags. |
-| SEC-TEST-04 | Validators have unit tests for boundary and malicious input (overlong strings, script tags, SQL metacharacters, Unicode edge cases). |
+| SEC-TEST-04 | Validators are tested through the functional tests for boundary and malicious input (overlong strings, script tags, SQL metacharacters, Unicode edge cases). No unit test projects are used (project rule, 2026-11-23). |
 | SEC-TEST-05 | Before a production release: dynamic scan (e.g. OWASP ZAP baseline) against a staging environment; findings tracked to closure (**TODO** once hosting exists). |
 
 Supports: 800-53 SA-11, SA-11(1), RA-5, CA-2, CA-8; SOC 2 CC7.1, CC4.1; ISO 8.29.
