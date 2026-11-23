@@ -44,7 +44,7 @@ Based on the Angular team's [AI guidelines](https://angular.dev/ai/develop-with-
 | ID | Rule |
 |---|---|
 | ENG-UI-14 | **Lint and format.** Code passes `ng lint` (`angular-eslint` recommended and template accessibility rule sets) once it is added (overview section 6), and is formatted by the repo's Prettier/EditorConfig settings. |
-| ENG-UI-15 | **Tests.** Component and service tests use Vitest with `TestBed`, test behaviour through the rendered DOM and component harnesses (`MatButtonHarness`, `MatTableHarness`), not private fields. Every new component has at least one test; user journeys that cross the API are covered by `Web.AcceptanceTests` (Playwright). |
+| ENG-UI-15 | **Tests.** Component and service tests are Angular integration specs (ENG-TEST-06): the real standalone component, its real services and the real `HttpClient`, with only `HttpTestingController` at the HTTP boundary. Vitest with `TestBed`; test behaviour through the rendered DOM and component harnesses (`MatButtonHarness`, `MatTableHarness`), not private fields. Every new component has integration tests and a Playwright functional scenario in `Web.AcceptanceTests` for its flow (ENG-TEST-07). |
 | ENG-UI-16 | **Performance.** Respect the production budgets in `angular.json`; use `@defer` for heavy below-the-fold widgets (charts) and lazy routes for features. No new global CSS frameworks next to Angular Material. |
 
 <!-- BEGIN GENERATED: sources (docs/ai/sync-ai-wrappers.py) -->

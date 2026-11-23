@@ -25,9 +25,8 @@ public sealed class LoginStepDefinitions(LoginPage loginPage)
     [When("the user logs in with valid credentials")]
     public async Task TheUserLogsInWithValidCredentials()
     {
-        await loginPage.SetEmail("administrator@localhost");
-        // The Development seed account and its password (SEC-SECRET-04). It does not exist in other environments.
-        await loginPage.SetPassword("Local-Dev-Only-2026!");
+        await loginPage.SetEmail(DevelopmentAccount.MasterAdministratorEmail);
+        await loginPage.SetPassword(DevelopmentAccount.MasterAdministratorPassword);
         await loginPage.ClickLogin();
     }
 

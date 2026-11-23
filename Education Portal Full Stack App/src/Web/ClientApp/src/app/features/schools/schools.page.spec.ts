@@ -43,10 +43,11 @@ async function render() {
   return { fixture, http, element };
 }
 
-async function rowsShouldBe(fixture: { whenStable(): Promise<unknown>; nativeElement: HTMLElement }, names: string[]) {
+async function rowsShouldBe(fixture: { whenStable(): Promise<unknown>; detectChanges(): void; nativeElement: HTMLElement }, names: string[]) {
   // The generated client reads every response as a Blob, which is read asynchronously.
   await vi.waitFor(async () => {
     await fixture.whenStable();
+    fixture.detectChanges();
     const rows = [...fixture.nativeElement.querySelectorAll('tr.mat-mdc-row td:first-child')];
     expect(rows.map((r) => r.textContent?.trim())).toEqual(names);
   });
@@ -70,52 +71,36 @@ function type(element: HTMLElement, text: string) {
 describe('SchoolsPage', () => {
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
-  it('searches schools by name on the server from the first page', async () => {
+  it('filters the loaded schools by name on the page, without another request', async () => {
     const { fixture, http, element } = await render();
 
     type(element, 'alp');
-    type(element, 'alpha ');
-
-    const request = await nextSchoolsRequest(http);
-    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25&search=alpha');
-    request.flush(pageOf([{ id: '0190f3a0-0000-7000-8000-000000000007', name: 'Alpha Academy', countryId: '0190f3a0-0000-7000-8000-000000000001' }]));
-
     await rowsShouldBe(fixture, ['Alpha Academy']);
+    expect(http.match(isSchoolsRequest)).toEqual([]);
   });
 
-  it('limits the table to one country', async () => {
-    const { fixture, http } = await render();
+  it('limits the table to one country on the page', async () => {
+    const { fixture, element } = await render();
     const loader = TestbedHarnessEnvironment.loader(fixture);
     const filter = await loader.getHarness(MatSelectHarness.with({ selector: '.mm-schools__country-filter mat-select' }));
 
     await filter.open();
-    await filter.clickOptions({ text: 'United Arab Emirates' });
+    await filter.clickOptions({ text: 'Pakistan' });
 
-    const request = await nextSchoolsRequest(http);
-    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25&countryId=0190f3a0-0000-7000-8000-000000000002');
-    request.flush(pageOf([]));
-
-    await vi.waitFor(async () => {
-      await fixture.whenStable();
-      expect(fixture.nativeElement.textContent).toContain('No schools match');
-    });
+    await rowsShouldBe(fixture, ['Alpha Academy']);
+    expect(element.querySelector('input[type="search"]')).not.toBeNull();
   });
 
   it('clears the search and the country from the empty state', async () => {
-    const { fixture, http, element } = await render();
+    const { fixture, element } = await render();
 
     type(element, 'zzz');
-    (await nextSchoolsRequest(http)).flush(pageOf([]));
-    await vi.waitFor(async () => {
-      await fixture.whenStable();
-      expect(element.textContent).toContain('No schools match');
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(element.textContent).toContain('Clear search');
     });
 
-    [...element.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.includes('Clear filters'))!.click();
-
-    const request = await nextSchoolsRequest(http);
-    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25');
-    request.flush(pageOf([{ id: '0190f3a0-0000-7000-8000-000000000007', name: 'Alpha Academy', countryId: '0190f3a0-0000-7000-8000-000000000001' }, { id: '0190f3a0-0000-7000-8000-000000000008', name: 'Beta School' }]));
+    [...element.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.includes('Clear search'))!.click();
 
     await rowsShouldBe(fixture, ['Alpha Academy', 'Beta School']);
     expect(element.querySelector<HTMLInputElement>('input[type="search"]')!.value).toBe('');
@@ -141,8 +126,9 @@ describe('SchoolsPage', () => {
     });
     create.flush(blob('0190f3a0-0000-7000-8000-000000000009'), { status: 201, statusText: 'Created' });
 
+    // Saving reloads the whole list, so the new school is in it.
     const request = await nextSchoolsRequest(http);
-    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25&search=New%20School');
+    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=100');
     request.flush(pageOf([{ id: '0190f3a0-0000-7000-8000-000000000009', name: 'New School' }]));
 
     await rowsShouldBe(fixture, ['New School']);

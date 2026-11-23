@@ -21,6 +21,15 @@ public class LoginPage(IPage page) : BasePage(page)
         return (await signOut.TextContentAsync())?.Trim();
     }
 
+    public async Task SignInAsDevelopmentAdministrator()
+    {
+        await SetEmail(DevelopmentAccount.MasterAdministratorEmail);
+        await SetPassword(DevelopmentAccount.MasterAdministratorPassword);
+        await ClickLogin();
+        // The account menu appears in the top bar once the session and the branding are loaded.
+        await Assertions.Expect(Page.Locator("button[aria-label='Account menu']")).ToBeVisibleAsync();
+    }
+
     public Task AssertErrorVisible()
         => Assertions.Expect(Page.Locator("#login-error")).ToBeVisibleAsync();
 }

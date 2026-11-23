@@ -1,18 +1,22 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { of } from 'rxjs';
 import { GOOGLE_MAPS_LOADER, GoogleMapsApi } from '../../core/maps/google-maps';
-import { CampusMapSettingsDto, CampusesClient } from '../../web-api-client';
+import { API_BASE_URL } from '../../web-api-client';
 import { CampusLocationPickerComponent } from './campus-location-picker.component';
 
+/**
+ * Renders the picker with the real campus client over HttpClient. The map key comes from the API's answer; the Google
+ * Maps script itself is outside the app, so the loader is the only stand-in.
+ */
 function render(apiKey: string | undefined, loadMaps: (key: string) => Promise<GoogleMapsApi> = () => new Promise(() => {})) {
   TestBed.configureTestingModule({
     imports: [CampusLocationPickerComponent],
     providers: [
-      {
-        provide: CampusesClient,
-        useValue: { getCampusMapSettings: () => of(new CampusMapSettingsDto({ apiKey })) },
-      },
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      { provide: API_BASE_URL, useValue: '' },
       { provide: GOOGLE_MAPS_LOADER, useValue: loadMaps },
     ],
   });
@@ -20,6 +24,9 @@ function render(apiKey: string | undefined, loadMaps: (key: string) => Promise<G
   const located = vi.fn();
   fixture.componentInstance.located.subscribe(located);
   fixture.detectChanges();
+  TestBed.inject(HttpTestingController)
+    .expectOne('/api/Campuses/map-settings')
+    .flush(new Blob([JSON.stringify({ apiKey: apiKey ?? null })], { type: 'application/json' }));
   return { fixture, located, element: fixture.nativeElement as HTMLElement };
 }
 

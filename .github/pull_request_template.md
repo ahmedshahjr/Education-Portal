@@ -44,7 +44,7 @@ Tick each item or explain why it does not apply.
 - [ ] Bug fix and refactoring in separate commits or PRs (ENG-PROC-03)
 - [ ] No speculative abstractions or unused code; SOLID/KISS/DRY/YAGNI respected (ENG-DESIGN)
 - [ ] Tests describe behaviour and were written first for new logic (ENG-CODE-03, ENG-AGENT-05)
-- [ ] Backend logic has unit tests in the matching `*.UnitTests` or integration project: valid, rejected and boundary cases (ENG-CODE-10), or not applicable
+- [ ] Backend and frontend features have integration tests and functional tests (ENG-CODE-10, ENG-TEST-00): valid, rejected and boundary cases, or not applicable
 - [ ] Errors fail fast and loud; no empty catch (ENG-CODE-04/05)
 - [ ] Entities and EF Core changes follow ENG-ENTITY / ENG-EF, or not applicable
 - [ ] Only `Guid` public ids in DTOs and routes, `int` keys inside; enums by name on the API, explicit numbers in the database (ENG-ID, ENG-ENUM), or not applicable
