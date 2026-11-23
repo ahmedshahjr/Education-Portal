@@ -224,7 +224,7 @@ def readme_block(family: dict, items: list[dict], by_skill: dict[str, list[dict]
     begin, end = readme_markers(family)
     rows = ["| Skill | Kind | Sources and versions tracked |", "|---|---|---|"]
     for s in items:
-        srcs = "; ".join(f"{x['tracked_version']}" for x in by_skill.get(s["name"], [])) or family["no_sources"]
+        srcs = "<br>".join(x["tracked_version"] for x in by_skill.get(s["name"], [])) or family["no_sources"]
         rows.append(f"| [{s['name']}]({s['rel']}) | {family['kind'](s)} | {srcs} |")
     return (
         f"{begin}\n"
