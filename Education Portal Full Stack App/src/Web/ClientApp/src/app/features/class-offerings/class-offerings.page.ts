@@ -116,7 +116,7 @@ export class ClassOfferingsPage {
 
   protected readonly form = inject(FormBuilder).group(
     {
-      campusId: [null as string | null],
+      campusId: [null as string | null, Validators.required],
       level: [ClassLevel.Class1 as ClassLevel, Validators.required],
       academicYear: ['', [Validators.required, Validators.pattern(ACADEMIC_YEAR_PATTERN)]],
       monthlyFee: [0, [Validators.required, Validators.min(0)]],

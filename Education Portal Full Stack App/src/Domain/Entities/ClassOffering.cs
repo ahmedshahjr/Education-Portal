@@ -27,7 +27,7 @@ public partial class ClassOffering : BaseSoftDeletableEntity, ITenantOwned
     /// </summary>
     public static ClassOffering Create(
         int schoolId,
-        int? campusId,
+        int campusId,
         ClassLevel level,
         string academicYear,
         decimal monthlyFee,
@@ -39,10 +39,7 @@ public partial class ClassOffering : BaseSoftDeletableEntity, ITenantOwned
         bool showFee)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(schoolId);
-        if (campusId is <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(campusId));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campusId);
 
         if (!Enum.IsDefined(level))
         {
@@ -57,7 +54,7 @@ public partial class ClassOffering : BaseSoftDeletableEntity, ITenantOwned
     public int SchoolId { get; private set; }
 
     /// <summary>The campus this offering is for, or <c>null</c> for every campus of the school.</summary>
-    public int? CampusId { get; private set; }
+    public int CampusId { get; private set; }
 
     public ClassLevel Level { get; private set; }
 

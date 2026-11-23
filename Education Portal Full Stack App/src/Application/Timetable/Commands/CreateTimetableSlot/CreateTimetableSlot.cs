@@ -24,7 +24,7 @@ public record CreateTimetableSlotCommand
 
     public TimeOnly End { get; init; }
 
-    public Guid? CampusId { get; init; }
+    public Guid CampusId { get; init; }
 
     public string? Room { get; init; }
 }
@@ -33,6 +33,7 @@ public class CreateTimetableSlotCommandValidator : AbstractValidator<CreateTimet
 {
     public CreateTimetableSlotCommandValidator()
     {
+        RuleFor(c => c.CampusId).NotEmpty();
         RuleFor(c => c.CourseId).NotEmpty();
         RuleFor(c => c.Day).IsInEnum();
         RuleFor(c => c.End).GreaterThan(c => c.Start).WithMessage(_ => ValidationMessages.TimetableEndsAfterStart);
@@ -42,11 +43,13 @@ public class CreateTimetableSlotCommandValidator : AbstractValidator<CreateTimet
 
 public class CreateTimetableSlotCommandHandler
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;
 
-    public CreateTimetableSlotCommandHandler(IApplicationDbContext context, ICurrentTenant tenant)
+    public CreateTimetableSlotCommandHandler(IApplicationDbContext context, ICurrentTenant tenant, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _tenant = tenant;
     }
@@ -56,7 +59,8 @@ public class CreateTimetableSlotCommandHandler
         var schoolId = _tenant.SchoolId;
 
         var courseId = await _context.Courses.ResolveIdAsync(request.CourseId, cancellationToken);
-        int? campusId = request.CampusId is { } campus ? await _context.Campuses.ResolveIdAsync(campus, cancellationToken) : null;
+        var campusId = await _context.Campuses.ResolveIdAsync(request.CampusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.Timetable, AccessRight.Create, cancellationToken);
 
         var conflicts = await TimetableRules.FindConflictsAsync(
             _context, 0, courseId, request.Day, request.Start, request.End, campusId, request.Room, cancellationToken);

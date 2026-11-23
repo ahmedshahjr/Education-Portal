@@ -19,7 +19,6 @@ public record CreateCourseCommand
 
     public Guid TeacherId { get; init; }
 
-    public Guid? CampusId { get; init; }
 }
 
 public class CreateCourseCommandValidator : AbstractValidator<CreateCourseCommand>
@@ -34,11 +33,13 @@ public class CreateCourseCommandValidator : AbstractValidator<CreateCourseComman
 
 public class CreateCourseCommandHandler
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ICurrentTenant _tenant;
 
-    public CreateCourseCommandHandler(IApplicationDbContext context, ICurrentTenant tenant)
+    public CreateCourseCommandHandler(IApplicationDbContext context, ICurrentTenant tenant, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _tenant = tenant;
     }
@@ -56,7 +57,9 @@ public class CreateCourseCommandHandler
                 [new ValidationFailure(nameof(request.TeacherId), ValidationMessages.PersonIsNotTeacher)]);
         }
 
-        int? campusId = request.CampusId is { } campus ? await _context.Campuses.ResolveIdAsync(campus, cancellationToken) : null;
+        // A course is on the campus of its class offering (ADR-027), so the request carries no campus of its own.
+        var campusId = await _context.ClassOfferings.Where(o => o.Id == classOfferingId).Select(o => o.CampusId).SingleAsync(cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.AcademicSetup, AccessRight.Create, cancellationToken);
 
         var course = Domain.Entities.Course.Create(schoolId, classOfferingId, request.Name, teacherId, campusId);
         _context.Courses.Add(course);

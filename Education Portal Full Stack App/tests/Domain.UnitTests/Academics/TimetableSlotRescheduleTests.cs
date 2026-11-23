@@ -9,7 +9,7 @@ namespace EducationPortal.Domain.UnitTests.Academics;
 public class TimetableSlotRescheduleTests
 {
     private static TimetableSlot NewLesson() =>
-        TimetableSlot.Create(1, 1, null, Weekday.Monday, new TimeOnly(9, 0), new TimeOnly(10, 0), null);
+        TimetableSlot.Create(1, 1, 1, Weekday.Monday, new TimeOnly(9, 0), new TimeOnly(10, 0), null);
 
     [Test]
     public void ShouldMoveTheLessonAndTrimItsRoom()
@@ -30,7 +30,7 @@ public class TimetableSlotRescheduleTests
     {
         var lesson = NewLesson();
 
-        Should.Throw<ArgumentException>(() => lesson.Reschedule(null, Weekday.Monday, new TimeOnly(9, 0), new TimeOnly(9, 0), null));
+        Should.Throw<ArgumentException>(() => lesson.Reschedule(1, Weekday.Monday, new TimeOnly(9, 0), new TimeOnly(9, 0), null));
     }
 
     [Test]
@@ -39,7 +39,7 @@ public class TimetableSlotRescheduleTests
         var lesson = NewLesson();
 
         Should.Throw<ArgumentOutOfRangeException>(() =>
-            lesson.Reschedule(null, Weekday.Monday, new TimeOnly(9, 0), new TimeOnly(10, 0), new string('R', TimetableSlot.RoomMaxLength + 1)));
+            lesson.Reschedule(1, Weekday.Monday, new TimeOnly(9, 0), new TimeOnly(10, 0), new string('R', TimetableSlot.RoomMaxLength + 1)));
     }
 
     [Test]

@@ -75,6 +75,7 @@ public class HolidayConfiguration : IEntityTypeConfiguration<Holiday>
         // The calendar reads a school's holidays by date range.
         builder.HasIndex(h => new { h.SchoolId, h.StartDate });
         builder.HasIndex(h => h.CampusId);
+        builder.HasIndex(h => new { h.SchoolId, h.WholeSchoolKey }); // the copies of one whole-school holiday (ADR-027)
 
         builder.ToTable(t => t.HasCheckConstraint("CK_Holidays_Dates", "\"EndDate\" >= \"StartDate\""));
     }
@@ -92,6 +93,7 @@ public class CalendarEventConfiguration : IEntityTypeConfiguration<CalendarEvent
         // The calendar reads a school's events by date range.
         builder.HasIndex(e => new { e.SchoolId, e.EventDate });
         builder.HasIndex(e => e.CampusId);
+        builder.HasIndex(e => new { e.SchoolId, e.WholeSchoolKey }); // the copies of one whole-school event (ADR-027)
 
         builder.ToTable(t =>
         {

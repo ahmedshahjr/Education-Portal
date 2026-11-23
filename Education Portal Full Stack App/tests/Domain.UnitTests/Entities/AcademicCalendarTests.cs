@@ -169,16 +169,32 @@ public class HolidayTests
 {
     private static readonly DateOnly Start = new(2026, 12, 25);
 
-    private static Holiday Create(int? campusId = null, DateOnly? end = null) =>
+    private static Holiday Create(int campusId = 1, DateOnly? end = null) =>
         Holiday.Create(1, campusId, " Winter break ", Start, end ?? Start, HolidayType.Vacation, HolidayAudience.Both, isTentative: false);
 
     [Test]
-    public void ShouldCreateASchoolWideHoliday()
+    public void ShouldCreateAHolidayForItsCampus()
     {
         var holiday = Create();
 
         holiday.Title.ShouldBe("Winter break");
-        holiday.CampusId.ShouldBeNull();
+        holiday.CampusId.ShouldBe(1);
+        holiday.WholeSchoolKey.ShouldBeNull();
+    }
+
+    [Test]
+    public void ShouldRefuseAHolidayWithoutACampus() => Should.Throw<ArgumentOutOfRangeException>(() => Create(campusId: 0));
+
+    [Test]
+    public void ShouldJoinAWholeSchoolKeyOnce()
+    {
+        var key = Guid.CreateVersion7();
+        var holiday = Create();
+
+        holiday.JoinWholeSchool(key);
+
+        holiday.WholeSchoolKey.ShouldBe(key);
+        Should.Throw<ArgumentException>(() => holiday.JoinWholeSchool(Guid.Empty));
     }
 
     [Test]
@@ -202,8 +218,8 @@ public class HolidayTests
     [Test]
     public void ShouldRefuseUnknownTypesAndAudiences()
     {
-        Should.Throw<ArgumentOutOfRangeException>(() => Holiday.Create(1, null, "x", Start, Start, (HolidayType)0, HolidayAudience.Both, false));
-        Should.Throw<ArgumentOutOfRangeException>(() => Holiday.Create(1, null, "x", Start, Start, HolidayType.Public, (HolidayAudience)0, false));
+        Should.Throw<ArgumentOutOfRangeException>(() => Holiday.Create(1, 1, "x", Start, Start, (HolidayType)0, HolidayAudience.Both, false));
+        Should.Throw<ArgumentOutOfRangeException>(() => Holiday.Create(1, 1, "x", Start, Start, HolidayType.Public, (HolidayAudience)0, false));
     }
 }
 
@@ -212,7 +228,7 @@ public class CalendarEventTests
     private static readonly DateOnly Day = new(2026, 10, 15);
 
     private static CalendarEvent Create(TimeOnly? start, TimeOnly? end, string? description = null) =>
-        CalendarEvent.Create(1, null, " Sports day ", description, Day, start, end, CalendarEventType.Sports, CalendarEventAudience.All);
+        CalendarEvent.Create(1, 1, " Sports day ", description, Day, start, end, CalendarEventType.Sports, CalendarEventAudience.All);
 
     [Test]
     public void ShouldCreateAnAllDayEvent()

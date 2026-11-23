@@ -9,6 +9,7 @@ const blob = (body: unknown) => new Blob([JSON.stringify(body)], { type: 'applic
 
 const COURSE = '0190f3a0-0000-7000-8000-000000000001';
 const SLOT = '0190f3a0-0000-7000-8000-000000000002';
+const CAMPUS = '0190f3a0-0000-7000-8000-000000000003';
 
 interface Host {
   form: { setValue(value: unknown): void };
@@ -76,7 +77,7 @@ describe('TimetablePage', () => {
   it('adds a lesson with times the server understands', async () => {
     const { fixture, http, element, host } = await render();
     open(element, fixture, 'Add lesson');
-    host.form.setValue({ courseId: COURSE, day: 'Wednesday', start: '08:30', end: '09:15', campusId: null, room: ' Lab 1 ' });
+    host.form.setValue({ courseId: COURSE, day: 'Wednesday', start: '08:30', end: '09:15', campusId: CAMPUS, room: ' Lab 1 ' });
     fixture.detectChanges();
 
     element.querySelector<HTMLButtonElement>('form button[type="submit"]')!.click();
@@ -91,7 +92,7 @@ describe('TimetablePage', () => {
   it('tells which kind of clash a lesson would have, without saving it', async () => {
     const { fixture, http, element, host } = await render();
     open(element, fixture, 'Add lesson');
-    host.form.setValue({ courseId: COURSE, day: 'Tuesday', start: '09:30', end: '10:30', campusId: null, room: 'Room 2' });
+    host.form.setValue({ courseId: COURSE, day: 'Tuesday', start: '09:30', end: '10:30', campusId: CAMPUS, room: 'Room 2' });
     fixture.detectChanges();
 
     open(element, fixture, 'Check for clashes');
@@ -110,7 +111,7 @@ describe('TimetablePage', () => {
   it('says when a lesson fits the timetable', async () => {
     const { fixture, http, element, host } = await render();
     open(element, fixture, 'Add lesson');
-    host.form.setValue({ courseId: COURSE, day: 'Friday', start: '09:00', end: '10:00', campusId: null, room: '' });
+    host.form.setValue({ courseId: COURSE, day: 'Friday', start: '09:00', end: '10:00', campusId: CAMPUS, room: '' });
     fixture.detectChanges();
 
     open(element, fixture, 'Check for clashes');
@@ -128,7 +129,7 @@ describe('TimetablePage', () => {
     const edit = element.querySelector<HTMLButtonElement>('button[aria-label="Edit this lesson"]')!;
     edit.click();
     fixture.detectChanges();
-    host.form.setValue({ courseId: COURSE, day: 'Thursday', start: '10:00', end: '11:00', campusId: null, room: '' });
+    host.form.setValue({ courseId: COURSE, day: 'Thursday', start: '10:00', end: '11:00', campusId: CAMPUS, room: '' });
     fixture.detectChanges();
 
     element.querySelector<HTMLButtonElement>('form button[type="submit"]')!.click();

@@ -7,6 +7,8 @@ import { ClassOfferingsPage } from './class-offerings.page';
 
 const blob = (body: unknown) => new Blob([JSON.stringify(body)], { type: 'application/json' });
 
+const CAMPUS = '0190f3a0-0000-7000-8000-000000000003';
+
 async function render() {
   TestBed.configureTestingModule({
     providers: [provideHttpClient(), provideHttpClientTesting(), { provide: API_BASE_URL, useValue: '' }],
@@ -14,7 +16,7 @@ async function render() {
   const fixture = TestBed.createComponent(ClassOfferingsPage);
   const http = TestBed.inject(HttpTestingController);
   fixture.detectChanges();
-  http.expectOne('/api/Campuses').flush(blob([]));
+  http.expectOne('/api/Campuses').flush(blob([{ id: CAMPUS, name: 'Main campus' }]));
   await vi.waitFor(() => http.expectOne((r) => r.url.startsWith('/api/ClassOfferings')).flush(blob([])));
   const element = fixture.nativeElement as HTMLElement;
   await fixture.whenStable();
@@ -65,6 +67,7 @@ describe('ClassOfferingsPage form', () => {
   it('adds an offering with the currency in capitals', async () => {
     const { fixture, http, element } = await render();
     await openForm(element, fixture);
+    (fixture.componentInstance as unknown as { form: { controls: { campusId: { setValue(value: string): void } } } }).form.controls.campusId.setValue(CAMPUS);
     fill(element, 'academicYear', '2026-27');
     fill(element, 'currencyCode', 'pkr');
     fill(element, 'monthlyFee', '5000');

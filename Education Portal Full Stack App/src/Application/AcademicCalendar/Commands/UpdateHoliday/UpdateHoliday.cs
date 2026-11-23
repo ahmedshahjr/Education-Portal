@@ -64,16 +64,27 @@ public class UpdateHolidayCommandHandler
         var item = await _context.Holidays.FirstOrDefaultAsync(h => h.SchoolId == schoolId && h.PublicId == request.HolidayId, cancellationToken);
         Guard.Against.NotFound(request.HolidayId, item);
 
-        if (item.CampusId is { } itemCampusToCheck)
-        {
-            await _campusAccess.EnsureCampusAsync(itemCampusToCheck, ModuleCode.AcademicSetup, AccessRight.Edit, cancellationToken);
-        }
+        // A whole-school holiday is one row per campus: every copy changes together. The campus of a holiday never changes.
+        var rows = item.WholeSchoolKey is { } key
+            ? await _context.Holidays.Where(h => h.SchoolId == schoolId && h.WholeSchoolKey == key).ToListAsync(cancellationToken)
+            : [item];
+
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
-        if (campusId is { } campusIdToCheck)
+        if (item.WholeSchoolKey is null ? campusId != item.CampusId : campusId is not null)
         {
-            await _campusAccess.EnsureCampusAsync(campusIdToCheck, ModuleCode.AcademicSetup, AccessRight.Edit, cancellationToken);
+            throw CalendarRules.Invalid("CampusId", "The campus of a holiday cannot be changed. Delete it and add it again.");
         }
-        item.Change(campusId, request.Title, request.StartDate, request.EndDate, request.Type, request.AppliesTo, request.IsTentative);
+
+        foreach (var row in rows)
+        {
+            await _campusAccess.EnsureCampusAsync(row.CampusId, ModuleCode.AcademicSetup, AccessRight.Edit, cancellationToken);
+        }
+
+        foreach (var row in rows)
+        {
+            row.Change(row.CampusId, request.Title, request.StartDate, request.EndDate, request.Type, request.AppliesTo, request.IsTentative);
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
 
         await _auditLog.WriteAsync(

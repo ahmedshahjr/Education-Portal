@@ -38,15 +38,17 @@ public class GetSchoolPhotosQueryHandler
             .Where(p => p.SchoolId == schoolId)
             .OrderBy(p => p.SortOrder)
             .ThenBy(p => p.Id)
-            .Select(p => new { p.PublicId, p.CampusId, p.Kind, p.Caption, p.SortOrder, p.ContentType, p.Version })
+            .Select(p => new { p.PublicId, p.WholeSchoolKey, p.CampusId, p.Kind, p.Caption, p.SortOrder, p.ContentType, p.Version })
             .ToListAsync(cancellationToken);
 
         var campusIds = await CampusPublicIds.ForSchoolAsync(_context, schoolId, cancellationToken);
 
+        // A whole-school photo is stored once per campus; it is listed once, with no campus.
         return photos
+            .DistinctBy(p => p.WholeSchoolKey ?? p.PublicId)
             .Select(p => new SchoolPhotoDto(
                 p.PublicId,
-                p.CampusId is { } campus && campusIds.TryGetValue(campus, out var publicId) ? publicId : null,
+                p.WholeSchoolKey is null && campusIds.TryGetValue(p.CampusId, out var publicId) ? publicId : null,
                 p.Kind,
                 p.Caption,
                 p.SortOrder,

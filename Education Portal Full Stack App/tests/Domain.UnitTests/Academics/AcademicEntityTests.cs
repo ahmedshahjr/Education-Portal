@@ -11,7 +11,7 @@ public class AcademicEntityTests
     [Test]
     public void ShouldCreateACourseWithTrimmedName()
     {
-        var course = Course.Create(1, 2, "  Mathematics ", 3, null);
+        var course = Course.Create(1, 2, "  Mathematics ", 3, 1);
 
         course.Name.ShouldBe("Mathematics");
         course.TeacherUserDetailsId.ShouldBe(3);
@@ -25,11 +25,11 @@ public class AcademicEntityTests
 
         if (valid)
         {
-            Course.Create(1, 2, name, 3, null).Name.Length.ShouldBe(length);
+            Course.Create(1, 2, name, 3, 1).Name.Length.ShouldBe(length);
         }
         else
         {
-            Should.Throw<ArgumentOutOfRangeException>(() => Course.Create(1, 2, name, 3, null));
+            Should.Throw<ArgumentOutOfRangeException>(() => Course.Create(1, 2, name, 3, 1));
         }
     }
 
@@ -37,7 +37,7 @@ public class AcademicEntityTests
     [TestCase("   ")]
     public void ShouldRefuseABlankCourseName(string name)
     {
-        Should.Throw<ArgumentException>(() => Course.Create(1, 2, name, 3, null));
+        Should.Throw<ArgumentException>(() => Course.Create(1, 2, name, 3, 1));
     }
 
     [TestCase(0, 2, 3)]
@@ -45,7 +45,7 @@ public class AcademicEntityTests
     [TestCase(1, 2, 0)]
     public void ShouldRefuseAnIdThatIsNotASavedRow(int schoolId, int classOfferingId, int teacherId)
     {
-        Should.Throw<ArgumentOutOfRangeException>(() => Course.Create(schoolId, classOfferingId, "Maths", teacherId, null));
+        Should.Throw<ArgumentOutOfRangeException>(() => Course.Create(schoolId, classOfferingId, "Maths", teacherId, 1));
     }
 
     [Test]
@@ -123,6 +123,6 @@ public class AcademicEntityTests
     [Test]
     public void ShouldLeaveAnEmptyRoomEmpty()
     {
-        TimetableSlot.Create(1, 2, null, Weekday.Friday, new TimeOnly(9, 0), new TimeOnly(10, 0), "  ").Room.ShouldBeNull();
+        TimetableSlot.Create(1, 2, 1, Weekday.Friday, new TimeOnly(9, 0), new TimeOnly(10, 0), "  ").Room.ShouldBeNull();
     }
 }

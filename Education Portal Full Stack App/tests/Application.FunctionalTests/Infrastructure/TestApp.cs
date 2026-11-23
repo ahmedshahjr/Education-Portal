@@ -344,6 +344,20 @@ public static class TestApp
         return await context.FindAsync<TEntity>(keyValues);
     }
 
+    /// <summary>The internal id of a school's main campus, for a test that adds rows on it directly.</summary>
+    public static async Task<int> MainCampusIdAsync(int schoolId)
+    {
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+
+        SetTenant(scope.ServiceProvider, Resolve(MasterSchoolId, isMaster: true));
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        return await context.Campuses
+            .Where(b => b.SchoolId == schoolId && b.Kind == EducationPortal.Domain.Enums.CampusKind.Main)
+            .Select(b => b.Id)
+            .SingleAsync();
+    }
+
     public static async Task AddAsync<TEntity>(TEntity entity)
         where TEntity : class
     {

@@ -25,13 +25,10 @@ public class SchoolReview : BaseSoftDeletableEntity, ITenantOwned
     }
 
     /// <summary>Creates a pending review. The rating is 1 to 5, and the name and body are required.</summary>
-    public static SchoolReview Submit(int schoolId, int? campusId, string reviewerName, ReviewerRelation relation, int rating, string? title, string body, DateTimeOffset now)
+    public static SchoolReview Submit(int schoolId, int campusId, string reviewerName, ReviewerRelation relation, int rating, string? title, string body, DateTimeOffset now)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(schoolId);
-        if (campusId is <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(campusId));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campusId);
 
         if (!Enum.IsDefined(relation))
         {
@@ -69,7 +66,7 @@ public class SchoolReview : BaseSoftDeletableEntity, ITenantOwned
 
     public int SchoolId { get; private set; }
 
-    public int? CampusId { get; private set; }
+    public int CampusId { get; private set; }
 
     public string ReviewerName { get; private set; }
 

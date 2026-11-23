@@ -10,6 +10,7 @@ public class ClassOfferingValidatorTests
 {
     private static CreateClassOfferingCommand Valid() => new()
     {
+        CampusId = Guid.NewGuid(),
         Level = ClassLevel.Nursery,
         AcademicYear = "2026-27",
         MonthlyFee = 5000m,

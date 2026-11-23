@@ -105,7 +105,7 @@ export class TimetablePage implements OnInit {
       day: [Weekday.Monday as Weekday, Validators.required],
       start: ['', Validators.required],
       end: ['', Validators.required],
-      campusId: [null as string | null],
+      campusId: [null as string | null, Validators.required],
       room: ['', Validators.maxLength(ROOM_MAX_LENGTH)],
     },
     { validators: [timeRangeValidator('start', 'end')] }

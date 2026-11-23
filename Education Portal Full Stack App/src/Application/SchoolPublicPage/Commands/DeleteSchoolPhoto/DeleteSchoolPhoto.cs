@@ -50,7 +50,17 @@ public class DeleteSchoolPhotoCommandHandler
         var photo = await _context.SchoolPhotos.FirstOrDefaultAsync(p => p.SchoolId == schoolId && p.PublicId == request.PhotoId, cancellationToken);
         Guard.Against.NotFound(request.PhotoId, photo);
 
-        photo.Delete(_timeProvider.GetUtcNow(), _user.Id);
+        // A whole-school photo is deleted for every campus at once.
+        var rows = photo.WholeSchoolKey is { } key
+            ? await _context.SchoolPhotos.Where(p => p.SchoolId == schoolId && p.WholeSchoolKey == key).ToListAsync(cancellationToken)
+            : [photo];
+
+        var now = _timeProvider.GetUtcNow();
+        foreach (var row in rows)
+        {
+            row.Delete(now, _user.Id);
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
 
         await _auditLog.WriteAsync(

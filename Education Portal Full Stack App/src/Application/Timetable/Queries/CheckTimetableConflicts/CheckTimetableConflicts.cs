@@ -24,7 +24,7 @@ public record CheckTimetableConflictsQuery
 
     public TimeOnly End { get; init; }
 
-    public Guid? CampusId { get; init; }
+    public Guid CampusId { get; init; }
 
     public string? Room { get; init; }
 
@@ -35,6 +35,7 @@ public class CheckTimetableConflictsQueryValidator : AbstractValidator<CheckTime
 {
     public CheckTimetableConflictsQueryValidator()
     {
+        RuleFor(c => c.CampusId).NotEmpty();
         RuleFor(c => c.CourseId).NotEmpty();
         RuleFor(c => c.Day).IsInEnum();
         RuleFor(c => c.End).GreaterThan(c => c.Start).WithMessage(_ => ValidationMessages.TimetableEndsAfterStart);
@@ -44,17 +45,20 @@ public class CheckTimetableConflictsQueryValidator : AbstractValidator<CheckTime
 
 public class CheckTimetableConflictsQueryHandler
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
 
-    public CheckTimetableConflictsQueryHandler(IApplicationDbContext context)
+    public CheckTimetableConflictsQueryHandler(IApplicationDbContext context, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
     }
 
     public async Task<IReadOnlyList<TimetableConflictDto>> Handle(CheckTimetableConflictsQuery request, CancellationToken cancellationToken)
     {
         var courseId = await _context.Courses.ResolveIdAsync(request.CourseId, cancellationToken);
-        int? campusId = request.CampusId is { } campus ? await _context.Campuses.ResolveIdAsync(campus, cancellationToken) : null;
+        var campusId = await _context.Campuses.ResolveIdAsync(request.CampusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.Timetable, AccessRight.View, cancellationToken);
         var slotId = request.SlotId is { } slot ? await _context.TimetableSlots.ResolveIdAsync(slot, cancellationToken) : 0;
 
         return await TimetableRules.FindConflictsAsync(

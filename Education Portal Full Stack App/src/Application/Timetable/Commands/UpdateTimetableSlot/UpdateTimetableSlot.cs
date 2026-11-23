@@ -24,7 +24,7 @@ public record UpdateTimetableSlotCommand
 
     public TimeOnly End { get; init; }
 
-    public Guid? CampusId { get; init; }
+    public Guid CampusId { get; init; }
 
     public string? Room { get; init; }
 }
@@ -33,6 +33,7 @@ public class UpdateTimetableSlotCommandValidator : AbstractValidator<UpdateTimet
 {
     public UpdateTimetableSlotCommandValidator()
     {
+        RuleFor(c => c.CampusId).NotEmpty();
         RuleFor(c => c.Id).NotEmpty();
         RuleFor(c => c.Day).IsInEnum();
         RuleFor(c => c.End).GreaterThan(c => c.Start).WithMessage(_ => ValidationMessages.TimetableEndsAfterStart);
@@ -42,10 +43,12 @@ public class UpdateTimetableSlotCommandValidator : AbstractValidator<UpdateTimet
 
 public class UpdateTimetableSlotCommandHandler
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
 
-    public UpdateTimetableSlotCommandHandler(IApplicationDbContext context)
+    public UpdateTimetableSlotCommandHandler(IApplicationDbContext context, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
     }
 
@@ -53,7 +56,9 @@ public class UpdateTimetableSlotCommandHandler
     {
         var slotId = await _context.TimetableSlots.ResolveIdAsync(request.Id, cancellationToken);
         var slot = await _context.TimetableSlots.FirstAsync(s => s.Id == slotId, cancellationToken);
-        int? campusId = request.CampusId is { } campus ? await _context.Campuses.ResolveIdAsync(campus, cancellationToken) : null;
+        var campusId = await _context.Campuses.ResolveIdAsync(request.CampusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(slot.CampusId, ModuleCode.Timetable, AccessRight.Edit, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.Timetable, AccessRight.Edit, cancellationToken);
 
         var conflicts = await TimetableRules.FindConflictsAsync(
             _context, slotId, slot.CourseId, request.Day, request.Start, request.End, campusId, request.Room, cancellationToken);

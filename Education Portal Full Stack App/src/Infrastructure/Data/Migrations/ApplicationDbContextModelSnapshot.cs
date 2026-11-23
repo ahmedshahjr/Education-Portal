@@ -223,7 +223,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int?>("AssignedToUserDetailsId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("CampusId")
+                    b.Property<int>("CampusId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Channel")
@@ -444,7 +444,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("Audience")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("CampusId")
+                    b.Property<int>("CampusId")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("Created")
@@ -501,6 +501,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("WholeSchoolKey")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -512,6 +515,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Type");
 
                     b.HasIndex("SchoolId", "EventDate");
+
+                    b.HasIndex("SchoolId", "WholeSchoolKey");
 
                     b.HasIndex("TenantId", "SchoolId");
 
@@ -889,7 +894,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<int?>("CampusId")
+                    b.Property<int>("CampusId")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("Created")
@@ -1099,7 +1104,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CampusId")
+                    b.Property<int>("CampusId")
                         .HasColumnType("integer");
 
                     b.Property<int>("ClassOfferingId")
@@ -1381,7 +1386,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("AppliesTo")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("CampusId")
+                    b.Property<int>("CampusId")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("Created")
@@ -1434,6 +1439,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("WholeSchoolKey")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -1445,6 +1453,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Type");
 
                     b.HasIndex("SchoolId", "StartDate");
+
+                    b.HasIndex("SchoolId", "WholeSchoolKey");
 
                     b.HasIndex("TenantId", "SchoolId");
 
@@ -2600,7 +2610,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CampusId")
+                    b.Property<int>("CampusId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Caption")
@@ -2660,6 +2670,9 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
 
+                    b.Property<Guid?>("WholeSchoolKey")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasAlternateKey("PublicId");
@@ -2669,6 +2682,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasIndex("Kind");
 
                     b.HasIndex("SchoolId", "SortOrder");
+
+                    b.HasIndex("SchoolId", "WholeSchoolKey");
 
                     b.HasIndex("TenantId", "SchoolId");
 
@@ -2811,7 +2826,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.Property<int?>("CampusId")
+                    b.Property<int>("CampusId")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("Created")
@@ -3615,7 +3630,7 @@ namespace EducationPortal.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CampusId")
+                    b.Property<int>("CampusId")
                         .HasColumnType("integer");
 
                     b.Property<int>("CourseId")
@@ -5968,7 +5983,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.Campus", null)
                         .WithMany()
                         .HasForeignKey("CampusId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.EnquiryChannel>", null)
                         .WithMany()
@@ -6047,7 +6063,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.Campus", null)
                         .WithMany()
                         .HasForeignKey("CampusId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("EducationPortal.Domain.Entities.School", null)
                         .WithMany()
@@ -6197,7 +6214,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.Campus", null)
                         .WithMany()
                         .HasForeignKey("CampusId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.ClassLevel>", null)
                         .WithMany()
@@ -6238,7 +6256,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.Campus", null)
                         .WithMany()
                         .HasForeignKey("CampusId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("EducationPortal.Domain.Entities.ClassOffering", null)
                         .WithMany()
@@ -6344,7 +6363,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.Campus", null)
                         .WithMany()
                         .HasForeignKey("CampusId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("EducationPortal.Domain.Entities.School", null)
                         .WithMany()
@@ -6688,7 +6708,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.Campus", null)
                         .WithMany()
                         .HasForeignKey("CampusId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.PhotoKind>", null)
                         .WithMany()
@@ -6744,7 +6765,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.Campus", null)
                         .WithMany()
                         .HasForeignKey("CampusId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("EducationPortal.Infrastructure.Data.Lookups.EnumLookup<EducationPortal.Domain.Enums.ReviewerRelation>", null)
                         .WithMany()
@@ -6991,7 +7013,8 @@ namespace EducationPortal.Infrastructure.Data.Migrations
                     b.HasOne("EducationPortal.Domain.Entities.Campus", null)
                         .WithMany()
                         .HasForeignKey("CampusId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("EducationPortal.Domain.Entities.Course", null)
                         .WithMany()

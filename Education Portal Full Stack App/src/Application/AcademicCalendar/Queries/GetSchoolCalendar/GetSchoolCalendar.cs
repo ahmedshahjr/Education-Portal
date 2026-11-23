@@ -78,29 +78,30 @@ public class GetSchoolCalendarQueryHandler
         var holidays = await _context.Holidays
             .AsNoTracking()
             .Where(h => h.SchoolId == schoolId && h.StartDate <= to && h.EndDate >= from)
-            .Where(h => campusId == null || h.CampusId == null || h.CampusId == campusId)
-            .Where(h => allowed == null || h.CampusId == null || allowed.Contains(h.CampusId.Value))
+            .Where(h => campusId == null || h.CampusId == campusId)
+            .Where(h => allowed == null || allowed.Contains(h.CampusId))
             .OrderBy(h => h.StartDate)
             .ThenBy(h => h.Id)
-            .Select(h => new { h.PublicId, h.CampusId, h.Title, h.StartDate, h.EndDate, h.Type, h.AppliesTo, h.IsTentative })
+            .Select(h => new { h.PublicId, h.WholeSchoolKey, h.CampusId, h.Title, h.StartDate, h.EndDate, h.Type, h.AppliesTo, h.IsTentative })
             .ToListAsync(cancellationToken);
 
         var events = await _context.CalendarEvents
             .AsNoTracking()
             .Where(e => e.SchoolId == schoolId && e.EventDate >= from && e.EventDate <= to)
-            .Where(e => campusId == null || e.CampusId == null || e.CampusId == campusId)
-            .Where(e => allowed == null || e.CampusId == null || allowed.Contains(e.CampusId.Value))
+            .Where(e => campusId == null || e.CampusId == campusId)
+            .Where(e => allowed == null || allowed.Contains(e.CampusId))
             .OrderBy(e => e.EventDate)
             .ThenBy(e => e.StartTime)
             .ThenBy(e => e.Id)
-            .Select(e => new { e.PublicId, e.CampusId, e.Title, e.Description, e.EventDate, e.StartTime, e.EndTime, e.Type, e.Audience })
+            .Select(e => new { e.PublicId, e.WholeSchoolKey, e.CampusId, e.Title, e.Description, e.EventDate, e.StartTime, e.EndTime, e.Type, e.Audience })
             .ToListAsync(cancellationToken);
 
         var campusIds = await _context.Campuses
             .AsNoTracking()
             .Where(c => c.SchoolId == schoolId)
             .ToDictionaryAsync(c => c.Id, c => c.PublicId, cancellationToken);
-        Guid? Campus(int? id) => id is { } value && campusIds.TryGetValue(value, out var publicId) ? publicId : null;
+        // A whole-school item is stored once per campus. It is shown once, with no campus, so the first copy stands for it.
+        Guid? Campus(int id) => campusIds.TryGetValue(id, out var publicId) ? publicId : null;
 
         // The range is whole UTC days: a school event overlapping any part of [from, to] is included.
         var schoolEvents = request.IncludeSchoolEvents
@@ -116,8 +117,14 @@ public class GetSchoolCalendarQueryHandler
             : [];
 
         return new SchoolCalendarDto(
-            holidays.Select(h => new HolidayDto(h.PublicId, Campus(h.CampusId), h.Title, h.StartDate, h.EndDate, h.Type, h.AppliesTo, h.IsTentative)).ToList(),
-            events.Select(e => new CalendarEventDto(e.PublicId, Campus(e.CampusId), e.Title, e.Description, e.EventDate, e.StartTime, e.EndTime, e.Type, e.Audience)).ToList(),
+            holidays
+                .DistinctBy(h => h.WholeSchoolKey ?? h.PublicId)
+                .Select(h => new HolidayDto(h.PublicId, h.WholeSchoolKey is null ? Campus(h.CampusId) : null, h.Title, h.StartDate, h.EndDate, h.Type, h.AppliesTo, h.IsTentative))
+                .ToList(),
+            events
+                .DistinctBy(e => e.WholeSchoolKey ?? e.PublicId)
+                .Select(e => new CalendarEventDto(e.PublicId, e.WholeSchoolKey is null ? Campus(e.CampusId) : null, e.Title, e.Description, e.EventDate, e.StartTime, e.EndTime, e.Type, e.Audience))
+                .ToList(),
             schoolEvents);
     }
 }
