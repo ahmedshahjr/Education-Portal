@@ -28,7 +28,7 @@ public class GetStudentAdmissionQueryHandler
 
     public async Task<StudentAdmissionDto> Handle(GetStudentAdmissionQuery request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         return await _context.StudentProfiles
             .AsNoTracking()

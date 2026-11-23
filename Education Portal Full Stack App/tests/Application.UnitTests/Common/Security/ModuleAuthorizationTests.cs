@@ -32,6 +32,7 @@ public class ModuleAuthorizationTests
         _user = new Mock<IUser>();
         _user.Setup(u => u.Id).Returns("user-1");
         _tenant = new Mock<ICurrentTenant>();
+        _tenant.Setup(t => t.IsResolved).Returns(true);
         _tenant.Setup(t => t.SchoolId).Returns(SchoolId);
         _modules = new Mock<IModuleAccess>();
     }
@@ -60,7 +61,7 @@ public class ModuleAuthorizationTests
     [Test]
     public async Task ShouldRefuseWithoutAResolvedSchool()
     {
-        _tenant.Setup(t => t.SchoolId).Returns((int?)null);
+        _tenant.Setup(t => t.IsResolved).Returns(false);
 
         await Should.ThrowAsync<ForbiddenAccessException>(() =>
             Authorizer().AuthorizeAsync(typeof(GradesRequest), CancellationToken.None));

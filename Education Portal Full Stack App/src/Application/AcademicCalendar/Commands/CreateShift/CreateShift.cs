@@ -57,7 +57,10 @@ public class CreateShiftCommandHandler
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await _context.Campuses.Where(c => c.SchoolId == schoolId).ResolveIdAsync(request.CampusId, cancellationToken);
 
-        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.AcademicSetup, AccessRight.Create, cancellationToken);
+        if (campusId is { } campusIdToCheck)
+        {
+            await _campusAccess.EnsureCampusAsync(campusIdToCheck, ModuleCode.AcademicSetup, AccessRight.Create, cancellationToken);
+        }
         await ShiftRules.EnsureNameFreeAsync(_context, campusId, null, request.Name, cancellationToken);
 
         var shift = Shift.Create(schoolId, campusId, request.Name, request.StartTime, request.EndTime);

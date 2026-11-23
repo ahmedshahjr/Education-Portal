@@ -133,10 +133,12 @@ public class GetChangeAuditQueryHandler
     private async Task<HashSet<string>> VisibleEntityTypesAsync(CancellationToken cancellationToken)
     {
         var visible = new HashSet<string>(StringComparer.Ordinal);
-        if (_user.Id is not { } userId || _tenant.SchoolId is not { } schoolId)
+        if (_user.Id is not { } userId || !_tenant.IsResolved)
         {
             return visible;
         }
+
+        var schoolId = _tenant.SchoolId;
 
         foreach (var module in ModuleOfEntity.Values.Distinct())
         {

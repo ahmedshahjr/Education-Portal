@@ -51,7 +51,7 @@ public class RecordScoreCommandHandler
 
     public async Task Handle(RecordScoreCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var assessmentId = await _context.Assessments.ResolveIdAsync(request.AssessmentId, cancellationToken);
         var assessment = await _context.Assessments.AsNoTracking().FirstAsync(a => a.Id == assessmentId, cancellationToken);

@@ -69,7 +69,8 @@ public sealed class RequestAuthorizer : IRequestAuthorizer
 
         if (modules.Count > 0 && !_tenant.IsMaster)
         {
-            var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+            // An unresolved tenant is refused, never read as "no school" (fail closed).
+            var schoolId = _tenant.IsResolved ? _tenant.SchoolId : throw new ForbiddenAccessException();
 
             foreach (var module in modules)
             {
@@ -120,7 +121,8 @@ public sealed class RequestAuthorizer : IRequestAuthorizer
         var checkRights = rights.Count > 0 && !_tenant.IsMaster && !(_user.Roles?.Contains(Roles.Administrator) ?? false);
         if (checkRights)
         {
-            var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+            // An unresolved tenant is refused, never read as "no school" (fail closed).
+            var schoolId = _tenant.IsResolved ? _tenant.SchoolId : throw new ForbiddenAccessException();
 
             foreach (var attribute in rights)
             {

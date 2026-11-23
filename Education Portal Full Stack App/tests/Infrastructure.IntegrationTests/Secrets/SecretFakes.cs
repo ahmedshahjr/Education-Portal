@@ -65,9 +65,11 @@ internal sealed class FlakySecretProvider(int failures, bool transient) : ISecre
 
 internal sealed class FakeCurrentTenant(int? schoolId) : ICurrentTenant
 {
-    public int? SchoolId { get; } = schoolId;
+    public bool IsResolved => schoolId is not null;
 
-    public int? TenantId => null;
+    public int SchoolId => schoolId ?? throw new InvalidOperationException("The tenant is not resolved.");
+
+    public int TenantId => IsResolved ? 1 : throw new InvalidOperationException("The tenant is not resolved.");
 
     public bool IsMaster => false;
 

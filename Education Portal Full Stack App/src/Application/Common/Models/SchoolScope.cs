@@ -31,7 +31,7 @@ public static class SchoolScope
             return await context.Schools.ResolveIdAsync(masterChoice, cancellationToken);
         }
 
-        var ownSchoolId = tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var ownSchoolId = tenant.SchoolId;
         if (requestedSchoolId is not { } requested)
         {
             return ownSchoolId;

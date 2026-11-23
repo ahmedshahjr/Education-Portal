@@ -68,7 +68,7 @@ public class UpdateCampusCommandHandler
 
     public async Task Handle(UpdateCampusCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
         var campus = await _context.Campuses.FirstOrDefaultAsync(b => b.SchoolId == schoolId && b.PublicId == request.CampusId, cancellationToken);
         Guard.Against.NotFound(request.CampusId, campus);
 

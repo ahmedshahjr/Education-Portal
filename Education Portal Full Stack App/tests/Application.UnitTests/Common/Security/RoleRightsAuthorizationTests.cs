@@ -35,6 +35,7 @@ public class RoleRightsAuthorizationTests
         _user.Setup(u => u.Id).Returns("teacher-1");
         _user.Setup(u => u.Roles).Returns(new List<string> { "Teacher" });
         _tenant = new Mock<ICurrentTenant>();
+        _tenant.Setup(t => t.IsResolved).Returns(true);
         _tenant.Setup(t => t.SchoolId).Returns(SchoolId);
         _modules = new Mock<IModuleAccess>();
         _modules.Setup(m => m.HasModuleAsync(SchoolId, ModuleCode.Exams, null, It.IsAny<CancellationToken>())).ReturnsAsync(true);
@@ -109,7 +110,7 @@ public class RoleRightsAuthorizationTests
     [Test]
     public async Task ShouldRefuseWithoutAResolvedSchool()
     {
-        _tenant.Setup(t => t.SchoolId).Returns((int?)null);
+        _tenant.Setup(t => t.IsResolved).Returns(false);
 
         await Should.ThrowAsync<ForbiddenAccessException>(() =>
             Authorizer().AuthorizeAsync(typeof(EditScoresRequest), CancellationToken.None));

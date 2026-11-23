@@ -34,10 +34,12 @@ public class GetTrialNoticeQueryHandler
 
     public async Task<TrialNoticeDto> Handle(GetTrialNoticeQuery request, CancellationToken cancellationToken)
     {
-        if (_tenant.SchoolId is not { } schoolId || _tenant.IsMaster)
+        if (_tenant.IsMaster)
         {
             return NoTrial;
         }
+
+        var schoolId = _tenant.SchoolId;
 
         var trialEnd = await _context.Subscriptions
             .AsNoTracking()

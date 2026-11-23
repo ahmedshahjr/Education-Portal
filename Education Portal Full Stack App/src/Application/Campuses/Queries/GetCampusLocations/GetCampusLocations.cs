@@ -34,7 +34,7 @@ public class GetCampusLocationsQueryHandler
 
     public async Task<CampusLocationsDto> Handle(GetCampusLocationsQuery request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var countryId = await _context.Schools
             .AsNoTracking()

@@ -53,7 +53,7 @@ public class CreateTimetableSlotCommandHandler
 
     public async Task<Guid> Handle(CreateTimetableSlotCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var courseId = await _context.Courses.ResolveIdAsync(request.CourseId, cancellationToken);
         int? campusId = request.CampusId is { } campus ? await _context.Campuses.ResolveIdAsync(campus, cancellationToken) : null;

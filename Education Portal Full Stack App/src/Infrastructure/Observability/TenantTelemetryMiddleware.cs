@@ -25,13 +25,13 @@ public sealed class TenantTelemetryMiddleware(
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(tenant);
 
-        if (tenant.SchoolId is not { } schoolId)
+        if (!tenant.IsResolved)
         {
             await next(context);
             return;
         }
 
-        var tenantId = schoolId.ToString(CultureInfo.InvariantCulture);
+        var tenantId = tenant.SchoolId.ToString(CultureInfo.InvariantCulture);
 
         var activity = context.Features.Get<IHttpActivityFeature>()?.Activity ?? Activity.Current;
         activity?.SetTag(TelemetryNames.Tags.TenantId, tenantId);

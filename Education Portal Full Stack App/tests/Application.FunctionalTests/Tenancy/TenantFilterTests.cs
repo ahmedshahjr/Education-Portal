@@ -31,14 +31,17 @@ public class TenantFilterTests : TestBase
     }
 
     [Test]
-    public async Task ShouldShowNothingWithoutAResolvedSchool()
+    public async Task ShouldRefuseToQueryWithoutAResolvedTenant()
     {
         await TwoSchoolsOfOneTenantAsync();
 
-        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        var count = await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Campuses.CountAsync();
-
-        count.ShouldBe(0);
+        // No tenant is set on this scope, so the filter cannot read one: the query fails loudly instead of showing every row
+        // or none (fail closed, SEC-AUTHZ-04).
+        await Should.ThrowAsync<InvalidOperationException>(() =>
+        {
+            using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+            return scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Campuses.CountAsync();
+        });
     }
 
     [Test]

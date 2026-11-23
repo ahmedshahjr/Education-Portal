@@ -51,7 +51,7 @@ public class SetPersonCampusesCommandHandler
 
     public async Task Handle(SetPersonCampusesCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         // The tenant filter hides another school's person, so their id is not found (SEC-AUTHZ-03).
         var personId = await _context.UserDetails.ResolveIdAsync(request.PersonId, cancellationToken);

@@ -9,9 +9,16 @@ namespace EducationPortal.Web.Services;
 /// </summary>
 public sealed class CurrentTenant : ICurrentTenant
 {
-    public int? SchoolId { get; private set; }
+    private int? _schoolId;
+    private int? _tenantId;
 
-    public int? TenantId { get; private set; }
+    public bool IsResolved => _schoolId is not null;
+
+    /// <inheritdoc />
+    public int SchoolId => _schoolId ?? throw new InvalidOperationException("The tenant is not resolved for this scope.");
+
+    /// <inheritdoc />
+    public int TenantId => _tenantId ?? throw new InvalidOperationException("The tenant is not resolved for this scope.");
 
     public bool IsMaster { get; private set; }
 
@@ -21,13 +28,13 @@ public sealed class CurrentTenant : ICurrentTenant
     {
         ArgumentNullException.ThrowIfNull(tenant);
 
-        if (SchoolId is not null)
+        if (IsResolved)
         {
             throw new InvalidOperationException("The tenant of a request is set once.");
         }
 
-        SchoolId = tenant.SchoolId;
-        TenantId = tenant.TenantId;
+        _schoolId = tenant.SchoolId;
+        _tenantId = tenant.TenantId;
         IsMaster = tenant.IsMaster;
     }
 
@@ -61,8 +68,8 @@ public sealed class CurrentTenant : ICurrentTenant
             throw new InvalidOperationException("Only a request on the master tenant's domain can act as a school without a domain.");
         }
 
-        SchoolId = school.SchoolId;
-        TenantId = school.TenantId;
+        _schoolId = school.SchoolId;
+        _tenantId = school.TenantId;
         IsMaster = false;
         BypassesTenantFilters = false;
     }

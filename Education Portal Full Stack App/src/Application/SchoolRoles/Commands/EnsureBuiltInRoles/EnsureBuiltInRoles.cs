@@ -29,7 +29,7 @@ public class EnsureBuiltInRolesCommandHandler
 
     public async Task Handle(EnsureBuiltInRolesCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var existing = await _context.SchoolRoles
             .Where(r => r.SchoolId == schoolId)

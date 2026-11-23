@@ -29,7 +29,7 @@ public class UpdateBrandingCommandHandler
 
     public async Task Handle(UpdateBrandingCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new UnauthorizedAccessException();
+        var schoolId = _tenant.SchoolId;
 
         await BrandingStore.WriteAsync(_context, schoolId, request, cancellationToken);
 

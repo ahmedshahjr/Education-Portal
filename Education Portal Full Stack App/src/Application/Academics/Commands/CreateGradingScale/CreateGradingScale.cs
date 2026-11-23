@@ -58,7 +58,7 @@ public class CreateGradingScaleCommandHandler
 
     public async Task<Guid> Handle(CreateGradingScaleCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var bands = request.Bands.Select(b => new GradeBand(b.MinPercent, b.MaxPercent, b.Letter, b.Points)).ToList();
 

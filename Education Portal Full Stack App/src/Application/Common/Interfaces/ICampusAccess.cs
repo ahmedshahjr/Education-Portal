@@ -18,10 +18,10 @@ public interface ICampusAccess
     Task<IReadOnlyCollection<int>?> GetAllowedCampusIdsAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    /// Throws <c>ForbiddenAccessException</c> unless the user may act on the campus. <c>null</c> stands for a row of the
-    /// whole school (no campus), which the user's role rights alone decide, so it always passes here.
+    /// Throws <c>ForbiddenAccessException</c> unless the user may act on the campus. The campus is required: a row of the
+    /// whole school (no campus) is decided by the role rights alone and is not passed here.
     /// </summary>
-    Task EnsureCampusAsync(int? campusId, CancellationToken cancellationToken);
+    Task EnsureCampusAsync(int campusId, CancellationToken cancellationToken);
 
     /// <summary>
     /// The campuses where the user may use the right in the module: their assigned campuses intersected with the campuses
@@ -31,7 +31,7 @@ public interface ICampusAccess
 
     /// <summary>
     /// Throws <c>ForbiddenAccessException</c> unless the user is assigned to the campus and a role gives the right there.
-    /// <c>null</c> stands for a row of the whole school and always passes here.
+    /// The campus is required; a whole-school row is not passed here.
     /// </summary>
-    Task EnsureCampusAsync(int? campusId, ModuleCode module, AccessRight right, CancellationToken cancellationToken);
+    Task EnsureCampusAsync(int campusId, ModuleCode module, AccessRight right, CancellationToken cancellationToken);
 }

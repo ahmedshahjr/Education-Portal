@@ -53,7 +53,7 @@ public class CreateSchoolEventCommandHandler
 
     public async Task<Guid> Handle(CreateSchoolEventCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var schoolEvent = SchoolEvent.Create(schoolId, request.Title, request.Description, request.StartsAt, request.EndsAt, request.Audience);
         _context.SchoolEvents.Add(schoolEvent);

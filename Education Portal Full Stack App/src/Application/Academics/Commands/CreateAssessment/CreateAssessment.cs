@@ -53,7 +53,7 @@ public class CreateAssessmentCommandHandler
 
     public async Task<Guid> Handle(CreateAssessmentCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var courseId = await _context.Courses.ResolveIdAsync(request.CourseId, cancellationToken);
         var course = await _context.Courses.AsNoTracking().FirstAsync(c => c.Id == courseId, cancellationToken);

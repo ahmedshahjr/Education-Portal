@@ -118,9 +118,13 @@ public class TenantTelemetryMiddlewareTests : IDisposable
             _logger,
             Options.Create(new ObservabilityOptions { TenantIdAsMetricLabel = tenantIdAsMetricLabel }));
 
-    private sealed record FakeTenant(int? SchoolId) : ICurrentTenant
+    private sealed record FakeTenant(int? Resolved) : ICurrentTenant
     {
-        public int? TenantId => null;
+        public bool IsResolved => Resolved is not null;
+
+        public int SchoolId => Resolved ?? throw new InvalidOperationException("The tenant is not resolved.");
+
+        public int TenantId => IsResolved ? 1 : throw new InvalidOperationException("The tenant is not resolved.");
 
         public bool IsMaster => false;
 

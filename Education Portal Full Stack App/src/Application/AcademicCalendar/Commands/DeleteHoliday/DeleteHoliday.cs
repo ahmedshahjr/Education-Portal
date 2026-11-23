@@ -55,7 +55,10 @@ public class DeleteHolidayCommandHandler
         var item = await _context.Holidays.FirstOrDefaultAsync(h => h.SchoolId == schoolId && h.PublicId == request.HolidayId, cancellationToken);
         Guard.Against.NotFound(request.HolidayId, item);
 
-        await _campusAccess.EnsureCampusAsync(item.CampusId, ModuleCode.AcademicSetup, AccessRight.Delete, cancellationToken);
+        if (item.CampusId is { } itemCampusToCheck)
+        {
+            await _campusAccess.EnsureCampusAsync(itemCampusToCheck, ModuleCode.AcademicSetup, AccessRight.Delete, cancellationToken);
+        }
         item.Delete(_timeProvider.GetUtcNow(), _user.Id);
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -66,7 +66,10 @@ public class GetSchoolCalendarQueryHandler
     {
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
-        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.AcademicSetup, AccessRight.View, cancellationToken);
+        if (campusId is { } campusIdToCheck)
+        {
+            await _campusAccess.EnsureCampusAsync(campusIdToCheck, ModuleCode.AcademicSetup, AccessRight.View, cancellationToken);
+        }
         var (from, to) = (request.From, request.To);
 
         // A user limited to some campuses sees the whole school's entries and their own campuses' (AGENTS.md section 2).

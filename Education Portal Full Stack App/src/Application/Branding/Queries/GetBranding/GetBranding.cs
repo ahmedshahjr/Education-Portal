@@ -22,7 +22,7 @@ public class GetBrandingQueryHandler
 
     public async Task<BrandingDto> Handle(GetBrandingQuery request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new NotFoundException("host", nameof(School));
+        var schoolId = _tenant.SchoolId;
 
         return await BrandingStore.ReadAsync(_context, schoolId, cancellationToken);
     }

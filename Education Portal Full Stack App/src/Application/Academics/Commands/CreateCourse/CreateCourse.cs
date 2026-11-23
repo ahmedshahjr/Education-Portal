@@ -45,7 +45,7 @@ public class CreateCourseCommandHandler
 
     public async Task<Guid> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var classOfferingId = await _context.ClassOfferings.ResolveIdAsync(request.ClassOfferingId, cancellationToken);
         var teacherId = await _context.UserDetails.ResolveIdAsync(request.TeacherId, cancellationToken);

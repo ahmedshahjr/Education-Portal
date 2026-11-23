@@ -27,7 +27,7 @@ public class GetEnabledModulesQueryHandler
 
     public async Task<IReadOnlyList<ModuleCode>> Handle(GetEnabledModulesQuery request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new UnauthorizedAccessException();
+        var schoolId = _tenant.SchoolId;
 
         return await EnabledModules.ForTenantAsync(_context, _moduleAccess, schoolId, _tenant.IsMaster, cancellationToken);
     }

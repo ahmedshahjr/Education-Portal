@@ -52,7 +52,8 @@ public sealed class TenantSessionInterceptor(ICurrentTenant tenant, TenantSystem
 
         var tenantParameter = command.CreateParameter();
         tenantParameter.ParameterName = "tenant";
-        tenantParameter.Value = tenant.TenantId?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+        // Outside a resolved tenant the setting is empty, which matches no tenant-owned row (fail closed).
+        tenantParameter.Value = tenant.IsResolved ? tenant.TenantId.ToString(System.Globalization.CultureInfo.InvariantCulture) : string.Empty;
         command.Parameters.Add(tenantParameter);
 
         var bypassParameter = command.CreateParameter();

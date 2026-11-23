@@ -61,7 +61,7 @@ public class CreateCampusCommandHandler
 
     public async Task<Guid> Handle(CreateCampusCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var used = (await _context.Campuses
                 .Where(b => b.SchoolId == schoolId)

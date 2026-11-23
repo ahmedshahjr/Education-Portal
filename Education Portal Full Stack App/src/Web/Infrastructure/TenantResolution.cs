@@ -58,7 +58,7 @@ public static class TenantResolution
             {
                 var tenant = context.RequestServices.GetRequiredService<ICurrentTenant>();
                 var sessionSchoolId = context.User.FindFirstValue(TenantClaimTypes.SchoolId);
-                var hostSchoolId = tenant.SchoolId?.ToString(CultureInfo.InvariantCulture);
+                var hostSchoolId = tenant.IsResolved ? tenant.SchoolId.ToString(CultureInfo.InvariantCulture) : null;
 
                 // A school without a domain signs in on the master tenant's domain. Its session is valid there only while the
                 // school still has no domain and is active, and the request then acts as that school, not as the master.

@@ -61,7 +61,10 @@ public class CreateHolidayCommandHandler
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
 
-        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.AcademicSetup, AccessRight.Create, cancellationToken);
+        if (campusId is { } campusIdToCheck)
+        {
+            await _campusAccess.EnsureCampusAsync(campusIdToCheck, ModuleCode.AcademicSetup, AccessRight.Create, cancellationToken);
+        }
         var item = Holiday.Create(schoolId, campusId, request.Title, request.StartDate, request.EndDate, request.Type, request.AppliesTo, request.IsTentative);
         _context.Holidays.Add(item);
         await _context.SaveChangesAsync(cancellationToken);

@@ -52,7 +52,7 @@ public class SetAccountRolesCommandHandler
 
     public async Task Handle(SetAccountRolesCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var personId = await _context.UserDetails.ResolveIdAsync(request.PersonId, cancellationToken);
         var accountId = await _identityService.FindAccountIdOfPersonAsync(schoolId, personId);

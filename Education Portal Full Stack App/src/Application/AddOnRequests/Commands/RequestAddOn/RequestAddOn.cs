@@ -26,7 +26,7 @@ public class RequestAddOnCommandValidator : AbstractValidator<RequestAddOnComman
         RuleFor(c => c.ModuleCode)
             .MustAsync(async (code, cancellationToken) => await context.Modules.AnyAsync(m => m.Code == code && m.IsActive && !m.IsCore, cancellationToken))
             .WithMessage(_ => ValidationMessages.UnknownModules)
-            .MustAsync(async (code, cancellationToken) => tenant.SchoolId is { } schoolId && await context.Subscriptions.AnyAsync(s => s.SchoolId == schoolId && s.Status != SubscriptionStatus.Cancelled, cancellationToken))
+            .MustAsync(async (code, cancellationToken) => await context.Subscriptions.AnyAsync(s => s.SchoolId == tenant.SchoolId && s.Status != SubscriptionStatus.Cancelled, cancellationToken))
             .WithMessage(_ => ValidationMessages.SubscriptionNeededForAddOn)
             .MustAsync(async (code, cancellationToken) => !await (
                     from t in context.TenantModules
@@ -58,7 +58,7 @@ public class RequestAddOnCommandHandler
 
     public async Task<Guid> Handle(RequestAddOnCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var module = await _context.Modules.FirstAsync(m => m.Code == request.ModuleCode, cancellationToken);
         var addOnRequest = AddOnRequest.Create(schoolId, module);

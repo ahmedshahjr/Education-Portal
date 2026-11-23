@@ -43,7 +43,7 @@ public class LinkStudentCommandHandler
 
     public async Task Handle(LinkStudentCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var parentId = await _context.UserDetails.ResolveIdAsync(request.ParentId, cancellationToken);
         var studentId = await _context.UserDetails.ResolveIdAsync(request.StudentId, cancellationToken);

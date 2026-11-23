@@ -38,22 +38,21 @@ public sealed class CampusAccess : ICampusAccess
             return assigned;
         }
 
-        if (_user.Id is not { } userId || _tenant.SchoolId is not { } schoolId)
+        if (_user.Id is not { } userId || !_tenant.IsResolved)
         {
             return [];
         }
+
+        var schoolId = _tenant.SchoolId;
 
         var byRole = await _roleRights.GetRightCampusIdsAsync(userId, schoolId, module, right, cancellationToken);
 
         return CampusSets.Intersect(assigned, byRole);
     }
 
-    public async Task EnsureCampusAsync(int? campusId, ModuleCode module, AccessRight right, CancellationToken cancellationToken)
+    public async Task EnsureCampusAsync(int campusId, ModuleCode module, AccessRight right, CancellationToken cancellationToken)
     {
-        if (campusId is not { } id)
-        {
-            return;
-        }
+        var id = campusId;
 
         var allowed = await GetAllowedCampusIdsAsync(module, right, cancellationToken);
         if (allowed is not null && !allowed.Contains(id))
@@ -75,12 +74,9 @@ public sealed class CampusAccess : ICampusAccess
         return _allowed;
     }
 
-    public async Task EnsureCampusAsync(int? campusId, CancellationToken cancellationToken)
+    public async Task EnsureCampusAsync(int campusId, CancellationToken cancellationToken)
     {
-        if (campusId is not { } id)
-        {
-            return;
-        }
+        var id = campusId;
 
         var allowed = await GetAllowedCampusIdsAsync(cancellationToken);
         if (allowed is not null && !allowed.Contains(id))
@@ -96,10 +92,12 @@ public sealed class CampusAccess : ICampusAccess
             return null;
         }
 
-        if (_user.Id is not { } userId || _tenant.SchoolId is not { } schoolId)
+        if (_user.Id is not { } userId || !_tenant.IsResolved)
         {
             return [];
         }
+
+        var schoolId = _tenant.SchoolId;
 
         var personId = await _identityService.FindPersonIdOfAccountAsync(userId);
         if (personId is null)

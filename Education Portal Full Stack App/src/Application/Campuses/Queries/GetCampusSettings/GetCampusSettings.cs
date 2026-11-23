@@ -23,7 +23,7 @@ public class GetCampusSettingsQueryHandler
 
     public async Task<CampusSettingsDto> Handle(GetCampusSettingsQuery request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         return await _context.Schools
             .AsNoTracking()
