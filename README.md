@@ -50,9 +50,9 @@ Every technology the portal uses, what it does here, and where its flow diagram 
 | UI | Angular Material + CDK, the maintainer's theme in `Theme Angular/`, Lucide icons | 22 | Every screen and component (ENG-UI-17) | [Angular start-up](#angular-start-up-flow) |
 | Frontend languages | `@angular/localize` with runtime translations | 22 | English, Arabic and Urdu, loaded before bootstrap; right to left for Arabic and Urdu | [Angular start-up](#angular-start-up-flow), [localization](#localization-flow) |
 | API client | NSwag | latest (npm) | Generates the typed TypeScript client from the OpenAPI document | [NSwag client](#nswag-api-client-generation-flow) |
-| Backend tests | NUnit, Shouldly, Moq, Respawn, `Aspire.Hosting.Testing` | NUnit 5, Respawn 7, Aspire 13.6 | Unit tests and functional tests against a real PostgreSQL | [Tests](#test-flow) |
+| Backend tests | NUnit, Shouldly, Respawn, `Aspire.Hosting.Testing` | NUnit 5, Respawn 7, Aspire 13.6 | Integration and functional tests against a real PostgreSQL (no unit tests) | [Tests](#test-flow) |
 | Acceptance tests | Playwright + Reqnroll | Playwright 1.64, Reqnroll 3.3 | Browser tests from `.feature` files against the whole app | [Tests](#test-flow) |
-| Frontend tests | Vitest with jsdom | Vitest 5 | Angular unit tests, including the translation coverage check | [Tests](#test-flow) |
+| Frontend tests | Vitest with jsdom | Vitest 5 | Angular integration tests (real services, HTTP boundary stubbed), including the translation coverage check; functional scenarios in Web.AcceptanceTests | [Tests](#test-flow) |
 | Compliance guards | Git pre-commit hook, GitHub Actions, Python 3.9+ scripts | n/a | Secure-coding checks on every commit and PR; twice-monthly review of the official sources behind the rules | [Compliance guards](#compliance-guards-flow) |
 | Cloud publish | Aspire Azure Container Apps + Azure PostgreSQL packages | 13.6 | The AppHost can publish to Azure Container Apps; actual hosting and CI/CD are still open (AGENTS.md section 9) | [Aspire](#aspire-orchestration-flow) |
 
@@ -80,7 +80,7 @@ Education Portal Full Stack App/  The .NET solution
   src/AppHost/                    Aspire startup project
   src/Domain, Application, Infrastructure, Web, Shared, ServiceDefaults
   src/Web/ClientApp/              Angular app
-  tests/                          Unit, integration, functional and acceptance tests
+  tests/                          Integration, functional and acceptance tests
   docs/decisions/                 Architecture decision records (ADRs)
 ```
 
@@ -323,6 +323,8 @@ flowchart TB
 | `Shared` | Aspire resource names used by the AppHost, `Infrastructure` and the tests | nothing |
 | `AppHost` | Aspire orchestration (the startup project) | `Web`, `Shared` |
 
+The test projects under `tests/` sit outside these layers. `Application.FunctionalTests` and `Infrastructure.IntegrationTests` run the real pipeline and database, and the project has no unit test projects (project rule, 2026-11-23).
+
 Use cases query the database through `IApplicationDbContext` with EF Core directly. There is no repository layer ([ADR-001](Education%20Portal%20Full%20Stack%20App/docs/decisions/ADR-001-Use-EFCore-In-Application-Layer.md)).
 
 ### How a request flows
@@ -543,12 +545,10 @@ The API sends OpenTelemetry logs, metrics and traces over OTLP to one endpoint, 
 
 | Project | What it covers | Needs |
 |---|---|---|
-| `tests/Domain.UnitTests` | Entities and value objects | nothing |
-| `tests/Application.UnitTests` | Request rules, exceptions, validators, use case services | nothing |
-| `tests/Infrastructure.IntegrationTests` | Empty for now; meant for EF Core and Identity tests | nothing |
-| `tests/Application.FunctionalTests` | Use cases end to end through the API, against a real PostgreSQL started by `tests/TestAppHost`. Respawn clears the data between tests. | Docker |
+| `tests/Infrastructure.IntegrationTests` | EF Core configuration, Identity, data, secrets and observability wiring against the real provider | Docker |
+| `tests/Application.FunctionalTests` | Use cases end to end through the API (validators, handlers, rules, tenancy, modules, rights), against a real PostgreSQL started by `tests/TestAppHost`. Respawn clears the data between tests. Also the architecture guard for tenant-owned entities. | Docker |
 | `tests/Web.AcceptanceTests` | Browser tests written as Reqnroll `.feature` files and run by Playwright against the whole app started by the AppHost | Docker and the Playwright browsers |
-| `src/Web/ClientApp` | Angular unit tests with Vitest | Node.js |
+| `src/Web/ClientApp` | Angular integration specs with Vitest (components and services with the real HTTP client); no unit specs (project rule, 2026-11-23) | Node.js |
 
 Every new use case gets functional tests proving that an unauthenticated call gets 401, another school 404, another campus 404, a switched-off module 403 and a missing role right 403.
 
@@ -872,8 +872,7 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    run(["dotnet test"]) --> unit["Domain.UnitTests and Application.UnitTests<br/>NUnit, Shouldly, Moq, no database"]
-    run --> integ["Infrastructure.IntegrationTests"]
+    run(["dotnet test"]) --> integ["Infrastructure.IntegrationTests<br/>NUnit, Shouldly, a real database"]
     run --> func["Application.FunctionalTests"]
     func --> tah["TestAppHost (Aspire.Hosting.Testing)<br/>starts a PostgreSQL container"]
     tah --> web["Web host creates the schema"]
@@ -882,7 +881,7 @@ flowchart TB
     run --> acc["Web.AcceptanceTests"]
     acc --> ah["AppHost starts the whole app"]
     ah --> pw["Reqnroll .feature steps drive<br/>Playwright browsers"]
-    ng(["npx ng test --watch=false"]) --> vitest["Vitest + jsdom<br/>components, services, translation coverage"]
+    ng(["npx ng test --watch=false"]) --> vitest["Vitest + jsdom<br/>integration specs: components, services, translation coverage"]
 ```
 
 ### Compliance guards flow
@@ -1036,7 +1035,7 @@ Work from the inside out. Using a `Courses` feature as the example:
    ```
 
 5. **Angular:** run `dotnet build`, then restart the app (or run `npm run generate-api`) so `web-api-client.ts` gets a `CoursesClient`. Then add the component and its route.
-6. **Tests:** functional tests for each use case with the five denial cases (401, other school 404, other campus 404, switched-off module 403, missing right 403), validator tests with boundary and malicious input, unit tests for domain logic, and an acceptance test for important screens.
+6. **Tests:** functional tests for each use case with the five denial cases (401, other school 404, other campus 404, switched-off module 403, missing right 403), validator tests with boundary and malicious input through the functional tests, integration tests for each new entity or configuration (the project has no unit tests, 2026-11-23), and an acceptance test for important screens.
 
 ### Definition of done
 
@@ -1069,7 +1068,7 @@ Run these from the `Education Portal Full Stack App` folder unless the row says 
 | Install the Angular packages | `npm install` in `src\Web\ClientApp` |
 | Regenerate the Angular API client | `npm run generate-api` in `src\Web\ClientApp`, after `dotnet build` |
 | Build the Angular app | `npm run build` in `src\Web\ClientApp` |
-| Angular unit tests | `npx ng test --watch=false` in `src\Web\ClientApp` |
+| Angular specs | `npx ng test --watch=false` in `src\Web\ClientApp` |
 | Check npm packages for known vulnerabilities | `npm audit --audit-level=high` in `src\Web\ClientApp` |
 | Install the scaffolding template (once) | `dotnet new install Clean.Architecture.Solution.Template` |
 | Add a use case | Copy an existing one by hand, see [Adding a feature](#adding-a-feature); do not use `dotnet new ca-usecase` (written for the removed MediatR design) |
