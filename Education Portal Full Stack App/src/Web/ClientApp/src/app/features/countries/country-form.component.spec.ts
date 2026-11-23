@@ -1,3 +1,4 @@
+import { FormControl } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it } from 'vitest';
 import { CountryDto, DayOfWeek, LanguageDto } from '../../web-api-client';
@@ -55,5 +56,23 @@ describe('CountryFormComponent', () => {
       expect(field.classList).toContain('mm-col-4');
       expect(field.querySelector('.mat-mdc-form-field-subscript-dynamic-size')).not.toBeNull();
     }
+  });
+
+  it('takes the default language only from the chosen languages, ignoring case, and clears one the country does not offer, so it is never sent', async () => {
+    const { fixture, saved } = create(null);
+    await fixture.whenStable();
+    const component = fixture.componentInstance as unknown as { form: { controls: { languages: FormControl<string[]>; defaultLanguage: FormControl<string> } } };
+    const element: HTMLElement = fixture.nativeElement;
+
+    component.form.controls.languages.setValue(['en', 'ar']);
+    component.form.controls.defaultLanguage.setValue('AR');
+    expect(component.form.controls.defaultLanguage.errors).toBeNull();
+
+    // 'ur' is not among the chosen languages: the form clears it, so it can't be sent.
+    component.form.controls.defaultLanguage.setValue('ur');
+    fixture.detectChanges();
+    expect(component.form.controls.defaultLanguage.valid).toBe(false);
+    element.querySelector<HTMLButtonElement>('button[type="submit"]')!.click();
+    expect(saved).toEqual([]);
   });
 });

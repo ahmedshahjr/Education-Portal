@@ -73,4 +73,18 @@ describe('PricingPage', () => {
       expect(planCard.querySelector('[role="alert"]')?.textContent).toContain('do not have permission');
     });
   });
+
+  it('refuses a negative price and a price with three decimals, and accepts 20 or a price of two decimals', async () => {
+    const { fixture } = await render();
+    const form = fixture.componentInstance['priceForm'];
+
+    form.controls.price.setValue(-5);
+    expect(form.controls.price.hasError('price')).toBe(true);
+    form.controls.price.setValue(1.001);
+    expect(form.controls.price.hasError('price')).toBe(true);
+    form.controls.price.setValue(20);
+    expect(form.controls.price.valid).toBe(true);
+    form.controls.price.setValue(12.5);
+    expect(form.controls.price.valid).toBe(true);
+  });
 });

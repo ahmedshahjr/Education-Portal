@@ -20,6 +20,7 @@ Part of the mandatory engineering rules. Also follow the [overview skill](../SKI
 
 | ID | Rule |
 |---|---|
+| ENG-TEST-00 | **Integration and functional tests for every feature (project rule, 2026-11-23).** A feature, backend or frontend, is not done until it has integration tests and functional tests and both pass (ENG-PROC-02, ENG-CODE-10). Backend: `Infrastructure.IntegrationTests` and `Application.FunctionalTests`. Frontend: ENG-TEST-06 and ENG-TEST-07. Do not add unit-test-only files or projects for new code. |
 | ENG-TEST-01 | **Test first.** A new use case or a bug fix starts with a failing test that describes the behaviour; the fix is the smallest change that turns it green (ENG-PROC-03, ENG-AGENT-05). Name tests as sentences (`ShouldRejectEnrolmentWhenCourseIsFull`). |
 | ENG-TEST-00 | **Project rule (2026-11-23): every feature includes integration tests and functional tests.** A feature is not done until both exist and pass (ENG-PROC-02). The unit test projects were removed and unit tests are not used in this project (ENG-CODE-10). Do not add a `*.UnitTests` project, a unit-test-only file or a test that only checks one class in isolation. |
 | ENG-TEST-02 | **Every new use case has a functional test** in `Application.FunctionalTests`, in the feature folder that matches it (`Campuses`, `SchoolRoles`, `Billing`...). It covers the valid case, each rejected case and each boundary (empty, exact limit, one over), and it runs through the real pipeline (validators, `AuthorizationBehaviour`, handler, database). |

@@ -1,28 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import {
-  ADMISSION_STATUSES,
-  admissionStatusLabel,
-  CLASS_LEVELS,
-  classLevelLabel,
-  CURRICULUM_KINDS,
-  curriculumLabel,
-  FACILITY_KINDS,
-  facilityLabel,
-  GENDER_POLICIES,
-  genderPolicyLabel,
-  PHOTO_KINDS,
-  photoKindLabel,
-} from './school-page.labels';
+// Gender policies and admission statuses have no screen yet. The other label sets are checked on the screens that show them.
+import { ADMISSION_STATUSES, admissionStatusLabel, GENDER_POLICIES, genderPolicyLabel } from './school-page.labels';
 
 /** A value added to a closed set on the server must get a label here, or the screens would show nothing for it. */
 describe('school page labels', () => {
   const sets: [string, readonly string[], (value: never) => string][] = [
-    ['curricula', CURRICULUM_KINDS, curriculumLabel as (value: never) => string],
-    ['facilities', FACILITY_KINDS, facilityLabel as (value: never) => string],
-    ['photo kinds', PHOTO_KINDS, photoKindLabel as (value: never) => string],
     ['gender policies', GENDER_POLICIES, genderPolicyLabel as (value: never) => string],
     ['admission statuses', ADMISSION_STATUSES, admissionStatusLabel as (value: never) => string],
-    ['class levels', CLASS_LEVELS, classLevelLabel as (value: never) => string],
   ];
 
   for (const [name, values, label] of sets) {

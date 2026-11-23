@@ -43,10 +43,11 @@ async function render() {
   return { fixture, http, element };
 }
 
-async function rowsShouldBe(fixture: { whenStable(): Promise<unknown>; nativeElement: HTMLElement }, names: string[]) {
+async function rowsShouldBe(fixture: { whenStable(): Promise<unknown>; detectChanges(): void; nativeElement: HTMLElement }, names: string[]) {
   // The generated client reads every response as a Blob, which is read asynchronously.
   await vi.waitFor(async () => {
     await fixture.whenStable();
+    fixture.detectChanges();
     const rows = [...fixture.nativeElement.querySelectorAll('tr.mat-mdc-row td:first-child')];
     expect(rows.map((r) => r.textContent?.trim())).toEqual(names);
   });
@@ -70,52 +71,74 @@ function type(element: HTMLElement, text: string) {
 describe('SchoolsPage', () => {
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
-  it('searches schools by name on the server from the first page', async () => {
+  it('filters the loaded schools by name on the page, without another request', async () => {
     const { fixture, http, element } = await render();
 
     type(element, 'alp');
-    type(element, 'alpha ');
-
-    const request = await nextSchoolsRequest(http);
-    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25&search=alpha');
-    request.flush(pageOf([{ id: '0190f3a0-0000-7000-8000-000000000007', name: 'Alpha Academy', countryId: '0190f3a0-0000-7000-8000-000000000001' }]));
-
     await rowsShouldBe(fixture, ['Alpha Academy']);
+    expect(http.match(isSchoolsRequest)).toEqual([]);
   });
 
-  it('limits the table to one country', async () => {
-    const { fixture, http } = await render();
+  it('shows each school\'s plan: days left rounded up, a trial ending today or already ended, a paid plan, a lapsed one and no plan', async () => {
+    TestBed.configureTestingModule({
+      imports: [SchoolsPage],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: API_BASE_URL, useValue: '' }],
+    });
+    const fixture = TestBed.createComponent(SchoolsPage);
+    const http = TestBed.inject(HttpTestingController);
+    const inDays = (days: number) => new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+    const school = (id: number, name: string, extra: object) => ({ id: `0190f3a0-0000-7000-8000-0000000001${id}`, name, isMaster: false, ...extra });
+    http.expectOne(isSchoolsRequest).flush(
+      pageOf([
+        school(1, 'Trial School', { subscriptionStatus: 'Trial', trialEndDate: inDays(88) }),
+        school(2, 'Ending School', { subscriptionStatus: 'Trial', trialEndDate: inDays(-1) }),
+        school(3, 'Paid School', { subscriptionStatus: 'Active' }),
+        school(4, 'Late School', { subscriptionStatus: 'PastDue' }),
+        school(5, 'New School', {}),
+        school(6, 'Hour School', { subscriptionStatus: 'Trial', trialEndDate: inDays(1 / 24) }),
+        school(7, 'Past School', { subscriptionStatus: 'Trial', trialEndDate: inDays(-3) }),
+      ])
+    );
+    http.expectOne((r) => r.url.startsWith('/api/Countries?')).flush(countries);
+    const element = fixture.nativeElement as HTMLElement;
+
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      const plans = [...element.querySelectorAll('tr.mat-mdc-row')].map((row) => row.textContent ?? '');
+      expect(plans).toHaveLength(7);
+      expect(plans[5]).toContain('Trial (1 day left)');
+      expect(plans[6]).toContain('Trial ends today');
+      expect(plans[0]).toContain('Trial (');
+      expect(plans[0]).toContain('88');
+      expect(plans[1]).toContain('Trial ends today');
+      expect(plans[2]).toContain('Paid');
+      expect(plans[3]).toContain('Payment overdue');
+      expect(plans[4]).toContain('No plan');
+    });
+  });
+
+  it('limits the table to one country on the page', async () => {
+    const { fixture, element } = await render();
     const loader = TestbedHarnessEnvironment.loader(fixture);
     const filter = await loader.getHarness(MatSelectHarness.with({ selector: '.mm-schools__country-filter mat-select' }));
 
     await filter.open();
-    await filter.clickOptions({ text: 'United Arab Emirates' });
+    await filter.clickOptions({ text: 'Pakistan' });
 
-    const request = await nextSchoolsRequest(http);
-    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25&countryId=0190f3a0-0000-7000-8000-000000000002');
-    request.flush(pageOf([]));
-
-    await vi.waitFor(async () => {
-      await fixture.whenStable();
-      expect(fixture.nativeElement.textContent).toContain('No schools match');
-    });
+    await rowsShouldBe(fixture, ['Alpha Academy']);
+    expect(element.querySelector('input[type="search"]')).not.toBeNull();
   });
 
   it('clears the search and the country from the empty state', async () => {
-    const { fixture, http, element } = await render();
+    const { fixture, element } = await render();
 
     type(element, 'zzz');
-    (await nextSchoolsRequest(http)).flush(pageOf([]));
-    await vi.waitFor(async () => {
-      await fixture.whenStable();
-      expect(element.textContent).toContain('No schools match');
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(element.textContent).toContain('Clear search');
     });
 
-    [...element.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.includes('Clear filters'))!.click();
-
-    const request = await nextSchoolsRequest(http);
-    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25');
-    request.flush(pageOf([{ id: '0190f3a0-0000-7000-8000-000000000007', name: 'Alpha Academy', countryId: '0190f3a0-0000-7000-8000-000000000001' }, { id: '0190f3a0-0000-7000-8000-000000000008', name: 'Beta School' }]));
+    [...element.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.includes('Clear search'))!.click();
 
     await rowsShouldBe(fixture, ['Alpha Academy', 'Beta School']);
     expect(element.querySelector<HTMLInputElement>('input[type="search"]')!.value).toBe('');
@@ -141,8 +164,9 @@ describe('SchoolsPage', () => {
     });
     create.flush(blob('0190f3a0-0000-7000-8000-000000000009'), { status: 201, statusText: 'Created' });
 
+    // Saving reloads the whole list, so the new school is in it.
     const request = await nextSchoolsRequest(http);
-    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=25&search=New%20School');
+    expect(request.request.urlWithParams).toBe('/api/Schools?pageNumber=1&pageSize=100');
     request.flush(pageOf([{ id: '0190f3a0-0000-7000-8000-000000000009', name: 'New School' }]));
 
     await rowsShouldBe(fixture, ['New School']);

@@ -16,7 +16,7 @@ interface Host {
   busy(): boolean;
 }
 
-async function render() {
+async function render(slots?: unknown[]) {
   TestBed.configureTestingModule({
     providers: [provideHttpClient(), provideHttpClientTesting(), { provide: API_BASE_URL, useValue: '' }],
   });
@@ -28,16 +28,18 @@ async function render() {
   http
     .expectOne((r) => r.url.startsWith('/api/TimetableSlots') && r.method === 'GET')
     .flush(
-      blob([
-        { id: SLOT, courseId: COURSE, courseName: 'Math', day: 'Tuesday', start: '09:00:00', end: '10:00:00', room: 'Room 2' },
-        { id: 'other', courseId: COURSE, courseName: 'Math', day: 'Monday', start: '11:00:00', end: '12:00:00' },
-      ])
+      blob(
+        slots ?? [
+          { id: SLOT, courseId: COURSE, courseName: 'Math', day: 'Tuesday', start: '09:00:00', end: '10:00:00', room: 'Room 2' },
+          { id: 'other', courseId: COURSE, courseName: 'Math', day: 'Monday', start: '11:00:00', end: '12:00:00' },
+        ]
+      )
     );
   const element = fixture.nativeElement as HTMLElement;
   await vi.waitFor(async () => {
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(element.textContent).toContain('Room 2');
+    expect(element.textContent).toMatch(slots ? /Sunday|Monday|Tuesday/ : /Room 2/);
   });
   return { fixture, http, element, host: fixture.componentInstance as unknown as Host };
 }
@@ -140,5 +142,34 @@ describe('TimetablePage', () => {
     request.flush(null, { status: 204, statusText: 'No Content' });
     await settled(host);
     http.expectOne((r) => r.url.startsWith('/api/TimetableSlots') && r.method === 'GET').flush(blob([]));
+  });
+
+  it('refuses a lesson that ends at the moment it starts', async () => {
+    const { fixture, http, element, host } = await render();
+    open(element, fixture, 'Add lesson');
+    host.form.setValue({ courseId: COURSE, day: 'Monday', start: '10:00', end: '10:00', campusId: null, room: '' });
+    fixture.detectChanges();
+
+    element.querySelector<HTMLButtonElement>('form button[type="submit"]')!.click();
+    fixture.detectChanges();
+
+    http.expectNone((r) => r.method === 'POST');
+    expect(element.textContent).toContain('The end time must be after the start time.');
+  });
+
+  it('orders the lessons by the school week, Sunday last, and by start time within a day', async () => {
+    const lesson = (id: string, day: string, start: string) => ({ id, courseId: COURSE, courseName: 'Math', day, start, end: '23:00:00' });
+    const { element } = await render([
+      lesson('sun', 'Sunday', '08:00:00'),
+      lesson('tue', 'Tuesday', '09:00:00'),
+      lesson('mon-late', 'Monday', '11:00:00'),
+      lesson('mon-early', 'Monday', '08:30:00'),
+    ]);
+
+    const text = element.textContent ?? '';
+    const at = (day: string) => text.indexOf(day);
+    expect(at('Monday')).toBeLessThan(at('Tuesday'));
+    expect(at('Tuesday')).toBeLessThan(at('Sunday'));
+    expect(text.indexOf('08:30')).toBeLessThan(text.indexOf('11:00'));
   });
 });

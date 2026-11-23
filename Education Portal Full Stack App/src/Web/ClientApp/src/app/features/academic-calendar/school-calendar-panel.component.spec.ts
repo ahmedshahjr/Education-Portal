@@ -97,6 +97,18 @@ describe('SchoolCalendarPanelComponent', () => {
     await vi.waitFor(() => expect(panel.entries()?.some((e) => e.kind === 'school')).toBe(false));
   });
 
+  it('accepts an event that ends after it starts, and refuses one that ends when it starts', async () => {
+    const { fixture } = await render();
+    const panel = fixture.componentInstance;
+
+    panel.startAddEvent();
+    panel.eventForm.patchValue({ title: 'Assembly', eventDate: new Date(today.getFullYear(), today.getMonth(), 5), startTime: '08:00', endTime: '13:00' });
+    expect(panel.eventForm.valid).toBe(true);
+
+    panel.eventForm.patchValue({ endTime: '08:00' });
+    expect(panel.eventForm.hasError('timeRange')).toBe(true);
+  });
+
   it('does not send an event whose end time comes without a start time', async () => {
     const { fixture, http } = await render();
     const panel = fixture.componentInstance;
@@ -107,5 +119,22 @@ describe('SchoolCalendarPanelComponent', () => {
 
     expect(panel.eventForm.hasError('endNeedsStart')).toBe(true);
     http.expectNone({ method: 'POST', url: '/api/SchoolCalendar/events' });
+  });
+
+  it('accepts a holiday of 119 days, the last one under the limit, and refuses one of 120', async () => {
+    const { fixture } = await render();
+    const panel = fixture.componentInstance;
+    const start = new Date(today.getFullYear(), today.getMonth(), 5);
+    const after = (days: number) => {
+      const d = new Date(start);
+      d.setDate(d.getDate() + days);
+      return d;
+    };
+
+    panel.startAddHoliday();
+    panel.holidayForm.patchValue({ title: 'Long break', startDate: start, endDate: after(119) });
+    expect(panel.holidayForm.valid).toBe(true);
+    panel.holidayForm.patchValue({ endDate: after(120) });
+    expect(panel.holidayForm.invalid).toBe(true);
   });
 });

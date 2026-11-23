@@ -95,4 +95,37 @@ describe('SchoolFormComponent', () => {
     expect(first.length).toBeGreaterThanOrEqual(15);
     expect(second).not.toBe(first);
   });
+
+  it('accepts a domain label of exactly 63 characters and refuses one of 64', async () => {
+    const { fixture, saved, element } = create();
+    await fixture.whenStable();
+    const submit = () => element.querySelector<HTMLButtonElement>('button[type="submit"]')!.click();
+
+    fill(element, 'name', 'New School');
+    fill(element, 'administratorEmail', 'head@new-school.local');
+    fill(element, 'administratorPassword', 'violet harbour lantern 47');
+
+    fill(element, 'domain', 'a'.repeat(63) + '.com');
+    submit();
+    expect(saved.map((s) => s.domain)).toEqual(['a'.repeat(63) + '.com']);
+
+    fill(element, 'domain', 'a'.repeat(64) + '.com');
+    submit();
+    expect(saved).toHaveLength(1);
+  });
+
+  it.each(['under_score.com', 'has space.com', 'a..b.com'])('refuses %s, a name the server would not accept', async (domain) => {
+    const { fixture, saved, element } = create();
+    await fixture.whenStable();
+
+    fill(element, 'name', 'New School');
+    fill(element, 'domain', domain);
+    fill(element, 'administratorEmail', 'head@new-school.local');
+    fill(element, 'administratorPassword', 'violet harbour lantern 47');
+    element.querySelector<HTMLButtonElement>('button[type="submit"]')!.click();
+    fixture.detectChanges();
+
+    expect(saved).toEqual([]);
+    expect(element.textContent).toContain('Enter a host name such as school1.com');
+  });
 });

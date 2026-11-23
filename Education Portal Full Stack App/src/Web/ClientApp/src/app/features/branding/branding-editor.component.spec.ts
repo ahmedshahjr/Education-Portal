@@ -111,4 +111,21 @@ describe('BrandingEditorComponent', () => {
     expect(saved[0].sidebarColor).toBe('#1f2a3d');
     expect(saved[0].removeLogo).toBe(true);
   });
+
+  it('refuses an SVG logo and a favicon over 100 KB, and says why next to the picker', async () => {
+    const { fixture, element } = await render({ schoolName: 'Demo', accentColor: '#763ebd', sidebarColor: undefined, logoVersion: undefined, faviconVersion: undefined } as unknown as BrandingDto);
+    const choose = (kind: 'logo' | 'favicon', file: File) =>
+      (fixture.componentInstance as unknown as { chooseFile(event: Event, kind: 'logo' | 'favicon'): void }).chooseFile(
+        { target: { files: { item: () => file }, value: 'x' } } as unknown as Event,
+        kind
+      );
+
+    choose('logo', new File(['<svg/>'], 'logo.svg', { type: 'image/svg+xml' }));
+    fixture.detectChanges();
+    expect(element.textContent).toContain('PNG, JPEG or WebP');
+
+    choose('favicon', new File([new Uint8Array(100 * 1024 + 1)], 'favicon.png', { type: 'image/png' }));
+    fixture.detectChanges();
+    expect(element.textContent).toContain('100 KB');
+  });
 });

@@ -106,4 +106,36 @@ describe('AcademicYearsPanelComponent', () => {
       expect(element.textContent).toContain('The academic year overlaps another year.');
     });
   });
+
+  it('accepts a year of 730 days from its first day, refuses 731, and refuses an end before the start', async () => {
+    const { fixture } = await render();
+    const panel = fixture.componentInstance;
+    const start = new Date(2027, 0, 1);
+    const after = (days: number) => {
+      const d = new Date(start);
+      d.setDate(d.getDate() + days);
+      return d;
+    };
+
+    panel.startAddYear();
+    panel.yearForm.patchValue({ name: '2027', startDate: start, endDate: after(730) });
+    expect(panel.yearForm.valid).toBe(true);
+
+    panel.yearForm.patchValue({ endDate: after(731) });
+    expect(panel.yearForm.invalid).toBe(true);
+
+    panel.yearForm.patchValue({ endDate: new Date(2026, 11, 31) });
+    expect(panel.yearForm.invalid).toBe(true);
+  });
+
+  it('refuses a term whose end is before its start', async () => {
+    const { fixture } = await render();
+    const panel = fixture.componentInstance;
+
+    panel.startAddYear();
+    panel.termForm.patchValue({ name: 'Autumn', sequence: 1, startDate: new Date(2026, 8, 1), endDate: new Date(2026, 7, 31) });
+    expect(panel.termForm.invalid).toBe(true);
+    panel.termForm.patchValue({ endDate: new Date(2026, 11, 20) });
+    expect(panel.termForm.valid).toBe(true);
+  });
 });

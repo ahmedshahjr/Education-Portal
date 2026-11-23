@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, vi } from 'vitest';
 import { API_BASE_URL } from '../../web-api-client';
+import { CURRICULUM_KINDS } from './school-page.labels';
 import { CurriculaPanelComponent } from './curricula-panel.component';
 
 const blob = (body: unknown) => new Blob([JSON.stringify(body)], { type: 'application/json' });
@@ -43,5 +44,14 @@ describe('CurriculaPanelComponent', () => {
     const request = http.expectOne((r) => r.url.startsWith('/api/SchoolCurricula') && r.method === 'PUT');
     expect(JSON.parse(request.request.body as string).kinds).toEqual(['Matric', 'Montessori']);
     request.flush(null, { status: 204, statusText: 'No Content' });
+  });
+
+  it('shows one box for each curriculum the school can teach, each with its own label', async () => {
+    const { element } = await render([]);
+    const labels = [...element.querySelectorAll('mat-checkbox')].map((box) => box.textContent?.trim() ?? '');
+
+    expect(labels).toHaveLength(CURRICULUM_KINDS.length);
+    expect(labels.every((text) => text.length > 0)).toBe(true);
+    expect(new Set(labels).size).toBe(CURRICULUM_KINDS.length);
   });
 });

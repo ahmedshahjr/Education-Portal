@@ -161,6 +161,20 @@ describe('AssessmentsPanelComponent', () => {
     await settled(fixture);
   });
 
+  it('shows a score as a percent of the maximum, the full maximum as 100%', async () => {
+    const { fixture, http, element } = await render();
+    await chooseCourse(fixture, http);
+    const scoreForm = (fixture.componentInstance as unknown as { scoreForm: { setValue(v: unknown): void } }).scoreForm;
+
+    scoreForm.setValue({ assessmentId: ASSESSMENT, studentId: STUDENT, value: 1 });
+    fixture.detectChanges();
+    expect(element.textContent).toContain('2%');
+
+    scoreForm.setValue({ assessmentId: ASSESSMENT, studentId: STUDENT, value: 50 });
+    fixture.detectChanges();
+    expect(element.textContent).toContain('100%');
+  });
+
   it('refuses a negative score', async () => {
     const { fixture, http, element } = await render();
     await chooseCourse(fixture, http);

@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { FormGroup } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, vi } from 'vitest';
 import { API_BASE_URL } from '../../web-api-client';
@@ -17,7 +18,7 @@ const offerings = [{ id: OFFERING, level: 'Class1', academicYear: '2026-27', cam
 const people = (type: string, id: string) => [{ id, firstName: 'Sara', lastName: 'Ali', userType: type }];
 
 interface FormHost {
-  form: { setValue(value: unknown): void; patchValue(value: unknown): void };
+  form: FormGroup & { setValue(value: unknown): void; patchValue(value: unknown): void };
 }
 
 /** Waits until the page has handled the server's answer, so nothing runs after the test has ended. */
@@ -54,6 +55,36 @@ describe('CoursesPanelComponent', () => {
 
     expect(element.textContent).toContain('Class 1 · 2026-27');
     expect(element.textContent).toContain('Sara Ali');
+  });
+
+  it('names a class with its year and a teacher with a middle name only when there is one', async () => {
+    configure();
+    const fixture = TestBed.createComponent(CoursesPanelComponent);
+    const http = TestBed.inject(HttpTestingController);
+    fixture.detectChanges();
+    http
+      .expectOne((r) => r.url.startsWith('/api/ClassOfferings'))
+      .flush(blob([{ id: OFFERING, level: 'Playgroup', academicYear: '2026', campusId: null }]));
+    http
+      .expectOne((r) => r.url.startsWith('/api/UserDetails'))
+      .flush(blob([
+        { id: TEACHER, firstName: 'Sara', middleName: 'Bano', lastName: 'Ali', userType: 'Teacher' },
+        { id: 't2', firstName: 'Omar', middleName: '  ', lastName: 'Khan', userType: 'Teacher' },
+      ]));
+    http.expectOne((r) => r.url.startsWith('/api/Courses') && r.method === 'GET').flush(blob([
+      { id: 'c1', name: 'Math', classOfferingId: OFFERING, teacherId: TEACHER },
+      { id: 'c2', name: 'Art', classOfferingId: OFFERING, teacherId: 't2' },
+    ]));
+    const element = fixture.nativeElement as HTMLElement;
+    await vi.waitFor(async () => {
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(element.textContent).toContain('Sara Bano Ali');
+    });
+
+    expect(element.textContent).toContain('Playgroup · 2026');
+    expect(element.textContent).toContain('Omar Khan');
+    expect(element.textContent).not.toContain('Omar  Khan');
   });
 
   it('asks the server for teachers only', async () => {
@@ -177,5 +208,29 @@ describe('StudentAdmissionPage', () => {
     });
     request.flush(blob('s1'), { status: 200, statusText: 'OK' });
     await settled(fixture);
+  });
+
+  it('refuses a birth date in the future, and an admission date before the birth date', () => {
+    const { fixture } = render();
+    const form = (fixture.componentInstance as unknown as FormHost).form;
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    form.patchValue({ dateOfBirth: tomorrow, admissionDate: new Date() });
+    expect(form.hasError('birthInFuture')).toBe(true);
+
+    form.patchValue({ dateOfBirth: new Date(2016, 0, 1), admissionDate: new Date(2015, 11, 31) });
+    expect(form.hasError('admissionBeforeBirth')).toBe(true);
+  });
+
+  it('accepts a student who is exactly 3 years old on the admission date, and refuses one who is 2', () => {
+    const { fixture } = render();
+    const form = (fixture.componentInstance as unknown as FormHost).form;
+
+    form.patchValue({ dateOfBirth: new Date(2023, 7, 1), admissionDate: new Date(2026, 7, 1) });
+    expect(form.hasError('ageOutOfRange')).toBe(false);
+
+    form.patchValue({ admissionDate: new Date(2026, 6, 31) });
+    expect(form.hasError('ageOutOfRange')).toBe(true);
   });
 });

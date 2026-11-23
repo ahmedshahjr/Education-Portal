@@ -1,36 +1,44 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
-import { describe, expect, it, vi } from 'vitest';
-import { AccessRight, ModuleCode, MyRightsDto, UsersClient } from '../../web-api-client';
+import { describe, expect, it } from 'vitest';
+import { AccessRight, API_BASE_URL, ModuleCode } from '../../web-api-client';
 import { RightsService } from './rights.service';
 
-const rights = (grants: { all: boolean; campusIds?: string[] }): MyRightsDto =>
-  MyRightsDto.fromJS({
-    modules: [
-      {
-        module: ModuleCode.Students,
-        rights: [{ right: AccessRight.Edit, allCampuses: grants.all, campusIds: grants.campusIds ?? [] }],
-      },
-    ],
-  });
+const json = (body: unknown) => new Blob([JSON.stringify(body)], { type: 'application/json' });
 
-function setup(answer: () => ReturnType<UsersClient['getMyRights']>) {
+/** The server's answer for `GET /api/Users/me/rights`: one module with one right. */
+const answer = (grant: { allCampuses: boolean; campusIds?: string[] }) => ({
+  modules: [{ module: ModuleCode.Students, rights: [{ right: AccessRight.Edit, allCampuses: grant.allCampuses, campusIds: grant.campusIds ?? [] }] }],
+});
+
+/** Starts the real service and its real client, and answers the rights request over HttpTestingController. */
+async function loadWith(status: number, body: unknown) {
   TestBed.configureTestingModule({
-    providers: [{ provide: UsersClient, useValue: { getMyRights: vi.fn(answer) } }],
+    providers: [provideHttpClient(), provideHttpClientTesting(), { provide: API_BASE_URL, useValue: '' }],
   });
-  return TestBed.inject(RightsService);
+  const service = TestBed.inject(RightsService);
+  const http = TestBed.inject(HttpTestingController);
+  const done = new Promise<void>((resolve) => service.load().subscribe({ next: () => resolve(), error: () => resolve() }));
+  http
+    .expectOne('/api/Users/me/rights')
+    .flush(json(body), { status, statusText: status === 200 ? 'OK' : 'Error' });
+  await done;
+  return service;
 }
 
-describe('RightsService', () => {
+describe('RightsService (integration)', () => {
   it('gives no rights before anything is loaded (fails closed)', () => {
-    const service = setup(() => of(rights({ all: true })));
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: API_BASE_URL, useValue: '' }],
+    });
+    const service = TestBed.inject(RightsService);
 
     expect(service.can(ModuleCode.Students, AccessRight.Edit)).toBe(false);
   });
 
   it('gives a right on every campus when the role applies to all campuses', async () => {
-    const service = setup(() => of(rights({ all: true })));
-    await new Promise<void>((resolve) => service.load().subscribe(() => resolve()));
+    const service = await loadWith(200, answer({ allCampuses: true }));
 
     expect(service.can(ModuleCode.Students, AccessRight.Edit)).toBe(true);
     expect(service.can(ModuleCode.Students, AccessRight.Edit, 'any-campus')).toBe(true);
@@ -38,8 +46,7 @@ describe('RightsService', () => {
   });
 
   it('gives a right only on the listed campuses', async () => {
-    const service = setup(() => of(rights({ all: false, campusIds: ['north'] })));
-    await new Promise<void>((resolve) => service.load().subscribe(() => resolve()));
+    const service = await loadWith(200, answer({ allCampuses: false, campusIds: ['north'] }));
 
     expect(service.can(ModuleCode.Students, AccessRight.Edit, 'north')).toBe(true);
     expect(service.can(ModuleCode.Students, AccessRight.Edit, 'south')).toBe(false);
@@ -48,8 +55,7 @@ describe('RightsService', () => {
   });
 
   it('fails closed when loading the rights fails', async () => {
-    const service = setup(() => throwError(() => new Error('down')));
-    await new Promise<void>((resolve) => service.load().subscribe(() => resolve()));
+    const service = await loadWith(500, { title: 'Server error' });
 
     expect(service.can(ModuleCode.Students, AccessRight.Edit)).toBe(false);
   });
