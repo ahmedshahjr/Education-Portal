@@ -84,6 +84,7 @@ public class SchoolPhotoConfiguration : IEntityTypeConfiguration<SchoolPhoto>
 
         builder.HasIndex(p => new { p.SchoolId, p.SortOrder });
         builder.HasIndex(p => p.CampusId);
+        builder.HasIndex(p => new { p.SchoolId, p.WholeSchoolKey }); // the copies of one whole-school photo (ADR-027)
     }
 }
 

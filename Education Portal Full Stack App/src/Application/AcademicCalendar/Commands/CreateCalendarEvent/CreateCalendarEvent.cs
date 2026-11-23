@@ -63,18 +63,33 @@ public class CreateCalendarEventCommandHandler
     {
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
+        var campusIds = await WholeSchoolCopies.CampusIdsAsync(_context, schoolId, campusId, cancellationToken);
+        foreach (var id in campusIds)
+        {
+            await _campusAccess.EnsureCampusAsync(id, ModuleCode.AcademicSetup, AccessRight.Create, cancellationToken);
+        }
 
-        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.AcademicSetup, AccessRight.Create, cancellationToken);
-        var item = CalendarEvent.Create(schoolId, campusId, request.Title, request.Description, request.EventDate, request.StartTime, request.EndTime, request.Type, request.Audience);
-        _context.CalendarEvents.Add(item);
+        var key = campusId is null ? Guid.CreateVersion7() : (Guid?)null;
+        var items = campusIds.Select(id =>
+        {
+            var calendarEvent = CalendarEvent.Create(schoolId, id, request.Title, request.Description, request.EventDate, request.StartTime, request.EndTime, request.Type, request.Audience);
+            if (key is { } groupKey)
+            {
+                calendarEvent.JoinWholeSchool(groupKey);
+            }
+
+            return calendarEvent;
+        }).ToList();
+
+        _context.CalendarEvents.AddRange(items);
         await _context.SaveChangesAsync(cancellationToken);
 
         await _auditLog.WriteAsync(
             SecurityAuditEventType.SchoolCalendarChanged,
             SecurityAuditOutcome.Success,
             targetType: nameof(CalendarEvent),
-            targetId: item.Id.ToString(CultureInfo.InvariantCulture));
+            targetId: items[0].Id.ToString(CultureInfo.InvariantCulture));
 
-        return item.PublicId;
+        return items[0].PublicId;
     }
 }

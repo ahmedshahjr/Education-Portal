@@ -47,7 +47,7 @@ public class SchoolTrialTests : TestBase
         var schoolId = await TestApp.FindIdAsync<School>(schoolPublicId);
 
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var subscription = await context.Subscriptions.SingleAsync(s => s.SchoolId == schoolId);
@@ -65,7 +65,7 @@ public class SchoolTrialTests : TestBase
     private static async Task EnsureFullPlanPricedAsync()
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var plan = await context.Plans.FirstOrDefaultAsync(p => p.Code == PricingCatalog.Full);

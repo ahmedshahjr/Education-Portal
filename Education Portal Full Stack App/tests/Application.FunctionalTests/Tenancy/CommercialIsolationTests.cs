@@ -85,8 +85,8 @@ public class CommercialIsolationTests : TestBase
             await ExpectAsync(session.PostAsync("/api/AddOnRequests", new { moduleCode = nameof(ModuleCode.Library) }), HttpStatusCode.OK);
         }
 
-        var asOne = await SchoolIdsAsync(new ResolvedTenant(one.Id, IsMaster: false));
-        var asMaster = await SchoolIdsAsync(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        var asOne = await SchoolIdsAsync(TestApp.Resolve(one.Id, isMaster: false));
+        var asMaster = await SchoolIdsAsync(TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
 
         foreach (var (table, ids) in asOne)
         {
@@ -112,7 +112,7 @@ public class CommercialIsolationTests : TestBase
     private static async Task<Dictionary<string, List<int?>>> SchoolIdsAsync(ResolvedTenant tenant)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(tenant);
+        TestApp.SetTenant(scope.ServiceProvider, tenant);
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         return new Dictionary<string, List<int?>>

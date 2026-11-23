@@ -40,7 +40,7 @@ public class GetTimetableSlotsQueryHandler
             from slot in _context.TimetableSlots.AsNoTracking()
             join course in _context.Courses.AsNoTracking() on slot.CourseId equals course.Id
             where (!courseId.HasValue || slot.CourseId == courseId.Value)
-                && (allowedIds == null || slot.CampusId == null || allowedIds.Contains(slot.CampusId.Value))
+                && (allowedIds == null || allowedIds.Contains(slot.CampusId))
             orderby slot.Day, slot.Start, slot.Id
             select new TimetableSlotDto(
                 slot.PublicId,

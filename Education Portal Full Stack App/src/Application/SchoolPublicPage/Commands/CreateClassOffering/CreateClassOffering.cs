@@ -19,7 +19,7 @@ public record CreateClassOfferingCommand
     public Guid? SchoolId { get; init; }
 
     /// <summary>The campus the offering is for, or <c>null</c> for every campus.</summary>
-    public Guid? CampusId { get; init; }
+    public Guid CampusId { get; init; }
 
     public ClassLevel Level { get; init; }
 
@@ -69,20 +69,20 @@ public class CreateClassOfferingCommandValidator : AbstractValidator<CreateClass
 
         RuleFor(c => c.Status).IsInEnum();
 
-        RuleFor(c => c.CampusId)
-            .NotEqual(Guid.Empty)
-            .When(c => c.CampusId.HasValue);
+        RuleFor(c => c.CampusId).NotEmpty();
     }
 }
 
 public class CreateClassOfferingCommandHandler
 {
+    private readonly ICampusAccess _campusAccess;
     private readonly IApplicationDbContext _context;
     private readonly ISecurityAuditLog _auditLog;
     private readonly ICurrentTenant _tenant;
 
-    public CreateClassOfferingCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant)
+    public CreateClassOfferingCommandHandler(IApplicationDbContext context, ISecurityAuditLog auditLog, ICurrentTenant tenant, ICampusAccess campusAccess)
     {
+        _campusAccess = campusAccess;
         _context = context;
         _auditLog = auditLog;
         _tenant = tenant;
@@ -92,9 +92,8 @@ public class CreateClassOfferingCommandHandler
     {
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
 
-        int? campusId = request.CampusId is { } campusPublicId
-            ? await _context.Campuses.Where(c => c.SchoolId == schoolId).ResolveIdAsync(campusPublicId, cancellationToken)
-            : null;
+        var campusId = await _context.Campuses.Where(c => c.SchoolId == schoolId).ResolveIdAsync(request.CampusId, cancellationToken);
+        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.School, AccessRight.Create, cancellationToken);
 
         var offering = ClassOffering.Create(
             schoolId,

@@ -44,7 +44,7 @@ public class UpdateUserDetailsCommandHandler
 
     public async Task Handle(UpdateUserDetailsCommand request, CancellationToken cancellationToken)
     {
-        _ = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        _ = _tenant.SchoolId;
 
         // The tenant filter hides another school's people, so they are not found here.
         var person = await _context.UserDetails.FirstOrDefaultAsync(u => u.PublicId == request.Id, cancellationToken);

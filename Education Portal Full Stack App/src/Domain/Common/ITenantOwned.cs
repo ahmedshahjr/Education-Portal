@@ -12,6 +12,9 @@ namespace EducationPortal.Domain.Common;
 /// </remarks>
 public interface ITenantOwned
 {
+    /// <summary>The name of the column that holds the tenant of the row (ADR-026). It is a shadow property of EF Core, so no entity class has it.</summary>
+    public const string TenantColumn = "TenantId";
+
     /// <summary>The school that owns the row. Set when the row is created and never changed.</summary>
     int SchoolId { get; }
 }

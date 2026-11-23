@@ -41,7 +41,7 @@ public class GetMySubscriptionQueryHandler
 
     public async Task<MySubscriptionDto> Handle(GetMySubscriptionQuery request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var subscription = await SubscriptionReader.ReadAsync(_context, schoolId, cancellationToken);
 

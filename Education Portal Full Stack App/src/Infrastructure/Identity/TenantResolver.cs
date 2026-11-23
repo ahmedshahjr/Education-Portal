@@ -22,7 +22,7 @@ internal sealed class TenantResolver(ApplicationDbContext context) : ITenantReso
             // A deleted school is already hidden by the query filter; an inactive one is refused here, so none of its
             // users can use the host.
             .Where(s => s.Domain == domain && s.IsActive)
-            .Select(s => new ResolvedTenant(s.Id, s.IsMaster))
+            .Select(s => new ResolvedTenant(s.Id, s.TenantId, s.IsMaster))
             .SingleOrDefaultAsync(cancellationToken);
     }
 
@@ -31,7 +31,7 @@ internal sealed class TenantResolver(ApplicationDbContext context) : ITenantReso
         return await context.Schools
             .AsNoTracking()
             .Where(s => s.Id == schoolId && s.Domain == null && !s.IsMaster && s.IsActive)
-            .Select(s => new ResolvedTenant(s.Id, false))
+            .Select(s => new ResolvedTenant(s.Id, s.TenantId, false))
             .SingleOrDefaultAsync(cancellationToken);
     }
 }

@@ -138,7 +138,7 @@ public class ModuleAccessTests : TestBase
     private static IServiceScope SchoolScope(int schoolId)
     {
         var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(schoolId, IsMaster: false));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(schoolId, isMaster: false));
         return scope;
     }
 

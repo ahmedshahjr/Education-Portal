@@ -60,18 +60,33 @@ public class CreateHolidayCommandHandler
     {
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
+        var campusIds = await WholeSchoolCopies.CampusIdsAsync(_context, schoolId, campusId, cancellationToken);
+        foreach (var id in campusIds)
+        {
+            await _campusAccess.EnsureCampusAsync(id, ModuleCode.AcademicSetup, AccessRight.Create, cancellationToken);
+        }
 
-        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.AcademicSetup, AccessRight.Create, cancellationToken);
-        var item = Holiday.Create(schoolId, campusId, request.Title, request.StartDate, request.EndDate, request.Type, request.AppliesTo, request.IsTentative);
-        _context.Holidays.Add(item);
+        var key = campusId is null ? Guid.CreateVersion7() : (Guid?)null;
+        var items = campusIds.Select(id =>
+        {
+            var holiday = Holiday.Create(schoolId, id, request.Title, request.StartDate, request.EndDate, request.Type, request.AppliesTo, request.IsTentative);
+            if (key is { } groupKey)
+            {
+                holiday.JoinWholeSchool(groupKey);
+            }
+
+            return holiday;
+        }).ToList();
+
+        _context.Holidays.AddRange(items);
         await _context.SaveChangesAsync(cancellationToken);
 
         await _auditLog.WriteAsync(
             SecurityAuditEventType.SchoolCalendarChanged,
             SecurityAuditOutcome.Success,
             targetType: nameof(Holiday),
-            targetId: item.Id.ToString(CultureInfo.InvariantCulture));
+            targetId: items[0].Id.ToString(CultureInfo.InvariantCulture));
 
-        return item.PublicId;
+        return items[0].PublicId;
     }
 }

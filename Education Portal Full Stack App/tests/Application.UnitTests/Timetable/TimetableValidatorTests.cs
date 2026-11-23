@@ -12,6 +12,7 @@ public class TimetableValidatorTests
     private static CreateTimetableSlotCommand Lesson(TimeOnly start, TimeOnly end, string? room = null) => new()
     {
         CourseId = Guid.NewGuid(),
+        CampusId = Guid.NewGuid(),
         Day = Weekday.Monday,
         Start = start,
         End = end,

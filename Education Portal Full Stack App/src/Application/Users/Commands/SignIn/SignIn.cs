@@ -69,7 +69,7 @@ public class SignInCommandHandler
 
     public async Task<SignInOutcome> Handle(SignInCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new UnauthorizedAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var result = await _identityService.PasswordSignInAsync(schoolId, _tenant.IsMaster, request.Email, request.Password);
         var succeeded = result.Status == PasswordSignInStatus.Succeeded;

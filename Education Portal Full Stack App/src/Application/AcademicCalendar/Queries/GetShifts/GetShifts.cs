@@ -35,7 +35,10 @@ public class GetShiftsQueryHandler
     {
         var schoolId = await SchoolScope.ResolveAsync(_context, _tenant, request.SchoolId, cancellationToken);
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
-        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.AcademicSetup, AccessRight.View, cancellationToken);
+        if (campusId is { } campusIdToCheck)
+        {
+            await _campusAccess.EnsureCampusAsync(campusIdToCheck, ModuleCode.AcademicSetup, AccessRight.View, cancellationToken);
+        }
 
         // A user limited to some campuses sees only their shifts (AGENTS.md section 2, "Campuses per user").
         var allowed = await _campusAccess.GetAllowedCampusIdsAsync(ModuleCode.AcademicSetup, AccessRight.View, cancellationToken);

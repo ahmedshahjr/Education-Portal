@@ -85,7 +85,7 @@ public class RoleRightsPerCampusTests : TestBase
     private static async Task<(int Main, int North)> AddCampusesAsync(int schoolId)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var main = await context.Campuses.SingleAsync(c => c.SchoolId == schoolId && c.Kind == CampusKind.Main);
@@ -99,7 +99,7 @@ public class RoleRightsPerCampusTests : TestBase
     private static async Task GiveRoleAsync(int schoolId, string userId, int campusId, bool allCampuses, string roleName = "Grader")
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var role = SchoolRole.Create(schoolId, roleName);
@@ -116,7 +116,7 @@ public class RoleRightsPerCampusTests : TestBase
     private static async Task<bool> CheckAsync(int schoolId, string userId, AccessRight right)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(schoolId, IsMaster: false));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(schoolId, isMaster: false));
 
         return await scope.ServiceProvider.GetRequiredService<IRoleRights>().HasRightAsync(userId, schoolId, ModuleCode.Exams, right, CancellationToken.None);
     }
@@ -124,7 +124,7 @@ public class RoleRightsPerCampusTests : TestBase
     private static async Task<IReadOnlyCollection<int>?> CampusesAsync(int schoolId, string userId, AccessRight right)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(schoolId, IsMaster: false));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(schoolId, isMaster: false));
 
         return await scope.ServiceProvider.GetRequiredService<IRoleRights>().GetRightCampusIdsAsync(userId, schoolId, ModuleCode.Exams, right, CancellationToken.None);
     }

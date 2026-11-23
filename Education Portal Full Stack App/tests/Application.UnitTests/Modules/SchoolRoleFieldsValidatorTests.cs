@@ -20,6 +20,7 @@ public class SchoolRoleFieldsValidatorTests
         var access = new Mock<IModuleAccess>();
         access.Setup(a => a.GetEnabledCodesAsync(5, It.IsAny<CancellationToken>())).ReturnsAsync(enabled);
         var tenant = new Mock<ICurrentTenant>();
+        tenant.Setup(t => t.IsResolved).Returns(true);
         tenant.Setup(t => t.SchoolId).Returns(5);
         return new FieldsValidator(access.Object, tenant.Object);
     }

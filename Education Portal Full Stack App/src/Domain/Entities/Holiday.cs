@@ -22,7 +22,7 @@ public class Holiday : BaseSoftDeletableEntity, ITenantOwned
 
     public static Holiday Create(
         int schoolId,
-        int? campusId,
+        int campusId,
         string title,
         DateOnly startDate,
         DateOnly endDate,
@@ -40,7 +40,25 @@ public class Holiday : BaseSoftDeletableEntity, ITenantOwned
     public int SchoolId { get; private set; }
 
     /// <summary>The campus the holiday is for, or <c>null</c> for every campus of the school.</summary>
-    public int? CampusId { get; private set; }
+    public int CampusId { get; private set; }
+
+    /// <summary>
+    /// The key that ties the copies of one whole-school item together, one copy per campus. It is <c>null</c> for an item
+    /// that belongs to one campus. Changing or deleting a copy changes or deletes every copy with the same key, and a
+    /// campus added later gets a copy of each key the school has (ADR-027).
+    /// </summary>
+    public Guid? WholeSchoolKey { get; private set; }
+
+    /// <summary>Marks this row as one campus's copy of a whole-school item.</summary>
+    public void JoinWholeSchool(Guid key)
+    {
+        if (key == Guid.Empty)
+        {
+            throw new ArgumentException("A whole-school key is not empty.", nameof(key));
+        }
+
+        WholeSchoolKey = key;
+    }
 
     public string Title { get; private set; }
 
@@ -56,7 +74,7 @@ public class Holiday : BaseSoftDeletableEntity, ITenantOwned
     public bool IsTentative { get; private set; }
 
     public void Change(
-        int? campusId,
+        int campusId,
         string title,
         DateOnly startDate,
         DateOnly endDate,
@@ -69,10 +87,7 @@ public class Holiday : BaseSoftDeletableEntity, ITenantOwned
             throw new InvalidOperationException("A deleted holiday cannot be changed.");
         }
 
-        if (campusId is <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(campusId), campusId, "A campus id is positive.");
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campusId);
 
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(title.Trim().Length, TitleMaxLength, nameof(title));

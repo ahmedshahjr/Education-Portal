@@ -18,6 +18,6 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<App
             .UseNpgsql("Host=localhost;Database=educationportal_design")
             .Options;
 
-        return new ApplicationDbContext(options, new CurrentTenant());
+        return new ApplicationDbContext(options, new CurrentTenant(), new EducationPortal.Infrastructure.Data.Tenancy.TenantSystemScope());
     }
 }

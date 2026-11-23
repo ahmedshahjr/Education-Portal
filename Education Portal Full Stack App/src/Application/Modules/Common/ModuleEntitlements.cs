@@ -1,5 +1,6 @@
 using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace EducationPortal.Application.Modules.Common;
 
@@ -65,8 +66,14 @@ internal static class ModuleEntitlementLoader
             .Select(m => m.Code)
             .ToListAsync(cancellationToken);
 
+        // The entitlements are read for the school named by the caller, which is not always the request's tenant: a sign-in on
+        // the master domain of a school without a domain loads its modules before the request acts as that school. The
+        // cached copy must hold the school's real grants, so the tenant filter is replaced by the explicit school predicate
+        // below. The cache is per school, so no other school's grants are read (compliance-exception: SEC-AUTHZ-03 trusted
+        // server code, the school is named by the caller, and every row read is filtered by SchoolId).
         var grants = await (
-                from t in context.TenantModules.AsNoTracking()
+                // compliance-exception: SEC-AUTHZ-03 explicit SchoolId predicate below replaces the tenant filter for this read
+                from t in context.TenantModules.IgnoreQueryFilters().AsNoTracking()
                 join m in context.Modules on t.ModuleId equals m.Id
                 where t.SchoolId == schoolId && t.Status == TenantModuleStatus.Active && m.IsActive
                 select new ModuleGrant(m.Code, t.CampusId, t.IsSchoolWide, t.ValidFrom, t.ValidTo))

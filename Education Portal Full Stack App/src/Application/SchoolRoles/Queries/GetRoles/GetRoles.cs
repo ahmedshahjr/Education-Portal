@@ -28,7 +28,7 @@ public class GetRolesQueryHandler
 
     public async Task<IReadOnlyList<SchoolRoleDto>> Handle(GetRolesQuery request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
         return await SchoolRoleReader.LoadAsync(_context, _moduleAccess, schoolId, null, cancellationToken);
     }
 }

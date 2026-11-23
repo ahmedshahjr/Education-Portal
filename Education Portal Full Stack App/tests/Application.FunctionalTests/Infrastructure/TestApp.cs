@@ -87,7 +87,31 @@ public static class TestApp
     }
 
     /// <summary>Makes <see cref="SendAsync{TResponse}"/> run as if the request came to this school's domain.</summary>
-    public static void UseTenant(int schoolId, bool isMaster = false) => _tenant = new ResolvedTenant(schoolId, isMaster);
+    public static void UseTenant(int schoolId, bool isMaster = false) => _tenant = Resolve(schoolId, isMaster);
+
+    /// <summary>The tenant a school belongs to, resolved the way the host resolves it (school and tenant ids, the master flag).</summary>
+    public static ResolvedTenant Resolve(int schoolId, bool isMaster = false)
+    {
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+        var school = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Schools.Single(s => s.Id == schoolId);
+
+        return new ResolvedTenant(schoolId, school.TenantId, isMaster);
+    }
+
+    /// <summary>
+    /// Sets the tenant of a test scope the way the host does, and grants the master bypass for the master tenant, which the
+    /// host grants only after the session check (SEC-AUTHZ-13).
+    /// </summary>
+    public static void SetTenant(IServiceProvider services, ResolvedTenant tenant)
+    {
+        var current = services.GetRequiredService<CurrentTenant>();
+        current.Set(tenant);
+
+        if (tenant.IsMaster)
+        {
+            current.GrantMasterBypass();
+        }
+    }
 
     /// <summary>Adds a school with its own domain and returns its id.</summary>
     public static async Task<EntityIds> AddSchoolAsync(string name, string? domain)
@@ -231,7 +255,7 @@ public static class TestApp
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
 
-        scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(new ResolvedTenant(MasterSchoolId, IsMaster: true));
+        SetTenant(scope.ServiceProvider, Resolve(MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var book = await context.PriceBooks.FirstOrDefaultAsync(b => b.CountryCode == "XX");
@@ -320,6 +344,20 @@ public static class TestApp
         return await context.FindAsync<TEntity>(keyValues);
     }
 
+    /// <summary>The internal id of a school's main campus, for a test that adds rows on it directly.</summary>
+    public static async Task<int> MainCampusIdAsync(int schoolId)
+    {
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+
+        SetTenant(scope.ServiceProvider, Resolve(MasterSchoolId, isMaster: true));
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        return await context.Campuses
+            .Where(b => b.SchoolId == schoolId && b.Kind == EducationPortal.Domain.Enums.CampusKind.Main)
+            .Select(b => b.Id)
+            .SingleAsync();
+    }
+
     public static async Task AddAsync<TEntity>(TEntity entity)
         where TEntity : class
     {
@@ -348,7 +386,7 @@ public static class TestApp
 
         if (_tenant is not null)
         {
-            scope.ServiceProvider.GetRequiredService<CurrentTenant>().Set(_tenant);
+            SetTenant(scope.ServiceProvider, _tenant);
         }
 
         return scope;

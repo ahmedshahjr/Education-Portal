@@ -25,7 +25,11 @@ public class CampusAccessRightsTests
         user.Setup(u => u.Roles).Returns(roles.ToList());
         var tenant = new Mock<ICurrentTenant>();
         tenant.Setup(t => t.IsMaster).Returns(isMaster);
-        tenant.Setup(t => t.SchoolId).Returns(schoolId);
+        tenant.Setup(t => t.IsResolved).Returns(schoolId is not null);
+        if (schoolId is { } resolved)
+        {
+            tenant.Setup(t => t.SchoolId).Returns(resolved);
+        }
         var roleRights = new Mock<IRoleRights>();
 
         var access = new CampusAccess(Mock.Of<IApplicationDbContext>(), user.Object, tenant.Object, Mock.Of<IIdentityService>(), roleRights.Object);
@@ -67,13 +71,5 @@ public class CampusAccessRightsTests
     {
         var signedOut = Access(isMaster: false, userId: null, []);
         await Should.ThrowAsync<ForbiddenAccessException>(() => signedOut.Access.EnsureCampusAsync(42, Module, Right, CancellationToken.None));
-    }
-
-    [Test]
-    public async Task ShouldLetARowOfTheWholeSchoolPassWithoutAnyLookup()
-    {
-        var signedOut = Access(isMaster: false, userId: null, []);
-        await Should.NotThrowAsync(() => signedOut.Access.EnsureCampusAsync(null, Module, Right, CancellationToken.None));
-        signedOut.Roles.Verify(r => r.GetRightCampusIdsAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<ModuleCode>(), It.IsAny<AccessRight>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

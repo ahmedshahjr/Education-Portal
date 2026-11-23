@@ -16,7 +16,7 @@ public class TimetableSlot : BaseAuditableEntity, ITenantOwned
         // For EF Core.
     }
 
-    private TimetableSlot(int schoolId, int courseId, int? campusId, Weekday day, TimeOnly start, TimeOnly end, string? room)
+    private TimetableSlot(int schoolId, int courseId, int campusId, Weekday day, TimeOnly start, TimeOnly end, string? room)
     {
         SchoolId = schoolId;
         CourseId = courseId;
@@ -27,14 +27,11 @@ public class TimetableSlot : BaseAuditableEntity, ITenantOwned
         Room = room;
     }
 
-    public static TimetableSlot Create(int schoolId, int courseId, int? campusId, Weekday day, TimeOnly start, TimeOnly end, string? room)
+    public static TimetableSlot Create(int schoolId, int courseId, int campusId, Weekday day, TimeOnly start, TimeOnly end, string? room)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(schoolId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(courseId);
-        if (campusId is { } campus)
-        {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campus);
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campusId);
 
         if (end <= start)
         {
@@ -54,7 +51,7 @@ public class TimetableSlot : BaseAuditableEntity, ITenantOwned
 
     public int CourseId { get; private set; }
 
-    public int? CampusId { get; private set; }
+    public int CampusId { get; private set; }
 
     public Weekday Day { get; private set; }
 
@@ -65,12 +62,9 @@ public class TimetableSlot : BaseAuditableEntity, ITenantOwned
     public string? Room { get; private set; }
 
     /// <summary>Moves the lesson to another day, time, room or campus. The same rules as <see cref="Create"/> apply.</summary>
-    public void Reschedule(int? campusId, Weekday day, TimeOnly start, TimeOnly end, string? room)
+    public void Reschedule(int campusId, Weekday day, TimeOnly start, TimeOnly end, string? room)
     {
-        if (campusId is { } campus)
-        {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campus);
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campusId);
 
         if (end <= start)
         {

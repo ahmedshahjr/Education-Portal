@@ -44,8 +44,9 @@ public class CampusAccessTests : TestBase
         var listed = await ReadJsonAsync(teacher, "/api/Shifts");
         listed.EnumerateArray().Select(s => s.GetProperty("name").GetString()).ShouldBe(["Main morning"]);
 
-        // The whole school's holidays are decided by the role's rights alone; another campus's are not.
-        (await teacher.PostAsync("/api/SchoolCalendar/holidays", Holiday("Eid", null))).StatusCode.ShouldBe(HttpStatusCode.OK);
+        // A whole-school holiday is saved on every campus (one row each), so this person, who has no right on North, is refused.
+        (await teacher.PostAsync("/api/SchoolCalendar/holidays", Holiday("Eid", null))).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        (await teacher.PostAsync("/api/SchoolCalendar/holidays", Holiday("Main repairs", main))).StatusCode.ShouldBe(HttpStatusCode.OK);
         (await teacher.PostAsync("/api/SchoolCalendar/holidays", Holiday("North repairs", north))).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
 
         // The administrator still sees every campus.

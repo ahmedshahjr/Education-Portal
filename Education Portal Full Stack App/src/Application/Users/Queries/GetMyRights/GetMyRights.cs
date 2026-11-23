@@ -53,7 +53,7 @@ public class GetMyRightsQueryHandler
     public async Task<MyRightsDto> Handle(GetMyRightsQuery request, CancellationToken cancellationToken)
     {
         var userId = _user.Id ?? throw new UnauthorizedAccessException();
-        var schoolId = _tenant.SchoolId ?? throw new UnauthorizedAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var enabled = await EnabledModules.ForTenantAsync(_context, _moduleAccess, schoolId, _tenant.IsMaster, cancellationToken);
         var isParent = await IsParentAsync(userId, cancellationToken);

@@ -1,7 +1,9 @@
+using EducationPortal.Application.Common.Interfaces;
 using EducationPortal.Application.Modules.Common;
 using EducationPortal.Domain.Constants;
 using EducationPortal.Domain.Entities;
 using EducationPortal.Domain.Enums;
+using EducationPortal.Infrastructure.Data.Tenancy;
 using EducationPortal.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +23,13 @@ public class DevelopmentDataSeeder
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly ITenantSystemScope _systemScope;
 
-    public DevelopmentDataSeeder(ILogger<DevelopmentDataSeeder> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    public DevelopmentDataSeeder(ILogger<DevelopmentDataSeeder> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ITenantSystemScope systemScope)
     {
         _logger = logger;
         _context = context;
+        _systemScope = systemScope;
         _userManager = userManager;
         _roleManager = roleManager;
     }
@@ -41,6 +45,9 @@ public class DevelopmentDataSeeder
 
     public async Task SeedAsync()
     {
+        // The whole seed is a system action with no request (ADR-026): it may create the master tenant and its rows.
+        using var systemBypass = _systemScope.Enter();
+
         try
         {
             await SeedBaseDataAsync();

@@ -127,7 +127,7 @@ public class SchoolCurriculumAndFacilityTests
 public class ClassOfferingTests
 {
     private static ClassOffering Offering(int total = 30, int available = 10, decimal fee = 5000m, string year = "2026-27", string currency = "pkr") =>
-        ClassOffering.Create(1, null, ClassLevel.Class5, year, fee, 10000m, currency, total, available, AdmissionStatus.Open, showFee: true);
+        ClassOffering.Create(1, 1, ClassLevel.Class5, year, fee, 10000m, currency, total, available, AdmissionStatus.Open, showFee: true);
 
     [Test]
     public void ShouldCreateAnOfferingAndUpperCaseTheCurrency()
@@ -135,7 +135,7 @@ public class ClassOfferingTests
         var offering = Offering();
 
         offering.CurrencyCode.ShouldBe("PKR");
-        offering.CampusId.ShouldBeNull();
+        offering.CampusId.ShouldBe(1);
         offering.SeatsAvailable.ShouldBe(10);
     }
 
@@ -178,7 +178,7 @@ public class ClassOfferingTests
     [Test]
     public void ShouldRefuseAnUnknownClassAndANonPositiveCampus()
     {
-        Should.Throw<ArgumentOutOfRangeException>(() => ClassOffering.Create(1, null, (ClassLevel)99, "2026", 1m, null, "PKR", 1, 1, AdmissionStatus.Open, true));
+        Should.Throw<ArgumentOutOfRangeException>(() => ClassOffering.Create(1, 1, (ClassLevel)99, "2026", 1m, null, "PKR", 1, 1, AdmissionStatus.Open, true));
         Should.Throw<ArgumentOutOfRangeException>(() => ClassOffering.Create(1, 0, ClassLevel.Nursery, "2026", 1m, null, "PKR", 1, 1, AdmissionStatus.Open, true));
     }
 
@@ -201,7 +201,7 @@ public class SchoolPhotoTests
     [Test]
     public void ShouldKeepAPngAndDetectItsTypeFromTheBytes()
     {
-        var photo = SchoolPhoto.Create(1, null, PhotoKind.Campus, " Front gate ", 2, Png);
+        var photo = SchoolPhoto.Create(1, 1, PhotoKind.Campus, " Front gate ", 2, Png);
 
         photo.ContentType.ShouldBe("image/png");
         photo.Caption.ShouldBe("Front gate");
@@ -211,12 +211,12 @@ public class SchoolPhotoTests
     [Test]
     public void ShouldRefuseEmptyTooLargeAndNonImageFiles()
     {
-        Should.Throw<ArgumentException>(() => SchoolPhoto.Create(1, null, PhotoKind.Event, null, 0, []));
-        Should.Throw<ArgumentException>(() => SchoolPhoto.Create(1, null, PhotoKind.Event, null, 0, "<svg onload=alert(1)/>"u8.ToArray()));
+        Should.Throw<ArgumentException>(() => SchoolPhoto.Create(1, 1, PhotoKind.Event, null, 0, []));
+        Should.Throw<ArgumentException>(() => SchoolPhoto.Create(1, 1, PhotoKind.Event, null, 0, "<svg onload=alert(1)/>"u8.ToArray()));
 
         var tooLarge = new byte[SchoolPhoto.MaxBytes + 1];
         Png.CopyTo(tooLarge, 0);
-        Should.Throw<ArgumentException>(() => SchoolPhoto.Create(1, null, PhotoKind.Event, null, 0, tooLarge));
+        Should.Throw<ArgumentException>(() => SchoolPhoto.Create(1, 1, PhotoKind.Event, null, 0, tooLarge));
     }
 
     [Test]
@@ -225,20 +225,20 @@ public class SchoolPhotoTests
         var content = new byte[SchoolPhoto.MaxBytes];
         Png.CopyTo(content, 0);
 
-        Should.NotThrow(() => SchoolPhoto.Create(1, null, PhotoKind.Event, null, 0, content));
+        Should.NotThrow(() => SchoolPhoto.Create(1, 1, PhotoKind.Event, null, 0, content));
     }
 
     [Test]
     public void ShouldRefuseANegativeOrderAndALongCaption()
     {
-        Should.Throw<ArgumentOutOfRangeException>(() => SchoolPhoto.Create(1, null, PhotoKind.Event, null, -1, Png));
-        Should.Throw<ArgumentOutOfRangeException>(() => SchoolPhoto.Create(1, null, PhotoKind.Event, new string('a', SchoolPhoto.CaptionMaxLength + 1), 0, Png));
+        Should.Throw<ArgumentOutOfRangeException>(() => SchoolPhoto.Create(1, 1, PhotoKind.Event, null, -1, Png));
+        Should.Throw<ArgumentOutOfRangeException>(() => SchoolPhoto.Create(1, 1, PhotoKind.Event, new string('a', SchoolPhoto.CaptionMaxLength + 1), 0, Png));
     }
 
     [Test]
     public void ShouldChangeTheVersionWhenTheContentChanges()
     {
-        var photo = SchoolPhoto.Create(1, null, PhotoKind.Campus, null, 0, Png);
+        var photo = SchoolPhoto.Create(1, 1, PhotoKind.Campus, null, 0, Png);
         var before = photo.Version;
 
         photo.Replace([0xFF, 0xD8, 0xFF, 0xE0, 1, 2, 3]);

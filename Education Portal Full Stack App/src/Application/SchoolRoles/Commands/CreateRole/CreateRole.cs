@@ -46,7 +46,7 @@ public class CreateRoleCommandHandler
 
     public async Task<Guid> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var role = SchoolRole.Create(schoolId, request.Name, request.Description);
 

@@ -10,7 +10,7 @@ public class AdmissionEnquiryTests
     private static readonly DateTimeOffset Now = new(2026, 11, 15, 9, 0, 0, TimeSpan.Zero);
 
     private static AdmissionEnquiry Online(string phone = "+92 300 1234567", string? email = "parent@example.com", DateTimeOffset? consent = null) =>
-        AdmissionEnquiry.Create(1, null, ClassLevel.Class1, EnquiryChannel.Online, "Ali", "Imran Khan", phone, email, "Please call after 4pm.", consent ?? Now, Now);
+        AdmissionEnquiry.Create(1, 1, ClassLevel.Class1, EnquiryChannel.Online, "Ali", "Imran Khan", phone, email, "Please call after 4pm.", consent ?? Now, Now);
 
     [Test]
     public void ShouldCreateANewOnlineEnquiryThatRecordsConsent()
@@ -25,9 +25,9 @@ public class AdmissionEnquiryTests
     [Test]
     public void ShouldRequireConsentForAnOnlineEnquiryButNotForAPhoneOrWalkIn()
     {
-        Should.Throw<ArgumentException>(() => AdmissionEnquiry.Create(1, null, null, EnquiryChannel.Online, "Ali", "Imran", "+92 300 1234567", null, null, null, Now));
-        Should.NotThrow(() => AdmissionEnquiry.Create(1, null, null, EnquiryChannel.Phone, "Ali", "Imran", "+92 300 1234567", null, null, null, Now));
-        Should.NotThrow(() => AdmissionEnquiry.Create(1, null, null, EnquiryChannel.InPerson, "Ali", "Imran", "+92 300 1234567", null, null, null, Now));
+        Should.Throw<ArgumentException>(() => AdmissionEnquiry.Create(1, 1, null, EnquiryChannel.Online, "Ali", "Imran", "+92 300 1234567", null, null, null, Now));
+        Should.NotThrow(() => AdmissionEnquiry.Create(1, 1, null, EnquiryChannel.Phone, "Ali", "Imran", "+92 300 1234567", null, null, null, Now));
+        Should.NotThrow(() => AdmissionEnquiry.Create(1, 1, null, EnquiryChannel.InPerson, "Ali", "Imran", "+92 300 1234567", null, null, null, Now));
     }
 
     [TestCase("call me")]
@@ -49,15 +49,15 @@ public class AdmissionEnquiryTests
     public void ShouldStoreABlankEmailAsNullAndRefuseBlankNames()
     {
         Online(email: "  ").Email.ShouldBeNull();
-        Should.Throw<ArgumentException>(() => AdmissionEnquiry.Create(1, null, null, EnquiryChannel.Phone, " ", "Imran", "+92 300 1234567", null, null, null, Now));
-        Should.Throw<ArgumentException>(() => AdmissionEnquiry.Create(1, null, null, EnquiryChannel.Phone, "Ali", " ", "+92 300 1234567", null, null, null, Now));
+        Should.Throw<ArgumentException>(() => AdmissionEnquiry.Create(1, 1, null, EnquiryChannel.Phone, " ", "Imran", "+92 300 1234567", null, null, null, Now));
+        Should.Throw<ArgumentException>(() => AdmissionEnquiry.Create(1, 1, null, EnquiryChannel.Phone, "Ali", " ", "+92 300 1234567", null, null, null, Now));
     }
 
     [TestCase(AdmissionEnquiry.MessageMaxLength, true)]
     [TestCase(AdmissionEnquiry.MessageMaxLength + 1, false)]
     public void ShouldLimitTheMessage(int length, bool valid)
     {
-        var act = () => AdmissionEnquiry.Create(1, null, null, EnquiryChannel.Phone, "Ali", "Imran", "+92 300 1234567", null, new string('a', length), null, Now);
+        var act = () => AdmissionEnquiry.Create(1, 1, null, EnquiryChannel.Phone, "Ali", "Imran", "+92 300 1234567", null, new string('a', length), null, Now);
 
         if (valid) { Should.NotThrow(act); } else { Should.Throw<ArgumentOutOfRangeException>(act); }
     }
@@ -125,7 +125,7 @@ public class EnquiryFollowUpAndVisitTests
     private static readonly DateTimeOffset Now = new(2026, 11, 15, 9, 0, 0, TimeSpan.Zero);
 
     private static AdmissionEnquiry Enquiry() =>
-        AdmissionEnquiry.Create(3, null, null, EnquiryChannel.Phone, "Ali", "Imran", "+92 300 1234567", null, null, null, Now);
+        AdmissionEnquiry.Create(3, 1, null, EnquiryChannel.Phone, "Ali", "Imran", "+92 300 1234567", null, null, null, Now);
 
     [Test]
     public void ShouldRecordAFollowUpForTheSameSchoolAsTheEnquiry()
@@ -215,7 +215,7 @@ public class SchoolReviewTests
     private static readonly DateTimeOffset Now = new(2026, 11, 15, 9, 0, 0, TimeSpan.Zero);
 
     private static SchoolReview Review(int rating = 4, string body = "Good teachers.") =>
-        SchoolReview.Submit(1, null, " Sana ", ReviewerRelation.Parent, rating, " Happy ", body, Now);
+        SchoolReview.Submit(1, 1, " Sana ", ReviewerRelation.Parent, rating, " Happy ", body, Now);
 
     [Test]
     public void ShouldStartPendingAndTrimTheText()
@@ -251,8 +251,8 @@ public class SchoolReviewTests
     public void ShouldRefuseABlankBodyOrNameAndAnUnknownRelation()
     {
         Should.Throw<ArgumentException>(() => Review(body: " "));
-        Should.Throw<ArgumentException>(() => SchoolReview.Submit(1, null, " ", ReviewerRelation.Parent, 3, null, "Ok", Now));
-        Should.Throw<ArgumentOutOfRangeException>(() => SchoolReview.Submit(1, null, "Sana", (ReviewerRelation)99, 3, null, "Ok", Now));
+        Should.Throw<ArgumentException>(() => SchoolReview.Submit(1, 1, " ", ReviewerRelation.Parent, 3, null, "Ok", Now));
+        Should.Throw<ArgumentOutOfRangeException>(() => SchoolReview.Submit(1, 1, "Sana", (ReviewerRelation)99, 3, null, "Ok", Now));
     }
 
     [Test]

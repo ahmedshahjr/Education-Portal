@@ -21,10 +21,12 @@ internal sealed class TenantLocaleSettings(ApplicationDbContext context, ICurren
             return _locale;
         }
 
-        if (tenant.SchoolId is not { } schoolId)
+        if (!tenant.IsResolved)
         {
             return TenantLocale.Default;
         }
+
+        var schoolId = tenant.SchoolId;
 
         var locale = await context.Schools
             .AsNoTracking()

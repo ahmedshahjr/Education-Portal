@@ -16,7 +16,7 @@ public class Course : BaseAuditableEntity, ITenantOwned
         // For EF Core.
     }
 
-    private Course(int schoolId, int classOfferingId, string name, int teacherUserDetailsId, int? campusId)
+    private Course(int schoolId, int classOfferingId, string name, int teacherUserDetailsId, int campusId)
     {
         SchoolId = schoolId;
         ClassOfferingId = classOfferingId;
@@ -25,15 +25,12 @@ public class Course : BaseAuditableEntity, ITenantOwned
         CampusId = campusId;
     }
 
-    public static Course Create(int schoolId, int classOfferingId, string name, int teacherUserDetailsId, int? campusId)
+    public static Course Create(int schoolId, int classOfferingId, string name, int teacherUserDetailsId, int campusId)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(schoolId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(classOfferingId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(teacherUserDetailsId);
-        if (campusId is { } campus)
-        {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campus);
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campusId);
 
         var trimmed = (name ?? string.Empty).Trim();
         ArgumentException.ThrowIfNullOrWhiteSpace(trimmed, nameof(name));
@@ -50,5 +47,5 @@ public class Course : BaseAuditableEntity, ITenantOwned
 
     public int TeacherUserDetailsId { get; private set; }
 
-    public int? CampusId { get; private set; }
+    public int CampusId { get; private set; }
 }

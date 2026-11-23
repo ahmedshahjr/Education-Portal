@@ -58,7 +58,7 @@ public static class TenantResolution
             {
                 var tenant = context.RequestServices.GetRequiredService<ICurrentTenant>();
                 var sessionSchoolId = context.User.FindFirstValue(TenantClaimTypes.SchoolId);
-                var hostSchoolId = tenant.SchoolId?.ToString(CultureInfo.InvariantCulture);
+                var hostSchoolId = tenant.IsResolved ? tenant.SchoolId.ToString(CultureInfo.InvariantCulture) : null;
 
                 // A school without a domain signs in on the master tenant's domain. Its session is valid there only while the
                 // school still has no domain and is active, and the request then acts as that school, not as the master.
@@ -83,6 +83,20 @@ public static class TenantResolution
                         targetId: hostSchoolId);
 
                     context.User = new ClaimsPrincipal(new ClaimsIdentity());
+                }
+                else if (tenant.IsMaster)
+                {
+                    // The master bypass (SEC-AUTHZ-13, ADR-026): only a signed-in master session, and every API call
+                    // under it is audited, so cross-tenant access can be traced. Anonymous requests never get it.
+                    context.RequestServices.GetRequiredService<CurrentTenant>().GrantMasterBypass();
+
+                    if (context.Request.Path.StartsWithSegments("/api"))
+                    {
+                        await context.RequestServices.GetRequiredService<ISecurityAuditLog>().WriteAsync(
+                            SecurityAuditEventType.MasterTenantAccess,
+                            SecurityAuditOutcome.Success,
+                            targetType: "Api");
+                    }
                 }
             }
 

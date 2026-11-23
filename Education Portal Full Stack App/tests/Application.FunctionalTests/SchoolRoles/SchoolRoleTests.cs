@@ -278,7 +278,7 @@ public class SchoolRoleTests : TestBase
     private static async Task<Guid> AddCampusAsync(int schoolId, string name, string code)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<EducationPortal.Web.Services.CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<EducationPortal.Infrastructure.Data.ApplicationDbContext>();
 
         var campus = Campus.Create(schoolId, name, code);
@@ -316,7 +316,7 @@ public class SchoolRoleTests : TestBase
     private static async Task ChangeGrantsAsync(int subscriptionId, int schoolId, Action<TenantModule> change)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
-        scope.ServiceProvider.GetRequiredService<EducationPortal.Web.Services.CurrentTenant>().Set(new ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<EducationPortal.Infrastructure.Data.ApplicationDbContext>();
         foreach (var grant in await context.TenantModules.Where(t => t.SubscriptionId == subscriptionId).ToListAsync())
         {

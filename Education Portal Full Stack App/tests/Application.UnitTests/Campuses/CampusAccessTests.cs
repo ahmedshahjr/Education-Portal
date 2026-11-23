@@ -21,6 +21,7 @@ public class CampusAccessTests
         user.Setup(u => u.Roles).Returns(roles.ToList());
         var tenant = new Mock<ICurrentTenant>();
         tenant.Setup(t => t.IsMaster).Returns(isMaster);
+        tenant.Setup(t => t.IsResolved).Returns(true);
         tenant.Setup(t => t.SchoolId).Returns(5);
         var identity = new Mock<IIdentityService>();
         identity.Setup(i => i.FindPersonIdOfAccountAsync(It.IsAny<string>())).ReturnsAsync(personId);
@@ -43,8 +44,4 @@ public class CampusAccessTests
         (await Access(isMaster: false, "u1", [], personId: null).GetAllowedCampusIdsAsync(CancellationToken.None)).ShouldNotBeNull().ShouldBeEmpty();
         await Should.ThrowAsync<ForbiddenAccessException>(() => Access(isMaster: false, "u1", []).EnsureCampusAsync(42, CancellationToken.None));
     }
-
-    [Test]
-    public async Task ShouldLetARowOfTheWholeSchoolPass() =>
-        await Should.NotThrowAsync(() => Access(isMaster: false, "u1", []).EnsureCampusAsync(null, CancellationToken.None));
 }

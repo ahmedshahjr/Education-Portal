@@ -67,10 +67,18 @@ public class UpdateSchoolPhotoCommandHandler
         var photo = await _context.SchoolPhotos.FirstOrDefaultAsync(p => p.SchoolId == schoolId && p.PublicId == request.PhotoId, cancellationToken);
         Guard.Against.NotFound(request.PhotoId, photo);
 
-        photo.Describe(request.Caption, request.SortOrder);
-        if (request.Content is not null)
+        // A whole-school photo is one row per campus: every copy changes together.
+        var rows = photo.WholeSchoolKey is { } key
+            ? await _context.SchoolPhotos.Where(p => p.SchoolId == schoolId && p.WholeSchoolKey == key).ToListAsync(cancellationToken)
+            : [photo];
+
+        foreach (var row in rows)
         {
-            photo.Replace(request.Content);
+            row.Describe(request.Caption, request.SortOrder);
+            if (request.Content is not null)
+            {
+                row.Replace(request.Content);
+            }
         }
 
         await _context.SaveChangesAsync(cancellationToken);

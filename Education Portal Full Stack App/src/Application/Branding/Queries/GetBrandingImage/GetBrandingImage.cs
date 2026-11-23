@@ -31,7 +31,7 @@ public class GetBrandingImageQueryHandler
 
     public async Task<BrandingImageDto?> Handle(GetBrandingImageQuery request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new NotFoundException("host", nameof(School));
+        var schoolId = _tenant.SchoolId;
 
         return await _context.BrandingImages
             .AsNoTracking()

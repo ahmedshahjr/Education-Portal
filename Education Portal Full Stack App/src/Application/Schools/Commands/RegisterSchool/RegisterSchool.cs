@@ -81,14 +81,17 @@ public class RegisterSchoolCommandHandler
     private readonly ISecurityAuditLog _auditLog;
     private readonly ICurrentTenant _tenant;
     private readonly TimeProvider _timeProvider;
+    private readonly ITenantSystemScope _systemScope;
 
     public RegisterSchoolCommandHandler(
         IApplicationDbContext context,
         IIdentityService identityService,
         ISecurityAuditLog auditLog,
         ICurrentTenant tenant,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        ITenantSystemScope systemScope)
     {
+        _systemScope = systemScope;
         _context = context;
         _identityService = identityService;
         _auditLog = auditLog;
@@ -103,6 +106,10 @@ public class RegisterSchoolCommandHandler
         {
             throw new NotFoundException("host", nameof(School));
         }
+
+        // The anonymous visitor is not a member of the school being created, so its rows are written under the explicit
+        // system scope (ADR-026). The scope covers this one registration and ends with it.
+        using var systemBypass = _systemScope.Enter();
 
         // One transaction: the school, its grants, its trial and its administrator are saved together or not at all.
         var registered = await _context.ExecuteInTransactionAsync(token => SchoolRegistration.RegisterAsync(

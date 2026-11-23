@@ -27,7 +27,7 @@ public class GetCampusesQueryHandler
 
     public async Task<IReadOnlyList<CampusDto>> Handle(GetCampusesQuery request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var school = await _context.Schools
             .AsNoTracking()

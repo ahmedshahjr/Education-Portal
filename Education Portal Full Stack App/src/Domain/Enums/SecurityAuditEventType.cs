@@ -185,4 +185,7 @@ public enum SecurityAuditEventType
 
     /// <summary>The school's registration and contact details were changed.</summary>
     SchoolDetailsChanged = 63,
+
+    /// <summary>A signed-in master tenant user used the master bypass of the tenant filters on an API request (ADR-026).</summary>
+    MasterTenantAccess = 64,
 }

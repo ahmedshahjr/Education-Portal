@@ -115,7 +115,7 @@ public class CreateStudentAdmissionCommandHandler
 
     public async Task<Guid> Handle(CreateStudentAdmissionCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
         var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
 
         var person = UserDetails.Create(schoolId, request.FirstName, request.MiddleName, request.LastName, UserType.Student, request.Phone);

@@ -23,7 +23,11 @@ public class SignInTests : TestBase
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         session.Cookie("__Host-EducationPortal").ShouldNotBeNullOrEmpty();
 
-        var entry = (await TestApp.FindAuditEventsAsync(userId)).ShouldHaveSingleItem();
+        // The default user is a master-tenant user on the master domain, so each /api call under the master session is also
+        // audited as MasterTenantAccess (ADR-026). This test is about the sign-in entry only.
+        var entry = (await TestApp.FindAuditEventsAsync(userId))
+            .Where(e => e.EventType != SecurityAuditEventType.MasterTenantAccess)
+            .ShouldHaveSingleItem();
         entry.EventType.ShouldBe(SecurityAuditEventType.SignInSucceeded);
         entry.Outcome.ShouldBe(SecurityAuditOutcome.Success);
         entry.TargetType.ShouldBe("User");
@@ -68,7 +72,11 @@ public class SignInTests : TestBase
 
         await session.SignInAsync(TestApp.DefaultUserEmail, "not the password");
 
-        var entry = (await TestApp.FindAuditEventsAsync(userId)).ShouldHaveSingleItem();
+        // The default user is a master-tenant user on the master domain, so each /api call under the master session is also
+        // audited as MasterTenantAccess (ADR-026). This test is about the sign-in entry only.
+        var entry = (await TestApp.FindAuditEventsAsync(userId))
+            .Where(e => e.EventType != SecurityAuditEventType.MasterTenantAccess)
+            .ShouldHaveSingleItem();
         entry.EventType.ShouldBe(SecurityAuditEventType.SignInFailed);
         entry.Outcome.ShouldBe(SecurityAuditOutcome.Failure);
         entry.TargetId.ShouldBe(userId);

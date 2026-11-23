@@ -67,10 +67,27 @@ public class UpdateCalendarEventCommandHandler
         var item = await _context.CalendarEvents.FirstOrDefaultAsync(h => h.SchoolId == schoolId && h.PublicId == request.EventId, cancellationToken);
         Guard.Against.NotFound(request.EventId, item);
 
-        await _campusAccess.EnsureCampusAsync(item.CampusId, ModuleCode.AcademicSetup, AccessRight.Edit, cancellationToken);
+        // A whole-school event is one row per campus: every copy changes together. The campus of an event never changes.
+        var rows = item.WholeSchoolKey is { } key
+            ? await _context.CalendarEvents.Where(h => h.SchoolId == schoolId && h.WholeSchoolKey == key).ToListAsync(cancellationToken)
+            : [item];
+
         var campusId = await CalendarRules.ResolveOptionalCampusAsync(_context, schoolId, request.CampusId, cancellationToken);
-        await _campusAccess.EnsureCampusAsync(campusId, ModuleCode.AcademicSetup, AccessRight.Edit, cancellationToken);
-        item.Change(campusId, request.Title, request.Description, request.EventDate, request.StartTime, request.EndTime, request.Type, request.Audience);
+        if (item.WholeSchoolKey is null ? campusId != item.CampusId : campusId is not null)
+        {
+            throw CalendarRules.Invalid("CampusId", "The campus of an event cannot be changed. Delete it and add it again.");
+        }
+
+        foreach (var row in rows)
+        {
+            await _campusAccess.EnsureCampusAsync(row.CampusId, ModuleCode.AcademicSetup, AccessRight.Edit, cancellationToken);
+        }
+
+        foreach (var row in rows)
+        {
+            row.Change(row.CampusId, request.Title, request.Description, request.EventDate, request.StartTime, request.EndTime, request.Type, request.Audience);
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
 
         await _auditLog.WriteAsync(

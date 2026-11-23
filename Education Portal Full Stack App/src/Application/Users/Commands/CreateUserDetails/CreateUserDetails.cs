@@ -75,7 +75,7 @@ public class CreateUserDetailsCommandHandler
 
     public async Task<Guid> Handle(CreateUserDetailsCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var person = UserDetails.Create(schoolId, request.FirstName, request.MiddleName, request.LastName, request.UserType, request.Phone);
 

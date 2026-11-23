@@ -76,8 +76,8 @@ public class AcademicsListTests : TestBase
     public async Task ShouldListTheLessonsOfTheTimetableByDayAndTime()
     {
         var setUp = await SetUpAsync("Timetable School", Domain, "admin@timetable.local", [ModuleCode.Timetable]);
-        await TestApp.AddAsync(TimetableSlot.Create(setUp.School.Id, setUp.Course.Id, null, Weekday.Tuesday, new TimeOnly(9, 0), new TimeOnly(10, 0), "Room 2"));
-        await TestApp.AddAsync(TimetableSlot.Create(setUp.School.Id, setUp.Course.Id, null, Weekday.Monday, new TimeOnly(11, 0), new TimeOnly(12, 0), null));
+        await TestApp.AddAsync(TimetableSlot.Create(setUp.School.Id, setUp.Course.Id, await TestApp.MainCampusIdAsync(setUp.School.Id), Weekday.Tuesday, new TimeOnly(9, 0), new TimeOnly(10, 0), "Room 2"));
+        await TestApp.AddAsync(TimetableSlot.Create(setUp.School.Id, setUp.Course.Id, await TestApp.MainCampusIdAsync(setUp.School.Id), Weekday.Monday, new TimeOnly(11, 0), new TimeOnly(12, 0), null));
 
         using var response = await setUp.Session.GetAsync("/api/TimetableSlots");
         using var forCourse = await setUp.Session.GetAsync($"/api/TimetableSlots?courseId={setUp.Course.PublicId}");
@@ -93,7 +93,7 @@ public class AcademicsListTests : TestBase
     {
         var first = await SetUpAsync("First Timetable School", Domain, "admin@first-timetable.local", [ModuleCode.Timetable]);
         var second = await SetUpAsync("Second Timetable School", OtherDomain, "admin@second-timetable.local", [ModuleCode.Timetable]);
-        await TestApp.AddAsync(TimetableSlot.Create(first.School.Id, first.Course.Id, null, Weekday.Monday, new TimeOnly(9, 0), new TimeOnly(10, 0), null));
+        await TestApp.AddAsync(TimetableSlot.Create(first.School.Id, first.Course.Id, await TestApp.MainCampusIdAsync(first.School.Id), Weekday.Monday, new TimeOnly(9, 0), new TimeOnly(10, 0), null));
 
         using var own = await second.Session.GetAsync("/api/TimetableSlots");
         using var byOtherCourse = await second.Session.GetAsync($"/api/TimetableSlots?courseId={first.Course.PublicId}");
@@ -120,9 +120,10 @@ public class AcademicsListTests : TestBase
 
         var teacher = UserDetails.Create(school.Id, "Sara", null, "Ali", UserType.Teacher, null);
         await TestApp.AddAsync(teacher);
-        var offering = ClassOffering.Create(school.Id, null, ClassLevel.Class1, "2026-27", 1000m, null, "PKR", 30, 30, AdmissionStatus.Open, true);
+        var campusId = await TestApp.MainCampusIdAsync(school.Id);
+        var offering = ClassOffering.Create(school.Id, campusId, ClassLevel.Class1, "2026-27", 1000m, null, "PKR", 30, 30, AdmissionStatus.Open, true);
         await TestApp.AddAsync(offering);
-        var course = Course.Create(school.Id, offering.Id, "Math", teacher.Id, null);
+        var course = Course.Create(school.Id, offering.Id, "Math", teacher.Id, campusId);
         await TestApp.AddAsync(course);
 
         await TestApp.RunAsUserAsync(school.Id, email, TestApp.AdministratorPassword, [Roles.Administrator]);

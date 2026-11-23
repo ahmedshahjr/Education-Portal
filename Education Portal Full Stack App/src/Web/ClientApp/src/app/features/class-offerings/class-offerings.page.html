@@ -51,7 +51,6 @@
           <mat-form-field appearance="outline">
             <mat-label i18n="@@classOfferings.colCampus">Campus</mat-label>
             <mat-select formControlName="campusId">
-              <mat-option [value]="null" i18n="@@classOfferings.allCampuses">All campuses</mat-option>
               @for (campus of campusOptions(); track campus.id) {
                 <mat-option [value]="campus.id">{{ campus.name }}</mat-option>
               }

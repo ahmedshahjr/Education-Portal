@@ -276,7 +276,7 @@ public class SchoolCampusTests : TestBase
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
         // Campuses are tenant-filtered: look them up as the master tenant, which sees every school's rows.
-        scope.ServiceProvider.GetRequiredService<EducationPortal.Web.Services.CurrentTenant>().Set(new EducationPortal.Application.Common.Interfaces.ResolvedTenant(TestApp.MasterSchoolId, IsMaster: true));
+        TestApp.SetTenant(scope.ServiceProvider, TestApp.Resolve(TestApp.MasterSchoolId, isMaster: true));
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var schoolId = await context.Schools.Where(s => s.PublicId == schoolPublicId).Select(s => s.Id).SingleAsync();
         var campusId = await context.Campuses.Where(b => b.PublicId == campusPublicId).Select(b => b.Id).SingleAsync();

@@ -39,7 +39,7 @@ public class EnrolStudentCommandHandler
 
     public async Task<Guid> Handle(EnrolStudentCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var studentId = await _context.UserDetails.ResolveIdAsync(request.StudentId, cancellationToken);
         var classOfferingId = await _context.ClassOfferings.ResolveIdAsync(request.ClassOfferingId, cancellationToken);

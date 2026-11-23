@@ -1,4 +1,5 @@
 using System.Globalization;
+using EducationPortal.Application.AcademicCalendar.Common;
 using EducationPortal.Application.Campuses.Common;
 using EducationPortal.Application.Common.Exceptions;
 using EducationPortal.Application.Common.Interfaces;
@@ -61,7 +62,7 @@ public class CreateCampusCommandHandler
 
     public async Task<Guid> Handle(CreateCampusCommand request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var used = (await _context.Campuses
                 .Where(b => b.SchoolId == schoolId)
@@ -77,8 +78,17 @@ public class CreateCampusCommandHandler
         var campus = Campus.Create(schoolId, request.Name, code);
         campus.UpdateDetails(details);
         campus.SetProfile(request.LocalName, request.GenderPolicy);
-        _context.Campuses.Add(campus);
-        await _context.SaveChangesAsync(cancellationToken);
+        // The campus and the copies of the school's whole-school items are saved together, or not at all (ADR-027).
+        await _context.ExecuteInTransactionAsync(async token =>
+        {
+            _context.Campuses.Add(campus);
+            await _context.SaveChangesAsync(token);
+
+            await WholeSchoolCopies.CopyToNewCampusAsync(_context, schoolId, campus.Id, token);
+            await _context.SaveChangesAsync(token);
+
+            return campus.Id;
+        }, cancellationToken);
 
         await _auditLog.WriteAsync(
             SecurityAuditEventType.CampusCreated,

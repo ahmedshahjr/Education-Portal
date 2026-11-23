@@ -55,8 +55,22 @@ public class DeleteCalendarEventCommandHandler
         var item = await _context.CalendarEvents.FirstOrDefaultAsync(h => h.SchoolId == schoolId && h.PublicId == request.EventId, cancellationToken);
         Guard.Against.NotFound(request.EventId, item);
 
-        await _campusAccess.EnsureCampusAsync(item.CampusId, ModuleCode.AcademicSetup, AccessRight.Delete, cancellationToken);
-        item.Delete(_timeProvider.GetUtcNow(), _user.Id);
+        // A whole-school event is deleted for every campus at once.
+        var rows = item.WholeSchoolKey is { } key
+            ? await _context.CalendarEvents.Where(h => h.SchoolId == schoolId && h.WholeSchoolKey == key).ToListAsync(cancellationToken)
+            : [item];
+
+        foreach (var row in rows)
+        {
+            await _campusAccess.EnsureCampusAsync(row.CampusId, ModuleCode.AcademicSetup, AccessRight.Delete, cancellationToken);
+        }
+
+        var now = _timeProvider.GetUtcNow();
+        foreach (var row in rows)
+        {
+            row.Delete(now, _user.Id);
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
 
         await _auditLog.WriteAsync(

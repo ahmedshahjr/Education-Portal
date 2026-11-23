@@ -83,7 +83,7 @@ internal sealed class TenantRequestCultureProvider : RequestCultureProvider
     {
         var tenant = httpContext.RequestServices.GetRequiredService<ICurrentTenant>();
 
-        if (tenant.SchoolId is null)
+        if (!tenant.IsResolved)
         {
             // Health probes have no tenant; they get the default culture.
             return null;

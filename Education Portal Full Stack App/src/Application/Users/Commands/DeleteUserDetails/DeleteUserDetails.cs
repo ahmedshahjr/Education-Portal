@@ -48,7 +48,7 @@ public class DeleteUserDetailsCommandHandler
 
     public async Task Handle(DeleteUserDetailsCommand request, CancellationToken cancellationToken)
     {
-        _ = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        _ = _tenant.SchoolId;
 
         var person = await _context.UserDetails.FirstOrDefaultAsync(u => u.PublicId == request.Id, cancellationToken);
         Guard.Against.NotFound(request.Id, person);

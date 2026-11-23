@@ -33,7 +33,7 @@ public class AdmissionEnquiry : BaseAuditableEntity, ITenantOwned
     /// </summary>
     public static AdmissionEnquiry Create(
         int schoolId,
-        int? campusId,
+        int campusId,
         ClassLevel? level,
         EnquiryChannel channel,
         string childName,
@@ -45,10 +45,7 @@ public class AdmissionEnquiry : BaseAuditableEntity, ITenantOwned
         DateTimeOffset now)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(schoolId);
-        if (campusId is <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(campusId));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campusId);
 
         if (level is { } known && !Enum.IsDefined(known))
         {
@@ -103,7 +100,7 @@ public class AdmissionEnquiry : BaseAuditableEntity, ITenantOwned
     public int SchoolId { get; private set; }
 
     /// <summary>The campus the parent asked about, or <c>null</c> when no campus was named.</summary>
-    public int? CampusId { get; private set; }
+    public int CampusId { get; private set; }
 
     /// <summary>The class the parent asked about, when named.</summary>
     public ClassLevel? Level { get; private set; }

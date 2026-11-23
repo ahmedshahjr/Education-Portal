@@ -5,6 +5,7 @@ using EducationPortal.Infrastructure.Data;
 using EducationPortal.Infrastructure.Data.DevelopmentData;
 using EducationPortal.Infrastructure.Data.Locations;
 using EducationPortal.Infrastructure.Data.Interceptors;
+using EducationPortal.Infrastructure.Data.Tenancy;
 using EducationPortal.Infrastructure.Identity;
 using EducationPortal.Infrastructure.Localization;
 using Microsoft.AspNetCore.Authentication;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -29,10 +31,15 @@ public static class DependencyInjection
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         // Every commercial change with its old and new values, in the same save (ADR-016).
         builder.Services.AddScoped<ISaveChangesInterceptor, ChangeAuditInterceptor>();
+        // Sets the tenant of each database connection, which the row-level security policies read (ADR-026).
+        builder.Services.AddScoped<IDbConnectionInterceptor, TenantSessionInterceptor>();
+        builder.Services.AddScoped<TenantSystemScope>();
+        builder.Services.AddScoped<ITenantSystemScope>(provider => provider.GetRequiredService<TenantSystemScope>());
 
         builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
+            options.AddInterceptors(sp.GetServices<IDbConnectionInterceptor>());
             options.UseNpgsql(connectionString);
             options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
         });

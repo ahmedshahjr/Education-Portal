@@ -31,7 +31,7 @@ public class GetUserDetailsQueryHandler
 
     public async Task<IReadOnlyList<UserDetailsDto>> Handle(GetUserDetailsQuery request, CancellationToken cancellationToken)
     {
-        var schoolId = _tenant.SchoolId ?? throw new ForbiddenAccessException();
+        var schoolId = _tenant.SchoolId;
 
         var query = _context.UserDetails
             .AsNoTracking()

@@ -23,7 +23,7 @@ public sealed class TenantSecretProvider(ICurrentTenant tenant, ISecretProvider 
     public Task DeleteAsync(string name, CancellationToken cancellationToken) =>
         secrets.DeleteSecretAsync(KeyFor(name), cancellationToken);
 
-    private SecretKey KeyFor(string name) => tenant.SchoolId is { } schoolId
-        ? SecretKey.ForTenant(schoolId, name)
+    private SecretKey KeyFor(string name) => tenant.IsResolved
+        ? SecretKey.ForTenant(tenant.SchoolId, name)
         : throw new InvalidOperationException(NoTenantMessage);
 }

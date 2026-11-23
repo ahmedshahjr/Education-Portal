@@ -38,10 +38,12 @@ public abstract class SchoolRoleFieldsValidator<T> : AbstractValidator<T>
             .WithMessage(_ => ValidationMessages.RoleNeedsCampus)
             .CustomAsync(async (permissions, validation, cancellationToken) =>
             {
-                if (permissions is null || permissions.Count == 0 || tenant.SchoolId is not { } schoolId)
+                if (permissions is null || permissions.Count == 0)
                 {
                     return;
                 }
+
+                var schoolId = tenant.SchoolId;
 
                 var enabled = await moduleAccess.GetEnabledCodesAsync(schoolId, cancellationToken);
                 if (permissions.Any(p => !enabled.Contains(p.Module)))
