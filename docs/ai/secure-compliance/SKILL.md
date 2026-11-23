@@ -73,6 +73,7 @@ One skill per standard explains what it asks of this codebase, the parameters we
 | [standard-owasp-top10](standard-owasp-top10/SKILL.md) | OWASP Top 10:2025 |
 | [standard-eu](standard-eu/SKILL.md) | EU: GDPR (incl. children's data), ePrivacy, NIS2, EU AI Act, Cyber Resilience Act, accessibility |
 | [standard-pci-dss](standard-pci-dss/SKILL.md) | PCI DSS v4.0.1 for card payments of fees through a certified processor (SAQ A scope) |
+| [standard-third-party-assurance](standard-third-party-assurance/SKILL.md) | Third-party audit reports, certificates and standards to request from suppliers (SOC 1 and 2, PCI AoC, pen test, iBeta, ETSI, ISO 27001, 22301, 27017, 27018, 31000, 9001, 29115, 29003) |
 
 Every standard skill ends with a generated **Sources and update checks** block naming the official source and the version it is written against (from [sources.json](sources.json)). A new standard skill MUST get a source in `sources.json`; `python3 docs/ai/sync-ai-wrappers.py --check` fails otherwise, so no standard can be added without an update check.
 
