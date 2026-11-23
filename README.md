@@ -852,7 +852,7 @@ flowchart LR
 
 ```mermaid
 flowchart TB
-    cron(["Quartz cron, UTC<br/>SubscriptionLifecycle:Schedule"]) --> scope["New DI scope<br/>master tenant set on it"]
+    cron(["Quartz cron, UTC<br/>SubscriptionLifecycle:Schedule"]) --> scope["New DI scope<br/>master tenant (TenantId and SchoolId) set on it,<br/>master bypass granted for this run only"]
     scope --> trials["1. Trial past TrialEndDate → PastDue"]
     trials --> invoices["2. Open invoice past DueDate → OverdueSince<br/>its Active subscription → PastDue"]
     invoices --> ended["3. Active past EndDate → PastDue"]
@@ -862,6 +862,7 @@ flowchart TB
     save --> after["Drop cached entitlements of changed schools<br/>audit as system:subscription-lifecycle"]
 ```
 
+- The job runs as the master tenant, so the same row-level security and query filters apply to it as to a signed-in master session; it reads across schools only through that explicit master set-up.
 - Each rule checks the state first, so a second run on the same day, or a run on another API instance, changes nothing.
 - Tests switch the schedule off (`SubscriptionLifecycle:Enabled` false) and call `SubscriptionLifecycleJob.RunAsMasterAsync` with a chosen time.
 
