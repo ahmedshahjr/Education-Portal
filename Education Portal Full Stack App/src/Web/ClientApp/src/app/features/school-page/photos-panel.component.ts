@@ -82,7 +82,9 @@ export class PhotosPanelComponent implements OnInit {
     const { kind, caption } = this.form.getRawValue();
     this.busy.set(true);
     this.errors.set([]);
-    this.client.uploadSchoolPhoto(undefined, undefined, kind, caption.trim() || undefined, undefined, { data: file, fileName: file.name }).subscribe({
+    // A new photo goes last in the gallery. The API requires a sort order, and the generated client throws without one.
+    const sortOrder = this.photos()?.length ?? 0;
+    this.client.uploadSchoolPhoto(undefined, undefined, kind, caption.trim() || undefined, sortOrder, { data: file, fileName: file.name }).subscribe({
       next: () => {
         this.busy.set(false);
         input.value = '';

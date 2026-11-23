@@ -79,6 +79,44 @@ describe('SchoolsPage', () => {
     expect(http.match(isSchoolsRequest)).toEqual([]);
   });
 
+  it('shows each school\'s plan: days left rounded up, a trial ending today or already ended, a paid plan, a lapsed one and no plan', async () => {
+    TestBed.configureTestingModule({
+      imports: [SchoolsPage],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: API_BASE_URL, useValue: '' }],
+    });
+    const fixture = TestBed.createComponent(SchoolsPage);
+    const http = TestBed.inject(HttpTestingController);
+    const inDays = (days: number) => new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+    const school = (id: number, name: string, extra: object) => ({ id: `0190f3a0-0000-7000-8000-0000000001${id}`, name, isMaster: false, ...extra });
+    http.expectOne(isSchoolsRequest).flush(
+      pageOf([
+        school(1, 'Trial School', { subscriptionStatus: 'Trial', trialEndDate: inDays(88) }),
+        school(2, 'Ending School', { subscriptionStatus: 'Trial', trialEndDate: inDays(-1) }),
+        school(3, 'Paid School', { subscriptionStatus: 'Active' }),
+        school(4, 'Late School', { subscriptionStatus: 'PastDue' }),
+        school(5, 'New School', {}),
+        school(6, 'Hour School', { subscriptionStatus: 'Trial', trialEndDate: inDays(1 / 24) }),
+        school(7, 'Past School', { subscriptionStatus: 'Trial', trialEndDate: inDays(-3) }),
+      ])
+    );
+    http.expectOne((r) => r.url.startsWith('/api/Countries?')).flush(countries);
+    const element = fixture.nativeElement as HTMLElement;
+
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      const plans = [...element.querySelectorAll('tr.mat-mdc-row')].map((row) => row.textContent ?? '');
+      expect(plans).toHaveLength(7);
+      expect(plans[5]).toContain('Trial (1 day left)');
+      expect(plans[6]).toContain('Trial ends today');
+      expect(plans[0]).toContain('Trial (');
+      expect(plans[0]).toContain('88');
+      expect(plans[1]).toContain('Trial ends today');
+      expect(plans[2]).toContain('Paid');
+      expect(plans[3]).toContain('Payment overdue');
+      expect(plans[4]).toContain('No plan');
+    });
+  });
+
   it('limits the table to one country on the page', async () => {
     const { fixture, element } = await render();
     const loader = TestbedHarnessEnvironment.loader(fixture);

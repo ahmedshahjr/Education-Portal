@@ -39,4 +39,35 @@ describe('CountriesPage', () => {
       expect(row?.textContent).toContain('Asia/Karachi · PKR');
     });
   });
+  it('shows an example in the country\'s currency, and no example for a currency the browser does not know', async () => {
+    TestBed.configureTestingModule({
+      imports: [CountriesPage],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: API_BASE_URL, useValue: '' }],
+    });
+    const fixture = TestBed.createComponent(CountriesPage);
+    const http = TestBed.inject(HttpTestingController);
+    const country = (id: number, code: string, currencyCode: string) => ({
+      id: `0190f3a0-0000-7000-8000-00000000010${id}`,
+      code,
+      name: code,
+      languages: ['en'],
+      defaultLanguage: 'en',
+      timeZoneId: 'Asia/Karachi',
+      currencyCode,
+    });
+
+    http.expectOne((r) => r.url.startsWith('/api/Countries?')).flush(
+      blob({ items: [country(1, 'PK', 'PKR'), country(2, 'XX', '???')], pageNumber: 1, totalPages: 1, totalCount: 2 })
+    );
+    http.expectOne('/api/Countries/languages').flush(blob([{ code: 'en', englishName: 'English', nativeName: 'English', isRightToLeft: false }]));
+
+    await vi.waitFor(async () => {
+      await fixture.whenStable();
+      fixture.detectChanges();
+      const rows = [...fixture.nativeElement.querySelectorAll('tr.mat-mdc-row')] as HTMLElement[];
+      expect(rows).toHaveLength(2);
+      expect(rows[0].textContent).toMatch(/Rs|PKR/);
+      expect(rows[1].textContent).not.toMatch(/Rs|PKR/);
+    });
+  });
 });

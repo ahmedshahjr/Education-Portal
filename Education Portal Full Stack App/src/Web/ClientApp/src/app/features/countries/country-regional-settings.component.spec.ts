@@ -75,4 +75,32 @@ describe('CountryRegionalSettingsComponent', () => {
 
     http.expectNone({ method: 'PUT', url: `/api/Countries/${ID}/regional-settings` });
   });
+
+  it('refuses a phone pattern that does not compile, and a pattern of 201 characters', () => {
+    const { fixture, http } = render();
+    const component = fixture.componentInstance;
+
+    component.form.patchValue({ phonePattern: '(' });
+    expect(component.form.controls.phonePattern.hasError('phonePattern')).toBe(true);
+    component.save();
+    http.expectNone({ method: 'PUT', url: `/api/Countries/${ID}/regional-settings` });
+
+    component.form.patchValue({ phonePattern: 'a'.repeat(200) });
+    expect(component.form.controls.phonePattern.valid).toBe(true);
+    component.form.patchValue({ phonePattern: 'a'.repeat(201) });
+    expect(component.form.controls.phonePattern.valid).toBe(false);
+  });
+
+  it('accepts up to three different weekend days, and refuses the same day twice', () => {
+    const { fixture, http } = render();
+    const component = fixture.componentInstance;
+
+    component.form.patchValue({ weekendDays: [DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday] });
+    expect(component.form.controls.weekendDays.valid).toBe(true);
+
+    component.form.patchValue({ weekendDays: [DayOfWeek.Saturday, DayOfWeek.Saturday] });
+    expect(component.form.controls.weekendDays.hasError('duplicateDay')).toBe(true);
+    component.save();
+    http.expectNone({ method: 'PUT', url: `/api/Countries/${ID}/regional-settings` });
+  });
 });

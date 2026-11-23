@@ -2,14 +2,15 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, vi } from 'vitest';
-import { API_BASE_URL } from '../../web-api-client';
+import { API_BASE_URL, ClassLevel } from '../../web-api-client';
 import { ClassOfferingsPage } from './class-offerings.page';
+import { CLASS_LEVELS, classLevelLabel } from '../school-page/school-page.labels';
 
 const blob = (body: unknown) => new Blob([JSON.stringify(body)], { type: 'application/json' });
 
 const CAMPUS = '0190f3a0-0000-7000-8000-000000000003';
 
-async function render() {
+async function render(offerings: unknown[] = []) {
   TestBed.configureTestingModule({
     providers: [provideHttpClient(), provideHttpClientTesting(), { provide: API_BASE_URL, useValue: '' }],
   });
@@ -17,7 +18,7 @@ async function render() {
   const http = TestBed.inject(HttpTestingController);
   fixture.detectChanges();
   http.expectOne('/api/Campuses').flush(blob([{ id: CAMPUS, name: 'Main campus' }]));
-  await vi.waitFor(() => http.expectOne((r) => r.url.startsWith('/api/ClassOfferings')).flush(blob([])));
+  await vi.waitFor(() => http.expectOne((r) => r.url.startsWith('/api/ClassOfferings')).flush(blob(offerings)));
   const element = fixture.nativeElement as HTMLElement;
   await fixture.whenStable();
   fixture.detectChanges();
@@ -89,5 +90,39 @@ describe('ClassOfferingsPage form', () => {
       showFee: true,
     });
     request.flush(blob('0190f3a0-0000-7000-8000-0000000000aa'), { status: 201, statusText: 'Created' });
+  });
+
+  it('shows every offering for all campuses, and only a campus with its school-wide offerings when one is chosen', async () => {
+    const row = (id: string, campusId: string | null) => ({
+      id,
+      campusId,
+      level: ClassLevel.Class1,
+      academicYear: '2026-27',
+      monthlyFee: 1000,
+      currencyCode: 'PKR',
+      seatsTotal: 30,
+      seatsAvailable: 10,
+    });
+    const { fixture } = await render([row('school', null), row('main', CAMPUS), row('other', '0190f3a0-0000-7000-8000-000000000009')]);
+    const page = fixture.componentInstance as unknown as { visibleOfferings(): { id: string }[]; selectedCampusId: { set(id: string | null): void } };
+
+    // The generated client reads the response blob asynchronously, so the rows arrive after a tick.
+    await vi.waitFor(() => expect(page.visibleOfferings().map((o) => o.id)).toEqual(['school', 'main', 'other']));
+
+    page.selectedCampusId.set(CAMPUS);
+    fixture.detectChanges();
+    expect(page.visibleOfferings().map((o) => o.id)).toEqual(['school', 'main']);
+
+    page.selectedCampusId.set('0190f3a0-0000-7000-8000-00000000000e');
+    expect(page.visibleOfferings().map((o) => o.id)).toEqual(['school']);
+  });
+  it('offers each class level with its own label', async () => {
+    const { fixture } = await render();
+    const page = fixture.componentInstance as unknown as { levels: readonly string[] };
+    const labels = page.levels.map((level) => classLevelLabel(level as never));
+
+    expect(page.levels).toEqual(CLASS_LEVELS);
+    expect(labels.every((text) => text.length > 0)).toBe(true);
+    expect(new Set(labels).size).toBe(CLASS_LEVELS.length);
   });
 });

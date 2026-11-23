@@ -77,4 +77,16 @@ describe('ShiftsPanelComponent', () => {
     expect(panel.form.hasError('timeRange')).toBe(true);
     http.expectNone({ method: 'POST', url: '/api/Shifts' });
   });
+
+  it('does not send a shift that ends at the moment it starts', async () => {
+    const { fixture, http } = await render();
+    const panel = fixture.componentInstance;
+
+    panel.startAdd();
+    panel.form.patchValue({ campusId: 'campus-1', name: 'Same', startTime: '09:00', endTime: '09:00' });
+    panel.save();
+
+    expect(panel.form.hasError('timeRange')).toBe(true);
+    http.expectNone({ method: 'POST', url: '/api/Shifts' });
+  });
 });

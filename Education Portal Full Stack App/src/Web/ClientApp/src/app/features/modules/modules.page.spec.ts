@@ -57,4 +57,29 @@ describe('ModulesPage', () => {
     });
     request.flush(null, { status: 204, statusText: 'No Content' });
   });
+
+  it('shows the app\'s own name and description for a known module, and the server text for one it does not know', async () => {
+    TestBed.configureTestingModule({ imports: [ModulesPage], providers: [provideHttpClient(), provideHttpClientTesting()] });
+    const http = TestBed.inject(HttpTestingController);
+    const fixture = TestBed.createComponent(ModulesPage);
+    fixture.detectChanges();
+    http.expectOne('/api/Modules').flush(
+      json([
+        { code: 'Exams', name: 'server name', description: 'server description', isCore: false, isActive: true, sortOrder: 1, requires: [] },
+        { code: 'CANTEEN', name: 'Canteen', description: 'Meals.', isCore: false, isActive: true, sortOrder: 2, requires: [] },
+        { code: 'EMPTY', name: '', description: '', isCore: false, isActive: true, sortOrder: 3, requires: [] },
+      ])
+    );
+    const element = fixture.nativeElement as HTMLElement;
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(element.textContent).toContain('Meals.');
+    });
+
+    expect(element.textContent).toContain('Assessments, scores and report cards.');
+    expect(element.textContent).not.toContain('server name');
+    expect(element.textContent).toContain('Canteen');
+    expect(element.textContent).toContain('CANTEEN');
+    expect(element.querySelectorAll('tr.mat-mdc-row').length).toBe(3);
+  });
 });

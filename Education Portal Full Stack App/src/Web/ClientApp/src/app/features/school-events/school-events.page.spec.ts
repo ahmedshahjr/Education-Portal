@@ -104,4 +104,28 @@ describe('SchoolEventsPage', () => {
     http.expectNone((r) => r.url.startsWith('/api/SchoolEvents'));
     expect(element.textContent).toContain('not before it');
   });
+
+  it('names every audience with its own label, and offers all of them', async () => {
+    const { fixture } = await render();
+    const page = fixture.componentInstance as unknown as { audiences: readonly string[]; audienceLabel(a: string): string };
+    const labels = page.audiences.map((a) => page.audienceLabel(a));
+
+    expect(page.audiences.length).toBeGreaterThan(0);
+    expect(labels.every((text) => text.length > 0)).toBe(true);
+    expect(new Set(labels).size).toBe(page.audiences.length);
+  });
+
+  it('refuses an event that ends at the moment it starts', async () => {
+    const { fixture, http, element, host } = await render();
+    [...element.querySelectorAll('button')].find((b) => b.textContent?.includes('Add event'))!.click();
+    fixture.detectChanges();
+    host.form.setValue({ title: 'Trip', description: '', startsAt: '2026-11-25T10:00', endsAt: '2026-11-25T10:00', audience: 'All' });
+    fixture.detectChanges();
+
+    element.querySelectorAll<HTMLButtonElement>('form button[type="submit"]')[1].click();
+    fixture.detectChanges();
+
+    http.expectNone((r) => r.method === 'POST');
+    expect(element.textContent).toContain('The event must end after it starts.');
+  });
 });

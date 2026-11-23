@@ -177,4 +177,19 @@ describe('RolePageComponent (integration)', () => {
     fixture.detectChanges();
     expect(rightBox(element, 'Students', 'View').checked).toBe(false);
   });
+
+  it('adds View when only Approve is ticked, and sends no permission for a module with no right ticked', async () => {
+    const { element, fixture, http } = await openPage({ campuses: [campus(MAIN, 'Main')], modules: [ModuleCode.Students, ModuleCode.Fees] });
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    typeInto(element, 'Role name', 'Admissions officer');
+    rightBox(element, 'Students', 'Approve').click();
+    fixture.detectChanges();
+
+    const request = save(element, fixture, http);
+
+    expect(sentBody(request).permissions).toHaveLength(1);
+    expect(sentBody(request).permissions[0]).toMatchObject({ module: ModuleCode.Students, canView: true, canApprove: true, canCreate: false });
+    request.flush(json(MAIN));
+    await settle();
+  });
 });
