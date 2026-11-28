@@ -5,7 +5,7 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Ardalis.GuardClauses" Version="5.0.0" />
+    <PackageVersion Include="Ardalis.GuardClauses" Version="6.0.0" />
     <!-- Fake people, schools and addresses for the Development-only data generator (DevelopmentDataGenerator). -->
     <PackageVersion Include="Bogus" Version="35.6.5" />
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
